@@ -2,20 +2,27 @@
 import math
 import argparse
 import os
+import sys
 
 
-def get_generic_args(outdirReq=False, infilesReq=False, selectionReq=False):
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-o", "--outdir", type=str, required=outdirReq,
+def get_cli():
+    parser = argparse.ArgumentParser(prog="main", description="Central script for running tools in the Analysis suite")
+    parser.add_argument('tool', type=str, help="Tool to run",
+                    choices=['mva', 'plot', 'analyze', 'combine'])
+
+    ##################
+    # Common options #
+    ##################
+    parser.add_argument("-o", "--outdir", type=str, required=False,
                         help="directory where to write masks")
-    parser.add_argument("-a", "--analysis", type=str, required=True,
+    parser.add_argument("-a", "--analysis", type=str, required=False,
                         help="Specificy analysis used")
     parser.add_argument("-s", "--selection", type=str, required=False,
                         help="Specificy selection used")
     parser.add_argument("-c", "--channels", type=str, default="",
                         help="Channels to run over")
     parser.add_argument("-j", type=int, default=1, help="Number of cores")
-    parser.add_argument("-f", "--filenames", required=infilesReq,
+    parser.add_argument("-f", "--filenames", required=False,
                         type=lambda x : [i.strip() for i in x.split(',')],
                         default="", help="List of input file names, "
                         "as defined in AnalysisDatasetManager, separated "
@@ -25,7 +32,39 @@ def get_generic_args(outdirReq=False, infilesReq=False, selectionReq=False):
     parser.add_argument("-l", "--lumi", type=float, default=140,
                         help="Luminsoity in fb-1. Default 35.9 fb-1. "
                         "Set to -1 for unit normalization")
-    return parser
+
+    if sys.argv[1] == "mva":
+        parser.add_argument('-t', '--train', action="store_true",
+                            help="Run the training")
+        parser.add_argument("-i", "--indir", type=str, required=True,
+                            help="Input root file (output of makeHistFile.py)")
+        parser.add_argument("-m", "--model", type=str, default="",
+                            help="Model file")
+    elif sys.argv[1] == "plot":
+        parser.add_argument("--drawStyle", type=str, default='stack',
+                            help='Way to draw graph',
+                            choices=['stack', 'compare', 'sigratio'])
+        parser.add_argument("-sig", "--signal", type=str, default='',
+                            help="Name of the group to be made into the Signal")
+        parser.add_argument("--logy", action='store_true',
+                            help="Use logaritmic scale on Y-axis")
+        parser.add_argument("--stack_signal", action='store_true',
+                            help="Stack signal hists on top of background")
+        parser.add_argument("--ratio_range", nargs=2, default=[0.4, 1.6],
+                            help="Ratio min ratio max (default 0.5 1.5)")
+        parser.add_argument("--no_ratio", action="store_true",
+                            help="Do not add ratio comparison")
+        parser.add_argument("-i", "--infile", type=str, required=True,
+                            help="Input root file (output of makeHistFile.py)")
+    elif sys.argv[1] == "analyze":
+        pass
+    elif sys.argv[1] == "combine":
+        pass
+    else:
+        pass
+
+    return parser.parse_args()
+
 
 def pre(pre, lister):
     return ["_".join([pre, l]) for l in lister]
