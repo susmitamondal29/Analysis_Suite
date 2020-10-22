@@ -3,7 +3,10 @@ import math
 import argparse
 import os
 import sys
+import shutil
+import awkward1 as ak
 
+from commons import Histogram
 
 def get_cli():
     parser = argparse.ArgumentParser(prog="main", description="Central script for running tools in the Analysis suite")
@@ -79,37 +82,49 @@ def checkOrCreateDir(path):
         os.makedirs(path)
 
 
-
-def getNormedHistos(indir, info, histName, chan):
+def getNormedHistos(indir, file_info, plot_info, histName, chan):
     groupHists = dict()
-    ak_col = info.Column[histName]
-    for group, members in info.group2MemberMap.items():
-        groupHists[group] = Histogram(info.getLegendName(group),
-                                      info.get_color(group),
-                                      info.get_binning(histName))
+    ak_col = plot_info.Column[histName]
+    for group, members in file_info.group2MemberMap.items():
+        groupHists[group] = Histogram(file_info.get_legend_name(group),
+                                      file_info.get_color(group),
+                                      plot_info.get_binning(histName))
         for mem in members:
             narray = ak.Array({})
             try:
-                array = ak.from_parquet("{}/{}_cut.parquet".format(indir, mem),
+                array = ak.from_parquet("{}/{}.parquet".format(indir, mem),
                                         [ak_col, "scale_factor"])
             except:
+                print("problem with {} getting histogram {}".format(mem, ak_col))
                 continue
             sf = array["scale_factor"]
             vals = array[ak_col]
-            if info.Modify[histName]:
-                vals = eval(info.Modify[histName].format("vals"))
+            if plot_info.Modify[histName]:
+                vals = eval(plot_info.Modify[histName].format("vals"))
                 if len(vals) != len(sf):
                     sf,_ = ak.unzip(ak.cartesian([sf, array[ak_col]]))
                     sf = ak.flatten(sf)
             narray[ak_col] = vals
             narray["scale_factor"] = sf
+            #print("{}: {:.3f}+-{:.3f} ({})".format(mem, ak.sum(sf)*plot_info.lumi, plot_info.lumi*math.sqrt(ak.sum(sf)**2),len(sf)))
             groupHists[group] += narray
 
     for name, hist in groupHists.items():
-        if info.lumi < 0:
+        if file_info.lumi < 0:
             scale = 1 / sum(hist.hist)
             hist.scale(scale)
         else:
-            hist.scale(info.lumi)
+            hist.scale(plot_info.lumi)
     return groupHists
 
+def copyDirectory(src, dest):
+    if os.path.exists(dest):
+        shutil.rmtree(dest)
+    try:
+        shutil.copytree(src, dest)
+    # Directories are the same
+    except shutil.Error as e:
+        print('Directory not copied. Error: %s' % e)
+    # Any error saying that the directory doesn't exist
+    except OSError as e:
+        print('Directory not copied. Error: %s' % e)

@@ -16,10 +16,12 @@ plt.style.use([hep.style.CMS, hep.style.firamath])
 from commons import PlotInfo, FileInfo
 import commons.configs as config
 from commons.makeSimpleHtml import writeHTML
+from commons import Histogram
 from inputs import plot_params
-from histograms import Histogram, Stack, pyPad
-from Utilities.LogFile import LogFile
-from Utilities.configHelper import getNormedHistos,setupPathAndDir
+from .stack import Stack
+from .pyPad import pyPad
+from .LogFile import LogFile
+from .configHelper import setupPathAndDir
 
 def setup(cli_args):
     signalNames = cli_args.signal.split(',')
@@ -51,7 +53,7 @@ def run(histName, file_info, plot_info, basePath, infileName, signalNames, chann
         error = Histogram("Stat Errors", "plum", binning)
         stacker = Stack(binning)
 
-        groupHists = getNormedHistos(infileName, file_info, plot_info,
+        groupHists = config.getNormedHistos(infileName, file_info, plot_info,
                                             histName, chan)
         exclude = ['data'] + signalNames
         signal = groupHists[signalNames[0]] if signalNames[0] in groupHists else None
