@@ -35,7 +35,7 @@ if __name__ == "__main__":
     # Setup jobs #
     ##############
     if cli_args.tool == "mva":
-        pass
+        from BDT_utilities import job_main
     elif cli_args.tool == "plot":
         from Plotting import job_main
         parallel = "multiprocess"
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     # Start Job #
     #############
     if cli_args.j == 1 or not parallel_tool:
-        [job_run(func, *al) for al in argList]
+        [func(*al) for al in argList]
     elif parallel_tool == "multiprocess":
         pool = mp.Pool(args.j)
         pool.map(func, argList)
