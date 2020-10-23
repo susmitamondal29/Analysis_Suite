@@ -6,7 +6,7 @@ from collections import OrderedDict
 import xgboost as xgb
 
 from commons import FileInfo
-import commons.configs as config
+from commons.configs import checkOrCreateDir
 from .MvaMaker import XGBoostMaker
 from .MVAPlotter import MVAPlotter
 from inputs import mva_params
@@ -22,35 +22,32 @@ def setup(cli_args):
             else:
                 new_samples.append(samp)
         groupDict[groupName] = new_samples
-    
-    if not os.path.isdir(cli_args.outdir):
-        os.mkdir(cli_args.outdir)
-        os.mkdir("{}/test".format(cli_args.outdir))
-        os.mkdir("{}/train".format(cli_args.outdir))
 
+    outDir ="{}/{}".format(cli_args.workdir, cli_args.channels)
+    checkOrCreateDir("{}/test".format(outDir))
+    checkOrCreateDir("{}/train".format(outDir))
     cli_args.groupDict = groupDict
-        
-    return ((groupDict, cli_args),)
 
-def run(groupDict, cli_args):
     if not cli_args.train:
-        return
+        return ()
+    return ((groupDict, outDir, cli_args.model),)
 
+def run(groupDict, outDir, applyModel):
     mvaRunner = XGBoostMaker(mva_params.usevar)
     for groupName, samples in groupDict.items():
-        mvaRunner.add_group(groupName, samples, cli_args.indir, cli_args.channels)
+        mvaRunner.add_group(groupName, samples, outDir)
 
-    if cli_args.model:
-        mvaRunner.apply_model(cli_args.model)
+    if applyModel:
+        mvaRunner.apply_model(applyModel)
     elif mva_params.single == True:
         fitModel = mvaRunner.train_single()
-        fitModel.save_model("{}/model.bin".format(cli_args.outdir))
+        fitModel.save_model("{}/model.bin".format(outDir))
         impor = fitModel.get_score(importance_type= "total_gain")
     else:
         fitModel = mvaRunner.train()
-        fitModel.save_model("{}/model.bin".format(cli_args.outdir))
+        fitModel.save_model("{}/model.bin".format(outDir))
         impor = fitModel.get_booster().get_score(importance_type= "total_gain")
-    mvaRunner.output(cli_args.outdir)
+    mvaRunner.output(outDir)
     sorted_import = {k: v for k, v in sorted(impor.items(), key=lambda item: item[1])}
     import matplotlib.pyplot as plt
     plt.barh(range(len(sorted_import)), list(sorted_import.values()),
@@ -60,13 +57,14 @@ def run(groupDict, cli_args):
     plt.xlabel("Total Gain")
     plt.title("Variable Importance")
     plt.tight_layout()
-    plt.savefig("{}/importance.png".format(cli_args.outdir))
+    plt.savefig("{}/importance.png".format(outDir))
     plt.close()
 
 def cleanup(cli_args):
     lumi = cli_args.lumi*1000
+    outDir ="{}/{}".format(cli_args.workdir, cli_args.channels)
     groupMembers = [item for sublist in cli_args.groupDict.values() for item in sublist]
-    output = MVAPlotter(cli_args.outdir, cli_args.groupDict.keys(), groupMembers, lumi)
+    output = MVAPlotter(outDir, cli_args.groupDict.keys(), groupMembers, lumi)
 
 
     # ttbar = output[output.work_set.groupName == "ttbar"]

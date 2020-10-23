@@ -8,5 +8,6 @@ tmp/
 build
 htmlcov
 
+*parquet
 poetry.lock
 *~

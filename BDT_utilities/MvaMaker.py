@@ -59,7 +59,7 @@ class XGBoostMaker:
                       'colsample_bytree': 1, 'gamma': 0, 'max_delta_step': 0,}
         # 'silent': 1, 'scale_pos_weight': 1,
 
-    def add_group(self, group_name, sample_names, indir, chan):
+    def add_group(self, group_name, sample_names, indir):
         """**Add Information about a group to class**
 
         This grabs all the variable information about each sample,
@@ -90,8 +90,9 @@ class XGBoostMaker:
             
         for name in sample_names:
             try:
-                arr = VarGetter("{}/{}/{}.parquet".format(indir, chan, name))
+                arr = VarGetter("{}/{}.parquet".format(indir, name))
             except:
+                print("Could not find sample: {}/{}.parquet".format(indir, name))
                 continue
             df_dict = dict()
             for varname, func in self.use_vars.items():

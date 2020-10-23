@@ -52,14 +52,14 @@ class Scheduler:
         total_mask = ak.Array({})
         for key, arr in self.process.outmasks.items():
             total_mask[key] = arr
-        ak.to_parquet(total_mask, "{}/{}.parquet".format(self.out_dir, self.group),
+        ak.to_parquet(total_mask, "{}/masks/{}.parquet".format(self.out_dir, self.group),
                       compression="gzip")
         self.print_stat("{}: Finished Write".format(self.group), end=True)
 
     def apply_mask(self, chan):
         self.print_stat("{}: Starting Apply".format(self.group))
         cut_apply = CutApplier(ak.from_parquet(
-            "{}/{}.parquet".format(self.out_dir, self.group)), self.xsec)
+            "{}/masks/{}.parquet".format(self.out_dir, self.group)), self.xsec)
         cut_apply.run(self.files)
 
         # write

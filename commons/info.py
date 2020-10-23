@@ -69,8 +69,6 @@ class PlotInfo(BasicInfo):
 class FileInfo(BasicInfo):
     def __init__(self, group2color={}, **kwargs):
         super().__init__(**kwargs)
-        adm_path = "data"
-
         self.group2color = group2color
         self.mcInfo = self.readAllInfo(
             "data/FileInfo/montecarlo/montecarlo_2016.py")

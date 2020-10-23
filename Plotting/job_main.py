@@ -31,7 +31,7 @@ def setup(cli_args):
     file_info = FileInfo(plot_params.color_by_group, **vars(cli_args))
     plot_info = PlotInfo(cli_args.info, lumi=cli_args.lumi*1000)
     channels = cli_args.channels.split(',')
-    basePath = setupPathAndDir(cli_args.analysis, cli_args.drawStyle, cli_args.outdir,
+    basePath = setupPathAndDir(cli_args.analysis, cli_args.drawStyle, cli_args.workdir,
                                channels)
 
     argList = list()    
@@ -127,7 +127,7 @@ def cleanup(cli_args):
         else:
             print("No all channel")
 
-    basePath = setupPathAndDir(cli_args.analysis, cli_args.drawStyle, cli_args.outdir,
+    basePath = setupPathAndDir(cli_args.analysis, cli_args.drawStyle, cli_args.workdir,
                                channels)
     writeHTML(basePath, cli_args.analysis, channels)
     for chan in channels:

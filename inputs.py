@@ -40,10 +40,10 @@ class mva_params:
     single=True
     # Sampels and the groups they are a part of
     if single:
-        groups = [["Signal", ["ttt_201X"]],
+        groups = [["Signal", ["ttt"]],
                   ["Background", ["ttw", "ttz", "tth", "ttXY", "vvv", "vv","xg" "4top2016","other"]]]
     else:
-        groups = [["Signal", ["ttt_201X"]],
+        groups = [["Signal", ["ttt"]],
                   ["FourTop", ["4top2016",]],
                   ["Background", ["ttw", "ttz", "tth", "ttXY", "vvv", "vv", "xg","other"]]] #
 

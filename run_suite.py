@@ -8,7 +8,7 @@ import os
 import sys
 import datetime
 
-from commons import configs
+from commons.configs import get_cli, checkOrCreateDir
 import inputs
 warnings.filterwarnings('ignore')
 
@@ -24,16 +24,17 @@ def worker():
 
 
 if __name__ == "__main__":
-    cli_args = configs.get_cli()
+    cli_args = get_cli()
     callTime = str(datetime.datetime.now())
     command = ' '.join(sys.argv)
     argList = list()
     func = None
     parallel = ""
-
+ 
     ##############
     # Setup jobs #
     ##############
+    checkOrCreateDir(cli_args.workdir)
     if cli_args.tool == "mva":
         from BDT_utilities import job_main
     elif cli_args.tool == "plot":
