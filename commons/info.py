@@ -66,63 +66,18 @@ class PlotInfo(BasicInfo):
         return bh.axis.Regular(int(bins[0]), *bins[1:])
 
 
-# class InfoGetter:
-#     def __init__(self, analysis, selection, group2color, ):
-#         try:
-#             adm_path = os.environ['ADM_PATH']
-#         except:
-#             print('The Analysis Dataset Manager is found by the variable ADM_PATH')
-#             print('Please set this path and consider setting it in your .bashrc')
-#             exit(1)
-
-#         self.analysis = analysis
-#         self.selection = selection
-#         self.groupInfo = self.readAllInfo("{}/PlotGroups/{}.py"
-#                                           .format(adm_path, analysis))
-#         self.group2MemberMap = {group: self.groupInfo[group]["Members"]
-#                                 for group in group2color.keys()}
-#         self.group2color = group2color
-
-#         self.lumi = 35900  #default
-
-
-#     def setupGraphSpecs(self, input):
-#         return_map = dict()
-#         for action, dic in input.items():
-#             for hist, value in dict.items():
-#                 if hist not in return_map:
-#                     return_map[hist] = dict()
-#                 return_map[hist][action] = value
-#         return return_map
-
-
-#     def getAnalysis(self):
-#         return self.analysis, self.selection
-
-#     def getGroups(self):
-#         return self.groupInfo.keys()
-
-#     def setLumi(self, lumi):
-#         self.lumi = lumi
-
-
 class FileInfo(BasicInfo):
     def __init__(self, group2color={}, **kwargs):
         super().__init__(**kwargs)
-        try:
-            adm_path = os.environ['ADM_PATH']
-        except:
-            print('The Analysis Dataset Manager is found by the variable ADM_PATH')
-            print('Please set this path and consider setting it in your .bashrc')
-            exit(1)
+        adm_path = "data"
 
         self.group2color = group2color
         self.mcInfo = self.readAllInfo(
-            "{}/FileInfo/montecarlo/montecarlo_2016.py".format(adm_path))
+            "data/FileInfo/montecarlo/montecarlo_2016.py")
         self.fileInfo = self.readAllInfo(
-            "{}/FileInfo/{}/{}.py".format(adm_path, self.analysis,self.selection))
+            "data/FileInfo/{}/{}.py".format(self.analysis,self.selection))
         self.groupInfo = self.readAllInfo(
-            "{}/PlotGroups/{}.py".format(adm_path, self.analysis))
+            "data/PlotGroups/{}.py".format(self.analysis))
         if group2color:
             self.group2MemberMap = {key: item["Members"] for key, item in
                                     self.groupInfo.items() if key in self.group2color}

@@ -18,31 +18,30 @@ def setup(cli_args):
     info = FileInfo(analysis=cli_args.analysis, selection=cli_args.selection)
     files_dict = info.get_file_dict(cli_args.filenames)
     checkOrCreateDir(cli_args.outdir)
-    if cli_args.channel:
-        MyAnalysis.set_channel(cli_args.channel)
-        checkOrCreateDir("{}/{}".format(cli_args.outdir, cli_args.channel))
-
+    if cli_args.channels:
+        MyAnalysis.set_channel(cli_args.channels)
+        checkOrCreateDir("{}/{}".format(cli_args.outdir, cli_args.channels))
+        
     argList = list()
-    i = 0
     for group, files in files_dict.items():
-        mask_exists = os.path.isfile("{}/{}.parquet".format(cli_args.outdir, group))
-        if cli_args.proc_type == "apply" and not mask_exists:
-            print("Mask file doesn't exist, please create!")
-            exit(1)
-        elif cli_args.proc_type == "create" and not cli_args.r and mask_exists:
-            continue
-        i += 1
-        argList.append((cli_args.proc_type, cli_args.channel, group, files,
-                        cli_args.outdir, info.get_xsec(group), i))
+
+        argList.append((group, files, cli_args.outdir, info.get_xsec(group),
+                        cli_args.channels, cli_args.rerun_selection))
+
+    for arg in argList[::-1]:
+        print(arg[0])
+    print()
+
     return argList
 
 
-def run(group, files, out_dir, xsec, line_diff, chan):
-    job = Scheduler(group, files, out_dir, xsec, line_diff)
-    job.run()
-    job.add_tree()
+def run(group, files, out_dir, xsec, chan, rerun):
+    job = Scheduler(group, files, out_dir, xsec)
+    if rerun or not os.path.isfile("{}/{}.parquet".format(out_dir, group)):
+        job.run()
+        job.add_tree()
     job.apply_mask(chan)
-    pass
+
 
 def cleanup(cli_args):
     pass

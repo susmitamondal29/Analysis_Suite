@@ -101,7 +101,7 @@ class CutApplier:
                 events = events[mask]
 
                 builder = ak.ArrayBuilder()
-                getattr(Common, func)(events, builder)
+                getattr(Analyzer.Common, func)(events, builder)
                 final_build = ak.unzip(builder.snapshot())
                 
                 for var, var_arr in zip(add_vars, final_build):

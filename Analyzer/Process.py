@@ -59,7 +59,7 @@ class Process:
         start, end = 0, 0
         for array in uproot.iterate("{}:Events".format(filename), allvars):
             end += len(array)
-            print(filename, "Events considered: ", end)
+            #print(filename, "Events considered: ", end)
             for func, write_name, inmask, var, addvals in self.extraFuncs:
                 events = array[var]
                 for mask_name, vals in inmask.items():

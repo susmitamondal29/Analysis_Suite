@@ -6,20 +6,22 @@ import numpy as np
 
 import threading
 lock = threading.Lock()
-
+from atomic import AtomicLong
 
 class Scheduler:
     jobs = list()
     write_list = list()
-    def __init__(self, group, files, out_dir, xsec, line_diff):
+    atomic = AtomicLong(0)
+    
+    def __init__(self, group, files, out_dir, xsec):
         self.process = Process()
         self.group = group
         self.files = files
         self.out_dir = out_dir
         self.xsec = xsec
-        self.prevLine = "\033[{}F\033[K".format(line_diff+1)
-        self.nextLine = "\033[{}E ".format(line_diff)
-
+        self.atomic += 1
+        self.prevLine = "\033[{}F\033[K".format(self.atomic.value+1)
+        self.nextLine = "\033[{}E ".format(self.atomic.value)
 
     @staticmethod
     def add_step(class_list):
@@ -29,10 +31,9 @@ class Scheduler:
     def print_stat(self, string, end=False):
         text = string + '\x1b[0m'
         text = '\033[94m' + text if end else '\033[92m' + text
-        # lock.acquire()
+        lock.acquire()
         print(self.prevLine + text + self.nextLine)
-        # print(text)
-        # lock.release()
+        lock.release()
 
         
     def run(self):

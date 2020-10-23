@@ -64,7 +64,7 @@ def get_cli():
     elif sys.argv[1] == "analyze":
         parser.add_argument("-y", "--year", type=str, default="2016",
                            help="Year to use")
-        parser.add_argument("-r", action="store_true", help="Remake create files")
+        parser.add_argument("-r", "--rerun_selection", action="store_true", help="Remake create files")
         # parser.add_argument("-f", "--filenames", required=True,
         #                    type=lambda x : [i.strip() for i in x.split(',')],
         #                    help="List of input file names, "

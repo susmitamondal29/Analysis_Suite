@@ -25,6 +25,7 @@ mplhep = { version = "^0.1.36", optional = true}
 
 # MVA code
 xgboost = { version = "^1.2.0", optional = true}
+atomic = "^0.7.3"
 sklearn = { version = "^0.0", optional = true}
 pandas = { version = "^1.1.2", optional = true}
 #uproot = {"^3.12.0", optional = true}

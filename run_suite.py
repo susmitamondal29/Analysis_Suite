@@ -29,7 +29,7 @@ if __name__ == "__main__":
     command = ' '.join(sys.argv)
     argList = list()
     func = None
-    parallel_tool = ""
+    parallel = ""
 
     ##############
     # Setup jobs #
@@ -40,17 +40,17 @@ if __name__ == "__main__":
         from Plotting import job_main
         parallel = "multiprocess"
     elif cli_args.tool == "analyze":
-        parallel = "thread"
         from Analyzer import job_main
+        parallel = "thread"
     argList = job_main.setup(cli_args)
     func = job_main.run
-    exit()
+    
     #############
     # Start Job #
     #############
-    if cli_args.j == 1 or not parallel_tool:
+    if cli_args.j == 1 or not parallel:
         [func(*al) for al in argList]
-    elif parallel_tool == "multiprocess":
+    elif parallel == "multiprocess":
         pool = mp.Pool(args.j)
         pool.map(func, argList)
         pool.close()
