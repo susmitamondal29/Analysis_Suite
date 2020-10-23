@@ -13,10 +13,8 @@ logging.getLogger('matplotlib.font_manager').disabled = True
 import mplhep as hep
 plt.style.use([hep.style.CMS, hep.style.firamath])
 
-from commons import PlotInfo, FileInfo
 import commons.configs as config
-from commons.makeSimpleHtml import writeHTML
-from commons import Histogram
+from commons import Histogram, writeHTML, PlotInfo, FileInfo
 from inputs import plot_params
 from .stack import Stack
 from .pyPad import pyPad

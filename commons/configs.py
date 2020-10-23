@@ -36,7 +36,9 @@ def get_cli():
                         help="Luminsoity in fb-1. Default 35.9 fb-1. "
                         "Set to -1 for unit normalization")
 
-    if sys.argv[1] == "mva":
+    if len(sys.argv) == 1:
+        pass
+    elif sys.argv[1] == "mva":
         parser.add_argument('-t', '--train', action="store_true",
                             help="Run the training")
         parser.add_argument("-i", "--indir", type=str, required=True,
@@ -60,7 +62,17 @@ def get_cli():
         parser.add_argument("-i", "--infile", type=str, required=True,
                             help="Input root file (output of makeHistFile.py)")
     elif sys.argv[1] == "analyze":
-        pass
+        parser.add_argument("-y", "--year", type=str, default="2016",
+                           help="Year to use")
+        parser.add_argument("-r", action="store_true", help="Remake create files")
+        # parser.add_argument("-f", "--filenames", required=True,
+        #                    type=lambda x : [i.strip() for i in x.split(',')],
+        #                    help="List of input file names, "
+        #                    "as defined in AnalysisDatasetManager, separated "
+        #                    "by commas")
+
+
+
     elif sys.argv[1] == "combine":
         pass
     else:

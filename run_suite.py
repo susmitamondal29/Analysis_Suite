@@ -41,10 +41,10 @@ if __name__ == "__main__":
         parallel = "multiprocess"
     elif cli_args.tool == "analyze":
         parallel = "thread"
-        exit()
+        from Analyzer import job_main
     argList = job_main.setup(cli_args)
     func = job_main.run
-
+    exit()
     #############
     # Start Job #
     #############
