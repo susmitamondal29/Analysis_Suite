@@ -6,12 +6,12 @@ import numpy as np
 import numba
 import math
 
-from Analyzer import Process
+from Analyzer import AnalyzeTask
 from commons.configs import pre
 
-class EventWide(Process):
-    def __init__(self, process):
-        super().__init__(process)
+class EventWide(AnalyzeTask):
+    def __init__(self, task):
+        super().__init__(task)
         # Calc Values
         self.add_job("set_channel", outmask = "Event_channels",
                      inmask = ["Electron_finalMask", "Muon_finalMask"],

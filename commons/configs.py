@@ -5,7 +5,6 @@ import os
 import sys
 import shutil
 import awkward1 as ak
-
 from commons import Histogram
 
 def get_cli():
@@ -25,6 +24,10 @@ def get_cli():
                         help="Channels to run over")
     parser.add_argument("-j", type=int, default=1, help="Number of cores")
     parser.add_argument("-l", "--lumi", type=float, default=140,
+                        help="Luminsoity in fb-1. Default 35.9 fb-1. "
+                        "Set to -1 for unit normalization")
+    parser.add_argument("--log", type=str, default="WARNING",
+                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
                         help="Luminsoity in fb-1. Default 35.9 fb-1. "
                         "Set to -1 for unit normalization")
 

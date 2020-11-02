@@ -5,12 +5,12 @@ import awkward1 as ak
 import numpy as np
 import numba
 
-from Analyzer.Process import Process
+from Analyzer import AnalyzeTask
 from commons.configs import pre
 
-class Jet(Process):
-    def __init__(self, process):
-        super().__init__(process)
+class Jet(AnalyzeTask):
+    def __init__(self, task):
+        super().__init__(task)
 
         self.add_job("closeJet", outmask="Jet_rmCloseJet", vals = Jet.close_jet,
                      addvals = [("Electron_fakeMask","Electron_closeJetIndex"),

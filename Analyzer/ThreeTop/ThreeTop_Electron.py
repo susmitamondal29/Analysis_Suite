@@ -6,51 +6,51 @@ import numpy as np
 import numba
 import math
 
-from Analyzer import Process
+from Analyzer import AnalyzeTask
 from Analyzer.Common import deltaR, jetRel, in_zmass
-from commons.configs import pre
+from commons.configs import pre, cartes
 
-class Electron(Process):
-    def __init__(self, process):
-        super().__init__(process)
+class Electron(AnalyzeTask):
+    def __init__(self, task):
+        super().__init__(task)
 
         pteta = pre("Electron", ["pt", "eCorr", "eta"])
         mva_vars = pteta + Electron.mva_vars
 
         self.add_job("loose_mask", outmask = "Electron_basicLooseMask",
-                     vals = Electron.loose)
+                     invars = Electron.loose)
         self.add_job("trigger_emu", outmask = "Electron_triggerEmuMask",
-                     inmask = "Electron_basicLooseMask", vals = Electron.emu)
+                     inmask = "Electron_basicLooseMask", invars = Electron.emu)
         self.add_job("mva_loose", outmask = "Electron_looseMask",
-                     inmask = "Electron_triggerEmuMask", vals = mva_vars)
+                     inmask = "Electron_triggerEmuMask", invars = mva_vars)
 
         self.add_job("looseIdx", outmask = "Electron_looseIndex",
                      inmask = "Electron_looseMask",
-                     vals = ["Electron_pt"])
+                     invars = ["Electron_pt"])
 
         self.add_job("fake_mask", outmask = "Electron_basicFakeMask",
-                     inmask = "Electron_looseMask", vals = Electron.fake)
+                     inmask = "Electron_looseMask", invars = Electron.fake)
         self.add_job("closeJet", outmask = "Electron_closeJetIndex",
-                     inmask = "Electron_basicFakeMask", vals = Electron.close_jet)
+                     inmask = "Electron_basicFakeMask", invars = Electron.close_jet)
         self.add_job("fullIso", outmask = "Electron_fakeMask",
-                     inmask = "Electron_basicFakeMask", vals = Electron.v_fullIso,
+                     inmask = "Electron_basicFakeMask", invars = Electron.v_fullIso,
                      addvals = [(None, "Electron_closeJetIndex")])
 
         self.add_job("tight_mask", outmask = "Electron_basicTightMask",
-                     inmask = "Electron_fakeMask", vals = Electron.tight)
+                     inmask = "Electron_fakeMask", invars = Electron.tight)
         self.add_job("mva_tight", outmask = "Electron_finalMask",
-                     inmask = "Electron_basicTightMask", vals = mva_vars)
+                     inmask = "Electron_basicTightMask", invars = mva_vars)
 
         self.add_job("pass_zveto", outmask = "Electron_ZVeto",
-                     inmask = "Electron_looseMask", vals = Electron.elec_part,
+                     inmask = "Electron_looseMask", invars = Electron.elec_part,
                      addvals = [("Electron_finalMask", "Electron_looseIndex")])
 
         self.add_job("lep_lowHT_sf", outmask = "Electron_lowHTScale",
-                     inmask = "Electron_looseMask", vals = pteta)
+                     inmask = "Electron_looseMask", invars = pteta)
         self.add_job("lep_highHT_sf", outmask = "Electron_highHTScale",
-                     inmask = "Electron_looseMask", vals = pteta)
+                     inmask = "Electron_looseMask", invars = pteta)
         self.add_job("lep_GSF_sf", outmask = "Electron_GSFScale",
-                     inmask = "Electron_looseMask", vals = ["Electron_eta"])
+                     inmask = "Electron_looseMask", invars = ["Electron_eta"])
         
 
     # Numba methods
@@ -119,70 +119,43 @@ class Electron(Process):
 
     close_jet = ["Electron_eta", "Electron_phi", "Jet_eta", "Jet_phi"]
     @staticmethod
-    @numba.jit(nopython=True)
-    def closeJet(events, builder):
-        i = 0
-        for event in events:
-            builder.begin_list()
-            for eidx in range(len(event.Electron_eta)):
-                mindr = 10
-                minidx = -1
-                for jidx in range(len(event.Jet_eta)):
-                    dr = deltaR(event.Electron_phi[eidx], event.Electron_eta[eidx],
-                                event.Jet_phi[jidx], event.Jet_eta[jidx])
-                    if mindr > dr:
-                        mindr = dr
-                        minidx = jidx
-                builder.begin_list()
-                builder.integer(minidx)
-                builder.real(mindr)
-                builder.end_list()
-            builder.end_list()
-            i += 1
-    
-    v_fullIso = pre("Electron", ["pt", "eCorr", "eta", "phi"]) + \
-        ["Jet_pt", "Jet_eta", "Jet_phi"]
+    def closeJet(events):
+        leta, jeta = cartes(events.Electron_eta, events.Jet_eta)
+        lphi, jphi = cartes(events.Electron_phi, events.Jet_phi)
+        dr = (jeta-leta)**2 + (jphi-lphi)**2
+        dr_idx = ak.argmin(dr, axis=-1) % ak.count(events.Jet_eta, axis=-1)
+        dr_min = ak.min(dr, axis=-1)
+        return ak.zip((dr_idx, dr_min))
+
+    v_fullIso = pre("Electron", ["pt", "eta", "phi"]) + pre("Jet", ["pt", "eta", "phi"])
     @staticmethod
-    @numba.jit(nopython=True)
-    def fullIso(events, builder):
+    def fullIso(events):
         I2 = 0.8
         I3_pow2 = 7.2**2
-        i = 0
-        for event in events:
-            builder.begin_list()
-            for eidx in range(len(event.Electron_eta)):
-                jidx = int(event.Electron_closeJetIndex[eidx][0])
-                pt = event.Electron_pt[eidx] / event.Electron_eCorr[eidx]
-                if jidx < 0 or pt/event.Jet_pt[jidx] > I2:
-                    builder.boolean(True)
-                    continue
-                jetrel = jetRel(pt, event.Electron_eta[eidx],
-                                event.Electron_phi[eidx], event.Jet_pt[jidx],
-                                event.Jet_eta[jidx], event.Jet_phi[jidx])
-                builder.boolean(jetrel > I3_pow2)
-            builder.end_list()
-            i += 1
 
-    elec_part = pre("Electron", ["pt", "eCorr", "eta", "phi", "charge"])
+        closeJet_pt = events.Jet_pt[events.Electron_closeJetIndex]
+        closeJet_eta = events.Jet_eta[events.Electron_closeJetIndex]
+        closeJet_phi = events.Jet_phi[events.Electron_closeJetIndex]
+        jetrel = jetRel(events.Electron_pt, events.Electron_eta,
+                        events.Electron_phi, closeJet_pt,
+                        closeJet_eta, closeJet_phi)
+        pass_I2 = (events.Electron_pt/closeJet_pt) > I2
+        pass_I3 = jetrel > I3_pow2
+        return pass_I2 or pass_I3
+
+    elec_part = pre("Electron", ["pt", "eta", "phi", "charge"])
     @staticmethod
-    @numba.jit(nopython=True)
-    def pass_zveto(events, builder):
-        for event in events:
-            passed = True
-            for idx in range(len(event.Electron_looseIndex)):
-                i = event.Electron_looseIndex[idx]
-                pt_i = event.Electron_pt[i]/event.Electron_eCorr[i]
-                for j in range(len(event.Electron_pt)):
-                    if event.Electron_charge[i]*event.Electron_charge[j] > 0:
-                        continue
-                    pt_j = event.Electron_pt[j]/event.Electron_eCorr[j]
-                    if in_zmass(pt_i, event.Electron_eta[i], event.Electron_phi[i],
-                                pt_j, event.Electron_eta[j], event.Electron_phi[j]):
-                        passed = False
-                        break
-                if not passed:
-                    break
-            builder.boolean(passed)
+    def pass_zveto(events):
+        tpt, lpt = cartes(events.Electron_pt[events.Electron_looseIndex], events.Electron_pt)
+        teta, leta = cartes(events.Electron_eta[events.Electron_looseIndex], events.Electron_eta)
+        tphi, lphi = cartes(events.Electron_phi[events.Electron_looseIndex], events.Electron_phi)
+        tq, lq = cartes(events.Electron_charge[events.Electron_looseIndex], events.Electron_charge)
+
+        isOS = lq*tq < 0
+        zmass = in_zmass(tpt[isOS], teta[isOS], tphi[isOS],
+                         lpt[isOS], leta[isOS], lphi[isOS])
+        return ak.sum(zmass, axis=-1) != 0
+
 
     @staticmethod
     @numba.vectorize('f4(f4,f4,f4)')

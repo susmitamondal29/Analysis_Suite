@@ -7,6 +7,7 @@ import warnings
 import os
 import sys
 import datetime
+import logging
 
 from commons.configs import get_cli, checkOrCreateDir
 import inputs
@@ -25,6 +26,7 @@ def worker():
 
 if __name__ == "__main__":
     cli_args = get_cli()
+    logging.basicConfig(level=getattr(logging, cli_args.log, None))
     callTime = str(datetime.datetime.now())
     command = ' '.join(sys.argv)
     argList = list()

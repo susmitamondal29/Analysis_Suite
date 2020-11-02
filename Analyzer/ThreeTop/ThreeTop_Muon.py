@@ -6,39 +6,39 @@ import numpy as np
 import numba
 import math
 
-from Analyzer.Process import Process
-from Analyzer.Common import deltaR, jetRel, in_zmass
+from Analyzer import AnalyzeTask
+from Analyzer.Common import deltaR, jetRel, in_zmass, cartes
 from commons.configs import pre
 
-class Muon(Process):
-    def __init__(self, process, *args):
-        super().__init__(process)
+class Muon(AnalyzeTask):
+    def __init__(self, task):
+        super().__init__(task)
 
         self.add_job("loose_mask", outmask = "Muon_looseMask",
-                     vals = Muon.loose)
+                     invars = Muon.loose)
 
         self.add_job("looseIdx", outmask = "Muon_looseIndex",
-                     inmask = "Muon_looseMask", vals = ["Muon_pt"])
+                     inmask = "Muon_looseMask", invars = ["Muon_pt"])
 
         self.add_job("fake_mask", outmask = "Muon_basicFakeMask",
-                     inmask = "Muon_looseMask", vals = Muon.fake)
-        self.add_job("closeJet", outmask = "Muon_closeJetIndex",
-                     inmask = "Muon_basicFakeMask", vals = Muon.close_jet)
+                     inmask = "Muon_looseMask", invars = Muon.fake)
+        self.add_job("closeJet", outmask = ["Muon_closeJetIndex", "Muon_closeJetDR"],
+                     inmask = "Muon_basicFakeMask", invars = Muon.close_jet)
         self.add_job("fullIso", outmask = "Muon_fakeMask",
-                     inmask = "Muon_basicFakeMask", vals = Muon.v_fullIso,
+                     inmask = "Muon_basicFakeMask", invars = Muon.v_fullIso,
                      addvals = [(None, "Muon_closeJetIndex")])
-        
+
         self.add_job("tight_mask", outmask = "Muon_finalMask",
-                     inmask = "Muon_fakeMask", vals = Muon.tight)
+                     inmask = "Muon_fakeMask", invars = Muon.tight)
 
         self.add_job("pass_zveto", outmask = "Muon_ZVeto",
-                     inmask = "Muon_looseMask", vals = Muon.muon_part,
+                     inmask = "Muon_looseMask", invars = Muon.muon_part,
                      addvals = [("Muon_finalMask", "Muon_looseIndex")])
 
         self.add_job("lep_sf", outmask = "Muon_scale", inmask = "Muon_looseMask",
-                     vals = pre("Muon", ["pt", "eta"]))
+                     invars = pre("Muon", ["pt", "eta"]))
         self.add_job("lep_tracking_sf", outmask = "Muon_trackingScale",
-                     inmask = "Muon_looseMask", vals = ["Muon_eta"])
+                     inmask = "Muon_looseMask", invars = ["Muon_eta"])
     # Numba methods
 
     loose = pre("Muon", ["pt", "eta", "isGlobal", "isTracker", "isPFcand",
@@ -54,6 +54,7 @@ class Muon(Process):
            abs(dz) < 0.1 and
            abs(dxy) < 0.05
            )
+
 
     fake = pre("Muon", ["pt", "tightCharge", "mediumId", "sip3d"])
     @staticmethod
@@ -87,64 +88,45 @@ class Muon(Process):
 
     close_jet = ["Muon_eta", "Muon_phi", "Jet_eta", "Jet_phi"]
     @staticmethod
-    @numba.jit(nopython=True)
-    def closeJet(events, builder):
-        for event in events:
-            builder.begin_list()
-            for midx in range(len(event.Muon_eta)):
-                mindr = 10 # 0.16  # 0.4**2
-                minidx = -1
-                for jidx in range(len(event.Jet_eta)):
-                    dr = deltaR(event.Muon_phi[midx], event.Muon_eta[midx],
-                                event.Jet_phi[jidx], event.Jet_eta[jidx])
-                    if mindr > dr:
-                        mindr = dr
-                        minidx = jidx
-                builder.begin_list()
-                builder.integer(minidx)
-                builder.real(mindr)
-                builder.end_list()
-            builder.end_list()
+    def closeJet(events):
+        leta, jeta = cartes(events.Muon_eta, events.Jet_eta)
+        lphi, jphi = cartes(events.Muon_phi, events.Jet_phi)
+        dr = (jeta-leta)**2 + (jphi-lphi)**2
+        dr_idx = ak.argmin(dr, axis=-1) % ak.count(events.Jet_eta, axis=-1)
+        dr_min = ak.min(dr, axis=-1)
+        return ak.zip((dr_idx, dr_min))
 
+    
     v_fullIso = pre("Muon", ["pt", "eta", "phi"]) + pre("Jet", ["pt", "eta", "phi"])
     @staticmethod
-    @numba.jit(nopython=True)
-    def fullIso(events, builder):
-        I2 = 0.76
+    def fullIso(events):
+        I2 = 0.8
         I3_pow2 = 7.2**2
-        for event in events:
-            builder.begin_list()
-            for midx in range(len(event.Muon_eta)):
-                jidx = int(event.Muon_closeJetIndex[midx][0])
-                if jidx < 0 or event.Muon_pt[midx]/event.Jet_pt[jidx] > I2:
-                    builder.boolean(True)
-                    continue
-                jetrel = jetRel(event.Muon_pt[midx], event.Muon_eta[midx],
-                                event.Muon_phi[midx], event.Jet_pt[jidx],
-                                event.Jet_eta[jidx], event.Jet_phi[jidx])
-                builder.boolean(jetrel > I3_pow2)
-            builder.end_list()
+
+        closeJet_pt = events.Jet_pt[events.Muon_closeJetIndex]
+        closeJet_eta = events.Jet_eta[events.Muon_closeJetIndex]
+        closeJet_phi = events.Jet_phi[events.Muon_closeJetIndex]
+        jetrel = jetRel(events.Muon_pt, events.Muon_eta,
+                        events.Muon_phi, closeJet_pt,
+                        closeJet_eta, closeJet_phi)
+        pass_I2 = (events.Muon_pt/closeJet_pt) > I2
+        pass_I3 = jetrel > I3_pow2
+        return pass_I2 or pass_I3
+
 
     muon_part = pre("Muon", ["pt", "eta", "phi", "charge"])
     @staticmethod
-    @numba.jit(nopython=True)
-    def pass_zveto(events, builder):
-        for event in events:
-            passed = True
-            for idx in range(len(event.Muon_looseIndex)):
-                i = event.Muon_looseIndex[idx]
+    def pass_zveto(events):
+        tpt, lpt = cartes(events.Muon_pt[events.Muon_looseIndex], events.Muon_pt)
+        teta, leta = cartes(events.Muon_eta[events.Muon_looseIndex], events.Muon_eta)
+        tphi, lphi = cartes(events.Muon_phi[events.Muon_looseIndex], events.Muon_phi)
+        tq, lq = cartes(events.Muon_charge[events.Muon_looseIndex], events.Muon_charge)
 
-                for j in range(len(event.Muon_pt)):
-                    if event.Muon_charge[i]*event.Muon_charge[j] > 0:
-                        continue
-                    if in_zmass(event.Muon_pt[i], event.Muon_eta[i],
-                                event.Muon_phi[i], event.Muon_pt[j],
-                                event.Muon_eta[j], event.Muon_phi[j]):
-                        passed = False
-                        break
-                if not passed:
-                    break
-            builder.boolean(passed)
+        isOS = lq*tq < 0
+        zmass = in_zmass(tpt[isOS], teta[isOS], tphi[isOS],
+                         lpt[isOS], leta[isOS], lphi[isOS])
+        return ak.sum(zmass, axis=-1) != 0
+
 
     @staticmethod
     @numba.vectorize('f4(f4,f4)')
@@ -160,6 +142,8 @@ class Muon(Process):
         eta_edges = np.array([0.9, 1.2, 2.1, 2.4])
 
         return sf[np.argmax(pt <= pt_edges), np.argmax(abs(eta) <= eta_edges)]
+
+
 
     @staticmethod
     @numba.vectorize('f4(f4)')
