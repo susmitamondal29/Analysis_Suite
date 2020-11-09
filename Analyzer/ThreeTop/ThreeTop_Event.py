@@ -15,39 +15,39 @@ class EventWide(AnalyzeTask):
         # Calc Values
         self.add_job("set_channel", outmask = "Event_channels",
                      inmask = ["Electron_finalMask", "Muon_finalMask"],
-                     vals = EventWide.lep_chans)
+                     invars = EventWide.lep_chans)
         self.add_job("calc_HT", outmask = "Event_HT", inmask = "Jet_jetMask",
-                     vals = EventWide.ht)
+                     invars = EventWide.ht)
         self.add_job("calc_centrality", outmask = "Event_centrality",
-                     inmask = "Jet_jetMask", vals = EventWide.centrality,
+                     inmask = "Jet_jetMask", invars = EventWide.centrality,
                      addvals = [(None, "Event_HT")])
         self.add_job("calc_sphericity", outmask = "Event_sphericity",
-                     inmask = "Jet_jetMask", vals = EventWide.sphericity)
+                     inmask = "Jet_jetMask", invars = EventWide.sphericity)
         self.add_job("save_var", outmask = "Event_MET",
-                     vals = ["MET_pt"])
+                     invars = ["MET_pt"])
 
         # Event Wide Masks
         self.add_job("met_filter", outmask = "Event_MetFilterMask",
-                     vals = EventWide.filters)
+                     invars = EventWide.filters)
         self.add_job("trigger_2lep", outmask = "Event_trigger2LepMask",
-                     vals = EventWide.triggers_vars,
+                     invars = EventWide.triggers_vars,
                      addvals = [(None, "Event_channels")])
         # self.add_job("trigger_2lep", outmask = "Event_trigger2LepHT300Mask",
-        #              vals = EventWide.triggers_2lepHT300,
+        #              invars = EventWide.triggers_2lepHT300,
         #              addvals = [(None, "Event_channels")])
 
         # Scale factors
         # self.add_job("pileup_scale", outmask = "Event_pileupScale",
-        #              vals = ["Pileup_nTrueInt"])
+        #              invars = ["Pileup_nTrueInt"])
         self.add_job("wdecay_scale", outmask = "Event_wDecayScale",
-                     vals = EventWide.gen_vars)
+                     invars = EventWide.gen_vars)
         self.add_job("save_var", outmask = "Event_genScale",
-                     vals = ["genWeight"])
+                     invars = ["genWeight"])
         # self.add_job("trigger_scale", outmask = "Event_triggerScale",
-        #              vals = ["genWeight"],
+        #              invars = ["genWeight"],
         #              addvals = [(None, ["Event_HT", "Event_channels"])])
         self.add_job("tight_lep_scale", outmask = "Event_tightLeptonScale",
-                     vals = ["genWeight"],
+                     invars = ["genWeight"],
                      addvals = [("Electron_finalMask", ["Electron_GSFScale",
                                                         "Electron_lowHTScale",
                                                         "Electron_highHTScale"]),

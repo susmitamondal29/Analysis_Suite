@@ -12,9 +12,8 @@ from commons.configs import checkOrCreateDir
 def setup(cli_args):
     analysis_name = "Analyzer."+cli_args.analysis
     MyAnalysis = importlib.import_module(analysis_name)
-    Scheduler.jobs = [MyAnalysis.Muon, MyAnalysis.Electron, # MyAnalysis.Jet,
-                      # MyAnalysis.EventWide
-                      ]
+    Scheduler.jobs = [MyAnalysis.Muon, MyAnalysis.Electron, MyAnalysis.Jet,
+                      MyAnalysis.EventWide]
     importlib.import_module("{}.{}_{}".format(analysis_name,
                                               cli_args.analysis,
                                               cli_args.year))
@@ -40,10 +39,8 @@ def setup(cli_args):
 
 def run(group, files, out_dir, xsec, chan, rerun):
     job = Scheduler(group, files, out_dir, xsec)
-    # if rerun or not os.path.isfile("{}/masks/{}.parquet".format(out_dir, group)):
     job.run()
-    #     job.add_tree()
-    # job.apply_mask(chan)
+    job.apply_mask(chan)
 
 
 def cleanup(cli_args):

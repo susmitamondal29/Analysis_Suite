@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-
 import awkward1 as ak
 from os.path import isfile
 
 class TaskHolder():
     def __init__(self, **kwargs):
+        self.dep_tree = dict()
         if "task" in kwargs:
             self.array_dict = kwargs["task"].array_dict
+            self.dep_tree = kwargs["task"].dep_tree
         elif "infile" in kwargs and isfile(kwargs["infile"]):
             arrays = ak.from_parquet(kwargs["infile"])
             self.array_dict = {key: arrays[key] for key in arrays.columns}
@@ -18,6 +19,7 @@ class TaskHolder():
     def __iadd__(self, other):
         if isinstance(other, TaskHolder):
             self.array_dict.update({var: other.array_dict[var] for var in other.output})
+            self.dep_tree.update(other.dep_tree)
         else:
             self.array_dict.update({col: other[col] for col in other.columns})
         return self
@@ -55,7 +57,8 @@ class TaskHolder():
         return "Dispatcher" in repr(getattr(self, funcName))
 
     def isVectorize(self, funcName):
-        return "DUFunc" in repr(getattr(self, funcName))
+        return ("DUFunc" in repr(getattr(self, funcName)) or
+           "ufunc" in repr(getattr(self, funcName)))
 
     def write_out(self, outname):
         output = self.output if self.output else self.array_dict.keys()

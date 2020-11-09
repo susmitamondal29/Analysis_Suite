@@ -5,7 +5,7 @@ import awkward1 as ak
 import numpy as np
 import numba
 import time 
-from anytree import Node
+from anytree import Node, RenderTree
 from collections import OrderedDict
 
 from Analyzer import TaskHolder
@@ -13,17 +13,8 @@ from Analyzer import TaskHolder
 class AnalyzeTask(TaskHolder):
     def __init__(self, task = None, *args):
         super().__init__(task=task)
-
-        self.mask_tree = dict()
         self.extraFuncs = list()
-        if isinstance(task, AnalyzeTask):
-            self.mask_tree = task.mask_tree
-
-    def __iadd__(self, other):
-        if isinstance(other, TaskHolder):
-            self.mask_tree.update(other.mask_tree)
-        return super().__iadd__(other)
-
+        self.tree_root = Node("base")
 
     def add_job(self, func, outmask, invars=[], inmask=None, addvals=[]):
         inmask_dict = dict()
@@ -35,10 +26,10 @@ class AnalyzeTask(TaskHolder):
                 var_apply = [v for v in invars if particle in v]
                 inmask_dict[mask] = var_apply
                 for om in outmask:
-                    self.mask_tree[om] = Node(om, self.mask_tree[mask])
+                    self.dep_tree[om] = Node(om, self.dep_tree[mask])
         else:
             for om in outmask:
-                self.mask_tree[om] = Node(om, Node("base"))
+                self.dep_tree[om] = Node(om, self.tree_root)
 
 
         self.output.add(outmask) if isinstance(outmask, str) else self.output.update(outmask)
@@ -52,10 +43,16 @@ class AnalyzeTask(TaskHolder):
                     
         self.extraFuncs.append((func, outmask, inmask_dict, invars, addvals_dict))
 
-        
     def run(self, filename):
         allvars = self.get_all_vars()
         start, end = 0, 0
+        print(list(self.array_dict.keys()))
+        for key, val in self.array_dict.items():
+            print(key, ak.count_nonzero(val))
+        for pre, fill, node in RenderTree(self.tree_root):
+            print("%s%s" % (pre, node.name))
+
+
         for array in uproot.iterate("{}:Events".format(filename), allvars):
             end += len(array)
             print("Events considered: ", end)
@@ -73,7 +70,9 @@ class AnalyzeTask(TaskHolder):
                 time1 = time.time()
                 self.apply_task(func, events, write_name, var+list(addvals.keys()))
                 time2 = time.time()
-                print('\033[4m{:s}\033[0m function took {:.3f} ms ({:d} evt/s)'.format(func, (time2-time1)*1000.0, int((end-start)/(time2-time1))))
+                # print('\033[4m{:^20s}\033[0m function took {:.3f} ms ({:.0f} evt/s)'
+                #       .format(func, (time2-time1)*1000.0,
+                #               float("{:.2g}".format((end-start)/(time2-time1)))))
             start = end
 
             
@@ -86,7 +85,7 @@ class AnalyzeTask(TaskHolder):
 
     def get_masks(self, mask_name, start, end):
         apply_list = list()
-        node = self.mask_tree[mask_name]
+        node = self.dep_tree[mask_name]
         while node.name != "base":
             apply_list.append(node.name)
             node = node.parent
@@ -96,8 +95,8 @@ class AnalyzeTask(TaskHolder):
         variable = self.array_dict[var_name][start:end]
         if mask_name is None:
             return variable
-        var_parent = self.mask_tree[var_name].parent.name
-        work_node = self.mask_tree[mask_name]
+        var_parent = self.dep_tree[var_name].parent.name
+        work_node = self.dep_tree[mask_name]
         apply_list = list()
 
         while work_node.name != var_parent:

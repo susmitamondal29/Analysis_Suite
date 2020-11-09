@@ -53,3 +53,16 @@ def merge_leptons(events, builder):
                 eidx += 1
             builder.end_tuple()
         builder.end_list()
+
+
+@numba.jit(nopython=True)
+def true_in_list(idx_list, shape, builder, useFalse=False):
+    for evt in range(len(shape)):
+        builder.begin_list()
+        for idx in range(shape[evt]):
+            idx_in_list = useFalse
+            for sub_idx in range(len(idx_list[evt])):
+                if idx == idx_list[evt][sub_idx]:
+                    idx_in_list = not useFalse
+            builder.boolean(idx_in_list)
+        builder.end_list()

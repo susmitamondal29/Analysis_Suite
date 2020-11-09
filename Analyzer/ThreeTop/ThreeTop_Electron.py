@@ -7,8 +7,8 @@ import numba
 import math
 
 from Analyzer import AnalyzeTask
-from Analyzer.Common import deltaR, jetRel, in_zmass
-from commons.configs import pre, cartes
+from Analyzer.Common import deltaR, jetRel, in_zmass, cartes
+from commons.configs import pre
 
 class Electron(AnalyzeTask):
     def __init__(self, task):
@@ -30,7 +30,7 @@ class Electron(AnalyzeTask):
 
         self.add_job("fake_mask", outmask = "Electron_basicFakeMask",
                      inmask = "Electron_looseMask", invars = Electron.fake)
-        self.add_job("closeJet", outmask = "Electron_closeJetIndex",
+        self.add_job("closeJet", outmask = ["Electron_closeJetIndex", "Electron_closeJetDR"],
                      inmask = "Electron_basicFakeMask", invars = Electron.close_jet)
         self.add_job("fullIso", outmask = "Electron_fakeMask",
                      inmask = "Electron_basicFakeMask", invars = Electron.v_fullIso,
