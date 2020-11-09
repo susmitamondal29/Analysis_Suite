@@ -7,19 +7,20 @@ import shutil
 import awkward1 as ak
 from commons import Histogram
 
+
 def get_cli():
     parser = argparse.ArgumentParser(prog="main", description="Central script for running tools in the Analysis suite")
     parser.add_argument('tool', type=str, help="Tool to run",
                     choices=['mva', 'plot', 'analyze', 'combine'])
-
     ##################
     # Common options #
     ##################
     parser.add_argument("-d", "--workdir", required=True,
                         type=lambda x : "output/{}".format(x),
                             help="Working Directory")
+    analyses = [ f.name for f in os.scandir("Analyzer") if f.is_dir() and "__pycache__" != f.name ]
     parser.add_argument("-a", "--analysis", type=str, required=True,
-                        help="Specificy analysis used")
+                        choices=analyses, help="Specificy analysis used")
     parser.add_argument("-c", "--channels", type=str, default="",
                         help="Channels to run over")
     parser.add_argument("-j", type=int, default=1, help="Number of cores")
@@ -36,8 +37,9 @@ def get_cli():
     elif sys.argv[1] == "mva":
         parser.add_argument('-t', '--train', action="store_true",
                             help="Run the training")
+        models = ["{}/{}".format(root,f) for root, dirs, files in os.walk("output") for f in files if f.endswith("bin")]
         parser.add_argument("-m", "--model", type=str, default="",
-                            help="Model file")
+                            choices = models, help="Model file")
     elif sys.argv[1] == "plot":
         parser.add_argument("--drawStyle", type=str, default='stack',
                             help='Way to draw graph',
@@ -55,13 +57,16 @@ def get_cli():
         parser.add_argument("-i", "--info", type=str, default="plotInfo_default.py",
                         help="Name of file containing histogram Info")
     elif sys.argv[1] == "analyze":
+        args, _ = parser.parse_known_args()
+        selection = [f.name.strip(".py") for f in os.scandir("data/FileInfo/{}".format(args.analysis))
+                      if f.name.endswith("py") ]
         parser.add_argument("-s", "--selection", type=str, required=True,
-                        help="Specificy selection used")
+                            choices = selection, help="Specificy selection used")
         parser.add_argument("-f", "--filenames", required=False,
-                        type=lambda x : [i.strip() for i in x.split(',')],
-                        default="", help="List of input file names, "
-                        "as defined in AnalysisDatasetManager, separated "
-                        "by commas")
+                            type=lambda x : [i.strip() for i in x.split(',')],
+                            default="", help="List of input file names, "
+                            "as defined in AnalysisDatasetManager, separated "
+                            "by commas")
         parser.add_argument("-y", "--year", type=str, default="2016", required=True,
                            help="Year to use")
         parser.add_argument("-r", "--rerun_selection", action="store_true", help="Remake create files")

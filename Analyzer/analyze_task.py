@@ -40,7 +40,7 @@ class AnalyzeTask(TaskHolder):
             else:
                 for add in additions:
                     addvals_dict[add] = mask
-                    
+        self.do_run_job(outmask, inmask_dict, invars)
         self.extraFuncs.append((func, outmask, inmask_dict, invars, addvals_dict))
 
     def run(self, filename):
@@ -51,7 +51,7 @@ class AnalyzeTask(TaskHolder):
             print(key, ak.count_nonzero(val))
         for pre, fill, node in RenderTree(self.tree_root):
             print("%s%s" % (pre, node.name))
-
+        exit()
 
         for array in uproot.iterate("{}:Events".format(filename), allvars):
             end += len(array)
@@ -75,6 +75,12 @@ class AnalyzeTask(TaskHolder):
                 #               float("{:.2g}".format((end-start)/(time2-time1)))))
             start = end
 
+
+    def do_run_job(self, write_name, inmask, addvals):
+        exists = write_name in self.array_dict
+        print("exists: {}".format(exists))
+        print(inmask)
+        print(addvals)
             
     def get_all_vars(self):
         return_set = set()
