@@ -69,7 +69,8 @@ def get_cli():
                             "by commas")
         parser.add_argument("-y", "--year", type=str, default="2016", required=True,
                            help="Year to use")
-        parser.add_argument("-r", "--rerun_selection", action="store_true", help="Remake create files")
+        parser.add_argument("-r", "--rerun", type=str, help="Redo a function")
+
     elif sys.argv[1] == "combine":
         pass
     else:

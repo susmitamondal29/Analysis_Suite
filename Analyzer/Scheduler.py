@@ -34,11 +34,12 @@ class Scheduler:
         lock.release()
 
         
-    def run(self):
+    def run(self, redo):
         self.print_stat("{}: Starting Job".format(self.group))
         for job in Scheduler.jobs:
-            cls = job(self.task)
+            cls = job(self.task, redo)
             cls.run(self.files)
+            redo.update(cls.redo)
             self.task += cls
         self.print_stat("{}: Starting Write".format(self.group))
         self.task.write_out("{}/masks/{}.parquet".format(self.out_dir, self.group))

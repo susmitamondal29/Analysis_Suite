@@ -10,8 +10,8 @@ from Analyzer.Common import true_in_list
 from commons.configs import pre
 
 class Jet(AnalyzeTask):
-    def __init__(self, task):
-        super().__init__(task)
+    def __init__(self, task, *args, **kwargs):
+        super().__init__(task, *args, **kwargs)
 
         self.add_job("closeJet", outmask="Jet_rmCloseJet", invars = ["Jet_pt"],
                      addvals = [("Electron_fakeMask",["Electron_closeJetIndex", "Electron_closeJetDR"]),

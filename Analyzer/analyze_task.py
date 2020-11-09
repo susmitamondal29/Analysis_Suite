@@ -11,10 +11,11 @@ from collections import OrderedDict
 from Analyzer import TaskHolder
 
 class AnalyzeTask(TaskHolder):
-    def __init__(self, task = None, *args):
+    def __init__(self, task = None, redo=set(), *args, **kwargs):
         super().__init__(task=task)
         self.extraFuncs = list()
         self.tree_root = Node("base")
+        self.redo = redo
 
     def add_job(self, func, outmask, invars=[], inmask=None, addvals=[]):
         inmask_dict = dict()
@@ -40,23 +41,28 @@ class AnalyzeTask(TaskHolder):
             else:
                 for add in additions:
                     addvals_dict[add] = mask
-        self.do_run_job(outmask, inmask_dict, invars)
         self.extraFuncs.append((func, outmask, inmask_dict, invars, addvals_dict))
 
     def run(self, filename):
-        allvars = self.get_all_vars()
         start, end = 0, 0
-        print(list(self.array_dict.keys()))
-        for key, val in self.array_dict.items():
-            print(key, ak.count_nonzero(val))
-        for pre, fill, node in RenderTree(self.tree_root):
-            print("%s%s" % (pre, node.name))
-        exit()
+        func_list = list()
+
+        # for key, val in self.array_dict.items():
+        #     print(key, ak.count_nonzero(val))
+        # for pre, fill, node in RenderTree(self.tree_root):
+        #     print("%s%s" % (pre, node.name))
+
+        for func, write_name, inmask, var, addvals in self.extraFuncs:
+            if self.do_run_job(write_name, inmask, addvals):
+                self.redo.update(write_name)
+                [self.array_dict.pop(name) for name in write_name if name in self.array_dict]
+                func_list.append((func, write_name, inmask, var, addvals))
+        allvars = self.get_all_vars(func_list)
 
         for array in uproot.iterate("{}:Events".format(filename), allvars):
             end += len(array)
-            print("Events considered: ", end)
-            for func, write_name, inmask, var, addvals in self.extraFuncs:
+            #print("Events considered: ", end)
+            for func, write_name, inmask, var, addvals in func_list:
                 events = array[var]
                 for mask_name, vals in inmask.items():
                     submasks = self.get_masks(mask_name, start, end)
@@ -77,14 +83,16 @@ class AnalyzeTask(TaskHolder):
 
 
     def do_run_job(self, write_name, inmask, addvals):
-        exists = write_name in self.array_dict
-        print("exists: {}".format(exists))
-        print(inmask)
-        print(addvals)
+        exists = np.all([name in self.array_dict for name in write_name])
+        redo = (np.any([i in self.redo for i in write_name]) or
+                np.any([i in self.redo for i in inmask.keys()]) or
+                np.any([i in self.redo for i in addvals.keys()]))
+
+        return not exists or redo
             
-    def get_all_vars(self):
+    def get_all_vars(self, func_list):
         return_set = set()
-        for _, _, _, var_list, _ in self.extraFuncs:
+        for _, _, _, var_list, _ in func_list:
             return_set |= set(var_list)
         return list(return_set)
 

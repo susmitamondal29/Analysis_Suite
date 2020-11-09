@@ -36,21 +36,15 @@ class TaskHolder():
             final_build = ak.unzip(getattr(self, func)(*variables))
         else:
             final_build = ak.unzip(getattr(self, func)(events))
-
- 
+            
         if isinstance(final_build, tuple):
             for var, var_arr in zip(add_vars, final_build):
-                if var not in self.array_dict:
-                    self.array_dict[var] = var_arr
-                else:
-                    self.array_dict[var] = ak.concatenate([self.array_dict[var], var_arr])
+                self.array_dict[var] = var_arr if var not in self.array_dict \
+                    else ak.concatenate([self.array_dict[var], var_arr])
         else:
             var = add_vars[0]
-            if var not in self.array_dict:
-                self.array_dict[var] = final_build
-            else:
-                self.array_dict[var] = ak.concatenate([self.array_dict[var], final_build])
-
+            self.array_dict[var] = final_build if var not in self.array_dict \
+                else ak.concatenate([self.array_dict[var], final_build])
 
 
     def isJit(self, funcName):

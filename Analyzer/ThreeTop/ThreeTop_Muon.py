@@ -11,8 +11,8 @@ from Analyzer.Common import deltaR, jetRel, in_zmass, cartes
 from commons.configs import pre
 
 class Muon(AnalyzeTask):
-    def __init__(self, task):
-        super().__init__(task)
+    def __init__(self, task, *args, **kwargs):
+        super().__init__(task, *args, **kwargs)
 
         self.add_job("loose_mask", outmask = "Muon_looseMask",
                      invars = Muon.loose)

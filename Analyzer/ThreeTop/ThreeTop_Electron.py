@@ -11,8 +11,8 @@ from Analyzer.Common import deltaR, jetRel, in_zmass, cartes
 from commons.configs import pre
 
 class Electron(AnalyzeTask):
-    def __init__(self, task):
-        super().__init__(task)
+    def __init__(self, task, *args, **kwargs):
+        super().__init__(task, *args, **kwargs)
 
         pteta = pre("Electron", ["pt", "eCorr", "eta"])
         mva_vars = pteta + Electron.mva_vars

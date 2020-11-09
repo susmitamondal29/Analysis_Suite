@@ -10,8 +10,8 @@ from Analyzer import AnalyzeTask
 from commons.configs import pre
 
 class EventWide(AnalyzeTask):
-    def __init__(self, task):
-        super().__init__(task)
+    def __init__(self, task, *args, **kwargs):
+        super().__init__(task, *args, **kwargs)
         # Calc Values
         self.add_job("set_channel", outmask = "Event_channels",
                      inmask = ["Electron_finalMask", "Muon_finalMask"],
