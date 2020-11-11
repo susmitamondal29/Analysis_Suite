@@ -23,6 +23,7 @@ def setup(cli_args):
         raise Exception("No files given")
     files_dict = info.get_file_dict(cli_args.filenames)
     checkOrCreateDir("{}/masks".format(cli_args.workdir))
+    checkOrCreateDir("{}/tmp_masks".format(cli_args.workdir))
     if cli_args.channels:
         MyAnalysis.set_channel(cli_args.channels)
         checkOrCreateDir("{}/{}".format(cli_args.workdir, cli_args.channels))

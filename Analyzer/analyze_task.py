@@ -7,12 +7,14 @@ import numba
 import time 
 from anytree import Node, RenderTree
 from collections import OrderedDict
+from memory_profiler import profile
+import itertools
 
 from Analyzer import TaskHolder
 
 class AnalyzeTask(TaskHolder):
-    def __init__(self, task = None, redo=set(), *args, **kwargs):
-        super().__init__(task=task)
+    def __init__(self, redo=set(), *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.extraFuncs = list()
         self.tree_root = Node("base")
         self.redo = redo
@@ -31,9 +33,7 @@ class AnalyzeTask(TaskHolder):
         else:
             for om in outmask:
                 self.dep_tree[om] = Node(om, self.tree_root)
-
-
-        self.output.add(outmask) if isinstance(outmask, str) else self.output.update(outmask)
+                
         addvals_dict = OrderedDict()
         for mask, additions in addvals:
             if isinstance(additions, str):
@@ -43,51 +43,55 @@ class AnalyzeTask(TaskHolder):
                     addvals_dict[add] = mask
         self.extraFuncs.append((func, outmask, inmask_dict, invars, addvals_dict))
 
-    def run(self, filename):
+    #@profile
+    def run(self, filename, data_holder):
         start, end = 0, 0
         func_list = list()
-
-        # for key, val in self.array_dict.items():
-        #     print(key, ak.count_nonzero(val))
-        # for pre, fill, node in RenderTree(self.tree_root):
-        #     print("%s%s" % (pre, node.name))
-
+        outputs = list()
         for func, write_name, inmask, var, addvals in self.extraFuncs:
-            if self.do_run_job(write_name, inmask, addvals):
+            if self.do_run_job(write_name, inmask, addvals, data_holder.get_columns()):
                 self.redo.update(write_name)
-                [self.array_dict.pop(name) for name in write_name if name in self.array_dict]
+                outputs.extend(write_name)
                 func_list.append((func, write_name, inmask, var, addvals))
+        if not func_list:
+            return False
+        data_holder.setup_newvals(outputs)
         allvars = self.get_all_vars(func_list)
-
-        for array in uproot.iterate("{}:Events".format(filename), allvars):
+        
+        for array in uproot.iterate("{}:Events".format(filename), allvars, step_size="50MB"):
             end += len(array)
-            #print("Events considered: ", end)
+            print("Events considered: ", start, end)
             for func, write_name, inmask, var, addvals in func_list:
+                #print(func)
                 events = array[var]
                 for mask_name, vals in inmask.items():
-                    submasks = self.get_masks(mask_name, start, end)
-                    for submask in submasks:
-                        for col in vals:
-                            events[col] = events[col][self.array_dict[submask][start:end]]
-                        
+                    submasks = self.get_masks(mask_name)
+                    for submask, col in itertools.product(submasks, vals):
+                        events[col] = events[col][data_holder.get_mask(submask, start, end)]
+
                 for addval, mask in addvals.items():
-                    events[addval] = self.add_var(mask, addval, start, end)
-
+                    mask_list = self.get_masks(mask, addval)
+                    events[addval] = data_holder.get_variable(addval, start, end, mask_list)
+                    
                 time1 = time.time()
-                self.apply_task(func, events, write_name, var+list(addvals.keys()))
+                finished_mask = self.apply_task(func, events, var+list(addvals.keys()))
+                data_holder.add_mask(finished_mask, write_name)
                 time2 = time.time()
-                # print('\033[4m{:^20s}\033[0m function took {:.3f} ms ({:.0f} evt/s)'
-                #       .format(func, (time2-time1)*1000.0,
-                #               float("{:.2g}".format((end-start)/(time2-time1)))))
+
+                print('\033[4m{:^20s}\033[0m function took {:.3f} ms ({:.0f} evt/s)'
+                      .format(func, (time2-time1)*1000.0,
+                              float("{:.2g}".format((end-start)/(time2-time1)))))
             start = end
+            
+        data_holder.end_run()
+        return True
 
-
-    def do_run_job(self, write_name, inmask, addvals):
-        exists = np.all([name in self.array_dict for name in write_name])
+    def do_run_job(self, write_name, inmask, addvals, masks_that_exist):
+        exists = np.all([name in masks_that_exist for name in write_name])
         redo = (np.any([i in self.redo for i in write_name]) or
                 np.any([i in self.redo for i in inmask.keys()]) or
                 np.any([i in self.redo for i in addvals.keys()]))
-
+        
         return not exists or redo
             
     def get_all_vars(self, func_list):
@@ -95,29 +99,15 @@ class AnalyzeTask(TaskHolder):
         for _, _, _, var_list, _ in func_list:
             return_set |= set(var_list)
         return list(return_set)
-
-
-    def get_masks(self, mask_name, start, end):
-        apply_list = list()
-        node = self.dep_tree[mask_name]
-        while node.name != "base":
-            apply_list.append(node.name)
-            node = node.parent
-        return apply_list[::-1]
-
-    def add_var(self, mask_name, var_name, start, end):
-        variable = self.array_dict[var_name][start:end]
+                        
+    def get_masks(self, mask_name, var_name=None):
+        mask_list = list()
         if mask_name is None:
-            return variable
-        var_parent = self.dep_tree[var_name].parent.name
+            return mask_list
+        parent = "base" if var_name is None else self.dep_tree[var_name].parent.name
         work_node = self.dep_tree[mask_name]
-        apply_list = list()
 
-        while work_node.name != var_parent:
-            apply_list.append(work_node.name)
+        while work_node.name != parent:
+            mask_list.append(work_node.name)
             work_node = work_node.parent
-
-        for m_name in apply_list[::-1]:
-            variable = variable[self.array_dict[m_name][start:end]]
-        return variable
-
+        return mask_list[::-1]

@@ -10,8 +10,8 @@ from Analyzer import AnalyzeTask
 from commons.configs import pre
 
 class EventWide(AnalyzeTask):
-    def __init__(self, task, *args, **kwargs):
-        super().__init__(task, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         # Calc Values
         self.add_job("set_channel", outmask = "Event_channels",
                      inmask = ["Electron_finalMask", "Muon_finalMask"],
@@ -29,9 +29,9 @@ class EventWide(AnalyzeTask):
         # Event Wide Masks
         self.add_job("met_filter", outmask = "Event_MetFilterMask",
                      invars = EventWide.filters)
-        self.add_job("trigger_2lep", outmask = "Event_trigger2LepMask",
-                     invars = EventWide.triggers_vars,
-                     addvals = [(None, "Event_channels")])
+        # self.add_job("trigger_2lep", outmask = "Event_trigger2LepMask",
+        #              invars = EventWide.triggers_vars,
+        #              addvals = [(None, "Event_channels")])
         # self.add_job("trigger_2lep", outmask = "Event_trigger2LepHT300Mask",
         #              invars = EventWide.triggers_2lepHT300,
         #              addvals = [(None, "Event_channels")])

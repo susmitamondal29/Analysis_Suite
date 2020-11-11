@@ -11,8 +11,8 @@ from Analyzer.Common import deltaR, jetRel, in_zmass, cartes
 from commons.configs import pre
 
 class Muon(AnalyzeTask):
-    def __init__(self, task, *args, **kwargs):
-        super().__init__(task, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.add_job("loose_mask", outmask = "Muon_looseMask",
                      invars = Muon.loose)
@@ -88,32 +88,44 @@ class Muon(AnalyzeTask):
 
     close_jet = ["Muon_eta", "Muon_phi", "Jet_eta", "Jet_phi"]
     @staticmethod
-    def closeJet(events):
-        leta, jeta = cartes(events.Muon_eta, events.Jet_eta)
-        lphi, jphi = cartes(events.Muon_phi, events.Jet_phi)
-        dr = (jeta-leta)**2 + (jphi-lphi)**2
-        dr_idx = ak.argmin(dr, axis=-1) % ak.count(events.Jet_eta, axis=-1)
-        dr_min = ak.min(dr, axis=-1)
-        return ak.zip((dr_idx, dr_min))
+    @numba.jit(nopython=True)
+    def closeJet(events, builder):
+        for event in events:
+            builder.begin_list()
+            for midx in range(len(event.Muon_eta)):
+                mindr = 100 # 0.16  # 0.4**2
+                minidx = -1
+                for jidx in range(len(event.Jet_eta)):
+                    dr = deltaR(event.Muon_phi[midx], event.Muon_eta[midx],
+                                event.Jet_phi[jidx], event.Jet_eta[jidx])
+                    if mindr > dr:
+                        mindr = dr
+                        minidx = jidx
+                builder.begin_tuple(2)
+                builder.index(0).integer(minidx)
+                builder.index(1).real(math.sqrt(mindr))
+                builder.end_tuple()
+            builder.end_list()
 
-    
     v_fullIso = pre("Muon", ["pt", "eta", "phi"]) + pre("Jet", ["pt", "eta", "phi"])
     @staticmethod
-    def fullIso(events):
-        I2 = 0.8
+    @numba.jit(nopython=True)
+    def fullIso(events, builder):
+        I2 = 0.76
         I3_pow2 = 7.2**2
-
-        closeJet_pt = events.Jet_pt[events.Muon_closeJetIndex]
-        closeJet_eta = events.Jet_eta[events.Muon_closeJetIndex]
-        closeJet_phi = events.Jet_phi[events.Muon_closeJetIndex]
-        jetrel = jetRel(events.Muon_pt, events.Muon_eta,
-                        events.Muon_phi, closeJet_pt,
-                        closeJet_eta, closeJet_phi)
-        pass_I2 = (events.Muon_pt/closeJet_pt) > I2
-        pass_I3 = jetrel > I3_pow2
-        return pass_I2 or pass_I3
-
-
+        for event in events:
+            builder.begin_list()
+            for midx in range(len(event.Muon_eta)):
+                jidx = event.Muon_closeJetIndex[midx]
+                if jidx < 0 or event.Muon_pt[midx]/event.Jet_pt[jidx] > I2:
+                    builder.boolean(True)
+                    continue
+                jetrel = jetRel(event.Muon_pt[midx], event.Muon_eta[midx],
+                                event.Muon_phi[midx], event.Jet_pt[jidx],
+                                event.Jet_eta[jidx], event.Jet_phi[jidx])
+                builder.boolean(jetrel > I3_pow2)
+            builder.end_list()
+    
     muon_part = pre("Muon", ["pt", "eta", "phi", "charge"])
     @staticmethod
     def pass_zveto(events):
@@ -142,7 +154,6 @@ class Muon(AnalyzeTask):
         eta_edges = np.array([0.9, 1.2, 2.1, 2.4])
 
         return sf[np.argmax(pt <= pt_edges), np.argmax(abs(eta) <= eta_edges)]
-
 
 
     @staticmethod

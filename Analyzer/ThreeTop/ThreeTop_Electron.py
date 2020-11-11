@@ -11,8 +11,8 @@ from Analyzer.Common import deltaR, jetRel, in_zmass, cartes
 from commons.configs import pre
 
 class Electron(AnalyzeTask):
-    def __init__(self, task, *args, **kwargs):
-        super().__init__(task, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         pteta = pre("Electron", ["pt", "eCorr", "eta"])
         mva_vars = pteta + Electron.mva_vars
@@ -117,31 +117,54 @@ class Electron(AnalyzeTask):
                 builder.integer(eidx)
             builder.end_list()
 
+
     close_jet = ["Electron_eta", "Electron_phi", "Jet_eta", "Jet_phi"]
     @staticmethod
-    def closeJet(events):
-        leta, jeta = cartes(events.Electron_eta, events.Jet_eta)
-        lphi, jphi = cartes(events.Electron_phi, events.Jet_phi)
-        dr = (jeta-leta)**2 + (jphi-lphi)**2
-        dr_idx = ak.argmin(dr, axis=-1) % ak.count(events.Jet_eta, axis=-1)
-        dr_min = ak.min(dr, axis=-1)
-        return ak.zip((dr_idx, dr_min))
+    @numba.jit(nopython=True)
+    def closeJet(events, builder):
+        i = 0
+        for event in events:
+            builder.begin_list()
+            for eidx in range(len(event.Electron_eta)):
+                mindr = 100
+                minidx = -1
+                for jidx in range(len(event.Jet_eta)):
+                    dr = deltaR(event.Electron_phi[eidx], event.Electron_eta[eidx],
+                                event.Jet_phi[jidx], event.Jet_eta[jidx])
+                    if mindr > dr:
+                        mindr = dr
+                        minidx = jidx
+                builder.begin_tuple(2)
+                builder.index(0).integer(minidx)
+                builder.index(1).real(math.sqrt(mindr))
+                builder.end_tuple()
+            builder.end_list()
+            i += 1
 
-    v_fullIso = pre("Electron", ["pt", "eta", "phi"]) + pre("Jet", ["pt", "eta", "phi"])
+    v_fullIso = pre("Electron", ["pt", "eCorr", "eta", "phi"]) + \
+        ["Jet_pt", "Jet_eta", "Jet_phi"]
     @staticmethod
-    def fullIso(events):
+    @numba.jit(nopython=True)
+    def fullIso(events, builder):
         I2 = 0.8
         I3_pow2 = 7.2**2
+        i = 0
+        for event in events:
+            builder.begin_list()
+            for eidx in range(len(event.Electron_eta)):
+                jidx = event.Electron_closeJetIndex[eidx]
+                pt = event.Electron_pt[eidx] / event.Electron_eCorr[eidx]
+                if jidx < 0 or pt/event.Jet_pt[jidx] > I2:
+                    builder.boolean(True)
+                    continue
+                jetrel = jetRel(pt, event.Electron_eta[eidx],
+                                event.Electron_phi[eidx], event.Jet_pt[jidx],
+                                event.Jet_eta[jidx], event.Jet_phi[jidx])
+                builder.boolean(jetrel > I3_pow2)
+            builder.end_list()
+            i += 1
 
-        closeJet_pt = events.Jet_pt[events.Electron_closeJetIndex]
-        closeJet_eta = events.Jet_eta[events.Electron_closeJetIndex]
-        closeJet_phi = events.Jet_phi[events.Electron_closeJetIndex]
-        jetrel = jetRel(events.Electron_pt, events.Electron_eta,
-                        events.Electron_phi, closeJet_pt,
-                        closeJet_eta, closeJet_phi)
-        pass_I2 = (events.Electron_pt/closeJet_pt) > I2
-        pass_I3 = jetrel > I3_pow2
-        return pass_I2 or pass_I3
+
 
     elec_part = pre("Electron", ["pt", "eta", "phi", "charge"])
     @staticmethod

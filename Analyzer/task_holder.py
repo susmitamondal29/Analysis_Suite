@@ -1,30 +1,17 @@
 #!/usr/bin/env python3
 import awkward1 as ak
 from os.path import isfile
+from memory_profiler import profile
 
 class TaskHolder():
-    def __init__(self, **kwargs):
+    #@profile
+    def __init__(self, *args, **kwargs):
         self.dep_tree = dict()
-        if "task" in kwargs:
-            self.array_dict = kwargs["task"].array_dict
-            self.dep_tree = kwargs["task"].dep_tree
-        elif "infile" in kwargs and isfile(kwargs["infile"]):
-            arrays = ak.from_parquet(kwargs["infile"])
-            self.array_dict = {key: arrays[key] for key in arrays.columns}
-        else:
-            self.array_dict = dict()
+        if "dep_tree" in kwargs:
+            self.dep_tree.update(kwargs["dep_tree"])
         self.output = set()
 
-
-    def __iadd__(self, other):
-        if isinstance(other, TaskHolder):
-            self.array_dict.update({var: other.array_dict[var] for var in other.output})
-            self.dep_tree.update(other.dep_tree)
-        else:
-            self.array_dict.update({col: other[col] for col in other.columns})
-        return self
-
-    def apply_task(self, func, events, add_vars, variables=None):
+    def apply_task(self, func, events, variables=None):
         final_build = None
         if self.isJit(func):
             builder = ak.ArrayBuilder()
@@ -37,16 +24,8 @@ class TaskHolder():
         else:
             final_build = ak.unzip(getattr(self, func)(events))
             
-        if isinstance(final_build, tuple):
-            for var, var_arr in zip(add_vars, final_build):
-                self.array_dict[var] = var_arr if var not in self.array_dict \
-                    else ak.concatenate([self.array_dict[var], var_arr])
-        else:
-            var = add_vars[0]
-            self.array_dict[var] = final_build if var not in self.array_dict \
-                else ak.concatenate([self.array_dict[var], final_build])
-
-
+        return final_build
+        
     def isJit(self, funcName):
         return "Dispatcher" in repr(getattr(self, funcName))
 
@@ -54,9 +33,47 @@ class TaskHolder():
         return ("DUFunc" in repr(getattr(self, funcName)) or
            "ufunc" in repr(getattr(self, funcName)))
 
+
+class DataHolder:
+    def __init__(self, infile):
+        if isfile(infile):
+            self.old_vals = ak.from_parquet(infile, lazy=True)
+        else:
+            self.old_vals = ak.Array({})
+        self.old_names = self.old_vals.columns
+        self.new_vals = dict()
+
+    def setup_newvals(self, names):
+        for name in names:
+            self.new_vals[name] = ak.Array([])
+
+    def get_mask(self, name, start, stop):
+        if name in self.old_names:
+            return self.old_vals[name][start:stop]
+        else:
+            return self.new_vals[name][start:stop]
+
+    def get_columns(self):
+        return self.old_names
+
+    def get_variable(self, name, start, stop, mask_list):
+        variable = self.get_mask(name, start, stop)
+        for m_name in mask_list:
+            variable = variable[self.get_mask(m_name, start, stop)]
+        return variable
+
+    def add_mask(self, build, add_vars):
+        for i, var in enumerate(add_vars):
+            self.new_vals[var] = ak.concatenate((self.new_vals[var], build[i]))
+
+    def end_run(self):
+        for col in self.new_vals.keys():
+            self.old_vals[col] = self.new_vals[col]
+        self.old_names = self.old_vals.columns
+        self.new_vals = dict()
+
     def write_out(self, outname):
-        output = self.output if self.output else self.array_dict.keys()
-        total_mask = ak.Array({})
-        for key in output:
-            total_mask[key] = self.array_dict[key]
-        ak.to_parquet(total_mask, outname, compression="gzip")
+        ak.to_parquet(self.old_vals, outname, compression="gzip")
+
+
+

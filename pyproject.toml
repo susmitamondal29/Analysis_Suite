@@ -33,6 +33,7 @@ pandas = { version = "^1.1.2", optional = true}
 [tool.poetry.dev-dependencies]
 ipython = "^7.18.1"
 argcomplete = "^1.12.1"
+memory-profiler = "^0.58.0"
 
 [tool.poetry.extras]
 analysis = ["uproot4", "numba", "anytree", "scipy"]
