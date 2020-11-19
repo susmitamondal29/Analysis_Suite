@@ -28,8 +28,11 @@ info = {
         "file_path" : "/data/dteague/NanoAOD_UnSkimmed/TTTJ_TuneCUETP8M2T4_13TeV-madgraph-pythia8/2018/*.root",
         "plot_group" : "mvaTest",
     },
-    "test" : {
-        "file_path" : '/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/RunIISummer16NanoAODv4-PUMoriond17_Nano14Dec2018_102X_mcRun2_asymptotic_v6_ext1-v1/NANOAODSIM',
+    "tttj" : {
+        "file_path" : '/store/user/dteague/NanoAOD_UnSkimmed/TTTJ_TuneCUETP8M2T4_13TeV-madgraph-pythia8/2018/tree_*.root',
+        "xrootd" : "root://cmsxrootd.hep.wisc.edu/",,
+
+
         "plot_group" : "mvaTest",
     }
 }

@@ -7,10 +7,11 @@ import numba
 import time 
 from anytree import Node, RenderTree
 from collections import OrderedDict
-from memory_profiler import profile
+# from memory_profiler import profile
 import itertools
+import sys
 
-from Analyzer import TaskHolder
+from .task_holder import TaskHolder
 
 class AnalyzeTask(TaskHolder):
     def __init__(self, redo=set(), *args, **kwargs):
@@ -58,7 +59,7 @@ class AnalyzeTask(TaskHolder):
         data_holder.setup_newvals(outputs)
         allvars = self.get_all_vars(func_list)
         
-        for array in uproot.iterate("{}:Events".format(filename), allvars, step_size="50MB"):
+        for array in uproot.iterate("{}:Events".format(filename), allvars, step_size="300MB"):
             end += len(array)
             print("Events considered: ", start, end)
             for func, write_name, inmask, var, addvals in func_list:
@@ -72,7 +73,7 @@ class AnalyzeTask(TaskHolder):
                 for addval, mask in addvals.items():
                     mask_list = self.get_masks(mask, addval)
                     events[addval] = data_holder.get_variable(addval, start, end, mask_list)
-                    
+
                 time1 = time.time()
                 finished_mask = self.apply_task(func, events, var+list(addvals.keys()))
                 data_holder.add_mask(finished_mask, write_name)

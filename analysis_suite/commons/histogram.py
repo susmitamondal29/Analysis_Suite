@@ -1,8 +1,9 @@
-import boost_histogram as bh
 import awkward1 as ak
 import numpy as np
-from scipy.stats import beta
 import math
+import boost_histogram as bh
+from scipy.stats import beta
+
 
 class Histogram:
     def __init__(self, name, color, args):

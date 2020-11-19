@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import awkward1 as ak
 from os.path import isfile
-from memory_profiler import profile
+#from memory_profiler import profile
 
 class TaskHolder():
     #@profile

@@ -5,7 +5,7 @@ import awkward1 as ak
 import numpy as np
 import numba
 
-from Analyzer import TaskHolder
+from .task_holder import TaskHolder
 
 
 class ApplyTask(TaskHolder):

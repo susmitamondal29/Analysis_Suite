@@ -4,9 +4,8 @@ import argparse
 import os
 import sys
 import shutil
-import awkward1 as ak
-from commons import Histogram
-
+import pkgutil
+import analysis_suite.Analyzer as analyzer
 
 def get_cli():
     parser = argparse.ArgumentParser(prog="main", description="Central script for running tools in the Analysis suite")
@@ -18,7 +17,7 @@ def get_cli():
     parser.add_argument("-d", "--workdir", required=True,
                         type=lambda x : "output/{}".format(x),
                             help="Working Directory")
-    analyses = [ f.name for f in os.scandir("Analyzer") if f.is_dir() and "__pycache__" != f.name ]
+    analyses = [ f.name for f in pkgutil.iter_modules(analyzer.__path__) if f.ispkg]
     parser.add_argument("-a", "--analysis", type=str, required=True,
                         choices=analyses, help="Specificy analysis used")
     parser.add_argument("-c", "--channels", type=str, default="",
@@ -93,6 +92,9 @@ def checkOrCreateDir(path):
 
 
 def getNormedHistos(indir, file_info, plot_info, histName, chan):
+    import awkward1 as ak
+    from analysis_suite.commons.histogram import Histogram
+
     groupHists = dict()
     ak_col = plot_info.Column[histName]
     for group, members in file_info.group2MemberMap.items():

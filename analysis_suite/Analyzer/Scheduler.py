@@ -7,16 +7,17 @@ lock = threading.Lock()
 from atomic import AtomicLong
 import logging
 import os
-from memory_profiler import profile
+#from memory_profiler import profile
 
-from Analyzer import ApplyTask, DataHolder
+from .task_holder import DataHolder
+from .apply_task import ApplyTask
 
 class Scheduler:
     jobs = list()
     write_list = list()
     atomic = AtomicLong(0)
 
-    @profile
+    #@profile
     def __init__(self, group, files, out_dir, xsec):
         self.data = DataHolder(infile="{}/masks/{}.parquet".format(out_dir, group))
         self.xsec = xsec

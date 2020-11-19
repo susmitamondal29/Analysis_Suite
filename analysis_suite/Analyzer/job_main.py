@@ -5,7 +5,7 @@ import os
 import importlib
 warnings.filterwarnings('ignore')
 
-from Analyzer import Scheduler
+from .Scheduler import Scheduler
 from commons import FileInfo
 from commons.configs import checkOrCreateDir
 

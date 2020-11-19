@@ -14,7 +14,8 @@ import mplhep as hep
 plt.style.use([hep.style.CMS, hep.style.firamath])
 
 import commons.configs as config
-from commons import Histogram, writeHTML, PlotInfo, FileInfo
+from commons import writeHTML, PlotInfo, FileInfo
+from commons.histogram import Histogram
 from inputs import plot_params
 from .stack import Stack
 from .pyPad import pyPad

@@ -9,15 +9,16 @@ license = "MIT"
 python = "^3.8"
 awkward1 = "^0.2.37"
 pyarrow = "^1.0.1"
-boost-histogram = "^0.10.2"
-matplotlib = "^3.3.2"
+atomic = "^0.7.3"
+
+# Mixed
+matplotlib = { version = "^3.3.2", optional = true }
 
 # Analysis Code
 uproot4 = { version = "^0.0.17", optional = true}
 numba = { version = "^0.51.0", optional = true}
 anytree = { version = "^2.8.0", optional = true}
 #setuptools = {"^50.3.0", optional = true}
-scipy = { version = "^1.5.2", optional = true}
 
 # Plotting Code
 prettytable = { version = "^0.7.2", optional = true}
@@ -25,10 +26,9 @@ mplhep = { version = "^0.1.36", optional = true}
 
 # MVA code
 xgboost = { version = "^1.2.0", optional = true}
-atomic = "^0.7.3"
+boost-histogram = { version = "^0.11.1", optional = true }
 sklearn = { version = "^0.0", optional = true}
 pandas = { version = "^1.1.2", optional = true}
-#uproot = {"^3.12.0", optional = true}
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.18.1"
@@ -36,10 +36,10 @@ argcomplete = "^1.12.1"
 memory-profiler = "^0.58.0"
 
 [tool.poetry.extras]
-analysis = ["uproot4", "numba", "anytree", "scipy"]
-plotting = ["prettytable", "mplhep"]
-mva = ["xgboost", "sklearn", "pandas"]
-all = ["xgboost", "sklearn", "pandas", "prettytable", "mplhep", "uproot4", "numba", "anytree", "scipy"]
+analysis = ["uproot4", "numba", "anytree"]
+plotting = ["prettytable", "mplhep", "scipy", "boost-histogram", "matplotlib"]
+mva = ["xgboost", "sklearn", "pandas", "scipy", "matplotlib"]
+all = ["xgboost", "sklearn", "pandas", "prettytable", "mplhep", "uproot4", "numba", "anytree", "scipy", "matplotlib"]
 
 [build-system]
 requires = ["poetry>=0.12"]

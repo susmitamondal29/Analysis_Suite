@@ -3,6 +3,8 @@ import numpy as np
 import os
 import glob
 import imp
+import subprocess
+
 
 class BasicInfo:
     def __init__(self, analysis="", selection="", lumi=140000, **kwargs):
@@ -96,6 +98,10 @@ class FileInfo(BasicInfo):
                 else:
                     return_dict[group] = self.fileInfo[group]["file_path"]
             return return_dict
+
+    def get_xrootd(self, dirpath):
+        return subprocess.run(["hdfs", "dfs", "-find", dirpath, "-name", "*root"],
+                       capture_output=True).stdout.split()
 
     def get_xsec(self, group):
         scale = self.mcInfo[group]['cross_section']
