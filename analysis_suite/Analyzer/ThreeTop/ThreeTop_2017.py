@@ -4,7 +4,7 @@ import numpy as np
 import numba
 from types import MethodType
 
-from Analyzer.ThreeTop import Jet, Electron, EventWide
+from analysis_suite.Analyzer.ThreeTop import Jet, Electron, EventWide
 
 
 setattr(Electron, "mva_vars", ["Electron_mvaFall17V1noIso"])

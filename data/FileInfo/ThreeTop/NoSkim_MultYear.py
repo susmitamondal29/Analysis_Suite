@@ -30,9 +30,7 @@ info = {
     },
     "tttj" : {
         "file_path" : '/store/user/dteague/NanoAOD_UnSkimmed/TTTJ_TuneCUETP8M2T4_13TeV-madgraph-pythia8/2018/tree_*.root',
-        "xrootd" : "root://cmsxrootd.hep.wisc.edu/",,
-
-
+        "xrootd" : "root://cmsxrootd.hep.wisc.edu/",
         "plot_group" : "mvaTest",
     }
 }

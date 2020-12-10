@@ -4,8 +4,8 @@ from .ThreeTop_Jets import Jet
 from .ThreeTop_Electron import Electron
 from .ThreeTop_Event import EventWide
 
-# from Analyzer import CutApplier
-# from commons.configs import pre
+# from analysis_suite.Analyzer import CutApplier
+# from analysis_suite.commons.configs import pre
 
 channels = ['had', 'one', 'SS', 'OS', 'multi']
 

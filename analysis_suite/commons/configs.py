@@ -15,7 +15,7 @@ def get_cli():
     # Common options #
     ##################
     parser.add_argument("-d", "--workdir", required=True,
-                        type=lambda x : "output/{}".format(x),
+                        type=lambda x : "output/{}".format(x) if x != "CONDOR" else x,
                             help="Working Directory")
     analyses = [ f.name for f in pkgutil.iter_modules(analyzer.__path__) if f.ispkg]
     parser.add_argument("-a", "--analysis", type=str, required=True,
@@ -57,8 +57,12 @@ def get_cli():
                         help="Name of file containing histogram Info")
     elif sys.argv[1] == "analyze":
         args, _ = parser.parse_known_args()
-        selection = [f.name.strip(".py") for f in os.scandir("data/FileInfo/{}".format(args.analysis))
+        selection = None
+        if os.path.exists("data/FileInfo/"):
+            selection = [f.name.strip(".py") for f in os.scandir("data/FileInfo/{}".format(args.analysis))
                       if f.name.endswith("py") ]
+        else:
+             selection = ["CONDOR"]
         parser.add_argument("-s", "--selection", type=str, required=True,
                             choices = selection, help="Specificy selection used")
         parser.add_argument("-f", "--filenames", required=False,

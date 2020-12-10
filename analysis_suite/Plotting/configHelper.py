@@ -1,7 +1,7 @@
 import os
 import time
 
-from commons.configs import checkOrCreateDir
+from analysis_suite.commons.configs import checkOrCreateDir
 
 def setupPathAndDir(analysis, drawStyle, path, chans):
     """Setup HTML directory area and return path made"""

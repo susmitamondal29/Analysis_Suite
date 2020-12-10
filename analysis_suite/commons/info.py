@@ -7,10 +7,12 @@ import subprocess
 
 
 class BasicInfo:
-    def __init__(self, analysis="", selection="", lumi=140000, **kwargs):
+    def __init__(self, analysis="", selection="", lumi=140000,
+               mcPath = "data/FileInfo/montecarlo/montecarlo_2016.py", **kwargs):
         self.analysis = analysis
         self.selection = selection
         self.lumi = lumi
+        self.mcInfo = self.readAllInfo(mcPath)
 
     def readAllInfo(self, file_path):
         info = {}
@@ -46,6 +48,12 @@ class BasicInfo:
                 print(err)
         return json_info
 
+    def get_xsec(self, group):
+        scale = self.mcInfo[group]['cross_section']
+        if "kfactor" in self.mcInfo[group]:
+            scale *= self.mcInfo[group]["kfactor"]
+        return scale
+
 class PlotInfo(BasicInfo):
     def __init__(self, plotInfo, **kwargs):
         super().__init__(**kwargs)
@@ -72,8 +80,6 @@ class FileInfo(BasicInfo):
     def __init__(self, group2color={}, **kwargs):
         super().__init__(**kwargs)
         self.group2color = group2color
-        self.mcInfo = self.readAllInfo(
-            "data/FileInfo/montecarlo/montecarlo_2016.py")
         self.fileInfo = self.readAllInfo(
             "data/FileInfo/{}/{}.py".format(self.analysis,self.selection))
         self.groupInfo = self.readAllInfo(
@@ -99,15 +105,15 @@ class FileInfo(BasicInfo):
                     return_dict[group] = self.fileInfo[group]["file_path"]
             return return_dict
 
+    def get_file_dict_with_xsec(self, group_list=None):
+        out_dict = dict()
+        for group, files in self.get_file_dict(group_list):
+            out_dict[group] = (files, self.get_xsec(group))
+        return out_dict
+    
     def get_xrootd(self, dirpath):
         return subprocess.run(["hdfs", "dfs", "-find", dirpath, "-name", "*root"],
                        capture_output=True).stdout.split()
-
-    def get_xsec(self, group):
-        scale = self.mcInfo[group]['cross_section']
-        if "kfactor" in self.mcInfo[group]:
-            scale *= self.mcInfo[group]["kfactor"]
-        return scale
 
     def get_color(self, group):
         return self.group2color[group]

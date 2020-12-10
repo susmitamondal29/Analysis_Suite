@@ -6,9 +6,9 @@
 import numpy as np
 import pandas as pd
 import xgboost as xgb
-from commons import VarGetter
+from analysis_suite.commons import VarGetter
 import awkward1 as ak
-# from commons import FileInfo
+# from analysis_suite.commons import FileInfo
 
 from sklearn.model_selection import train_test_split
 

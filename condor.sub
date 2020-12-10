@@ -1,0 +1,10 @@
+executable =  /usr/bin/sleep
+arguments =  1m                # sleep for 1 minute
+output =  sleep-$(ProcID).out  # output and error separated by job using the $(ProcID) macro
+error =  sleep-$(ProcID).err               # we send all of the HTCondor logs for every individual job to the same file still (not split up!)
+log =  sleep.log
+request_cpus =  1
+request_memory =  128MB
+request_disk =  128MB
+
+queue 3

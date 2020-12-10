@@ -5,9 +5,9 @@ import awkward1 as ak
 import numpy as np
 import numba
 
-from Analyzer import AnalyzeTask
-from Analyzer.Common import true_in_list
-from commons.configs import pre
+from analysis_suite.Analyzer import AnalyzeTask
+from analysis_suite.Analyzer.Common import true_in_list
+from analysis_suite.commons.configs import pre
 
 class Jet(AnalyzeTask):
     def __init__(self, *args, **kwargs):

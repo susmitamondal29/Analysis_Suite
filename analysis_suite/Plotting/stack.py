@@ -1,4 +1,4 @@
-from commons.histogram import Histogram
+from analysis_suite.commons.histogram import Histogram
 
 from matplotlib import colors as clr
 import numpy as np

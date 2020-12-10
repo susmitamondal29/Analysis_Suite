@@ -6,10 +6,11 @@ authors = ["Dylan Teague <dteague@cern.ch>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.6.8"
 awkward1 = "^0.2.37"
 pyarrow = "^1.0.1"
 atomic = "^0.7.3"
+scipy = "^1.5.4"
 
 # Mixed
 matplotlib = { version = "^3.3.2", optional = true }
@@ -29,16 +30,17 @@ xgboost = { version = "^1.2.0", optional = true}
 boost-histogram = { version = "^0.11.1", optional = true }
 sklearn = { version = "^0.0", optional = true}
 pandas = { version = "^1.1.2", optional = true}
+htcondor = "^8.9.10"
 
 [tool.poetry.dev-dependencies]
-ipython = "^7.18.1"
 argcomplete = "^1.12.1"
 memory-profiler = "^0.58.0"
+ipython = "7.16"
 
 [tool.poetry.extras]
 analysis = ["uproot4", "numba", "anytree"]
-plotting = ["prettytable", "mplhep", "scipy", "boost-histogram", "matplotlib"]
-mva = ["xgboost", "sklearn", "pandas", "scipy", "matplotlib"]
+plotting = ["prettytable", "mplhep", "boost-histogram", "matplotlib"]
+mva = ["xgboost", "sklearn", "pandas", "matplotlib"]
 all = ["xgboost", "sklearn", "pandas", "prettytable", "mplhep", "uproot4", "numba", "anytree", "scipy", "matplotlib"]
 
 [build-system]

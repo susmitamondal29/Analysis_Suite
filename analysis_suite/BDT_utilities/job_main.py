@@ -5,8 +5,8 @@ import numpy as np
 from collections import OrderedDict
 import xgboost as xgb
 
-from commons import FileInfo
-from commons.configs import checkOrCreateDir
+from analysis_suite.commons import FileInfo
+from analysis_suite.commons.configs import checkOrCreateDir
 from .MvaMaker import XGBoostMaker
 from .MVAPlotter import MVAPlotter
 from inputs import mva_params

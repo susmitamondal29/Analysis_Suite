@@ -6,8 +6,8 @@ import numpy as np
 import numba
 import math
 
-from Analyzer import AnalyzeTask
-from commons.configs import pre
+from analysis_suite.Analyzer import AnalyzeTask
+from analysis_suite.commons.configs import pre
 
 class EventWide(AnalyzeTask):
     def __init__(self, *args, **kwargs):
