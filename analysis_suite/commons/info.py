@@ -4,7 +4,7 @@ import os
 import glob
 import imp
 import subprocess
-
+from pathlib import Path
 
 class BasicInfo:
     def __init__(self, analysis="", selection="", lumi=140000,
@@ -90,6 +90,29 @@ class FileInfo(BasicInfo):
         else:
             self.group2MemberMap = {key: item["Members"]
                                     for key, item in self.groupInfo.items()}
+
+    def get_file_with_size(self, group_list=None):
+        return_dict = dict()
+        for key, item in self.fileInfo.items():
+            files = item["file_path"]
+            if isinstance(files, str):
+                dirs = Path(files)
+                return_dict[key] = [(str(f), f.stat().st_size) for f in dirs.glob("**/*.root")]
+            else:
+                return_dict[key] = files
+
+        return return_dict
+        # if group_list is None:
+        #     return {key: item["file_path"] for key, item in self.fileInfo.items()}
+        # else:
+        #     return_dict = dict()
+        #     for group in group_list:
+        #         if group in self.group2MemberMap:
+        #             return_dict.update({sample: self.fileInfo[sample]["file_path"]
+        #                                 for sample in self.group2MemberMap[group]})
+        #         else:
+        #             return_dict[group] = self.fileInfo[group]["file_path"]
+        #     return return_dict
 
 
     def get_file_dict(self, group_list=None):

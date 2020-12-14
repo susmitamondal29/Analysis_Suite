@@ -1,29 +1,30 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+analysis=$1
+year=$2
+group=$3
+value=$4
+files=$5
 
-echo $@
-echo "YO"
+proxy_path="${HOME}/private/userproxy"
+export X509_USER_PROXY=$proxy_path
 
-# analysis=$1
-# year=$2
-# group=$3
-# files=$4
+python3 -m venv env
+source env/bin/activate
+pip install analysis_suite*whl &>/dev/null
+pip install -r requirements.txt &>/dev/null
 
-# echo $@
+i=0
+for f in $(echo $files | tr ";" "\n"); do
+    echo $f
+    ln -s $f tree_${i}.root
+    i=$((i + 1))
+done
 
-# ls
+ls -l
 
-# proxy_path="/afs/cern.ch/user/${USER:0:1}/$USER/private/userproxy"
-# export X509_USER_PROXY=$proxy_path
+./run_suite.py analyze -a $analysis -d CONDOR -s CONDOR -y $year -f $group
+mv "${group}.parquet" "${group}_${value}.parquet"
 
-# python3 -m venv env
-# source env/bin/activate
-# pip install analysis_suite*whl
-# pip install -r requirements.txt
-
-# for f in $(echo $files | tr ";" "\n"); do
-#     echo "File is: $f"
-# done
-
-# echo "./run_suite.py analyze -a $analysis -d CONDOR -s CONDOR -y $year -f $group"
+ls

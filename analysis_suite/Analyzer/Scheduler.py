@@ -50,8 +50,11 @@ class Scheduler:
             need_to_save = need_to_save or jobsave
             redo.update(cls.redo)
             depTree = cls.dep_tree
-        if need_to_save:
-            self.data.write_out("{}/masks/{}.parquet".format(self.out_dir, self.group))
+            
+        if self.out_dir == ".":
+            self.data.write_out("{}.parquet".format(self.group))
+        else:
+            self.data.write_out("{}/{}.parquet".format(self.out_dir, self.group))
         self.print_stat("{}: Finished Write".format(self.group), end=True)
 
     def apply_mask(self, chan):

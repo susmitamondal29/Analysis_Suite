@@ -21,7 +21,7 @@ def setup(cli_args):
         raise Exception("No files given")
 
     files_dict = dict()
-    if len(files_dict) == 0 and cli_args.workdir == ".":
+    if cli_args.workdir == ".":
         group = cli_args.filenames[0]
         info = BasicInfo(mcPath="montecarlo_2016.py")
         files_dict[group] = ("./*.root", info.get_xsec(group))

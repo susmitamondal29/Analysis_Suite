@@ -58,8 +58,10 @@ class AnalyzeTask(TaskHolder):
             return False
         data_holder.setup_newvals(outputs)
         allvars = self.get_all_vars(func_list)
-        
-        for array in uproot.iterate("{}:Events".format(filename), allvars, step_size="300MB"):
+
+        print(filename)
+
+        for array in uproot.iterate(f'{filename}:Events', allvars, step_size="300MB"):
             end += len(array)
             print("Events considered: ", start, end)
             for func, write_name, inmask, var, addvals in func_list:
@@ -83,7 +85,7 @@ class AnalyzeTask(TaskHolder):
                       .format(func, (time2-time1)*1000.0,
                               float("{:.2g}".format((end-start)/(time2-time1)))))
             start = end
-            
+        print("done")
         data_holder.end_run()
         return True
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import math
 import awkward1 as ak
 import numpy as np
 import numba
@@ -11,7 +12,7 @@ setattr(Electron, "mva_vars", ["Electron_mvaFall17V2noIso"])
 
 @staticmethod
 @numba.vectorize('b1(f4,f4,f4,f4)')
-def mva_loose_2018(pt, eCorr, eta, mva):
+def mva_loose(pt, eCorr, eta, mva):
     A = np.array([1.32, 0.192, 0.363])
     B = np.array([1.204, 0.084, -0.123])
     C = np.array([0.066, 0.033, 0.053])
@@ -31,7 +32,7 @@ setattr(Electron, "mva_loose", mva_loose)
 
 @staticmethod
 @numba.vectorize('b1(f4,f4,f4,f4)')
-def mva_tight_2018(pt, eCorr, eta, mva):
+def mva_tight(pt, eCorr, eta, mva):
     B = np.array([4.277, 3.152, 2.359])
     C = np.array([0.112, 0.06, 0.087])
     if pt/eCorr < 10: return False

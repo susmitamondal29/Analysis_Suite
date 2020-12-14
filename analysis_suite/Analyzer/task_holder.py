@@ -73,7 +73,6 @@ class DataHolder:
         self.new_vals = dict()
 
     def write_out(self, outname):
+        print(self.old_names)
+        print(outname)
         ak.to_parquet(self.old_vals, outname, compression="gzip")
-
-
-
