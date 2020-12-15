@@ -23,10 +23,13 @@ class Scheduler:
         self.xsec = xsec
         self.group = group
         self.files = files
-        self.out_dir = out_dir
         self.atomic += 1
         self.prevLine = "\033[{}F\033[K".format(self.atomic.value+1)
         self.nextLine = "\033[{}E ".format(self.atomic.value)
+        if out_dir == ".":
+            self.pq_filename = "{}.parquet".format(self.group)
+        else:
+            self.pq_filename = "{}/{}.parquet".format(out_dir, self.group)
 
 
     def print_stat(self, string, end=False):
@@ -50,27 +53,22 @@ class Scheduler:
             need_to_save = need_to_save or jobsave
             redo.update(cls.redo)
             depTree = cls.dep_tree
-            
-        if self.out_dir == ".":
-            self.data.write_out("{}.parquet".format(self.group))
-        else:
-            self.data.write_out("{}/{}.parquet".format(self.out_dir, self.group))
+
+        self.data.write_out(self.pq_filename)
         self.print_stat("{}: Finished Write".format(self.group), end=True)
 
     def apply_mask(self, chan):
-        pass
-        # self.print_stat("{}: Starting Apply".format(self.group))
-        # cut_apply = CutApplier(ak.from_parquet(
-        #     "{}/masks/{}.parquet".format(self.out_dir, self.group)), self.xsec)
-        # cut_apply.run(self.files)
+        self.print_stat("{}: Starting Apply".format(self.group))
+        cut_apply = CutApplier(self.data, self.xsec)
+        cut_apply.run(self.files)
 
-        # # write
-        # self.print_stat("{}: Starting Write".format(self.group))
+        # write
+        self.print_stat("{}: Starting Write".format(self.group))
 
-        # total_mask = ak.Array({})
-        # for key, arr in cut_apply.output.items():
-        #     total_mask[key] = arr
-        # ak.to_parquet(total_mask, "{}/{}/{}.parquet"
-        #               .format(self.out_dir, chan, self.group),
-        #               compression="gzip")
-        # self.print_stat("{}: Finished Write".format(self.group), end=True)
+        total_mask = ak.Array({})
+        for key, arr in cut_apply.output.items():
+            total_mask[key] = arr
+        ak.to_parquet(total_mask, "{}/{}/{}.parquet"
+                      .format(self.out_dir, chan, self.group),
+                      compression="gzip")
+        self.print_stat("{}: Finished Write".format(self.group), end=True)

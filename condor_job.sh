@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-analysis=$1
-year=$2
-group=$3
-value=$4
+value=$1
+analysis=$2
+year=$3
+group=$4
 files=$5
 
 proxy_path="${HOME}/private/userproxy"
@@ -16,7 +16,7 @@ pip install analysis_suite*whl &>/dev/null
 pip install -r requirements.txt &>/dev/null
 
 i=0
-for f in $(echo $files | tr ";" "\n"); do
+for f in $(echo $files | tr "," "\n"); do
     echo $f
     ln -s $f tree_${i}.root
     i=$((i + 1))

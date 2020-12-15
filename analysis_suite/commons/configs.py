@@ -60,7 +60,7 @@ def get_cli():
         selection = None
         if os.path.exists("data/FileInfo/"):
             selection = [f.name.strip(".py") for f in os.scandir("data/FileInfo/{}".format(args.analysis))
-                      if f.name.endswith("py") ]
+                      if f.name.endswith("py") ] + ["CONDOR"]
         else:
              selection = ["CONDOR"]
         parser.add_argument("-s", "--selection", type=str, required=True,

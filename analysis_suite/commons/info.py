@@ -130,7 +130,9 @@ class FileInfo(BasicInfo):
 
     def get_file_dict_with_xsec(self, group_list=None):
         out_dict = dict()
-        for group, files in self.get_file_dict(group_list):
+        print(group_list)
+        print(self.get_file_dict(group_list))
+        for group, files in self.get_file_dict(group_list).items():
             out_dict[group] = (files, self.get_xsec(group))
         return out_dict
     

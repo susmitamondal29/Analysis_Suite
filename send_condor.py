@@ -52,43 +52,54 @@ if voms_result.returncode != 0:
 
 
 binned_files = dict()
-main_args = ["ThreeTop", "2018"]
+main_args = ["$(Process)", "ThreeTop", "2018"]
 
+output_dir = Path("out/test")
 
 # Setup Bins
-info = FileInfo(analysis="ThreeTop", selection="all_2018")
-file_w_size_dict = info.get_file_with_size()
+pickle_path = Path(output_dir, 'binned_files.pkl')
+if pickle_path.exists():
+    with open(pickle_path, 'rb') as pkl:
+        binned_files = pickle.load(pkl)
+else:
+    info = FileInfo(analysis="ThreeTop", selection="all_2018")
+    file_w_size_dict = info.get_file_with_size()
 
-file_sizes = sorted([size  for group in file_w_size_dict.values() for _, size in group])
-number_files = 4
-bin_size = np.median(file_sizes)*number_files
-print(bin_size)
-for key, file_list in file_w_size_dict.items():
-    bins = pack(file_list, bin_size)
-    binned_files[key] = [",".join(b.names) for b in bins]
-    
-with open('filename.pickle', 'wb') as handle:
-    pickle.dump(binned_files, handle)
+    file_sizes = sorted([size  for group in file_w_size_dict.values() for _, size in group])
+    number_files = 4
+    bin_size = np.median(file_sizes)*number_files
+    print(bin_size)
+    for key, file_list in file_w_size_dict.items():
+        bins = pack(file_list, bin_size)
+        binned_files[key] = [",".join(b.names) for b in bins]
+        print(key, len(bins))
+    with open(pickle_path, 'wb') as handle:
+        pickle.dump(binned_files, handle)
+
+
+
 
 # Submit the jobs
 schedd = htcondor.Schedd()
 sub = htcondor.Submit()
 sub["Executable"] = "condor_job.sh"
 sub["GetEnv"] = "true"
-sub["error"] = "test.err"
-sub["output"] = "test.out"
+sub["error"] = "test_$(Cluster).$(Process).err"
+sub["output"] = "test_$(Cluster).$(Process).out"
 sub["log"] = "test.log"
+sub["Initialdir"] = output_dir
 # sub["request_memory"] = "2GB"
 # sub["request_disk"] = "5GB"
-sub["transfer_input_files"] = "dist/"
+sub["transfer_input_files"] = "../../dist/"
 
 sub["stream_error"] = "true"
 sub["stream_output"] = "true"
 
-with schedd.transaction() as txn:
-    group = "zzz"
-    for i, args in enumerate(binned_files[group]):
-        sub['Arguments']= " ".join(main_args +[group, str(i), args])
-        print(sub["Arguments"])
-        sub["transfer_output_files"] = f"{group}_{i}.parquet"
-    sub.queue(txn)
+for group, group_files in binned_files.items():
+    if group != "tttj":
+        continue
+    with schedd.transaction() as txn:
+        for i, args in enumerate(group_files):
+            sub['Arguments']= " ".join(main_args +[group, args])
+            sub["transfer_output_files"] = f"{group}_$(Process).parquet"
+            sub.queue(txn)
