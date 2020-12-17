@@ -78,7 +78,7 @@ class AnalyzeTask(TaskHolder):
 
                 time1 = time.time()
                 finished_mask = self.apply_task(func, events, var+list(addvals.keys()))
-                data_holder.add_mask(finished_mask, write_name)
+                data_holder.add_masks(finished_mask, write_name)
                 time2 = time.time()
 
                 print('\033[4m{:^20s}\033[0m function took {:.3f} ms ({:.0f} evt/s)'

@@ -15,6 +15,8 @@ source env/bin/activate
 pip install analysis_suite*whl &>/dev/null
 pip install -r requirements.txt &>/dev/null
 
+pip list
+
 i=0
 for f in $(echo $files | tr "," "\n"); do
     echo $f

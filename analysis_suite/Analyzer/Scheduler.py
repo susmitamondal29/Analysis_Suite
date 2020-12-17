@@ -19,7 +19,6 @@ class Scheduler:
 
     #@profile
     def __init__(self, group, files, out_dir, xsec):
-        self.data = DataHolder(infile="{}/masks/{}.parquet".format(out_dir, group))
         self.xsec = xsec
         self.group = group
         self.files = files
@@ -27,10 +26,11 @@ class Scheduler:
         self.prevLine = "\033[{}F\033[K".format(self.atomic.value+1)
         self.nextLine = "\033[{}E ".format(self.atomic.value)
         if out_dir == ".":
-            self.pq_filename = "{}.parquet".format(self.group)
+            self.pq_filename = "{}.pbz2".format(self.group)
         else:
-            self.pq_filename = "{}/{}.parquet".format(out_dir, self.group)
-
+            self.pq_filename = "{}/{}.pbz2".format(out_dir, self.group)
+            
+        self.data = DataHolder(infile=self.pq_filename)
 
     def print_stat(self, string, end=False):
         text = string + '\x1b[0m'
@@ -53,22 +53,25 @@ class Scheduler:
             need_to_save = need_to_save or jobsave
             redo.update(cls.redo)
             depTree = cls.dep_tree
-
-        self.data.write_out(self.pq_filename)
+        if need_to_save:
+            self.data.write_out(self.pq_filename)
         self.print_stat("{}: Finished Write".format(self.group), end=True)
 
     def apply_mask(self, chan):
         self.print_stat("{}: Starting Apply".format(self.group))
-        cut_apply = CutApplier(self.data, self.xsec)
-        cut_apply.run(self.files)
+        print(self.data.get_columns())
+        self.proc_data = DataHolder(infile="proc_data.pbz2")
+        cut_apply = ApplyTask(self.xsec)
+        cut_apply.run(self.files, self.data, self.proc_data)
 
         # write
         self.print_stat("{}: Starting Write".format(self.group))
+        exit()
 
         total_mask = ak.Array({})
         for key, arr in cut_apply.output.items():
             total_mask[key] = arr
-        ak.to_parquet(total_mask, "{}/{}/{}.parquet"
+        ak.to_parquet(total_mask, "{}/{}/{}.pbz2"
                       .format(self.out_dir, chan, self.group),
                       compression="gzip")
         self.print_stat("{}: Finished Write".format(self.group), end=True)

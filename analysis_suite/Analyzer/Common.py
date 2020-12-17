@@ -30,30 +30,6 @@ def in_zmass(lpt, leta, lphi, Lpt, Leta, Lphi):
 def cartes(arr1, arr2):
     return ak.unzip(ak.cartesian([arr1, arr2], nested=True))
 
-@numba.jit(nopython=True)
-def merge_leptons(events, builder):
-    for event in events:
-        builder.begin_list()
-        midx, eidx = 0, 0
-        for _ in range(len(event.Muon_pt) +len(event.Electron_pt)):
-            builder.begin_tuple(4)
-            if (midx != len(event.Muon_pt) and
-                (eidx == len(event.Electron_pt) or
-                 event.Muon_pt[midx] > event.Electron_pt[eidx])):
-                builder.index(0).real(event.Muon_pt[midx])
-                builder.index(1).real(event.Muon_eta[midx])
-                builder.index(2).real(event.Muon_phi[midx])
-                builder.index(3).integer(event.Muon_charge[midx]*13)
-                midx += 1
-            else:
-                builder.index(0).real(event.Electron_pt[eidx])
-                builder.index(1).real(event.Electron_eta[eidx])
-                builder.index(2).real(event.Electron_phi[eidx])
-                builder.index(3).integer(event.Electron_charge[eidx]*11)
-                eidx += 1
-            builder.end_tuple()
-        builder.end_list()
-
 
 @numba.jit(nopython=True)
 def true_in_list(idx_list, shape, builder, useFalse=False):

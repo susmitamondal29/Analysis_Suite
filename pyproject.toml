@@ -6,9 +6,8 @@ authors = ["Dylan Teague <dteague@cern.ch>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.6.8"
+python = "^3.6.1"
 awkward1 = "^0.2.37"
-pyarrow = "^1.0.1"
 atomic = "^0.7.3"
 scipy = "^1.5.4"
 
@@ -19,7 +18,6 @@ matplotlib = { version = "^3.3.2", optional = true }
 uproot4 = { version = "^0.0.17", optional = true}
 numba = { version = "^0.51.0", optional = true}
 anytree = { version = "^2.8.0", optional = true}
-#setuptools = {"^50.3.0", optional = true}
 
 # Plotting Code
 prettytable = { version = "^0.7.2", optional = true}

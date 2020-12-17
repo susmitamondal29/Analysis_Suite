@@ -54,7 +54,7 @@ if voms_result.returncode != 0:
 binned_files = dict()
 main_args = ["$(Process)", "ThreeTop", "2018"]
 
-output_dir = Path("out/test")
+output_dir = Path("out/test2")
 
 # Setup Bins
 pickle_path = Path(output_dir, 'binned_files.pkl')
@@ -101,5 +101,5 @@ for group, group_files in binned_files.items():
     with schedd.transaction() as txn:
         for i, args in enumerate(group_files):
             sub['Arguments']= " ".join(main_args +[group, args])
-            sub["transfer_output_files"] = f"{group}_$(Process).parquet"
+            sub["transfer_output_files"] = f"{group}_$(Process).pbz2"
             sub.queue(txn)
