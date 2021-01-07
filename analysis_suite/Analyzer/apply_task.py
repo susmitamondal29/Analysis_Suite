@@ -113,7 +113,7 @@ class ApplyTask(TaskHolder):
                 finished_mask = self.apply_task(func, events, add_vars)
                 outdata.add_masks(finished_mask, add_vars)
             start = end
-        indata.end_run()
+        outdata.end_run()
 
     @staticmethod
     @numba.jit(nopython=True)

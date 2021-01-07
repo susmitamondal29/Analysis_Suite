@@ -27,8 +27,10 @@ class Scheduler:
         self.nextLine = "\033[{}E ".format(self.atomic.value)
         if out_dir == ".":
             self.pq_filename = "{}.pbz2".format(self.group)
+            self.analyzed_filename = "analyzed_{}.pbz2".format(self.group)
         else:
             self.pq_filename = "{}/{}.pbz2".format(out_dir, self.group)
+            self.analyzed_filename = "{}/{}/{}.pbz2".format(self.out_dir, chan, self.group)
             
         self.data = DataHolder(infile=self.pq_filename)
 
@@ -66,12 +68,6 @@ class Scheduler:
 
         # write
         self.print_stat("{}: Starting Write".format(self.group))
-        exit()
+        self.proc_data.write_out(self.analyzed_filename)
 
-        total_mask = ak.Array({})
-        for key, arr in cut_apply.output.items():
-            total_mask[key] = arr
-        ak.to_parquet(total_mask, "{}/{}/{}.pbz2"
-                      .format(self.out_dir, chan, self.group),
-                      compression="gzip")
         self.print_stat("{}: Finished Write".format(self.group), end=True)

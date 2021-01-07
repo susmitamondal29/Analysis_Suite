@@ -31,30 +31,30 @@ def run_cmd(filename, inpath_name=".", cmd=None, infilename=None):
         cmd = cmd.format(out = outpath)
         result = subprocess.run(cmd.split(), stdout=PIPE, stderr=PIPE)
 
-run_cmd("inputs.py")
-run_cmd("run_suite.py")
-run_cmd("montecarlo_2016.py", inpath_name="data/FileInfo/montecarlo")
 run_cmd("analysis_suite-0.1.0-py3-none-any.whl", inpath_name="analysis_suite",
         cmd = "poetry build -f wheel")
 run_cmd("requirements.txt", infilename="pyproject.toml",
         cmd = "poetry export -f requirements.txt -o {out} -E analysis --without-hashes")
+run_cmd("inputs.py")
+run_cmd("run_suite.py")
+run_cmd("montecarlo_2016.py", inpath_name="data/FileInfo/montecarlo")
 
 
 # Setup Proxy
-proxy="{home}/private/userproxy".format(home=os.environ["HOME"])
-voms_result = subprocess.run("voms-proxy-info --valid 1:00 --file {proxy}".format(proxy=proxy).split(),
+proxy="dist/userproxy"
+voms_result = subprocess.run("voms-proxy-info -actimeleft --file {proxy}".format(proxy=proxy).split(),
                              stdout=PIPE, stderr=PIPE)
-if voms_result.returncode != 0:
+if voms_result.returncode != 0 or int(voms_result.stdout) < 3600:
     password = getpass.getpass("Need voms password: ").encode()
     voms_init = "voms-proxy-init -voms cms --pwstdin --out {proxy} --valid 192:0".format(proxy=proxy)
     p = Popen([voms_init], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
     p.communicate(input=password)
-
+    exit(0)
 
 binned_files = dict()
 main_args = ["$(Process)", "ThreeTop", "2018"]
 
-output_dir = Path("out/test2")
+output_dir = Path("out/blah")
 
 # Setup Bins
 pickle_path = Path(output_dir, 'binned_files.pkl')
@@ -62,6 +62,8 @@ if pickle_path.exists():
     with open(pickle_path, 'rb') as pkl:
         binned_files = pickle.load(pkl)
 else:
+    if not output_dir.exists():
+        os.mkdir(output_dir)
     info = FileInfo(analysis="ThreeTop", selection="all_2018")
     file_w_size_dict = info.get_file_with_size()
 
@@ -76,9 +78,6 @@ else:
     with open(pickle_path, 'wb') as handle:
         pickle.dump(binned_files, handle)
 
-
-
-
 # Submit the jobs
 schedd = htcondor.Schedd()
 sub = htcondor.Submit()
@@ -88,18 +87,17 @@ sub["error"] = "test_$(Cluster).$(Process).err"
 sub["output"] = "test_$(Cluster).$(Process).out"
 sub["log"] = "test.log"
 sub["Initialdir"] = output_dir
-# sub["request_memory"] = "2GB"
+sub["request_memory"] = "4GB"
 # sub["request_disk"] = "5GB"
 sub["transfer_input_files"] = "../../dist/"
-
 sub["stream_error"] = "true"
 sub["stream_output"] = "true"
 
 for group, group_files in binned_files.items():
-    if group != "tttj":
+    if group != "ttw":
         continue
     with schedd.transaction() as txn:
         for i, args in enumerate(group_files):
             sub['Arguments']= " ".join(main_args +[group, args])
-            sub["transfer_output_files"] = f"{group}_$(Process).pbz2"
+            sub["transfer_output_files"] = f"{group}_$(Process).pbz2,analyzed_{group}_$(Process).pbz2"
             sub.queue(txn)
