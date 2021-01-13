@@ -8,7 +8,7 @@ import getpass
 import htcondor
 import numpy as np
 from bin_packing import pack
-from analysis_suite.commons import FileInfo
+from commons import FileInfo
 
 def get_mtime(path):
     if path.is_dir():
@@ -31,17 +31,17 @@ def run_cmd(filename, inpath_name=".", cmd=None, infilename=None):
         cmd = cmd.format(out = outpath)
         result = subprocess.run(cmd.split(), stdout=PIPE, stderr=PIPE)
 
-run_cmd("analysis_suite-0.1.0-py3-none-any.whl", inpath_name="analysis_suite",
-        cmd = "poetry build -f wheel")
-run_cmd("requirements.txt", infilename="pyproject.toml",
-        cmd = "poetry export -f requirements.txt -o {out} -E analysis --without-hashes")
-run_cmd("inputs.py")
-run_cmd("run_suite.py")
-run_cmd("montecarlo_2016.py", inpath_name="data/FileInfo/montecarlo")
+# run_cmd("analysis_suite-0.1.0-py3-none-any.whl", inpath_name="analysis_suite",
+#         cmd = "poetry build -f wheel")
+# run_cmd("requirements.txt", infilename="pyproject.toml",
+#         cmd = "poetry export -f requirements.txt -o {out} -E analysis --without-hashes")
+# run_cmd("inputs.py")
+# run_cmd("run_suite.py")
+# run_cmd("montecarlo_2016.py", inpath_name="data/FileInfo/montecarlo")
 
 
 # Setup Proxy
-proxy="dist/userproxy"
+proxy="send/userproxy"
 voms_result = subprocess.run("voms-proxy-info -actimeleft --file {proxy}".format(proxy=proxy).split(),
                              stdout=PIPE, stderr=PIPE)
 if voms_result.returncode != 0 or int(voms_result.stdout) < 3600:
@@ -83,21 +83,21 @@ schedd = htcondor.Schedd()
 sub = htcondor.Submit()
 sub["Executable"] = "condor_job.sh"
 sub["GetEnv"] = "true"
-sub["error"] = "test_$(Cluster).$(Process).err"
-sub["output"] = "test_$(Cluster).$(Process).out"
+sub["error"] = "test.$(Process).err"
+sub["output"] = "test.$(Process).out"
 sub["log"] = "test.log"
 sub["Initialdir"] = output_dir
 sub["request_memory"] = "4GB"
 # sub["request_disk"] = "5GB"
-sub["transfer_input_files"] = "../../dist/"
+sub["transfer_input_files"] = "../../send/,../../Root_Analysis/interface"
 sub["stream_error"] = "true"
 sub["stream_output"] = "true"
 
 for group, group_files in binned_files.items():
-    if group != "ttw":
+    if group != "tttj":
         continue
     with schedd.transaction() as txn:
         for i, args in enumerate(group_files):
             sub['Arguments']= " ".join(main_args +[group, args])
-            sub["transfer_output_files"] = f"{group}_$(Process).pbz2,analyzed_{group}_$(Process).pbz2"
+            # sub["transfer_output_files"] = f"{group}_$(Process).pbz2,analyzed_{group}_$(Process).pbz2"
             sub.queue(txn)

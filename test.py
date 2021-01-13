@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+import os
+
+inputfile = os.getenv("INPUT")
+outputfile = os.getenv("OUTPUT")
+
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine( "gErrorIgnoreLevel = 1001;")
@@ -13,8 +19,10 @@ def setInputs(inputs, list_THX=[]):
 inputs = {"a": 1, "b": True}
 rInputs = setInputs(inputs)
 
-
-files = ["tree_1.root", "tree_2.root"]
+files = list()
+with open(inputfile) as f:
+    for line in f:
+        files.append(line)
 
 fChain = ROOT.TChain()
 for fname in files:
@@ -24,7 +32,7 @@ selector.SetInputList(rInputs)
 fChain.Process(selector, "")
 
 ## Output
-rOutput = ROOT.TFile("output.root", "RECREATE")
+rOutput = ROOT.TFile(outputfile, "RECREATE")
 for i in selector.GetOutputList():
     rOutput.cd()
     i.Write()

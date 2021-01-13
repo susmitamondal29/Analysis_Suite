@@ -9,7 +9,7 @@ class VarGetter:
         self.scale = self.arr.scale_factor
 
     def return_scale(func):
-        def helper(self, *args, with_scale=False, **kwargs):
+        def helper(self, with_scale=False, *args, **kwargs):
             if with_scale:
                 return func(self, *args, **kwargs), self.scale
             else:
