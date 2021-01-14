@@ -9,7 +9,7 @@
 #include <vector>
 
 
-#include "analysis_suite/Root_Analysis/interface/CommonEnums.h"
+#include "analysis_suite/Analyzer/interface/CommonEnums.h"
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> LorentzVector;
 

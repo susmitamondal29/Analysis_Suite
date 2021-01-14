@@ -1,5 +1,5 @@
-#include "analysis_suite/Root_Analysis/interface/Electron.h"
-#include "analysis_suite/Root_Analysis/interface/Jet.h"
+#include "analysis_suite/Analyzer/interface/Electron.h"
+#include "analysis_suite/Analyzer/interface/Jet.h"
 
 void Electron::setup(TTreeReader& fReader, int year) {
     Lepton::setup("Electron", fReader, year);

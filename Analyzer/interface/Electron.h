@@ -1,7 +1,7 @@
 #ifndef __ELECTRON_H_
 #define __ELECTRON_H_
 
-#include "analysis_suite/Root_Analysis/interface/Lepton.h"
+#include "analysis_suite/Analyzer/interface/Lepton.h"
 
 
 class Electron : public Lepton {

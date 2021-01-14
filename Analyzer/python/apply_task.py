@@ -61,15 +61,15 @@ class ApplyTask(TaskHolder):
         ## variables to be filled immediately
         for group, add_vars in ApplyTask.der_var_list:
             for var in add_vars:
-                outdata.immediate_add(f"{group}/{var}", indata.get_mask(var)[self.cuts])
+                outdata.immediate_add("{}/{}".format(group, var), indata.get_mask(var)[self.cuts])
  
         # variables TO be filled
         for group, add_vars, _ in ApplyTask.var_list:
-            outdata.setup_newvals([f"{group}/{var}" for var in add_vars])
+            outdata.setup_newvals(["{}/{}".format(group, var) for var in add_vars])
             self.all_vars |= set(add_vars)
 
         for group, add_vars, func, in_vars in ApplyTask.make_list:
-            outdata.setup_newvals([f"{group}/{var}" for var in add_vars])
+            outdata.setup_newvals(["{}/{}".format(group, var) for var in add_vars])
             self.all_vars |= set([i for v in in_vars for i in v[0]])
 
 

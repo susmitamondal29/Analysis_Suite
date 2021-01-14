@@ -1,7 +1,7 @@
 #ifndef __MUON_H_
 #define __MUON_H_
 
-#include "analysis_suite/Root_Analysis/interface/Lepton.h"
+#include "analysis_suite/Analyzer/interface/Lepton.h"
 
 
 class Muon : public Lepton {

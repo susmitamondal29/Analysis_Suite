@@ -1,7 +1,7 @@
 #ifndef  __LEPTON_H_
 #define  __LEPTON_H_
 
-#include "analysis_suite/Root_Analysis/interface/Particle.h"
+#include "analysis_suite/Analyzer/interface/Particle.h"
 
 #include <unordered_map>
 

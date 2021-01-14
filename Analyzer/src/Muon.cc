@@ -1,5 +1,5 @@
-#include "analysis_suite/Root_Analysis/interface/Muon.h"
-#include "analysis_suite/Root_Analysis/interface/Jet.h"
+#include "analysis_suite/Analyzer/interface/Muon.h"
+#include "analysis_suite/Analyzer/interface/Jet.h"
 
 void Muon::setup(TTreeReader& fReader, int year) {
     Lepton::setup("Muon", fReader, year);

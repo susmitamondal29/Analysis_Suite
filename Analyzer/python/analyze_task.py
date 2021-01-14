@@ -61,7 +61,7 @@ class AnalyzeTask(TaskHolder):
 
         print(filename)
 
-        for array in uproot.iterate(f'{filename}:Events', allvars, step_size="300MB"):
+        for array in uproot.iterate('{}:Events'.format(filename), allvars, step_size="300MB"):
             end += len(array)
             print("Events considered: ", start, end)
             for func, write_name, inmask, var, addvals in func_list:

@@ -1,4 +1,4 @@
-#include "analysis_suite/Root_Analysis/interface/ThreeTop.h"
+#include "analysis_suite/Analyzer/interface/ThreeTop.h"
 
 enum CHANNELS {CHAN_HAD, CHAN_SINGLE, CHAN_OS, CHAN_SS, CHAN_MULTI};
 

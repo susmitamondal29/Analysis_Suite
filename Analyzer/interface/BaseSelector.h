@@ -14,10 +14,10 @@
 #include <iostream>
 #include <vector>
 
-#include "analysis_suite/Root_Analysis/interface/CommonEnums.h"
-#include "analysis_suite/Root_Analysis/interface/Muon.h"
-#include "analysis_suite/Root_Analysis/interface/Electron.h"
-#include "analysis_suite/Root_Analysis/interface/Jet.h"
+#include "analysis_suite/Analyzer/interface/CommonEnums.h"
+#include "analysis_suite/Analyzer/interface/Muon.h"
+#include "analysis_suite/Analyzer/interface/Electron.h"
+#include "analysis_suite/Analyzer/interface/Jet.h"
 
 
 class BaseSelector : public TSelector {

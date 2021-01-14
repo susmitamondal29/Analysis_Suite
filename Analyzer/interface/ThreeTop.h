@@ -1,7 +1,7 @@
 #ifndef THREETOP_H
 #define THREETOP_H
 
-#include "analysis_suite/Root_Analysis/interface/BaseSelector.h"
+#include "analysis_suite/Analyzer/interface/BaseSelector.h"
 #include <map>
 
 template<class T>
