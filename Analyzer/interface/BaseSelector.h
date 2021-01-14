@@ -13,6 +13,7 @@
 #include <exception>
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 
 #include "analysis_suite/Analyzer/interface/CommonEnums.h"
 #include "analysis_suite/Analyzer/interface/Muon.h"
@@ -56,12 +57,13 @@ class BaseSelector : public TSelector {
         TEfficiency* prefireEff_;
 
         TTreeReader fReader;
+        std::unordered_map<std::string, int>  yearMap = {{"2016", yr2016}, {"2017", yr2017}, {"2018", yr2018}};
         int year_;
+        float xsec_;
         TTree* outTree;
 
         bool isMC_;
         int channel_, currentChannel_;
-
 
         Muon muon;
         Electron elec;

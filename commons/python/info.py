@@ -4,49 +4,18 @@ import os
 import glob
 import imp
 import subprocess
+import importlib
 from pathlib import Path
 
 class BasicInfo:
-    def __init__(self, analysis="", selection="", lumi=140000,
-               mcPath = "data/FileInfo/montecarlo/montecarlo_2016.py", **kwargs):
+    def __init__(self, analysis="", year="", selection="", lumi=140000, **kwargs):
         self.analysis = analysis
         self.selection = selection
+        self.year = year
         self.lumi = lumi
-        self.mcInfo = self.readAllInfo(mcPath)
-
-    def readAllInfo(self, file_path):
-        info = {}
-        for info_file in glob.glob(file_path):
-            file_info = self.readInfo(info_file)
-            if file_info:
-                info.update(file_info)
-        return info
-
-    def readInfo(self, file_path):
-        if ".py" not in file_path[-3:] and ".json" not in file_path[-5:]:
-            if os.path.isfile(file_path + ".py"):
-                file_path = file_path + ".py"
-            elif os.path.isfile(file_path + ".json"):
-                file_path = file_path + ".json"
-            else:
-                return
-        if ".py" in file_path[-3:]:
-            file_info = imp.load_source("info_file", file_path)
-            info = file_info.info
-        else:
-            info = self.readJson(file_path)
-        return info
-
-    def readJson(self, json_file_name):
-        json_info = {}
-        with open(json_file_name) as json_file:
-            try:
-                json_info = json.load(json_file)
-            except ValueError as err:
-                print("Error reading JSON file {}. The error message was:"
-                      .format(json_file_name))
-                print(err)
-        return json_info
+        self.base_path = "analysis_suite.data"
+        mcPath = "{}.FileInfo.montecarlo.montecarlo_2016".format(self.base_path)
+        self.mcInfo = importlib.import_module(mcPath).info
 
     def get_xsec(self, group):
         scale = self.mcInfo[group]['cross_section']
@@ -79,17 +48,23 @@ class PlotInfo(BasicInfo):
 class FileInfo(BasicInfo):
     def __init__(self, group2color={}, **kwargs):
         super().__init__(**kwargs)
+        file_path = "{}.FileInfo.{}.yr{}".format(self.base_path, self.analysis, self.year)
+        group_path = "{}.PlotGroups.{}".format(self.base_path, self.analysis)
         self.group2color = group2color
-        self.fileInfo = self.readAllInfo(
-            "data/FileInfo/{}/{}.py".format(self.analysis,self.selection))
-        self.groupInfo = self.readAllInfo(
-            "data/PlotGroups/{}.py".format(self.analysis))
+        self.fileInfo = importlib.import_module(file_path).info
+        self.groupInfo = importlib.import_module(group_path).info
         if group2color:
             self.group2MemberMap = {key: item["Members"] for key, item in
                                     self.groupInfo.items() if key in self.group2color}
         else:
             self.group2MemberMap = {key: item["Members"]
                                     for key, item in self.groupInfo.items()}
+
+    def get_group(self, splitname):
+        for d in splitname:
+            if d in self.fileInfo:
+                return self.fileInfo[d]['alias']
+        return None
 
     def get_file_with_size(self, group_list=None):
         return_dict = dict()

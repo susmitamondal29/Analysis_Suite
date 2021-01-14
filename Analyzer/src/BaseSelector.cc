@@ -21,13 +21,21 @@ void BaseSelector::Init(TTree *tree)
     if (!tree) return;
     fChain = tree;
     fReader.SetTree(fChain);
-    outTree = new TTree("test", "test");
+    for (auto item: *fInput) {
+        fOutput->Add(item);
+        if (strcmp(item->GetName(), "Year") == 0) {
+            year_ = yearMap[item->GetTitle()];
+        } else if (strcmp(item->GetName(), "xsec") == 0) {
+            xsec_ = std::stof(item->GetTitle());
+        }
+    }
+
+    outTree = new TTree("Analyzed", "Analyzed");
     SetupOutTree();
     fOutput->Add(outTree);
+
     variations_.push_back(1);
 
-    year_ = yr2018;
-    
     muon.setup(fReader, year_);
     elec.setup(fReader, year_);
     jet.setup(fReader, year_);
