@@ -1,52 +1,76 @@
 #!/usr/bin/env python3
 import math
 import awkward1 as ak
+import uproot4 as uproot
 import numpy as np
 
 class VarGetter:
     def __init__(self, path):
-        self.arr = ak.from_parquet(path)
-        self.scale = self.arr.scale_factor
+        with uproot.open(path) as f:
+            self.group = [key for key in f.keys() if "/" not in key][0]
+            if ";" in self.group:
+                self.group = self.group[:self.group.index(';')]
+            branches = [key for key, array in f[self.group]["Analyzed"].items()
+                        if len(array.keys()) == 0]
+            self.arr = f[self.group]["Analyzed"].arrays(branches)
+            self.xsec = float(f[self.group]["xsec"].member("fTitle"))
+            self.sumw = sum(f[self.group]["sumweight"].values())
+            self.scale = self.arr["weight"]*self.xsec/self.sumw
+
+
+
+    def __add__(self, other):
+        sumwTot = self.sumw + other.sumw
+        self.arr = ak.concatenate((self.arr, other.arr))
+        self.scale = ak.concatenate((self.sumw*self.scale, other.sumw*other.scale))/sumwTot
+        print(ak.type(self.scale))
+        self.sumw = sumwTot
+        return self
+
+    def setup_scale(self):
+        self.scale *= self.xsec/self.sumw
+
 
     def return_scale(func):
         def helper(self, with_scale=False, *args, **kwargs):
+            print(args, kwargs, with_scale)
             if with_scale:
                 return func(self, *args, **kwargs), self.scale
             else:
                 return func(self, *args, **kwargs)
         return helper
 
-    @return_scale
+
     def var(self, name):
         return self.arr[name]
 
-    @return_scale
+
     def num(self, name):
         return ak.count(self.arr[name], axis=1)
 
-    @return_scale
+
     def num_mask(self, name):
         return ak.count_nonzero(self.arr[name], axis=1)
 
-    @return_scale
+
     def nth(self, name, n=0, fill=-1):
         arr = ak.pad_none(self.arr[name], n+1, axis=1, clip=True)[:,n]
         return ak.fill_none(arr, fill)
 
-    @return_scale
+
     def dr(self, part1, idx1, part2, idx2):
         eta2 = self.nth(part1+"_eta", idx1)**2 + self.nth(part2+"_eta", idx2)**2
         phi2 = self.nth(part1+"_phi", idx1)**2 + self.nth(part2+"_phi", idx2)**2
         return np.sqrt(eta2+phi2)
 
-    @return_scale
+
     def mass(self, part1, idx1, part2, idx2):
         cosh_deta = np.cosh(self.nth(part1+"_eta", idx1) - self.nth(part2+"_eta", idx2))
         cos_dphi = np.cos(self.nth(part1+"_phi", idx1) - self.nth(part2+"_phi", idx2))
         pt = 2*self.nth(part1+"_pt", idx1)*self.nth(part2+"_pt", idx2)
         return pt*(cosh_deta - cos_dphi)
 
-    @return_scale
+
     def cosDtheta(self, part1, idx1, part2, idx2):
         cosh_eta = np.cosh(self.nth(part1+"_eta", idx1))*np.cosh(self.nth(part2+"_eta", idx2))
         sinh_eta = np.sinh(self.nth(part1+"_eta", idx1))*np.sinh(self.nth(part2+"_eta", idx2))

@@ -19,12 +19,13 @@ class ThreeTop : public BaseSelector {
         ClassDefOverride(ThreeTop, 0);
 
     private:
-
+        void FillLeptons();
         
         ParticleOut* o_looseMuons;
         ParticleOut* o_tightMuons;
         ParticleOut* o_looseElectrons;
         ParticleOut* o_tightElectrons;
+        ParticleOut* o_tightLeptons;
         ParticleOut* o_jets;
         ParticleOut* o_bJets;
 

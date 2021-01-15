@@ -30,7 +30,9 @@ void BaseSelector::Init(TTree *tree)
         }
     }
 
+    isMC_ = true;
     outTree = new TTree("Analyzed", "Analyzed");
+    outTree->Branch("weight", &weight, "weight/F");
     SetupOutTree();
     fOutput->Add(outTree);
 
@@ -97,6 +99,7 @@ void BaseSelector::SetupEvent(int variation) {
     setupChannel();
 
     if (isMC_) {
+        weight = *genWeight;
         ApplyScaleFactors();
     }
 

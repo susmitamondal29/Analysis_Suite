@@ -5,20 +5,20 @@ import numpy as np
 from collections import OrderedDict
 import xgboost as xgb
 
-from analysis_suite.commons import FileInfo
+from analysis_suite.commons import GroupInfo
 from analysis_suite.commons.configs import checkOrCreateDir
 from .MvaMaker import XGBoostMaker
 from .MVAPlotter import MVAPlotter
 from inputs import mva_params
 
 def setup(cli_args):
-    file_info = FileInfo(**vars(cli_args))
+    group_info = GroupInfo(**vars(cli_args))
     groupDict = OrderedDict()
     for groupName, samples in mva_params.groups:
         new_samples = list()
         for samp in samples:
-            if samp in file_info.group2MemberMap:
-                new_samples += file_info.group2MemberMap[samp]
+            if samp in group_info.group2MemberMap:
+                new_samples += group_info.group2MemberMap[samp]
             else:
                 new_samples.append(samp)
         groupDict[groupName] = new_samples
@@ -33,9 +33,10 @@ def setup(cli_args):
     return ((groupDict, outDir, cli_args.model),)
 
 def run(groupDict, outDir, applyModel):
-    mvaRunner = XGBoostMaker(mva_params.usevar)
-    for groupName, samples in groupDict.items():
-        mvaRunner.add_group(groupName, samples, outDir)
+    mvaRunner = XGBoostMaker(mva_params.usevar, groupDict)
+    mvaRunner.add_files("/hdfs/store/user/dteague/ThreeTop_2018_test-analyze/")
+
+    exit()
 
     if applyModel:
         mvaRunner.apply_model(applyModel)

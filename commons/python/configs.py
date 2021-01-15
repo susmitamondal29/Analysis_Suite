@@ -5,7 +5,7 @@ import os
 import sys
 import shutil
 import pkgutil
-import analysis_suite.Analyzer as analyzer
+import analysis_suite.data.PlotGroups as PlotGroups
 
 def get_cli():
     parser = argparse.ArgumentParser(prog="main", description="Central script for running tools in the Analysis suite")
@@ -15,9 +15,8 @@ def get_cli():
     # Common options #
     ##################
     parser.add_argument("-d", "--workdir", required=True,
-                        type=lambda x : "output/{}".format(x) if x != "CONDOR" else x,
                             help="Working Directory")
-    analyses = [ f.name for f in pkgutil.iter_modules(analyzer.__path__) if f.ispkg]
+    analyses = [ f.name for f in pkgutil.iter_modules(PlotGroups.__path__) if not f.ispkg]
     parser.add_argument("-a", "--analysis", type=str, required=True,
                         choices=analyses, help="Specificy analysis used")
     parser.add_argument("-c", "--channels", type=str, default="",

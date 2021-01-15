@@ -8,6 +8,7 @@ import pandas as pd
 import xgboost as xgb
 from analysis_suite.commons import VarGetter
 import awkward1 as ak
+from pathlib import Path
 # from analysis_suite.commons import FileInfo
 
 from sklearn.model_selection import train_test_split
@@ -29,11 +30,12 @@ class XGBoostMaker:
       param(dict): Variables used in the training
 
     """
-    def __init__(self, use_vars, cuts=""):
+    def __init__(self, use_vars, groupDict, cuts=""):
         """Constructor method
         """
         self.split_ratio = 2/3.
-        self.group_names = ["Signal"]
+        self.group_names = list(groupDict.keys())
+        self.group_dict = groupDict
         self.pred_train = dict()
         self.pred_test = dict()
 
@@ -59,7 +61,79 @@ class XGBoostMaker:
                       'colsample_bytree': 1, 'gamma': 0, 'max_delta_step': 0,}
         # 'silent': 1, 'scale_pos_weight': 1,
 
-    def add_group(self, group_name, sample_names, indir):
+
+    def add_files(self, directory):
+        arr_dict = dict()
+        path = Path(directory)
+        for root_file in path.rglob("*.root"):
+            arr = VarGetter(root_file)
+            if arr.group not in arr_dict:
+                arr_dict[arr.group] = arr
+            else:
+                arr_dict[arr.group] += arr
+        print(arr_dict.keys())
+
+
+
+        class_id = 0
+        for group, samples in self.group_dict.items():
+            totalSW, totalEv = 0, 0
+            for samp in samples:
+                if samp not in arr_dict:
+                    print("Could not found sample {}".format(samp))
+                    continue
+                totalSW += ak.sum(arr.scale)
+                totalEv += len(arr.scale)
+                df_dict = dict()
+                for varname, func in self.use_vars.items():
+                    df_dict[varname] = ak.to_numpy(eval("arr.{}".format(func)))
+                df = pd.DataFrame.from_dict(df_dict)
+                df["classID"] = class_id
+
+            class_id += 1
+
+                                    
+            # df_dict["scale_factor"] = ak.to_numpy(arr.scale)
+
+
+        #     real_name = name[:-4] if "201" in name else name
+        #     if real_name not in len_dict:
+        #         len_dict[real_name] = np.array([0,0])
+
+        #     df = pd.DataFrame.from_dict(df_dict)
+        #     df["classID"] = class_id
+        #     df["groupName"] = real_name
+
+        #     if len(df) < 10:
+        #         test_list.append(df)
+        #         train_list.append(pd.DataFrame(columns=df.columns))
+        #         len_dict[real_name] += [0, len(df)]
+        #         print("Add Tree {} of type {}".format(name, group_name))
+        #         continue
+        #     train, test = train_test_split(df, test_size=self.split_ratio,
+        #                                    random_state=12345)
+        #     test_list.append(test)
+        #     train_list.append(train)
+        #     len_dict[real_name] += [len(train), len(test)]
+        #     print("Add Tree {} of type {} with {} event"
+        #           .format(name, group_name, len(train)))
+
+        # scale = 1.*totalEv/totalSW
+        # for test, train in zip(test_list, train_list):
+        #     lens = len_dict[np.unique(test.groupName)[0]]
+        #     test.loc[:,"scale_factor"] = test["scale_factor"]*len(test)/lens[1]
+        #     test.insert(0, "finalWeight", scale*np.abs(test["scale_factor"]))
+        #     self.test_set = pd.concat([test.reset_index(drop=True),
+        #                                self.test_set], sort=True)
+
+        #     if len(train) != 0:
+        #         train.loc[:,"scale_factor"] = train["scale_factor"]*len(train)/lens[0]
+        #         train.insert(0, "finalWeight", scale*np.abs(train["scale_factor"]))
+        #         self.train_set = pd.concat([train.reset_index(drop=True),
+        #                                     self.train_set], sort=True)
+
+
+    def add_group___(self, group_name, sample_names, indir):
         """**Add Information about a group to class**
 
         This grabs all the variable information about each sample,
@@ -87,10 +161,15 @@ class XGBoostMaker:
         df_dict, len_dict = dict(), dict()
         for varname in self._include_vars:
             df_dict[varname] = ak.Array([])
-            
+
+        for name in sample_names:
+            print(name)
+
+        exit()
+
         for name in sample_names:
             try:
-                arr = VarGetter("{}/{}.parquet".format(indir, name))
+                arr = VarGetter()
             except:
                 print("Could not find sample: {}/{}.parquet".format(indir, name))
                 continue

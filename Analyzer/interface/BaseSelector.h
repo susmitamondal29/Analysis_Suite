@@ -9,6 +9,7 @@
 #include <TSelector.h>
 #include <TEfficiency.h>
 #include <TTreeReader.h>
+#include <TTreeReaderValue.h>
 
 #include <exception>
 #include <iostream>
@@ -61,6 +62,8 @@ class BaseSelector : public TSelector {
         int year_;
         float xsec_;
         TTree* outTree;
+        TTreeReaderValue<Float_t> genWeight = {fReader, "genWeight"};
+        float weight = 1;
 
         bool isMC_;
         int channel_, currentChannel_;
