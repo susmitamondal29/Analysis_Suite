@@ -15,12 +15,6 @@ class BasicInfo:
         self.lumi = lumi
         self.base_path = "analysis_suite.data"
 
-    def get_xsec(self, group):
-        scale = self.mcInfo[group]['cross_section']
-        if "kfactor" in self.mcInfo[group]:
-            scale *= self.mcInfo[group]["kfactor"]
-        return scale
-
 class PlotInfo(BasicInfo):
     def __init__(self, plotInfo, **kwargs):
         super().__init__(**kwargs)
@@ -61,8 +55,6 @@ class FileInfo(BasicInfo):
         super().__init__(**kwargs)
         file_path = "{}.FileInfo.{}.yr{}".format(self.base_path, self.analysis, self.year)
         self.fileInfo = importlib.import_module(file_path).info
-        mcPath = "{}.FileInfo.montecarlo.montecarlo_2016".format(self.base_path)
-        self.mcInfo = importlib.import_module(mcPath).info
 
     def get_group(self, splitname):
         for d in splitname:
@@ -70,4 +62,14 @@ class FileInfo(BasicInfo):
                 return self.fileInfo[d]['alias']
         return None
 
+    def get_info(self, alias):
+        for _, info in self.fileInfo.items():
+            if info['alias'] == alias:
+                return info
 
+    def get_xsec(self, group):
+        info = self.get_info(group)
+        scale = info['cross_section']
+        if "kfactor" in info:
+            scale *= info["kfactor"]
+        return scale

@@ -38,8 +38,8 @@ info = FileInfo(analysis=analysis, year=year, selection=selection)
 
 inputs = dict()
 groupName = info.get_group(sampleName)
+inputs["DAS_Name"] = sampleName
 inputs["Group"] = groupName
-inputs["xsec"] = info.get_xsec(groupName)
 inputs['Analysis'] = analysis
 inputs['Selection'] = selection
 inputs["Year"] = year
@@ -52,8 +52,6 @@ selector = getattr(ROOT, "ThreeTop")()
 rInputs = setInputs(inputs)
 selector.SetInputList(rInputs)
 fChain.Process(selector, "")
-
-print("here")
 
 ## Output
 rOutput = ROOT.TFile(outputfile, "RECREATE")

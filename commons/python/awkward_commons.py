@@ -3,19 +3,24 @@ import math
 import awkward1 as ak
 import uproot4 as uproot
 import numpy as np
+from .info import FileInfo
 
 class VarGetter:
-    def __init__(self, path):
+    def __init__(self, path, group):
         with uproot.open(path) as f:
-            self.group = [key for key in f.keys() if "/" not in key][0]
-            if ";" in self.group:
-                self.group = self.group[:self.group.index(';')]
-            branches = [key for key, array in f[self.group]["Analyzed"].items()
+            branches = [key for key, array in f[group]["Analyzed"].items()
                         if len(array.keys()) == 0]
-            self.arr = f[self.group]["Analyzed"].arrays(branches)
-            self.xsec = float(f[self.group]["xsec"].member("fTitle"))
-            self.sumw = sum(f[self.group]["sumweight"].values())
-            self.scale = self.arr["weight"]*self.xsec/self.sumw
+            analysis = f[group]["Analysis"].member("fTitle")
+            year = f[group]["Year"].member("fTitle")
+            info = FileInfo(analysis=analysis, year=year)
+            self.xsec = info.get_xsec(group)
+            self.sumw = sum(f[group]["sumweight"].values())
+            if f[group]["Analyzed"].num_entries != 0:
+                self.arr = f[group]["Analyzed"].arrays(branches)
+                self.scale = self.arr["weight"]*self.xsec/self.sumw
+            else:
+                self.arr = ak.Array([])
+                self.scale = ak.Array([])
 
 
 
@@ -23,7 +28,6 @@ class VarGetter:
         sumwTot = self.sumw + other.sumw
         self.arr = ak.concatenate((self.arr, other.arr))
         self.scale = ak.concatenate((self.sumw*self.scale, other.sumw*other.scale))/sumwTot
-        print(ak.type(self.scale))
         self.sumw = sumwTot
         return self
 
@@ -59,22 +63,22 @@ class VarGetter:
 
 
     def dr(self, part1, idx1, part2, idx2):
-        eta2 = self.nth(part1+"_eta", idx1)**2 + self.nth(part2+"_eta", idx2)**2
-        phi2 = self.nth(part1+"_phi", idx1)**2 + self.nth(part2+"_phi", idx2)**2
+        eta2 = self.nth(part1+"/eta", idx1)**2 + self.nth(part2+"/eta", idx2)**2
+        phi2 = self.nth(part1+"/phi", idx1)**2 + self.nth(part2+"/phi", idx2)**2
         return np.sqrt(eta2+phi2)
 
 
     def mass(self, part1, idx1, part2, idx2):
-        cosh_deta = np.cosh(self.nth(part1+"_eta", idx1) - self.nth(part2+"_eta", idx2))
-        cos_dphi = np.cos(self.nth(part1+"_phi", idx1) - self.nth(part2+"_phi", idx2))
-        pt = 2*self.nth(part1+"_pt", idx1)*self.nth(part2+"_pt", idx2)
+        cosh_deta = np.cosh(self.nth(part1+"/eta", idx1) - self.nth(part2+"/eta", idx2))
+        cos_dphi = np.cos(self.nth(part1+"/phi", idx1) - self.nth(part2+"/phi", idx2))
+        pt = 2*self.nth(part1+"/pt", idx1)*self.nth(part2+"/pt", idx2)
         return pt*(cosh_deta - cos_dphi)
 
 
     def cosDtheta(self, part1, idx1, part2, idx2):
-        cosh_eta = np.cosh(self.nth(part1+"_eta", idx1))*np.cosh(self.nth(part2+"_eta", idx2))
-        sinh_eta = np.sinh(self.nth(part1+"_eta", idx1))*np.sinh(self.nth(part2+"_eta", idx2))
-        cos_dphi = np.cos(self.nth(part1+"_phi", idx1) - self.nth(part2+"_phi", idx2))
+        cosh_eta = np.cosh(self.nth(part1+"/eta", idx1))*np.cosh(self.nth(part2+"/eta", idx2))
+        sinh_eta = np.sinh(self.nth(part1+"/eta", idx1))*np.sinh(self.nth(part2+"/eta", idx2))
+        cos_dphi = np.cos(self.nth(part1+"/phi", idx1) - self.nth(part2+"/phi", idx2))
 
         return (cos_dphi - sinh_eta)/cosh_eta
 

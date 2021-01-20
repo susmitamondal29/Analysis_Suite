@@ -35,9 +35,8 @@ def get_cli():
     elif sys.argv[1] == "mva":
         parser.add_argument('-t', '--train', action="store_true",
                             help="Run the training")
-        models = ["{}/{}".format(root,f) for root, dirs, files in os.walk("output") for f in files if f.endswith("bin")]
         parser.add_argument("-m", "--model", type=str, default="",
-                            choices = models, help="Model file")
+                            help="Model file")
     elif sys.argv[1] == "plot":
         parser.add_argument("--drawStyle", type=str, default='stack',
                             help='Way to draw graph',

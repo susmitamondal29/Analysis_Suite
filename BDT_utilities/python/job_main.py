@@ -34,12 +34,11 @@ def setup(cli_args):
 
 def run(groupDict, outDir, applyModel):
     mvaRunner = XGBoostMaker(mva_params.usevar, groupDict)
-    mvaRunner.add_files("/hdfs/store/user/dteague/ThreeTop_2018_test-analyze/")
-
-    exit()
+    mvaRunner.add_files("result.root")
 
     if applyModel:
-        mvaRunner.apply_model(applyModel)
+        fitModel = mvaRunner.apply_model(applyModel)
+        impor = fitModel.get_booster().get_score(importance_type= "total_gain")
     elif mva_params.single == True:
         fitModel = mvaRunner.train_single()
         fitModel.save_model("{}/model.bin".format(outDir))

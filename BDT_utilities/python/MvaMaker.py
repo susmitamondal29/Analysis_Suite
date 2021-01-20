@@ -5,11 +5,13 @@
 """
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
 import xgboost as xgb
 from analysis_suite.commons import VarGetter
 import awkward1 as ak
 from pathlib import Path
-# from analysis_suite.commons import FileInfo
+import uproot4 
+import uproot as upwrite
 
 from sklearn.model_selection import train_test_split
 
@@ -63,160 +65,64 @@ class XGBoostMaker:
 
 
     def add_files(self, directory):
-        arr_dict = dict()
-        path = Path(directory)
-        for root_file in path.rglob("*.root"):
-            arr = VarGetter(root_file)
-            if arr.group not in arr_dict:
-                arr_dict[arr.group] = arr
-            else:
-                arr_dict[arr.group] += arr
-        print(arr_dict.keys())
-
-
-
-        class_id = 0
-        for group, samples in self.group_dict.items():
-            totalSW, totalEv = 0, 0
-            for samp in samples:
-                if samp not in arr_dict:
-                    print("Could not found sample {}".format(samp))
-                    continue
-                totalSW += ak.sum(arr.scale)
-                totalEv += len(arr.scale)
-                df_dict = dict()
-                for varname, func in self.use_vars.items():
-                    df_dict[varname] = ak.to_numpy(eval("arr.{}".format(func)))
-                df = pd.DataFrame.from_dict(df_dict)
-                df["classID"] = class_id
-
-            class_id += 1
-
-                                    
-            # df_dict["scale_factor"] = ak.to_numpy(arr.scale)
-
-
-        #     real_name = name[:-4] if "201" in name else name
-        #     if real_name not in len_dict:
-        #         len_dict[real_name] = np.array([0,0])
-
-        #     df = pd.DataFrame.from_dict(df_dict)
-        #     df["classID"] = class_id
-        #     df["groupName"] = real_name
-
-        #     if len(df) < 10:
-        #         test_list.append(df)
-        #         train_list.append(pd.DataFrame(columns=df.columns))
-        #         len_dict[real_name] += [0, len(df)]
-        #         print("Add Tree {} of type {}".format(name, group_name))
-        #         continue
-        #     train, test = train_test_split(df, test_size=self.split_ratio,
-        #                                    random_state=12345)
-        #     test_list.append(test)
-        #     train_list.append(train)
-        #     len_dict[real_name] += [len(train), len(test)]
-        #     print("Add Tree {} of type {} with {} event"
-        #           .format(name, group_name, len(train)))
-
-        # scale = 1.*totalEv/totalSW
-        # for test, train in zip(test_list, train_list):
-        #     lens = len_dict[np.unique(test.groupName)[0]]
-        #     test.loc[:,"scale_factor"] = test["scale_factor"]*len(test)/lens[1]
-        #     test.insert(0, "finalWeight", scale*np.abs(test["scale_factor"]))
-        #     self.test_set = pd.concat([test.reset_index(drop=True),
-        #                                self.test_set], sort=True)
-
-        #     if len(train) != 0:
-        #         train.loc[:,"scale_factor"] = train["scale_factor"]*len(train)/lens[0]
-        #         train.insert(0, "finalWeight", scale*np.abs(train["scale_factor"]))
-        #         self.train_set = pd.concat([train.reset_index(drop=True),
-        #                                     self.train_set], sort=True)
-
-
-    def add_group___(self, group_name, sample_names, indir):
-        """**Add Information about a group to class**
+        """**Fill the dataframes with all info in the input files**
 
         This grabs all the variable information about each sample,
         does some preliminary weighting and splits the data into the
         test and train set (based on `self.split_ratio`)
 
         Args:
-          group_name(string): Name of group being added
-          sample_names(list): List of samples in the group
-          infile(uproot.ROOTDirectory): Uproot file with data to be added
+            directory(string): Path to directory where root files are kept
         """
+        arr_dict = dict()
+        path = Path(directory)
+        root_files = path.rglob("*.root") if path.is_dir() else [path]
+        for root_file in root_files:
+            groups = list()
+            with uproot4.open(root_file) as f:
+                groups = [key.strip(";1") for key in f.keys() if "/" not in key]
+            for group in groups:
+                if group not in arr_dict:
+                    arr_dict[group] = VarGetter(root_file, group)
+                else:
+                    arr_dict[group] += VarGetter(root_file, group)
+
         class_id = 0
-        if group_name != "Signal":
-            self.group_names.append(group_name)
-            class_id = len(self.group_names)-1
-
-        # Get scale for group
-        #
-        # Scales each component of group by (# raw Events)/(# scaled Events)
-        # This is done so each effective xsec is used as a ratio of the group
-        # and the number of raw Events is so the average weight is 1 (what xgb wants)
-
-        totalSW, totalEv = 0, 0
-        test_list, train_list = [], []
-        df_dict, len_dict = dict(), dict()
-        for varname in self._include_vars:
-            df_dict[varname] = ak.Array([])
-
-        for name in sample_names:
-            print(name)
-
-        exit()
-
-        for name in sample_names:
-            try:
-                arr = VarGetter()
-            except:
-                print("Could not find sample: {}/{}.parquet".format(indir, name))
-                continue
-            df_dict = dict()
-            for varname, func in self.use_vars.items():
-                df_dict[varname] = ak.to_numpy(eval("arr.{}".format(func)))
-            df_dict["scale_factor"] = ak.to_numpy(arr.scale)
-            totalSW += ak.sum(arr.scale)
-            totalEv += len(arr.scale)
-
-            real_name = name[:-4] if "201" in name else name
-            if real_name not in len_dict:
-                len_dict[real_name] = np.array([0,0])
-
-            df = pd.DataFrame.from_dict(df_dict)
-            df["classID"] = class_id
-            df["groupName"] = real_name
-
-            if len(df) < 10:
-                test_list.append(df)
-                train_list.append(pd.DataFrame(columns=df.columns))
-                len_dict[real_name] += [0, len(df)]
-                print("Add Tree {} of type {}".format(name, group_name))
-                continue
-            train, test = train_test_split(df, test_size=self.split_ratio,
+        for group, samples in self.group_dict.items():
+            totalSW, totalEv = 0, 0
+            for sample in samples:
+                if sample not in arr_dict:
+                    print("Could not found sample {}".format(sample))
+                    continue
+                arr = arr_dict[sample]
+                totalSW += ak.sum(arr.scale)
+                totalEv += len(arr.scale)
+                df_dict = dict()
+                for varname, func in self.use_vars.items():
+                    df_dict[varname] = ak.to_numpy(eval("arr.{}".format(func)))
+                df_dict["scale_factor"] = ak.to_numpy(arr.scale)
+                
+                df = pd.DataFrame.from_dict(df_dict)
+                df["classID"] = class_id
+                df["groupName"] = sample
+                df["finalWeight"] = abs(df.scale_factor)
+                total_evts = len(df)
+                if total_evts < 10:
+                    self.test_set = pd.concat([df.reset_index(drop=True), self.test_set], sort=True)
+                    print("Add Tree {} of type {}".format(sample, group))
+                    continue
+                train, test = train_test_split(df, test_size=self.split_ratio,
                                            random_state=12345)
-            test_list.append(test)
-            train_list.append(train)
-            len_dict[real_name] += [len(train), len(test)]
-            print("Add Tree {} of type {} with {} event"
-                  .format(name, group_name, len(train)))
+                self.test_set = pd.concat([test.reset_index(drop=True), self.test_set], sort=True)
+                self.train_set = pd.concat([train.reset_index(drop=True), self.train_set], sort=True)
+                print("Add Tree {} of type {} with {} event".format(sample, group, len(train)))
 
-        scale = 1.*totalEv/totalSW
-        for test, train in zip(test_list, train_list):
-            lens = len_dict[np.unique(test.groupName)[0]]
-            test.loc[:,"scale_factor"] = test["scale_factor"]*len(test)/lens[1]
-            test.insert(0, "finalWeight", scale*np.abs(test["scale_factor"]))
-            self.test_set = pd.concat([test.reset_index(drop=True),
-                                       self.test_set], sort=True)
-            
-            if len(train) != 0:
-                train.loc[:,"scale_factor"] = train["scale_factor"]*len(train)/lens[0]
-                train.insert(0, "finalWeight", scale*np.abs(train["scale_factor"]))
-                self.train_set = pd.concat([train.reset_index(drop=True),
-                                            self.train_set], sort=True)
-
-        
+            if totalSW == 0:
+                continue
+            scale = 1.*totalEv/totalSW
+            self.train_set.loc[self.train_set.classID==class_id, "finalWeight"] *= scale
+            self.test_set.loc[self.test_set.classID==class_id, "finalWeight"] *= scale
+            class_id += 1
 
     def train(self):
         """**Train for multiclass BDT**
@@ -325,6 +231,7 @@ class XGBoostMaker:
                 self.test_set.drop(self._drop_vars, axis=1)).T[i]
             self.pred_train[grp] = fit_model.predict_proba(
                 self.train_set.drop(self._drop_vars, axis=1)).T[i]
+        return fit_model
 
     def output(self, outdir):
         """Wrapper for write out commands
@@ -333,9 +240,9 @@ class XGBoostMaker:
           outname: Directory where files will be written
 
         """
-        self._write_pandas("{}/test".format(outdir), self.test_set,
+        self._write_pandas("{}/test.root".format(outdir), self.test_set,
                            self.pred_test)
-        self._write_pandas("{}/train".format(outdir), self.train_set,
+        self._write_pandas("{}/train.root".format(outdir), self.train_set,
                            self.pred_train)
 
     # Private Functions
@@ -359,7 +266,7 @@ class XGBoostMaker:
                 frame = frame[frame[tmp[0]] == float(tmp[1])]
         return frame
 
-    def _write_pandas(self, outdir, workSet, prediction):
+    def _write_pandas(self, outfile, workSet, prediction):
         """**Write out pandas file as a compressed pickle file
 
         Args:
@@ -368,13 +275,15 @@ class XGBoostMaker:
           prediction(pandas.DataFrame): DataFrame of BDT predictions
 
         """
-        set_difference = set(workSet.columns) - set(self._all_vars)
-        workSet = workSet.drop(list(set_difference), axis=1)
         for key, arr in prediction.items():
             workSet.insert(0, key, arr)
-            
-        for group in np.unique(workSet.groupName):
-            outname = "{}/{}.parquet".format(outdir, group)
-            workSet[workSet.groupName == group].to_parquet(outname, compression="gzip")
+
+        keepList = [key for key in workSet.columns if is_numeric_dtype(workSet[key])]
+        branches = {key: workSet[key].dtype for key in keepList}
+        with upwrite.recreate(outfile) as f:
+            for group in np.unique(workSet.groupName):
+                groupSet = workSet[workSet.groupName == group][keepList]
+                f[group] = upwrite.newtree(branches)
+                f[group].extend(groupSet.to_dict('list'))
         
         # workSet.to_parquet(outname, compression="gzip")
