@@ -1,0 +1,4 @@
+anytree
+mplhep
+boost_histogram
+sphinx
