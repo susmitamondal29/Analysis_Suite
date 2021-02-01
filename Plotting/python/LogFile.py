@@ -52,7 +52,8 @@ class LogFile:
             List of all background hists with their names
         """
         for hist in stacker.stack:
-            self.plotTable.add_row([hist.name, *hist.get_int_err(True)])
+            integral, error = hist.get_int_err(True)
+            self.plotTable.add_row([hist.name, integral, error])
             self.hists[BKG] += hist.get_int_err()
         self.hists[TOTAL] += self.hists[BKG]
 
@@ -67,7 +68,8 @@ class LogFile:
             Name used to label the singal
         """
         self.hists[SIGNAL] += signal.get_int_err()
-        self.plotTable.add_row([signal.name, *signal.get_int_err(False)])
+        integral, error = signal.get_int_err(False)
+        self.plotTable.add_row([signal.name, integral, error])
         self.hists[TOTAL] += self.hists[SIGNAL]
 
     def add_metainfo(self, callTime, command):
