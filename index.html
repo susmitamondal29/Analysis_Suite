@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Installation Guide &#8212; Analysis Suite  documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Code Commons" href="code.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="installation-guide">
+<h1>Installation Guide<a class="headerlink" href="#installation-guide" title="Permalink to this headline">¶</a></h1>
+<p>This area requires python3 for all python scripts as well as ROOT, so you need to be in a CMSSW area with ROOT 6.20 or greater. At time of writing, <code class="docutils literal notranslate"><span class="pre">CMSSW_11_2_0_pre</span></code> fits the bill. You will also have to have certain packages not default for</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generic Area Setup</span>
+cmsrel CMSSW_11_2_0_pre9
+<span class="nb">cd</span> CMSSW_11_2_0_pre9/src
+cmsenv
+git clone https://github.com/dteague/Analysis_suite
+<span class="nb">cd</span> analysis_suite
+
+<span class="c1"># Building</span>
+python3 -m pip install --user requirements.txt
+scram b -j <span class="m">4</span>
+</pre></div>
+</div>
+<p><strong>Note</strong>: After you scram, the python will compile, but this is not needed, it is also compiled at run time. Scram just sets up the links, so scram is not needed whenever python code is changed after the first run. HOWEVER, scram is needed to compile the cpp code!</p>
+</div>
+<div class="section" id="quick-start">
+<h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
+<p>The code has several modes: <code class="docutils literal notranslate"><span class="pre">analysis</span></code>, <code class="docutils literal notranslate"><span class="pre">mva</span></code>, <code class="docutils literal notranslate"><span class="pre">plot</span></code>, and <code class="docutils literal notranslate"><span class="pre">combine</span></code>. There are many options needed for the code to run, and it is detailed more in the running section of this tutorial. The main options needed for all running is the analysis which corresponds to the cpp code used for analysis as well as the fileInfo used for getting sample information, and the Work Directory or where all the output files will be saved</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./run_suite.py &lt;mode&gt; -a &lt;Analysis&gt; -d &lt;Work Directory&gt;
+</pre></div>
+</div>
+<p>Or if you need more information, just run <code class="docutils literal notranslate"><span class="pre">./run_suite.py</span> <span class="pre">--help</span></code></p>
+</div>
+<div class="section" id="welcome-to-analysis-suite-s-documentation">
+<h1>Welcome to Analysis Suite’s documentation!<a class="headerlink" href="#welcome-to-analysis-suite-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code.html">Code Commons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code.html#module-BDT_utilities.python">BDT Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code.html#module-Plotting.python">Plotting Code</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Analysis Suite</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code.html">Code Commons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code.html#module-BDT_utilities.python">BDT Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code.html#module-Plotting.python">Plotting Code</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="code.html" title="next chapter">Code Commons</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Dylan Teague.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
