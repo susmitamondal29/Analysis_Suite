@@ -7,7 +7,6 @@ import Utilities.configHelper as config
 from Utilities.Systematic_Combine import Systematic
 from Utilities.InfoGetter import InfoGetter
 from histograms.pyUproot import GenericHist
-from Utilities.UprootWriter import get_hist
 
 #plot_groups = ["ttt", "tttt", "ttz", "ttw", "tth", "ttXY", "xg", "other", "rare"]
 plot_groups = ["ttt", "ttz", "ttw", "tth", "ttXY", "xg", "other", "rare_no3top"]
@@ -107,8 +106,8 @@ def main(args):
             data += hist
         for group in plot_groups:
             rates.append(groupHists[group].integral())
-            outFile["{}_{}_{}".format(group, fitvar, chan)] = get_hist(groupHists[group])
-        outFile["{}_{}_{}".format("data", fitvar, chan)] = get_hist(data)
+            # outFile["{}_{}_{}".format(group, fitvar, chan)] = get_hist(groupHists[group])
+        # outFile["{}_{}_{}".format("data", fitvar, chan)] = get_hist(data)
     rates = np.array(rates)
     outFile.close()
     

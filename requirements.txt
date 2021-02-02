@@ -10,7 +10,6 @@ awkward1
 matplotlib
 uproot4
 uproot
-uproot_methods
 atomic
 pandas
 xgboost
