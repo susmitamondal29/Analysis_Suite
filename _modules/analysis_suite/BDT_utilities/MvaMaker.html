@@ -1,0 +1,400 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta content="ie=edge" http-equiv="X-UA-Compatible"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<title>
+      analysis_suite.BDT_utilities.MvaMaker | Analysis Suite  documentation
+    </title>
+<link href="../../../_static/pygments.css" rel="stylesheet"/>
+<link href="../../../_static/theme.css" rel="stylesheet"/>
+<link href="../../../_static/style.css" rel="stylesheet"/>
+<link href="../../../search.html" rel="search" title="Search"/>
+<link href="../../../genindex.html" rel="index" title="Index"/>
+</head><body class="text-gray-900 antialiased min-h-screen md:h-screen flex flex-col">
+<a class="block text-xl bg-white px-8 py-4 z-20 absolute top-0 inset-x-0 text-center transform -translate-y-full focus:translate-y-0 focus:outline-none transition-transform duration-75" href="#analysis-suite-bdt-utilities-mvamaker" title="Skip navigation links">Skip to content</a>
+<header class="md:sticky top-0 bg-gray-900 shadow-md flex md:flex-row justify-between items-center z-10"><a aria-label="Back to homepage" class="hover:bg-gray-700 focus:bg-gray-700 tooltipped tooltipped-se" href="../../../index.html">
+<h2 class="text-xl text-gray-100 mx-5 py-4">Analysis Suite  documentation</h2>
+</a><form action="../../../search.html" class="hidden md:flex my-auto mx-5 justify-between items-center print:hidden" id="searchbox" method="get">
+<input aria-label="Search the docs" class="p-2 flex-1 focus:bg-yellow-100" id="search-input" name="q" placeholder="Search the docs" style="width: 300px;" type="search"/>
+<button aria-label="Get search results" class="p-2 text-white bg-gray-700 hover:bg-gray-200 hover:text-pink-500 focus:bg-gray-200 focus:text-pink-500 tooltipped tooltipped-sw">
+<svg aria-hidden="true" class="fill-current stroke-current h-6 w-6" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+</button>
+</form>
+</header>
+<div class="md:overflow-hidden flex flex-col md:flex-row flex-1"><nav class="h-full fixed md:relative inset-y-0 left-0 z-20 md:z-0 bg-white text-gray-700 border-r overflow-x-hidden pt-16 print:hidden flex flex-col" data-menu="closed" role="navigation" style="width: 270px;">
+<div class="nav-toc"><p class="caption">Contents:</p>
+<ul>
+<li class="toctree-l1"><div class="nav-link"><a class="reference internal" href="../../../index.html">Main Page</a></div></li>
+<li class="toctree-l1"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="../../../running.html">Basic running</a></div><ul>
+<li class="toctree-l2"><div class="nav-link"><a class="reference internal" href="../../../running.html#analysis-analyze">Analysis (<code class="docutils literal notranslate">analyze</code>)</a></div></li>
+<li class="toctree-l2"><div class="nav-link"><a class="reference internal" href="../../../running.html#bdt-runner-mva">BDT runner (<code class="docutils literal notranslate">mva</code>)</a></div></li>
+<li class="toctree-l2"><div class="nav-link"><a class="reference internal" href="../../../running.html#plotting-plot">Plotting (<code class="docutils literal notranslate">plot</code>)</a></div></li>
+<li class="toctree-l2"><div class="nav-link"><a class="reference internal" href="../../../running.html#setup-combine-combine">Setup Combine (<code class="docutils literal notranslate">combine</code>)</a></div></li>
+</ul>
+</li>
+<li class="toctree-l1"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="../../../analysis_suite.html">Analysis Suite Documentation</a></div><ul>
+<li class="toctree-l2"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="../../../analysis_suite.commons.html"><code class="docutils literal notranslate">commons</code></a></div><ul>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.commons.html#commons-awkward-commons"><code class="docutils literal notranslate">commons.awkward_commons</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.commons.html#module-analysis_suite.commons.configs"><code class="docutils literal notranslate">commons.configs</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.commons.html#commons-histogram"><code class="docutils literal notranslate">commons.histogram</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.commons.html#module-analysis_suite.commons.info"><code class="docutils literal notranslate">commons.info</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.commons.html#module-analysis_suite.commons.makeSimpleHtml"><code class="docutils literal notranslate">commons.makeSimpleHtml</code></a></div></li>
+</ul>
+</li>
+<li class="toctree-l2"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="../../../analysis_suite.BDT_utilities.html"><code class="docutils literal notranslate">BDT_utilities</code></a></div><ul>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.BDT_utilities.html#bdt-utilities-mvaplotter"><code class="docutils literal notranslate">BDT_utilities.MVAPlotter</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.BDT_utilities.html#bdt-utilities-mvamaker"><code class="docutils literal notranslate">BDT_utilities.MvaMaker</code></a></div></li>
+</ul>
+</li>
+<li class="toctree-l2"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="../../../analysis_suite.Plotting.html"><code class="docutils literal notranslate">Plotting</code></a></div><ul>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.Plotting.html#plotting-logfile"><code class="docutils literal notranslate">Plotting.LogFile</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.Plotting.html#module-analysis_suite.Plotting.configHelper"><code class="docutils literal notranslate">Plotting.configHelper</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.Plotting.html#plotting-pypad"><code class="docutils literal notranslate">Plotting.pyPad</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.Plotting.html#plotting-stack"><code class="docutils literal notranslate">Plotting.stack</code></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<button aria-label="Close menu" class="text-4xl text-gray-800 p-4 bottom-0 hover:text-pink-500 md:hidden focus:text-pink-500 self-center" id="closeNavBtn" title="Close menu">
+<svg aria-hidden="true" class="fill-current stroke-current h-6 w-6" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="overflow-y-auto md:w-full flex flex-col flex-1" id="main-wrapper">
+<main class="px-5 md:ml-fluid flex-1" role="main"><nav aria-label="breadcrumbs" class="mt-16 mb-12 text-sm text-gray-700 leading-tight print:hidden" role="navigation">
+<a class="text-blue-700" href="../../../index.html">Analysis Suite  documentation</a>
+<span class="text-gray-700 mr-1">/</span><a class="text-blue-700" href="../../index.html">Module code</a>
+<span class="text-gray-700 mr-1">/</span><span aria-current="page">analysis_suite.BDT_utilities.MvaMaker</span>
+</nav>
+<h1>Source code for analysis_suite.BDT_utilities.MvaMaker</h1><pre>
+<code><span class="sd">"""</span>
+<span class="sd">.. module:: XGBoostMaker</span>
+<span class="sd">   :synopsis: Takes in ROOT file to run a BDT training over it using XGBoost</span>
+<span class="sd">.. moduleauthor:: Dylan Teague</span>
+<span class="sd">"""</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pandas.api.types</span> <span class="kn">import</span> <span class="n">is_numeric_dtype</span>
+<span class="kn">import</span> <span class="nn">xgboost</span> <span class="k">as</span> <span class="nn">xgb</span>
+<span class="kn">from</span> <span class="nn">analysis_suite.commons</span> <span class="kn">import</span> <span class="n">VarGetter</span>
+<span class="kn">import</span> <span class="nn">awkward1</span> <span class="k">as</span> <span class="nn">ak</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">uproot4</span> 
+<span class="kn">import</span> <span class="nn">uproot</span> <span class="k">as</span> <span class="nn">upwrite</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<div class="viewcode-block" id="XGBoostMaker"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker">[docs]</a><span class="k">class</span> <span class="nc">XGBoostMaker</span><span class="p">:</span>
+    <span class="sd">"""Wrapper for XGBoost training. Takes an uproot input, a list of</span>
+<span class="sd">    groups to do a multiclass training, as well as a cut string if</span>
+<span class="sd">    needed and trains the data. After it is done, the results can be</span>
+<span class="sd">    outputed to be piped into MVAPlotter</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      split_ratio(float): Ratio of test events for train test splitting</span>
+<span class="sd">      group_names(list): List of the names of the different groups</span>
+<span class="sd">      pred_train(dict): Dictionary of group name to BDT associated with it for train set</span>
+<span class="sd">      pred_test(dict): Dictionary of group name to BDT associated with it for test set</span>
+<span class="sd">      train_set(pandas.DataFrame): DataFrame of the training events</span>
+<span class="sd">      test_set(pandas.DataFrame): DataFrame of the testing events</span>
+<span class="sd">      cuts(list): List of ROOT style cuts to apply</span>
+<span class="sd">      param(dict): Variables used in the training</span>
+
+<span class="sd">    """</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_vars</span><span class="p">,</span> <span class="n">groupDict</span><span class="p">,</span> <span class="n">cuts</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
+        <span class="sd">"""Constructor method</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">split_ratio</span> <span class="o">=</span> <span class="mi">2</span><span class="o">/</span><span class="mf">3.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">groupDict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group_dict</span> <span class="o">=</span> <span class="n">groupDict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pred_train</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pred_test</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_vars</span> <span class="o">=</span> <span class="n">use_vars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_include_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">use_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"classID"</span><span class="p">,</span> <span class="s2">"groupName"</span><span class="p">,</span> <span class="s2">"finalWeight"</span><span class="p">,</span> <span class="s2">"scale_factor"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_include_vars</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_vars</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_vars</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="s2">"int"</span> <span class="k">if</span> <span class="s2">"num"</span> <span class="ow">in</span> <span class="n">func</span> <span class="k">else</span> <span class="s1">'float'</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">cuts</span> <span class="o">=</span> <span class="n">cuts</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"&amp;&amp;"</span><span class="p">)</span>
+        <span class="c1"># XGBoost training</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"eta"</span><span class="p">:</span> <span class="mf">0.09</span><span class="p">,</span>  <span class="s2">"nthread"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">'reg_alpha'</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                      <span class="s1">'min_child_weight'</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s1">'n_estimators'</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+                      <span class="s1">'reg_lambda'</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>  <span class="s1">'subsample'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'base_score'</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+                      <span class="s1">'colsample_bylevel'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'max_depth'</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">'learning_rate'</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+                      <span class="s1">'colsample_bytree'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'gamma'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'max_delta_step'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,}</span>
+        <span class="c1"># 'silent': 1, 'scale_pos_weight': 1,</span>
+
+
+<div class="viewcode-block" id="XGBoostMaker.add_files"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.add_files">[docs]</a>    <span class="k">def</span> <span class="nf">add_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
+        <span class="sd">"""**Fill the dataframes with all info in the input files**</span>
+
+<span class="sd">        This grabs all the variable information about each sample,</span>
+<span class="sd">        does some preliminary weighting and splits the data into the</span>
+<span class="sd">        test and train set (based on `self.split_ratio`)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            directory(string): Path to directory where root files are kept</span>
+<span class="sd">        """</span>
+        <span class="n">arr_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+        <span class="n">root_files</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">"*.root"</span><span class="p">)</span> <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="k">else</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">root_file</span> <span class="ow">in</span> <span class="n">root_files</span><span class="p">:</span>
+            <span class="n">groups</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">with</span> <span class="n">uproot4</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">root_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">";1"</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="s2">"/"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">arr_dict</span><span class="p">:</span>
+                    <span class="n">arr_dict</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">=</span> <span class="n">VarGetter</span><span class="p">(</span><span class="n">root_file</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">arr_dict</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">+=</span> <span class="n">VarGetter</span><span class="p">(</span><span class="n">root_file</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
+
+        <span class="n">class_id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">samples</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">totalSW</span><span class="p">,</span> <span class="n">totalEv</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sample</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">arr_dict</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">"Could not found sample </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sample</span><span class="p">))</span>
+                    <span class="k">continue</span>
+                <span class="n">arr</span> <span class="o">=</span> <span class="n">arr_dict</span><span class="p">[</span><span class="n">sample</span><span class="p">]</span>
+                <span class="n">totalSW</span> <span class="o">+=</span> <span class="n">ak</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span>
+                <span class="n">totalEv</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span>
+                <span class="n">df_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">varname</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">df_dict</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="s2">"arr.</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">func</span><span class="p">)))</span>
+                <span class="n">df_dict</span><span class="p">[</span><span class="s2">"scale_factor"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span>
+                
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">df_dict</span><span class="p">)</span>
+                <span class="n">df</span><span class="p">[</span><span class="s2">"classID"</span><span class="p">]</span> <span class="o">=</span> <span class="n">class_id</span>
+                <span class="n">df</span><span class="p">[</span><span class="s2">"groupName"</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span>
+                <span class="n">df</span><span class="p">[</span><span class="s2">"finalWeight"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">scale_factor</span><span class="p">)</span>
+                <span class="n">total_evts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">total_evts</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">"Add Tree </span><span class="si">{}</span><span class="s2"> of type </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">group</span><span class="p">))</span>
+                    <span class="k">continue</span>
+                <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">split_ratio</span><span class="p">,</span>
+                                           <span class="n">random_state</span><span class="o">=</span><span class="mi">12345</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">test</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">train</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"Add Tree </span><span class="si">{}</span><span class="s2"> of type </span><span class="si">{}</span><span class="s2"> with </span><span class="si">{}</span><span class="s2"> event"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)))</span>
+
+            <span class="k">if</span> <span class="n">totalSW</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">*</span><span class="n">totalEv</span><span class="o">/</span><span class="n">totalSW</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">classID</span><span class="o">==</span><span class="n">class_id</span><span class="p">,</span> <span class="s2">"finalWeight"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">scale</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="o">.</span><span class="n">classID</span><span class="o">==</span><span class="n">class_id</span><span class="p">,</span> <span class="s2">"finalWeight"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">scale</span>
+            <span class="n">class_id</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="XGBoostMaker.train"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""**Train for multiclass BDT**</span>
+
+<span class="sd">        Does final weighting of the data (normalize all groups total</span>
+<span class="sd">        weight to the same value), train the BDT, and fill the</span>
+<span class="sd">        predictions ie the BDT values for each group.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          xgboost.XGBClassifer: XGBoost model that was just trained</span>
+
+<span class="sd">        """</span>
+        <span class="n">x_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">w_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="s2">"finalWeight"</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">y_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="s2">"classID"</span><span class="p">]</span>
+        
+        <span class="n">x_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">y_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="p">[</span><span class="s2">"classID"</span><span class="p">]</span>
+
+        <span class="n">group_tot</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w_train</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="s2">"classID"</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y_train</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y_train</span><span class="p">):</span>
+            <span class="n">w_train</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="s2">"classID"</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span> <span class="o">*=</span> <span class="nb">max</span><span class="p">(</span><span class="n">group_tot</span><span class="p">)</span><span class="o">/</span><span class="n">group_tot</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"Signal"</span><span class="p">):</span>
+                <span class="n">w_train</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="s2">"classID"</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span> <span class="o">*=</span> <span class="mi">2</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">'objective'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'multi:softprob'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">'eval_metric'</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"mlogloss"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">'num_class'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y_train</span><span class="p">))</span>
+
+        <span class="n">fit_model</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">XGBClassifier</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
+        <span class="n">fit_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">w_train</span><span class="p">,</span>
+        <span class="n">eval_set</span><span class="o">=</span><span class="p">[(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)],</span>
+                      <span class="n">early_stopping_rounds</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">grp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group_names</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pred_test</span><span class="p">[</span><span class="n">grp</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pred_train</span><span class="p">[</span><span class="n">grp</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            
+
+        <span class="c1"># dtrain = xgb.DMatrix(x_train, label=y_train, weight=w_train)</span>
+        <span class="c1"># dtest = xgb.DMatrix(x_test, label=y_test,weight=self.test_set["finalWeight"])</span>
+        <span class="c1"># new_param = {"booster": "gbtree", "objective": "multi:softprob", "num_class": 3,</span>
+        <span class="c1">#              "eval_metric": "mlogloss"}</span>
+        <span class="c1"># new_train = xgb.cv(self.param, dtrain, verbose_eval=True,#evals=[(dtest,'eval'), (dtrain,'train')],</span>
+        <span class="c1">#                    num_boost_round = 10, nfold = 5,  stratified = True,</span>
+        <span class="c1">#                    early_stopping_rounds = 20, maximize = False, shuffle=True)</span>
+        <span class="c1"># print(new_train)</span>
+        <span class="c1"># fit_model = None</span>
+        <span class="c1"># exit()</span>
+
+        <span class="k">return</span> <span class="n">fit_model</span></div>
+
+<div class="viewcode-block" id="XGBoostMaker.train_single"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.train_single">[docs]</a>    <span class="k">def</span> <span class="nf">train_single</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""**Train for multiclass BDT**</span>
+
+<span class="sd">        Does final weighting of the data (normalize all groups total</span>
+<span class="sd">        weight to the same value), train the BDT, and fill the</span>
+<span class="sd">        predictions ie the BDT values for each group.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          xgboost.XGBClassifer: XGBoost model that was just trained</span>
+
+<span class="sd">        """</span>
+        <span class="c1"># tr_signal = self.train_set.classID == 0</span>
+        <span class="c1"># self.train_set.classID[tr_signal] = 1</span>
+        <span class="c1"># self.train_set.classID[tr_signal==False] = 0</span>
+        <span class="c1"># t_signal = self.test_set.classID == 0</span>
+        <span class="c1"># self.test_set.classID[t_signal] = 1</span>
+        <span class="c1"># self.test_set.classID[t_signal==False] = 0</span>
+
+        <span class="n">x_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">w_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="s2">"finalWeight"</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">y_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">classID</span>
+
+        <span class="n">x_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">y_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="o">.</span><span class="n">classID</span>
+
+        <span class="n">_</span><span class="p">,</span> <span class="n">group_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">w_train</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="s2">"classID"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="nb">max</span><span class="p">(</span><span class="n">group_tot</span><span class="p">)</span><span class="o">/</span><span class="n">group_tot</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">w_train</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="s2">"classID"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="nb">max</span><span class="p">(</span><span class="n">group_tot</span><span class="p">)</span><span class="o">/</span><span class="n">group_tot</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">'objective'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'binary:logistic'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">'eval_metric'</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"logloss"</span>
+        <span class="n">num_rounds</span> <span class="o">=</span> <span class="mi">150</span>
+
+        <span class="n">dtrain</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">y_train</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">w_train</span><span class="p">)</span>
+        <span class="n">dtrainAll</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">dtest</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">y_test</span><span class="p">,</span>
+                            <span class="n">weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="p">[</span><span class="s2">"finalWeight"</span><span class="p">])</span>
+        <span class="n">evallist</span> <span class="o">=</span> <span class="p">[(</span><span class="n">dtrain</span><span class="p">,</span><span class="s1">'train'</span><span class="p">),</span> <span class="p">(</span><span class="n">dtest</span><span class="p">,</span> <span class="s1">'test'</span><span class="p">)]</span>
+        <span class="n">fit_model</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">,</span> <span class="n">dtrain</span><span class="p">,</span> <span class="n">num_rounds</span><span class="p">,</span> <span class="n">evallist</span><span class="p">,</span>
+                              <span class="n">verbose_eval</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+        <span class="n">groupName</span> <span class="o">=</span> <span class="s2">"Background"</span><span class="c1">#self.group_names[-1]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pred_test</span><span class="p">[</span><span class="n">groupName</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dtest</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pred_train</span><span class="p">[</span><span class="n">groupName</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dtrainAll</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fit_model</span></div>
+
+<div class="viewcode-block" id="XGBoostMaker.apply_model"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.apply_model">[docs]</a>    <span class="k">def</span> <span class="nf">apply_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
+        <span class="n">fit_model</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">XGBClassifier</span><span class="p">({</span><span class="s1">'nthread'</span><span class="p">:</span> <span class="mi">4</span><span class="p">})</span>  <span class="c1"># init model</span>
+        <span class="n">fit_model</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>  <span class="c1"># load data</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">grp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group_names</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pred_test</span><span class="p">[</span><span class="n">grp</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pred_train</span><span class="p">[</span><span class="n">grp</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">fit_model</span></div>
+
+<div class="viewcode-block" id="XGBoostMaker.output"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">):</span>
+        <span class="sd">"""Wrapper for write out commands</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          outname: Directory where files will be written</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_pandas</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">/test.root"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outdir</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="p">,</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">pred_test</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_pandas</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">/train.root"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outdir</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">,</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">pred_train</span><span class="p">)</span></div>
+
+    <span class="c1"># Private Functions</span>
+
+    <span class="k">def</span> <span class="nf">_cut_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+        <span class="sd">"""**Reduce frame using root style cut string**</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          frame(pandas.DataFrame): DataFrame to cut on</span>
+
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">cut</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cut</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"&lt;"</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">cut</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"&lt;"</span><span class="p">)</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">frame</span><span class="p">[</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+            <span class="k">elif</span> <span class="n">cut</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"&gt;"</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">cut</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"&gt;"</span><span class="p">)</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">frame</span><span class="p">[</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="nb">float</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+            <span class="k">elif</span> <span class="n">cut</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"=="</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">cut</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"=="</span><span class="p">)</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">frame</span><span class="p">[</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+        <span class="k">return</span> <span class="n">frame</span>
+
+    <span class="k">def</span> <span class="nf">_write_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">workSet</span><span class="p">,</span> <span class="n">prediction</span><span class="p">):</span>
+        <span class="sd">"""**Write out pandas file as a compressed pickle file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          outfile(string): Name of file to write</span>
+<span class="sd">          workSet(pandas.DataFrame): DataFrame of variables to write out</span>
+<span class="sd">          prediction(pandas.DataFrame): DataFrame of BDT predictions</span>
+
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">prediction</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">workSet</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">arr</span><span class="p">)</span>
+
+        <span class="n">keepList</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">workSet</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">is_numeric_dtype</span><span class="p">(</span><span class="n">workSet</span><span class="p">[</span><span class="n">key</span><span class="p">])]</span>
+        <span class="n">branches</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">workSet</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keepList</span><span class="p">}</span>
+        <span class="k">with</span> <span class="n">upwrite</span><span class="o">.</span><span class="n">recreate</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">workSet</span><span class="o">.</span><span class="n">groupName</span><span class="p">):</span>
+                <span class="n">groupSet</span> <span class="o">=</span> <span class="n">workSet</span><span class="p">[</span><span class="n">workSet</span><span class="o">.</span><span class="n">groupName</span> <span class="o">==</span> <span class="n">group</span><span class="p">][</span><span class="n">keepList</span><span class="p">]</span>
+                <span class="n">f</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">=</span> <span class="n">upwrite</span><span class="o">.</span><span class="n">newtree</span><span class="p">(</span><span class="n">branches</span><span class="p">)</span>
+                <span class="n">f</span><span class="p">[</span><span class="n">group</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">groupSet</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">'list'</span><span class="p">))</span></div>
+        
+        <span class="c1"># workSet.to_parquet(outname, compression="gzip")</span>
+</code></pre>
+</main>
+<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.4.3</a></footer>
+</div>
+<div class="sticky bottom-0 md:hidden print:hidden bg-white">
+<div class="flex justify-center items-center">
+<button aria-labelledby="menuLabel" class="text-3xl p-4 flex items-center focus:bg-gray-200" id="openNavBtn">
+<svg aria-hidden="true" class="fill-current h-8 w-8" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
+<span class="pl-2 text-sm font-medium uppercase tracking-wide text-gray-700" id="menuLabel">Menu</span>
+</button><button aria-labelledby="searchLabel" class="text-3xl p-4 flex items-center focus:bg-gray-200" id="openSearchBtn">
+<svg aria-hidden="true" class="fill-current h-8 w-8" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+<span class="pl-2 text-sm font-medium uppercase tracking-wide text-gray-700" id="searchLabel">Search</span>
+</button>
+</div>
+</div>
+<div class="w-full fixed bottom-0 left-0 z-10 bg-gray-900 overflow-x-hidden pt-10 flex flex-col items-center md:hidden" data-menu="closed" id="search-pane">
+<h4 class="text-xl text-white mb-4" id="search-label">Enter search term</h4><form action="../../../search.html" class="flex w-full justify-between items-center max-w-sm px-12" id="searchbox" method="get">
+<input aria-labelledby="search-label" class="p-2 flex-1" name="q" placeholder="Search the docs" type="search"/>
+<button aria-label="Get search results" class="p-2 text-white bg-gray-700 hover:bg-gray-200 hover:text-pink-500 focus:bg-gray-200 focus:text-pink-500 tooltipped tooltipped-sw">
+<svg aria-hidden="true" class="fill-current stroke-current h-6 w-6" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+</button>
+</form>
+<button aria-label="Close menu" class="text-4xl text-gray-200 p-4 bottom-0 hover:text-pink-500 md:hidden focus:text-pink-500 self-center" id="closeSearchBtn" title="Close menu">
+<svg aria-hidden="true" class="fill-current stroke-current h-6 w-6" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</div>
+<div class="fixed bottom-0 right-0 opacity-0 p-4 m-4 bg-gray-900 text-gray-100 transition transform duration-500 translate-y-full" id="snackbar"></div>
+<div class="fixed inset-0 bg-black bg-opacity-50" id="screen" style="display: none;"></div>
+</div>
+<script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js">
+</script>
+<script src="../../../_static/jquery.js"></script>
+<script src="../../../_static/underscore.js"></script>
+<script src="../../../_static/doctools.js"></script>
+<script defer="" src="../../../_static/theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta content="ie=edge" http-equiv="X-UA-Compatible"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<title>
+      Plotting | Analysis Suite  documentation
+    </title>
+<link href="_static/pygments.css" rel="stylesheet"/>
+<link href="_static/theme.css" rel="stylesheet"/>
+<link href="_static/style.css" rel="stylesheet"/>
+<link href="search.html" rel="search" title="Search"/>
+<link href="genindex.html" rel="index" title="Index"/>
+<link href="analysis_suite.BDT_utilities.html" rel="prev" title="BDT_utilities"/>
+</head><body class="text-gray-900 antialiased min-h-screen md:h-screen flex flex-col">
+<a class="block text-xl bg-white px-8 py-4 z-20 absolute top-0 inset-x-0 text-center transform -translate-y-full focus:translate-y-0 focus:outline-none transition-transform duration-75" href="#code-class-docutils-literal-notranslate-span-class-pre-plotting-span-code" title="Skip navigation links">Skip to content</a>
+<header class="md:sticky top-0 bg-gray-900 shadow-md flex md:flex-row justify-between items-center z-10"><a aria-label="Back to homepage" class="hover:bg-gray-700 focus:bg-gray-700 tooltipped tooltipped-se" href="index.html">
+<h2 class="text-xl text-gray-100 mx-5 py-4">Analysis Suite  documentation</h2>
+</a><form action="search.html" class="hidden md:flex my-auto mx-5 justify-between items-center print:hidden" id="searchbox" method="get">
+<input aria-label="Search the docs" class="p-2 flex-1 focus:bg-yellow-100" id="search-input" name="q" placeholder="Search the docs" style="width: 300px;" type="search"/>
+<button aria-label="Get search results" class="p-2 text-white bg-gray-700 hover:bg-gray-200 hover:text-pink-500 focus:bg-gray-200 focus:text-pink-500 tooltipped tooltipped-sw">
+<svg aria-hidden="true" class="fill-current stroke-current h-6 w-6" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+</button>
+</form>
+</header>
+<div class="md:overflow-hidden flex flex-col md:flex-row flex-1"><nav class="h-full fixed md:relative inset-y-0 left-0 z-20 md:z-0 bg-white text-gray-700 border-r overflow-x-hidden pt-16 print:hidden flex flex-col" data-menu="closed" role="navigation" style="width: 270px;">
+<div class="nav-toc"><p class="caption">Contents:</p>
+<ul class="current">
+<li class="toctree-l1"><div class="nav-link"><a class="reference internal" href="index.html">Main Page</a></div></li>
+<li class="toctree-l1"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="running.html">Basic running</a></div><ul>
+<li class="toctree-l2"><div class="nav-link"><a class="reference internal" href="running.html#analysis-analyze">Analysis (<code class="docutils literal notranslate">analyze</code>)</a></div></li>
+<li class="toctree-l2"><div class="nav-link"><a class="reference internal" href="running.html#bdt-runner-mva">BDT runner (<code class="docutils literal notranslate">mva</code>)</a></div></li>
+<li class="toctree-l2"><div class="nav-link"><a class="reference internal" href="running.html#plotting-plot">Plotting (<code class="docutils literal notranslate">plot</code>)</a></div></li>
+<li class="toctree-l2"><div class="nav-link"><a class="reference internal" href="running.html#setup-combine-combine">Setup Combine (<code class="docutils literal notranslate">combine</code>)</a></div></li>
+</ul>
+</li>
+<li class="toctree-l1 current expanded"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="analysis_suite.html">Analysis Suite Documentation</a></div><ul class="current">
+<li class="toctree-l2"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="analysis_suite.commons.html"><code class="docutils literal notranslate">commons</code></a></div><ul>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="analysis_suite.commons.html#commons-awkward-commons"><code class="docutils literal notranslate">commons.awkward_commons</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="analysis_suite.commons.html#module-analysis_suite.commons.configs"><code class="docutils literal notranslate">commons.configs</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="analysis_suite.commons.html#commons-histogram"><code class="docutils literal notranslate">commons.histogram</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="analysis_suite.commons.html#module-analysis_suite.commons.info"><code class="docutils literal notranslate">commons.info</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="analysis_suite.commons.html#module-analysis_suite.commons.makeSimpleHtml"><code class="docutils literal notranslate">commons.makeSimpleHtml</code></a></div></li>
+</ul>
+</li>
+<li class="toctree-l2"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="analysis_suite.BDT_utilities.html"><code class="docutils literal notranslate">BDT_utilities</code></a></div><ul>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="analysis_suite.BDT_utilities.html#bdt-utilities-mvaplotter"><code class="docutils literal notranslate">BDT_utilities.MVAPlotter</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="analysis_suite.BDT_utilities.html#bdt-utilities-mvamaker"><code class="docutils literal notranslate">BDT_utilities.MvaMaker</code></a></div></li>
+</ul>
+</li>
+<li class="toctree-l2 current expanded"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="current reference internal" href="#"><code class="docutils literal notranslate">Plotting</code></a></div><ul>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="#plotting-logfile"><code class="docutils literal notranslate">Plotting.LogFile</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="#module-analysis_suite.Plotting.configHelper"><code class="docutils literal notranslate">Plotting.configHelper</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="#plotting-pypad"><code class="docutils literal notranslate">Plotting.pyPad</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="#plotting-stack"><code class="docutils literal notranslate">Plotting.stack</code></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<button aria-label="Close menu" class="text-4xl text-gray-800 p-4 bottom-0 hover:text-pink-500 md:hidden focus:text-pink-500 self-center" id="closeNavBtn" title="Close menu">
+<svg aria-hidden="true" class="fill-current stroke-current h-6 w-6" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="overflow-y-auto md:w-full flex flex-col flex-1" id="main-wrapper">
+<main class="px-5 md:ml-fluid flex-1" role="main"><nav aria-label="breadcrumbs" class="mt-16 mb-12 text-sm text-gray-700 leading-tight print:hidden" role="navigation">
+<a class="text-blue-700" href="index.html">Analysis Suite  documentation</a>
+<span class="text-gray-700 mr-1">/</span><a class="text-blue-700" href="analysis_suite.html">Analysis Suite Documentation</a>
+<span class="text-gray-700 mr-1">/</span><span aria-current="page"><code class="docutils literal notranslate">Plotting</code></span>
+</nav>
+<section id="plotting">
+<h1><code class="docutils literal notranslate">Plotting</code><a aria-label="Copy link to section: Plotting." class="headerlink tooltipped tooltipped-ne" href="#plotting" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h1>
+<section id="plotting-logfile">
+<h2><code class="docutils literal notranslate">Plotting.LogFile</code><a aria-label="Copy link to section: Plotting.LogFile." class="headerlink tooltipped tooltipped-ne" href="#plotting-logfile" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
+<dl class="py class code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile">
+<em class="property">class </em><code class="sig-prename descclassname">analysis_suite.Plotting.LogFile.</code><code class="sig-name descname">LogFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">info</span></em>, <em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">'.'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Bases: <code class="xref py py-class docutils literal notranslate">object</code></p>
+<p>Wrapper for Logfile for a plot</p>
+<dl class="py attribute code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.plotTable">
+<code class="sig-name descname">plotTable</code><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.plotTable" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>PrettyTable holding all the histogram information</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>PrettyTable</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.output_name">
+<code class="sig-name descname">output_name</code><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.output_name" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Name/path of logfile to be created</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.analysis">
+<code class="sig-name descname">analysis</code><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.analysis" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Analysis running over</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.selection">
+<code class="sig-name descname">selection</code><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.selection" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Selection of analysis running over</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.lumi">
+<code class="sig-name descname">lumi</code><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.lumi" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Luminosity of this run (in ipb, but converted to ifb in class)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.hists">
+<code class="sig-name descname">hists</code><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.hists" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>List of lists with Integral and Error^2 indexed by the constants
+BKG, SIGNAL, DATA, TOTAL</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of lists</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.callTime">
+<code class="sig-name descname">callTime</code><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.callTime" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>String of the time this script was called (any format)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.command">
+<code class="sig-name descname">command</code><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.command" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Command used to start this script</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.name">
+<code class="sig-name descname">name</code><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.name" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Name of the histogram</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.add_mc">
+<code class="sig-name descname">add_mc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stacker</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_mc"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.add_mc" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Add background data to this class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>drawOrder</strong> (<em>list of tuples</em><em> (</em><em>string</em><em>, </em><em>GenericHist</em><em>)</em>) – List of all background hists with their names</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.add_metainfo">
+<code class="sig-name descname">add_metainfo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">callTime</span></em>, <em class="sig-param"><span class="n">command</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_metainfo"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.add_metainfo" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Set specific metadata for output file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>callTime</strong> (<em>string</em>) – Time script was call (not formated, must be done before here)</p></li>
+<li><p><strong>command</strong> (<em>string</em>) – Full commandline string use for this run</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.add_signal">
+<code class="sig-name descname">add_signal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signal</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_signal"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.add_signal" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Add signal data to this class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal</strong> (<em>GenericHist</em>) – Histogram of signal information</p></li>
+<li><p><strong>groupName</strong> (<em>string</em>) – Name used to label the singal</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.get_likelihood">
+<code class="sig-name descname">get_likelihood</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.get_likelihood"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.get_likelihood" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Get Figure of merit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>tuple Figure of Merit (S/sqrt(S+B)) and its error</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.get_sig_bkg_ratio">
+<code class="sig-name descname">get_sig_bkg_ratio</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.get_sig_bkg_ratio"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.get_sig_bkg_ratio" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Get S/B with its error</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>tuple S/B and its error</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.get_sqrt_err">
+<code class="sig-name descname">get_sqrt_err</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.get_sqrt_err"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.get_sqrt_err" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Grab the Integral and error on that information</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – int pointed to self.hists list</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method code-definition">
+<dt id="analysis_suite.Plotting.LogFile.LogFile.write_out">
+<code class="sig-name descname">write_out</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">isLatex</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.write_out"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.LogFile.LogFile.write_out" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Write out all current information to the objects output file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>isLatex</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether table should be written out in latex or org style table</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="module-analysis_suite.Plotting.configHelper">
+<span id="plotting-confighelper"></span><h2><code class="docutils literal notranslate">Plotting.configHelper</code><a aria-label="Copy link to section: Plotting.configHelper." class="headerlink tooltipped tooltipped-ne" href="#module-analysis_suite.Plotting.configHelper" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
+<dl class="py function code-definition">
+<dt id="analysis_suite.Plotting.configHelper.setupPathAndDir">
+<code class="sig-prename descclassname">analysis_suite.Plotting.configHelper.</code><code class="sig-name descname">setupPathAndDir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">analysis</span></em>, <em class="sig-param"><span class="n">drawStyle</span></em>, <em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">chans</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/configHelper.html#setupPathAndDir"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.configHelper.setupPathAndDir" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Setup HTML directory area and return path made</p>
+</dd></dl>
+</section>
+<section id="plotting-pypad">
+<h2><code class="docutils literal notranslate">Plotting.pyPad</code><a aria-label="Copy link to section: Plotting.pyPad." class="headerlink tooltipped tooltipped-ne" href="#plotting-pypad" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
+<dl class="py class code-definition">
+<dt id="analysis_suite.Plotting.pyPad.pyPad">
+<em class="property">class </em><code class="sig-prename descclassname">analysis_suite.Plotting.pyPad.</code><code class="sig-name descname">pyPad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">plot</span></em>, <em class="sig-param"><span class="n">makeRatio</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">ratio</span><span class="o">=</span><span class="default_value">(3, 1)</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/pyPad.html#pyPad"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.pyPad.pyPad" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Bases: <code class="xref py py-class docutils literal notranslate">object</code></p>
+<p>Documentation for pyPad</p>
+<dl class="py method code-definition">
+<dt id="analysis_suite.Plotting.pyPad.pyPad.axisSetup">
+<code class="sig-name descname">axisSetup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">info</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/pyPad.html#pyPad.axisSetup"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.pyPad.pyPad.axisSetup" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+</dd></dl>
+<dl class="py method code-definition">
+<dt id="analysis_suite.Plotting.pyPad.pyPad.getXaxis">
+<code class="sig-name descname">getXaxis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/pyPad.html#pyPad.getXaxis"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.pyPad.pyPad.getXaxis" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+</dd></dl>
+<dl class="py method code-definition">
+<dt id="analysis_suite.Plotting.pyPad.pyPad.setLegend">
+<code class="sig-name descname">setLegend</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">info</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/pyPad.html#pyPad.setLegend"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.pyPad.pyPad.setLegend" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="plotting-stack">
+<h2><code class="docutils literal notranslate">Plotting.stack</code><a aria-label="Copy link to section: Plotting.stack." class="headerlink tooltipped tooltipped-ne" href="#plotting-stack" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
+<dl class="py class code-definition">
+<dt id="analysis_suite.Plotting.stack.Stack">
+<em class="property">class </em><code class="sig-prename descclassname">analysis_suite.Plotting.stack.</code><code class="sig-name descname">Stack</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bin_info</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/stack.html#Stack"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.stack.Stack" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+<p>Bases: <a class="reference internal" href="analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram" title="analysis_suite.commons.histogram.Histogram"><code class="xref py py-class docutils literal notranslate">analysis_suite.commons.histogram.Histogram</code></a></p>
+<dl class="py method code-definition">
+<dt id="analysis_suite.Plotting.stack.Stack.applyPatches">
+<code class="sig-name descname">applyPatches</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">plot</span></em>, <em class="sig-param"><span class="n">patches</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/stack.html#Stack.applyPatches"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.stack.Stack.applyPatches" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+</dd></dl>
+<dl class="py method code-definition">
+<dt id="analysis_suite.Plotting.stack.Stack.getInputs">
+<code class="sig-name descname">getInputs</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/stack.html#Stack.getInputs"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.Plotting.stack.Stack.getInputs" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dd>
+</dd></dl>
+</dd></dl>
+</section>
+</section>
+</main>
+<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.4.3</a></footer>
+</div>
+<div class="sticky bottom-0 md:hidden print:hidden bg-white">
+<div class="flex justify-center items-center">
+<button aria-labelledby="menuLabel" class="text-3xl p-4 flex items-center focus:bg-gray-200" id="openNavBtn">
+<svg aria-hidden="true" class="fill-current h-8 w-8" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
+<span class="pl-2 text-sm font-medium uppercase tracking-wide text-gray-700" id="menuLabel">Menu</span>
+</button><button aria-labelledby="searchLabel" class="text-3xl p-4 flex items-center focus:bg-gray-200" id="openSearchBtn">
+<svg aria-hidden="true" class="fill-current h-8 w-8" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+<span class="pl-2 text-sm font-medium uppercase tracking-wide text-gray-700" id="searchLabel">Search</span>
+</button>
+</div>
+</div>
+<div class="w-full fixed bottom-0 left-0 z-10 bg-gray-900 overflow-x-hidden pt-10 flex flex-col items-center md:hidden" data-menu="closed" id="search-pane">
+<h4 class="text-xl text-white mb-4" id="search-label">Enter search term</h4><form action="search.html" class="flex w-full justify-between items-center max-w-sm px-12" id="searchbox" method="get">
+<input aria-labelledby="search-label" class="p-2 flex-1" name="q" placeholder="Search the docs" type="search"/>
+<button aria-label="Get search results" class="p-2 text-white bg-gray-700 hover:bg-gray-200 hover:text-pink-500 focus:bg-gray-200 focus:text-pink-500 tooltipped tooltipped-sw">
+<svg aria-hidden="true" class="fill-current stroke-current h-6 w-6" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+</button>
+</form>
+<button aria-label="Close menu" class="text-4xl text-gray-200 p-4 bottom-0 hover:text-pink-500 md:hidden focus:text-pink-500 self-center" id="closeSearchBtn" title="Close menu">
+<svg aria-hidden="true" class="fill-current stroke-current h-6 w-6" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</div>
+<div class="fixed bottom-0 right-0 opacity-0 p-4 m-4 bg-gray-900 text-gray-100 transition transform duration-500 translate-y-full" id="snackbar"></div>
+<div class="fixed inset-0 bg-black bg-opacity-50" id="screen" style="display: none;"></div>
+</div>
+<script data-url_root="./" id="documentation_options" src="_static/documentation_options.js">
+</script>
+<script src="_static/jquery.js"></script>
+<script src="_static/underscore.js"></script>
+<script src="_static/doctools.js"></script>
+<script defer="" src="_static/theme.js"></script>
+</body>
+</html>
