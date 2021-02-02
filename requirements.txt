@@ -1,4 +1,16 @@
+# no in cmssw
 anytree
 mplhep
 boost_histogram
 sphinx
+
+# in cmssw
+numpy
+awkward1
+matplotlib
+uproot4
+uproot
+uproot_methods
+atomic
+pandas
+xgboost
