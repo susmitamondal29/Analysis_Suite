@@ -12,9 +12,25 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
+from pathlib import Path
+sys.path.insert(0, os.path.abspath('..'))
 sys.setrecursionlimit(1500)
 
+ana_base = Path("../analysis_suite")
+actual_base = Path("../..")
+module_dirs = [i for i in actual_base.iterdir() if i.is_dir() and (i/"python").is_dir()]
+
+if not ana_base.is_dir():
+    os.mkdir(ana_base)
+    module_dirs = [i for i in actual_base.iterdir() if i.is_dir() and (i/"python").is_dir()]
+    for module in module_dirs:
+        os.symlink(module.resolve()/"python", ana_base/module.name)
+
+for module in module_dirs:
+    sys.path.insert(0, (ana_base/module.name).resolve().as_posix())
+    
+
+autoclass_content = 'both'
 # -- Project information -----------------------------------------------------
 
 project = 'Analysis Suite'
@@ -50,13 +66,15 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinxawesome_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = []
 
 html_css_files = [
-    'custom.css',
+    'style.css',
 ]
+
+

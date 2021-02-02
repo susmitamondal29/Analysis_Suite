@@ -16,7 +16,7 @@ plt.style.use([hep.style.CMS, hep.style.firamath])
 import analysis_suite.commons.configs as config
 from analysis_suite.commons import writeHTML, PlotInfo, FileInfo
 from analysis_suite.commons.histogram import Histogram
-from inputs import plot_params
+from analysis_suite.data.inputs import plot_params
 from .stack import Stack
 from .pyPad import pyPad
 from .LogFile import LogFile

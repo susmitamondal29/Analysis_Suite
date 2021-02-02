@@ -10,7 +10,6 @@ import datetime
 import logging
 
 from analysis_suite.commons.configs import get_cli, checkOrCreateDir
-import inputs
 warnings.filterwarnings('ignore')
 
 

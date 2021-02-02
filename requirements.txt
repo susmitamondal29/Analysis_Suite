@@ -3,6 +3,8 @@ anytree
 mplhep
 boost_histogram
 sphinx
+sphinxawesome_theme
+prettytable
 
 # in cmssw
 numpy
@@ -13,3 +15,4 @@ uproot
 atomic
 pandas
 xgboost
+sklearn

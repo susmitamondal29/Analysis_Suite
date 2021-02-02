@@ -9,7 +9,7 @@ from analysis_suite.commons import GroupInfo
 from analysis_suite.commons.configs import checkOrCreateDir
 from .MvaMaker import XGBoostMaker
 from .MVAPlotter import MVAPlotter
-from inputs import mva_params
+from analysis_suite.data.inputs import mva_params
 
 def setup(cli_args):
     group_info = GroupInfo(**vars(cli_args))
