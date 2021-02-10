@@ -22,8 +22,6 @@ class VarGetter:
                 self.arr = ak.Array([])
                 self.scale = ak.Array([])
 
-
-
     def __add__(self, other):
         sumwTot = self.sumw + other.sumw
         self.arr = ak.concatenate((self.arr, other.arr))
@@ -67,6 +65,12 @@ class VarGetter:
         phi2 = self.nth(part1+"/phi", idx1)**2 + self.nth(part2+"/phi", idx2)**2
         return np.sqrt(eta2+phi2)
 
+    def mwT(self, parts):
+        cos_angles = np.cos(self.arr[parts+"/phi"]-self.arr["Met_phi"])
+        close_mask = ak.argmax(cos_angles, axis=-1) == ak.local_index(cos_angles, axis=-1)
+        close_pt = ak.flatten(self.arr[parts+"/pt"][close_mask])
+        return np.sqrt(2*self.arr["Met"]*close_pt*(1 - ak.flatten(cos_angles[close_mask])))
+    
 
     def mass(self, part1, idx1, part2, idx2):
         cosh_deta = np.cosh(self.nth(part1+"/eta", idx1) - self.nth(part2+"/eta", idx2))
