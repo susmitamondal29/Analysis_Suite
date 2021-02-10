@@ -24,8 +24,9 @@ def writeHTML(path, name, channels=[]):
     tree = ET.ElementTree(info)
     tree.write('{}/extraInfo.xml'.format(path))
 
-    for filename in pkg.resource_listdir(__name__, "html"):
-        data = pkg.resource_string(__name__, "html/{}".format(filename)).decode()
+    for filename in pkg.resource_listdir(__name__, "../html"):
+        print(filename)
+        data = pkg.resource_string(__name__, "../html/{}".format(filename)).decode()
         with open("{}/{}".format(path, filename), 'w') as f:
             f.write(data)
 

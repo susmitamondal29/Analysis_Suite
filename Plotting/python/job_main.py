@@ -135,8 +135,8 @@ def cleanup(cli_args):
         writeHTML("{}/{}".format(basePath, chan), "{}/{}".format(cli_args.analysis, chan))
 
     userName = os.environ['USER']
-    htmlPath = basePath.split(userName)[1][4:]
+    htmlPath = basePath.split(userName)[1]
     if 'hep.wisc.edu' in os.environ['HOSTNAME']:
-        print("https://www.hep.wisc.edu/~{0}/{1}".format(userName, htmlPath))
+        print("https://www.hep.wisc.edu/~{0}/{1}".format(userName, htmlPath[13:]))
     else:
-        print("https://{0}.web.cern.ch/{0}/{1}".format(userName, htmlPath))
+        print("https://{0}.web.cern.ch/{0}/{1}".format(userName, htmlPath[4:]))
