@@ -18,7 +18,8 @@ class BasicInfo:
 class PlotInfo(BasicInfo):
     def __init__(self, plotInfo, **kwargs):
         super().__init__(**kwargs)
-        self.plotSpecs = self.readAllInfo(plotInfo)
+        plot_path = "{}.plotInfo.{}".format(self.base_path, plotInfo)
+        self.plotSpecs = importlib.import_module(plot_path).info
 
     def __getattr__(self, name):
         return {h: (vals[name] if name in vals else None) for h, vals in self.plotSpecs.items()}
@@ -49,6 +50,11 @@ class GroupInfo(BasicInfo):
             self.group2MemberMap = {key: item["Members"]
                                     for key, item in self.groupInfo.items()}
 
+    def get_legend_name(self, group):
+        return self.groupInfo[group]["Name"]
+
+    def get_color(self, group):
+        return self.group2color[group]
 
 class FileInfo(BasicInfo):
     def __init__(self,  **kwargs):

@@ -95,6 +95,7 @@ def checkOrCreateDir(path):
 
 def getNormedHistos(indir, file_info, plot_info, histName, chan):
     import awkward1 as ak
+    import uproot4 as uproot
     from analysis_suite.commons.histogram import Histogram
 
     groupHists = dict()
@@ -104,10 +105,12 @@ def getNormedHistos(indir, file_info, plot_info, histName, chan):
                                       file_info.get_color(group),
                                       plot_info.get_binning(histName))
         for mem in members:
-            narray = ak.Array({})
+            narray = ak.Record({})
             try:
-                array = ak.from_parquet("{}/{}.parquet".format(indir, mem),
-                                        [ak_col, "scale_factor"])
+                with uproot.open(indir) as f:
+                    print(f.keys())
+                    array = f[mem].arrays([ak_col, "scale_factor"])
+                
             except:
                 print("problem with {} getting histogram {}".format(mem, ak_col))
                 continue

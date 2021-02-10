@@ -14,7 +14,7 @@ import mplhep as hep
 plt.style.use([hep.style.CMS, hep.style.firamath])
 
 import analysis_suite.commons.configs as config
-from analysis_suite.commons import writeHTML, PlotInfo, FileInfo
+from analysis_suite.commons import writeHTML, PlotInfo, GroupInfo
 from analysis_suite.commons.histogram import Histogram
 from analysis_suite.data.inputs import plot_params
 from .stack import Stack
@@ -29,15 +29,16 @@ def setup(cli_args):
         print(plot_params.color_by_group.keys())
         exit(1)
 
-    file_info = FileInfo(plot_params.color_by_group, **vars(cli_args))
+    file_info = GroupInfo(plot_params.color_by_group, **vars(cli_args))
     plot_info = PlotInfo(cli_args.info, lumi=cli_args.lumi*1000)
     channels = cli_args.channels.split(',')
     basePath = setupPathAndDir(cli_args.analysis, cli_args.drawStyle, cli_args.workdir,
                                channels)
+    infile ="{}/{}/test.root".format(cli_args.workdir, cli_args.channels)
 
     argList = list()    
     for histName in plot_info.get_hists():
-        argList.append((histName, file_info, plot_info, basePath, cli_args.infile,
+        argList.append((histName, file_info, plot_info, basePath, infile,
                         signalNames, channels))
     return argList
 
