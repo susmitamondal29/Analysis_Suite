@@ -35,7 +35,6 @@ def setup(cli_args):
 def run(groupDict, outDir, applyModel):
     mvaRunner = XGBoostMaker(mva_params.usevar, groupDict)
     mvaRunner.add_files("result.root")
-
     if applyModel:
         fitModel = mvaRunner.apply_model(applyModel)
         impor = fitModel.get_booster().get_score(importance_type= "total_gain")
@@ -61,10 +60,11 @@ def run(groupDict, outDir, applyModel):
     plt.close()
 
 def cleanup(cli_args):
-    lumi = cli_args.lumi*1000
-    outDir ="{}/{}".format(cli_args.workdir, cli_args.channels)
-    groupMembers = [item for sublist in cli_args.groupDict.values() for item in sublist]
-    output = MVAPlotter(outDir, cli_args.groupDict.keys(), groupMembers, lumi)
+    pass
+    # lumi = cli_args.lumi*1000
+    # outDir ="{}/{}".format(cli_args.workdir, cli_args.channels)
+    # groupMembers = [item for sublist in cli_args.groupDict.values() for item in sublist]
+    # output = MVAPlotter(outDir, cli_args.groupDict.keys(), groupMembers, lumi)
 
 
     # ttbar = output[output.work_set.groupName == "ttbar"]
