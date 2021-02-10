@@ -122,7 +122,7 @@ void ThreeTop::FillValues(int variation) {
 void ThreeTop::FillLeptons() {
     auto muonItr = muon.tightList.begin(), muonEnd = muon.tightList.end();
     auto elecItr = elec.tightList.begin(), elecEnd = elec.tightList.end();
-    while(muonItr != muonEnd && elecItr != elecEnd) {
+    while(muonItr != muonEnd || elecItr != elecEnd) {
         if (muonItr != muonEnd &&
             (elecItr == elecEnd || muon.pt->At(*muonItr) > elec.pt->At(*elecItr))) {
             o_tightLeptons->pt.push_back(muon.pt->At(*muonItr));
