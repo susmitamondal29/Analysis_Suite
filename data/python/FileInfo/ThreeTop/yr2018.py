@@ -182,7 +182,7 @@ info = {
         "Source of cross section" : "MCM",
     },
     'ZZTo4L_TuneCP5_13TeV_powheg_pythia8': {
-        'alias': "zz4l_powheg",
+        'alias': "zz4l",
         "cross_section" : 1.256,
         "Source of cross section" : "AN2018-062",
     },
