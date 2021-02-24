@@ -92,7 +92,8 @@
 <div class="viewcode-block" id="PlotInfo"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.PlotInfo">[docs]</a><span class="k">class</span> <span class="nc">PlotInfo</span><span class="p">(</span><span class="n">BasicInfo</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotInfo</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readAllInfo</span><span class="p">(</span><span class="n">plotInfo</span><span class="p">)</span>
+        <span class="n">plot_path</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">.plotInfo.</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span> <span class="n">plotInfo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">plot_path</span><span class="p">)</span><span class="o">.</span><span class="n">info</span>
 
     <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">h</span><span class="p">:</span> <span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">vals</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
@@ -121,8 +122,13 @@
                                     <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group2color</span><span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">group2MemberMap</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s2">"Members"</span><span class="p">]</span>
-                                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+                                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
+<div class="viewcode-block" id="GroupInfo.get_legend_name"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.GroupInfo.get_legend_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_legend_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span><span class="p">[</span><span class="n">group</span><span class="p">][</span><span class="s2">"Name"</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="GroupInfo.get_color"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.GroupInfo.get_color">[docs]</a>    <span class="k">def</span> <span class="nf">get_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group2color</span><span class="p">[</span><span class="n">group</span><span class="p">]</span></div></div>
 
 <div class="viewcode-block" id="FileInfo"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.FileInfo">[docs]</a><span class="k">class</span> <span class="nc">FileInfo</span><span class="p">(</span><span class="n">BasicInfo</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -149,7 +155,7 @@
         <span class="k">return</span> <span class="n">scale</span></div></div>
 </code></pre>
 </main>
-<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.4.3</a></footer>
+<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.5.1</a></footer>
 </div>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">
 <div class="flex justify-center items-center">

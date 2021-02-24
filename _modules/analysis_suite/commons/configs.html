@@ -169,6 +169,7 @@
 
 <div class="viewcode-block" id="getNormedHistos"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.getNormedHistos">[docs]</a><span class="k">def</span> <span class="nf">getNormedHistos</span><span class="p">(</span><span class="n">indir</span><span class="p">,</span> <span class="n">file_info</span><span class="p">,</span> <span class="n">plot_info</span><span class="p">,</span> <span class="n">histName</span><span class="p">,</span> <span class="n">chan</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">awkward1</span> <span class="k">as</span> <span class="nn">ak</span>
+    <span class="kn">import</span> <span class="nn">uproot4</span> <span class="k">as</span> <span class="nn">uproot</span>
     <span class="kn">from</span> <span class="nn">analysis_suite.commons.histogram</span> <span class="kn">import</span> <span class="n">Histogram</span>
 
     <span class="n">groupHists</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -178,10 +179,12 @@
                                       <span class="n">file_info</span><span class="o">.</span><span class="n">get_color</span><span class="p">(</span><span class="n">group</span><span class="p">),</span>
                                       <span class="n">plot_info</span><span class="o">.</span><span class="n">get_binning</span><span class="p">(</span><span class="n">histName</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">mem</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
-            <span class="n">narray</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">Array</span><span class="p">({})</span>
+            <span class="n">narray</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">Record</span><span class="p">({})</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">array</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">from_parquet</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">.parquet"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">indir</span><span class="p">,</span> <span class="n">mem</span><span class="p">),</span>
-                                        <span class="p">[</span><span class="n">ak_col</span><span class="p">,</span> <span class="s2">"scale_factor"</span><span class="p">])</span>
+                <span class="k">with</span> <span class="n">uproot</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">indir</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                    <span class="n">array</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">mem</span><span class="p">]</span><span class="o">.</span><span class="n">arrays</span><span class="p">([</span><span class="n">ak_col</span><span class="p">,</span> <span class="s2">"scale_factor"</span><span class="p">])</span>
+                
             <span class="k">except</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">"problem with </span><span class="si">{}</span><span class="s2"> getting histogram </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">ak_col</span><span class="p">))</span>
                 <span class="k">continue</span>
@@ -218,7 +221,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">'Directory not copied. Error: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span></div>
 </code></pre>
 </main>
-<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.4.3</a></footer>
+<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.5.1</a></footer>
 </div>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">
 <div class="flex justify-center items-center">
