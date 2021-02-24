@@ -35,17 +35,18 @@ class mva_params:
         "LepCos" : "cosDtheta('TightLeptons', 0, 'TightLeptons', 1)",
         "JetLep1_Cos" : "cosDtheta('TightLeptons', 0, 'Jets', 0)",
         "JetLep2_Cos" : "cosDtheta('TightLeptons', 1, 'Jets', 0)",
+        "mwT" : "mwT('TightLeptons')",
     }
 
     # Input Rootfile
-    single=True
+    single=False
     # Sampels and the groups they are a part of
     if single:
         groups = [["Signal", ["ttt"]],
-                  ["Background", ["ttw", "ttz", "tth", "ttXY", "vvv", "vv","xg" "4top2016","other"]]]
+                  ["Background", ["ttw", "ttz", "tth", "ttXY", "vvv", "vv","xg", "4top2016","other"]]]
     else:
         groups = [["Signal", ["ttt"]],
-                  ["FourTop", ["4top2016",]],
+                  ["FourTop", ["tttt",]],
                   ["Background", ["ttw", "ttz", "tth", "ttXY", "vvv", "vv", "xg","other"]]] #
 
 class plot_params:

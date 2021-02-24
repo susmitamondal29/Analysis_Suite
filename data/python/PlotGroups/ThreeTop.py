@@ -48,10 +48,10 @@ info ={
         "Name": "vv",
         "Members": [
             "vh2nonbb",
-            "zz4l_powheg",
+            "zz4l",
             "wpwpjj_ewk",
             "ww_doubleScatter",
-            "wz2lnu_powheg",
+            "wzTo3lnu",
         ],
     },
     "vvv": {
