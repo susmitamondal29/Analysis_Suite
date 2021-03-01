@@ -5,6 +5,23 @@
 
 #include "analysis_suite/Analyzer/interface/Particle.h"
 
+struct BJetOut {
+    std::vector<Float_t> pt;
+    std::vector<Float_t> eta;
+    std::vector<Float_t> phi;
+    std::vector<Float_t> mass;
+    std::vector<Float_t> discriminator;
+    UInt_t n_loose;
+    UInt_t n_medium;
+    UInt_t n_tight;
+    void clear() {
+        pt.clear();
+        eta.clear();
+        phi.clear();
+        mass.clear();
+        discriminator.clear();
+    }
+};
 
 class Jet : public Particle {
     public:
@@ -14,6 +31,7 @@ class Jet : public Particle {
         void createTightList();
         float getHT(std::vector<size_t> jet_list);
         float getCentrality(std::vector<size_t> jet_list);
+        void fillBJet(std::vector<size_t>& fillList, BJetOut& fillObject);
 
         void setupJet() {
             createLooseList();
@@ -26,13 +44,17 @@ class Jet : public Particle {
             bjetList.clear();
             tightList.clear();
             closeJetDr_by_index.clear();
+            n_loose_bjet = 0;
+            n_medium_bjet = 0;
+            n_tight_bjet = 0;
         }
 
         std::vector<size_t> looseList;
         std::vector<size_t> bjetList;
         std::vector<size_t> tightList;
         std::unordered_map<size_t, size_t> closeJetDr_by_index;
-        
+        size_t n_loose_bjet, n_medium_bjet, n_tight_bjet;
+
         TTRArray<Int_t>* jetId;
         TTRArray<Int_t>* hadronFlavour;
         TTRArray<Float_t>* btag;

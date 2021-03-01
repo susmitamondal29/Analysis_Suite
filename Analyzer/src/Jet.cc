@@ -38,6 +38,9 @@ void Jet::createBJetList() {
     for(auto i: looseList) {
         if (btag->At(i) > medium_bjet_cut)
             bjetList.push_back(i);
+        n_loose_bjet += (btag->At(i) > loose_bjet_cut) ? 1 : 0;
+        n_medium_bjet += (btag->At(i) > medium_bjet_cut) ? 1 : 0;
+        n_tight_bjet += (btag->At(i) > tight_bjet_cut) ? 1 : 0;
     }
 }
 
@@ -63,4 +66,17 @@ float Jet::getCentrality(std::vector<size_t> jet_list) {
         etot += jet.E();
     }
     return getHT(jet_list)/etot;
+}
+
+void Jet::fillBJet(std::vector<size_t>& fillList, BJetOut& fillObject) {
+    fillObject.n_loose = n_loose_bjet;
+    fillObject.n_medium = n_medium_bjet;
+    fillObject.n_tight = n_tight_bjet;
+    for(auto midx: fillList) {
+        fillObject.pt.push_back(pt->At(midx));
+        fillObject.eta.push_back(eta->At(midx));
+        fillObject.phi.push_back(phi->At(midx));
+        fillObject.mass.push_back(mass->At(midx));
+        fillObject.discriminator.push_back(btag->At(midx));
+    }
 }
