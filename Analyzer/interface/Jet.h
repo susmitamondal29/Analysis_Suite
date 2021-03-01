@@ -14,7 +14,8 @@ struct BJetOut {
     UInt_t n_loose;
     UInt_t n_medium;
     UInt_t n_tight;
-    void clear() {
+    void clear()
+    {
         pt.clear();
         eta.clear();
         phi.clear();
@@ -24,45 +25,46 @@ struct BJetOut {
 };
 
 class Jet : public Particle {
-    public:
-        void setup(TTreeReader& fReader, int year);
-        void createLooseList();
-        void createBJetList();
-        void createTightList();
-        float getHT(std::vector<size_t> jet_list);
-        float getCentrality(std::vector<size_t> jet_list);
-        void fillBJet(std::vector<size_t>& fillList, BJetOut& fillObject);
+public:
+    void setup(TTreeReader& fReader, int year);
+    void createLooseList();
+    void createBJetList();
+    void createTightList();
+    float getHT(std::vector<size_t> jet_list);
+    float getCentrality(std::vector<size_t> jet_list);
+    void fillBJet(std::vector<size_t>& fillList, BJetOut& fillObject);
 
-        void setupJet() {
-            createLooseList();
-            createBJetList();
-            createTightList();
-        }
+    void setupJet()
+    {
+        createLooseList();
+        createBJetList();
+        createTightList();
+    }
 
-        void clear() {
-            looseList.clear();
-            bjetList.clear();
-            tightList.clear();
-            closeJetDr_by_index.clear();
-            n_loose_bjet = 0;
-            n_medium_bjet = 0;
-            n_tight_bjet = 0;
-        }
+    void clear()
+    {
+        looseList.clear();
+        bjetList.clear();
+        tightList.clear();
+        closeJetDr_by_index.clear();
+        n_loose_bjet = 0;
+        n_medium_bjet = 0;
+        n_tight_bjet = 0;
+    }
 
-        std::vector<size_t> looseList;
-        std::vector<size_t> bjetList;
-        std::vector<size_t> tightList;
-        std::unordered_map<size_t, size_t> closeJetDr_by_index;
-        size_t n_loose_bjet, n_medium_bjet, n_tight_bjet;
+    std::vector<size_t> looseList;
+    std::vector<size_t> bjetList;
+    std::vector<size_t> tightList;
+    std::unordered_map<size_t, size_t> closeJetDr_by_index;
+    size_t n_loose_bjet, n_medium_bjet, n_tight_bjet;
 
-        TTRArray<Int_t>* jetId;
-        TTRArray<Int_t>* hadronFlavour;
-        TTRArray<Float_t>* btag;
+    TTRArray<Int_t>* jetId;
+    TTRArray<Int_t>* hadronFlavour;
+    TTRArray<Float_t>* btag;
 
-    
-    private:
-        float loose_bjet_cut, medium_bjet_cut, tight_bjet_cut;
-        int looseId = 0b11;
+private:
+    float loose_bjet_cut, medium_bjet_cut, tight_bjet_cut;
+    int looseId = 0b11;
 };
 
 #endif // __JET_H_

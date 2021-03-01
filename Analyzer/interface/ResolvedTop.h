@@ -11,7 +11,8 @@ struct TopOut {
     std::vector<Float_t> phi;
     std::vector<Float_t> mass;
     std::vector<Float_t> discriminator;
-    void clear() {
+    void clear()
+    {
         pt.clear();
         eta.clear();
         phi.clear();
@@ -25,13 +26,9 @@ public:
     void setup(TTreeReader& fReader, int year);
     void createLooseList();
     void fillTop(std::vector<size_t>& fillList, TopOut& fillObject);
-    void setupTops() {
-        createLooseList();
-    }
+    void setupTops() { createLooseList(); }
 
-    void clear() {
-        looseList.clear();
-    }
+    void clear() { looseList.clear(); }
 
     std::vector<size_t> looseList;
 

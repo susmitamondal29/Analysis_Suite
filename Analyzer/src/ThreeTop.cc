@@ -1,9 +1,13 @@
 #include "analysis_suite/Analyzer/interface/ThreeTop.h"
 
-enum CHANNELS {CHAN_HAD, CHAN_SINGLE, CHAN_OS, CHAN_SS, CHAN_MULTI};
+enum CHANNELS { CHAN_HAD,
+    CHAN_SINGLE,
+    CHAN_OS,
+    CHAN_SS,
+    CHAN_MULTI };
 
-
-void ThreeTop::Init(TTree *tree) {
+void ThreeTop::Init(TTree* tree)
+{
     channel_ = CHAN_SS;
     BaseSelector::Init(tree);
 
@@ -20,7 +24,8 @@ void ThreeTop::Init(TTree *tree) {
     Met_phi = new TTRValue<Float_t>(fReader, "MET_phi");
 }
 
-void ThreeTop::SetupOutTree() {
+void ThreeTop::SetupOutTree()
+{
     outTree->Branch("LooseMuon", "ParticleOut", &o_looseMuons);
     outTree->Branch("TightMuon", "ParticleOut", &o_tightMuons);
     outTree->Branch("LooseElectron", "ParticleOut", &o_looseElectrons);
@@ -35,11 +40,11 @@ void ThreeTop::SetupOutTree() {
     outTree->Branch("Met", &o_met, "Met/F");
     outTree->Branch("Met_phi", &o_metphi, "Met_phi/F");
     outTree->Branch("Centrality", &o_centrality, "Centrality/F");
-
 }
 
 /// Make to seperate fuctionality
-void ThreeTop::clearValues() {
+void ThreeTop::clearValues()
+{
     muon.clear();
     elec.clear();
     jet.clear();
@@ -55,15 +60,12 @@ void ThreeTop::clearValues() {
     o_resolvedTop->clear();
 }
 
-void ThreeTop::ApplyScaleFactors() {
+void ThreeTop::ApplyScaleFactors() {}
 
-}
+void ThreeTop::setupParticles() { rTop.setupTops(); }
 
-void ThreeTop::setupParticles() {
-    rTop.setupTops();
-}
-
-void ThreeTop::setupChannel() {
+void ThreeTop::setupChannel()
+{
     size_t nLep = muon.tightList.size() + elec.tightList.size();
     if (nLep == 0)
         currentChannel_ = CHAN_HAD;
@@ -71,9 +73,9 @@ void ThreeTop::setupChannel() {
         currentChannel_ = CHAN_SINGLE;
     else if (nLep == 2) {
         int q_product = 1;
-        for(auto i: elec.tightList)
+        for (auto i : elec.tightList)
             q_product *= elec.charge->At(i);
-        for(auto i: muon.tightList)
+        for (auto i : muon.tightList)
             q_product *= muon.charge->At(i);
         if (q_product > 0)
             currentChannel_ = CHAN_SS;
@@ -81,18 +83,11 @@ void ThreeTop::setupChannel() {
             currentChannel_ = CHAN_OS;
     } else
         currentChannel_ = CHAN_MULTI;
-
 }
 
-
-bool ThreeTop::passSelection(int variation) {
-    bool passMETFilter = (**Flag_goodVertices
-                       && **Flag_globalSuperTightHalo2016Filter
-                       && **Flag_HBHENoiseFilter
-                       && **Flag_HBHENoiseIsoFilter
-                       && **Flag_EcalDeadCellTriggerPrimitiveFilter
-                       && **Flag_BadPFMuonFilter
-                       && **Flag_ecalBadCalibFilter);
+bool ThreeTop::passSelection(int variation)
+{
+    bool passMETFilter = (**Flag_goodVertices && **Flag_globalSuperTightHalo2016Filter && **Flag_HBHENoiseFilter && **Flag_HBHENoiseIsoFilter && **Flag_EcalDeadCellTriggerPrimitiveFilter && **Flag_BadPFMuonFilter && **Flag_ecalBadCalibFilter);
     bool passZVeto = muon.passZVeto() && elec.passZVeto();
     bool passChannel = currentChannel_ == channel_;
     bool passJetNumber = jet.tightList.size() >= 2;
@@ -100,19 +95,11 @@ bool ThreeTop::passSelection(int variation) {
     bool passMetCut = **Met_pt > 25;
     bool passHTCut = jet.getHT(jet.tightList) > 250;
 
-    return (passMETFilter &&
-       passMetCut &&
-       passZVeto &&
-       passChannel &&
-       passJetNumber &&
-       passBJetNumber &&
-       passHTCut
-    );
-    
-
+    return (passMETFilter && passMetCut && passZVeto && passChannel && passJetNumber && passBJetNumber && passHTCut);
 }
 
-void ThreeTop::FillValues(int variation) {
+void ThreeTop::FillValues(int variation)
+{
     muon.fillParticle(muon.looseList, *o_looseMuons);
     muon.fillParticle(muon.tightList, *o_tightMuons);
     elec.fillParticle(elec.looseList, *o_looseElectrons);
@@ -129,12 +116,12 @@ void ThreeTop::FillValues(int variation) {
     o_centrality = jet.getCentrality(jet.tightList);
 }
 
-void ThreeTop::FillLeptons() {
+void ThreeTop::FillLeptons()
+{
     auto muonItr = muon.tightList.begin(), muonEnd = muon.tightList.end();
     auto elecItr = elec.tightList.begin(), elecEnd = elec.tightList.end();
-    while(muonItr != muonEnd || elecItr != elecEnd) {
-        if (muonItr != muonEnd &&
-            (elecItr == elecEnd || muon.pt->At(*muonItr) > elec.pt->At(*elecItr))) {
+    while (muonItr != muonEnd || elecItr != elecEnd) {
+        if (muonItr != muonEnd && (elecItr == elecEnd || muon.pt->At(*muonItr) > elec.pt->At(*elecItr))) {
             o_tightLeptons->pt.push_back(muon.pt->At(*muonItr));
             o_tightLeptons->eta.push_back(muon.eta->At(*muonItr));
             o_tightLeptons->phi.push_back(muon.phi->At(*muonItr));
