@@ -6,7 +6,9 @@ enum CHANNELS {CHAN_HAD, CHAN_SINGLE, CHAN_OS, CHAN_SS, CHAN_MULTI};
 void ThreeTop::Init(TTree *tree) {
     channel_ = CHAN_SS;
     BaseSelector::Init(tree);
-         
+
+    rTop.setup(fReader, year_);
+
     Flag_goodVertices = new TTRValue<Bool_t>(fReader, "Flag_goodVertices");
     Flag_globalSuperTightHalo2016Filter = new TTRValue<Bool_t>(fReader, "Flag_globalSuperTightHalo2016Filter");
     Flag_HBHENoiseFilter = new TTRValue<Bool_t>(fReader, "Flag_HBHENoiseFilter");
@@ -25,7 +27,8 @@ void ThreeTop::SetupOutTree() {
     outTree->Branch("TightElectron", "ParticleOut", &o_tightElectrons);
     outTree->Branch("TightLeptons", "ParticleOut", &o_tightLeptons);
     outTree->Branch("Jets", "ParticleOut", &o_jets);
-    outTree->Branch("BJets", "ParticleOut", &o_bJets);
+    outTree->Branch("BJets", "BJetOut", &o_bJets);
+    outTree->Branch("ResolvedTops", "TopOut", &o_resolvedTop);
 
     outTree->Branch("HT", &o_ht, "HT/F");
     outTree->Branch("HT_b", &o_htb, "HT_b/F");
@@ -40,7 +43,8 @@ void ThreeTop::clearValues() {
     muon.clear();
     elec.clear();
     jet.clear();
-    
+    rTop.clear();
+
     o_looseMuons->clear();
     o_tightMuons->clear();
     o_looseElectrons->clear();
@@ -48,10 +52,15 @@ void ThreeTop::clearValues() {
     o_tightLeptons->clear();
     o_jets->clear();
     o_bJets->clear();
+    o_resolvedTop->clear();
 }
 
 void ThreeTop::ApplyScaleFactors() {
 
+}
+
+void ThreeTop::setupParticles() {
+    rTop.setupTops();
 }
 
 void ThreeTop::setupChannel() {
@@ -109,7 +118,8 @@ void ThreeTop::FillValues(int variation) {
     elec.fillParticle(elec.looseList, *o_looseElectrons);
     elec.fillParticle(elec.tightList, *o_tightElectrons);
     jet.fillParticle(jet.tightList, *o_jets);
-    jet.fillParticle(jet.bjetList, *o_bJets);
+    jet.fillBJet(jet.bjetList, *o_bJets);
+    rTop.fillTop(rTop.looseList, *o_resolvedTop);
     FillLeptons();
 
     o_ht = jet.getHT(jet.tightList);

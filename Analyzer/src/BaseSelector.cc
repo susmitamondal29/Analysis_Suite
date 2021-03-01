@@ -52,7 +52,7 @@ void BaseSelector::SetScaleFactors() {
 Bool_t BaseSelector::Process(Long64_t entry)
 {
     if (entry % 10000 == 0)
-        std::cout << "At entry: " << entry << std::endl;
+    	std::cout << "At entry: " << entry << std::endl;
     fReader.SetLocalEntry(entry);
     for (const auto& variation : variations_) {
         SetupEvent(variation);
@@ -91,11 +91,11 @@ void BaseSelector::SlaveTerminate()
 
 void BaseSelector::SetupEvent(int variation) {
     clearValues();
-
     muon.setupLepton(jet);
     elec.setupLepton(jet);
     jet.setupJet();
-
+    setupParticles();
+    
     setupChannel();
 
     if (isMC_) {
