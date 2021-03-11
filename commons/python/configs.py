@@ -105,11 +105,12 @@ def getNormedHistos(indir, file_info, plot_info, histName, chan):
                                       file_info.get_color(group),
                                       plot_info.get_binning(histName))
         for mem in members:
-            narray = ak.Record({})
+            narray = dict()
             try:
                 with uproot.open(indir) as f:
-                    print(f.keys())
-                    array = f[mem].arrays([ak_col, "scale_factor"])
+                    array = f[mem].arrays([ak_col, "scale_factor"],
+                                          # "Background<0.3"
+                                          )
                 
             except:
                 print("problem with {} getting histogram {}".format(mem, ak_col))
@@ -123,7 +124,7 @@ def getNormedHistos(indir, file_info, plot_info, histName, chan):
                     sf = ak.flatten(sf)
             narray[ak_col] = vals
             narray["scale_factor"] = sf
-            #print("{}: {:.3f}+-{:.3f} ({})".format(mem, ak.sum(sf)*plot_info.lumi, plot_info.lumi*math.sqrt(ak.sum(sf)**2),len(sf)))
+            print("{}: {:.3f}+-{:.3f} ({})".format(mem, ak.sum(sf)*plot_info.lumi, plot_info.lumi*math.sqrt(ak.sum(sf**2)),len(sf)))
             groupHists[group] += narray
 
     for name, hist in groupHists.items():
@@ -132,6 +133,14 @@ def getNormedHistos(indir, file_info, plot_info, histName, chan):
             hist.scale(scale)
         else:
             hist.scale(plot_info.lumi)
+    s, b = 0, 0
+    for group, hist in groupHists.items():
+        if group == "ttt":
+            s = hist.integral()
+        else:
+            b += hist.integral()
+    print("Figure of merit: ", s/math.sqrt(s+b))
+    exit()
     return groupHists
 
 def copyDirectory(src, dest):

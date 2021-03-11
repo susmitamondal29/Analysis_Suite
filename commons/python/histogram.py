@@ -17,14 +17,15 @@ class Histogram:
         if isinstance(right, Histogram):
             self.hist += right.hist
             self.sumw2 += right.sumw2
-        elif isinstance(right, ak.Array):
-            histName = (set(right.columns) - {"scale_factor"}).pop()
-            self.hist.fill(right[histName], weight=right.scale_factor)
-            self.sumw2.fill(right[histName], weight=right.scale_factor**2)
+        elif isinstance(right, dict):
+            histName = (set(right.keys()) - {"scale_factor"}).pop()
+            self.hist.fill(right[histName], weight=right["scale_factor"])
+            self.sumw2.fill(right[histName], weight=right["scale_factor"]**2)
             self.hist[-1] += self.hist[bh.overflow]
             self.hist[bh.overflow] = 0
             self.sumw2[-1] += self.sumw2[bh.overflow]
             self.sumw2[bh.overflow] = 0
+
         return self
 
     def __truediv__(self, denom):
