@@ -12,6 +12,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, roc_auc_score
 import xgboost as xgb
+import uproot4 as uproot
 # import shap
 
 
@@ -26,8 +27,8 @@ class MVAPlotter(object):
       color_dict(dict: dict): Dictionary for setting line color for groups
       work_set(pandas.DataFrame): DataFrame with event/variable data
     """
-    def __init__(self, workdir, groups, groupMembers, lumi=140000, is_train=False):
-        self.groups = list(groups)
+    def __init__(self, workdir, groups, lumi=140000, is_train=False):
+        self.groups = list(groups.keys())
         self.do_show = False
         self.save_dir = workdir
         self.lumi = lumi/1000
@@ -37,35 +38,32 @@ class MVAPlotter(object):
 
         self.color_dict = {grp: col for grp, col in zip(self.groups, colors)}
         self.color_dict["All Backgrounds"] = colors[len(self.groups)]
-        self.work_set, other = pd.DataFrame(), pd.DataFrame()
-        work_dir = workdir + "/train/" if is_train else workdir + "/test/"
-        other_dir = workdir + "/test/" if is_train else workdir + "/train/"
+        self.work_set = pd.DataFrame()
+        work_file, other_file = ("train.root", "test.root") \
+            if is_train else  ("test.root", "train.root")
         
-        for group in {i[:-4] if "201" in i else i for i in groupMembers}:
-            filename = "{}.parquet".format(group)
-            if not isfile(work_dir + filename) or not isfile(other_dir + filename):
-                continue
-            self.work_set = pd.concat(
-                (self.work_set, pd.read_parquet(work_dir + filename)))
-            other = pd.concat((other, pd.read_parquet(other_dir + filename)))
+        with uproot.open("{}/{}".format(workdir, work_file)) as f:
+            for group, samples in groups.items():
+                for sample in [s for s in samples if s in f]:
+                    temp = f[sample].arrays(library="pd")
+                    temp["classID"] = self.groups.index(group)
+                    self.work_set = pd.concat((self.work_set, temp))
 
-        self._ratio = (1. + 1.*len(other)/len(self.work_set))
+        other = 0
+        with uproot.open("{}/{}".format(workdir, other_file)) as f:
+            column = self.work_set.columns[0]
+            for sample in sum(list(groups.values()), []):
+                if sample not in f:
+                    continue
+                other += len(f[sample].arrays([column]))
+
+        print(self.work_set.columns)
+        print(other)
+        
+        self._ratio = (1. + 1.*other/len(self.work_set))
         self.work_set.scale_factor *= self._ratio
         self.work_set["final_factor"] = self.work_set.scale_factor*lumi
         
-        # was this multilcass or multiple binaries (maybe outdated)
-        multirun = all(elem in self.work_set for elem in self.groups)
-        for group in self.groups:
-            if group not in self.work_set:
-                continue
-            if group != "Signal":
-                self.work_set.insert(1, "BDT.{}".format(group),
-                                     1-self.work_set[group])
-            else:
-                self.work_set.insert(1, "BDT.{}".format(group),
-                                     self.work_set[group])
-            self.work_set.drop(columns=group, inplace=True)
-
 
     def __len__(self):
         return len(self.groups)
@@ -489,7 +487,7 @@ class MVAPlotter(object):
         """
         
         final_set = pd.concat((self.get_sample(sig), self.get_sample(bkg)))
-        pred = final_set["BDT.{}".format(var)].array
+        pred = final_set[var].array
         if extra_name:
             extra_name = "_{}".format(extra_name)
 
