@@ -48,6 +48,7 @@ void BaseSelector::SetScaleFactors()
 
 Bool_t BaseSelector::Process(Long64_t entry)
 {
+
     if (entry % 10000 == 0)
         std::cout << "At entry: " << entry << std::endl;
     fReader.SetLocalEntry(entry);
@@ -56,9 +57,9 @@ Bool_t BaseSelector::Process(Long64_t entry)
         if (passSelection(variation)) {
             FillValues(variation);
             outTree->Fill();
+            passed_events++;
         }
     }
-
     return kTRUE;
 }
 
@@ -78,7 +79,10 @@ float BaseSelector::GetPrefiringEfficiencyWeight(std::vector<float>* jetPt,
 
 void BaseSelector::Terminate() {}
 
-void BaseSelector::SlaveTerminate() {}
+void BaseSelector::SlaveTerminate()
+{
+    std::cout << passed_events << " events passed selection" << std::endl;
+}
 
 void BaseSelector::SetupEvent(int variation)
 {

@@ -22,7 +22,7 @@ public:
 
 private:
     void FillLeptons();
-
+    void printStuff();
     ResolvedTop rTop;
 
     ParticleOut* o_looseMuons;
@@ -34,6 +34,7 @@ private:
     BJetOut* o_bJets;
     TopOut* o_resolvedTop;
 
+    TTRValue<ULong64_t>* event;
     TTRValue<Bool_t>* Flag_goodVertices;
     TTRValue<Bool_t>* Flag_globalSuperTightHalo2016Filter;
     TTRValue<Bool_t>* Flag_HBHENoiseFilter;

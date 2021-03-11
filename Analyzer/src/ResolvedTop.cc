@@ -8,6 +8,8 @@ void ResolvedTop::setup(TTreeReader& fReader, int year)
 
 void ResolvedTop::createLooseList()
 {
+    if (!pt)
+        return;
     for (size_t i = 0; i < pt->GetSize(); i++) {
         looseList.push_back(i);
     }

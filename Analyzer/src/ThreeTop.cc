@@ -11,8 +11,7 @@ void ThreeTop::Init(TTree* tree)
     channel_ = CHAN_SS;
     BaseSelector::Init(tree);
 
-    rTop.setup(fReader, year_);
-
+    event = new TTRValue<ULong64_t>(fReader, "event");
     Flag_goodVertices = new TTRValue<Bool_t>(fReader, "Flag_goodVertices");
     Flag_globalSuperTightHalo2016Filter = new TTRValue<Bool_t>(fReader, "Flag_globalSuperTightHalo2016Filter");
     Flag_HBHENoiseFilter = new TTRValue<Bool_t>(fReader, "Flag_HBHENoiseFilter");
@@ -62,7 +61,10 @@ void ThreeTop::clearValues()
 
 void ThreeTop::ApplyScaleFactors() {}
 
-void ThreeTop::setupParticles() { rTop.setupTops(); }
+void ThreeTop::setupParticles()
+{
+    rTop.setupTops();
+}
 
 void ThreeTop::setupChannel()
 {
@@ -91,7 +93,7 @@ bool ThreeTop::passSelection(int variation)
     bool passZVeto = muon.passZVeto() && elec.passZVeto();
     bool passChannel = currentChannel_ == channel_;
     bool passJetNumber = jet.tightList.size() >= 2;
-    bool passBJetNumber = jet.tightList.size() >= 1;
+    bool passBJetNumber = jet.bjetList.size() >= 1;
     bool passMetCut = **Met_pt > 25;
     bool passHTCut = jet.getHT(jet.tightList) > 250;
 
@@ -135,4 +137,16 @@ void ThreeTop::FillLeptons()
             elecItr++;
         }
     }
+}
+
+void ThreeTop::printStuff()
+{
+    std::cout << "Event: " << **event << std::endl;
+    std::cout << "Met: " << **Met_pt << std::endl;
+    std::cout << "HT: " << jet.getHT(jet.tightList) << std::endl;
+    std::cout << "njet: " << jet.tightList.size() << std::endl;
+    std::cout << "nbjet: " << jet.bjetList.size() << std::endl;
+    std::cout << "nlep: " << muon.tightList.size() << " " << elec.tightList.size() << std::endl;
+    std::cout << "lepVeto: " << muon.passZVeto() << " " << elec.passZVeto() << std::endl;
+    std::cout << std::endl;
 }

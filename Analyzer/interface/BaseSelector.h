@@ -56,11 +56,10 @@ public:
     ClassDef(BaseSelector, 0);
 
 protected:
-    float GetPrefiringEfficiencyWeight(std::vector<float>* jetPt,
-        std::vector<float>* jetEta);
+    float GetPrefiringEfficiencyWeight(std::vector<float>* jetPt, std::vector<float>* jetEta);
     std::vector<int> variations_;
     TEfficiency* prefireEff_;
-
+    size_t passed_events = 0;
     TTreeReader fReader;
     std::unordered_map<std::string, int> yearMap = {
         { "2016", yr2016 }, { "2017", yr2017 }, { "2018", yr2018 }
