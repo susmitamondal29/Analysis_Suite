@@ -78,18 +78,12 @@
 <span class="sd">.. moduleauthor:: Dylan Teague</span>
 <span class="sd">"""</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">pandas.api.types</span> <span class="kn">import</span> <span class="n">is_numeric_dtype</span>
 <span class="kn">import</span> <span class="nn">xgboost</span> <span class="k">as</span> <span class="nn">xgb</span>
-<span class="kn">from</span> <span class="nn">analysis_suite.commons</span> <span class="kn">import</span> <span class="n">VarGetter</span>
-<span class="kn">import</span> <span class="nn">awkward1</span> <span class="k">as</span> <span class="nn">ak</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">uproot4</span> 
-<span class="kn">import</span> <span class="nn">uproot</span> <span class="k">as</span> <span class="nn">upwrite</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">roc_curve</span><span class="p">,</span> <span class="n">auc</span>
 
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">.dataholder</span> <span class="kn">import</span> <span class="n">MLHolder</span>
 
-<div class="viewcode-block" id="XGBoostMaker"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker">[docs]</a><span class="k">class</span> <span class="nc">XGBoostMaker</span><span class="p">:</span>
+<div class="viewcode-block" id="XGBoostMaker"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker">[docs]</a><span class="k">class</span> <span class="nc">XGBoostMaker</span><span class="p">(</span><span class="n">MLHolder</span><span class="p">):</span>
     <span class="sd">"""Wrapper for XGBoost training. Takes an uproot input, a list of</span>
 <span class="sd">    groups to do a multiclass training, as well as a cut string if</span>
 <span class="sd">    needed and trains the data. After it is done, the results can be</span>
@@ -106,31 +100,11 @@
 <span class="sd">      param(dict): Variables used in the training</span>
 
 <span class="sd">    """</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_vars</span><span class="p">,</span> <span class="n">groupDict</span><span class="p">,</span> <span class="n">cuts</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">"""Constructor method</span>
 <span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">split_ratio</span> <span class="o">=</span> <span class="mi">2</span><span class="o">/</span><span class="mf">3.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">group_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">groupDict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">group_dict</span> <span class="o">=</span> <span class="n">groupDict</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pred_train</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pred_test</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">use_vars</span> <span class="o">=</span> <span class="n">use_vars</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_include_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">use_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"classID"</span><span class="p">,</span> <span class="s2">"groupName"</span><span class="p">,</span> <span class="s2">"finalWeight"</span><span class="p">,</span> <span class="s2">"scale_factor"</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_all_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_include_vars</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span> 
-        <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_vars</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_vars</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">dtype</span> <span class="o">=</span> <span class="s2">"int"</span> <span class="k">if</span> <span class="s2">"num"</span> <span class="ow">in</span> <span class="n">func</span> <span class="k">else</span> <span class="s1">'float'</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
-
-        
-        <span class="bp">self</span><span class="o">.</span><span class="n">cuts</span> <span class="o">=</span> <span class="n">cuts</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"&amp;&amp;"</span><span class="p">)</span>
-        <span class="c1"># XGBoost training</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"eta"</span><span class="p">:</span> <span class="mf">0.09</span><span class="p">,</span>  <span class="s2">"nthread"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">'reg_alpha'</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"eta"</span><span class="p">:</span> <span class="mf">0.09</span><span class="p">,</span> <span class="s1">'reg_alpha'</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
                       <span class="s1">'min_child_weight'</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s1">'n_estimators'</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
                       <span class="s1">'reg_lambda'</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>  <span class="s1">'subsample'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'base_score'</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
                       <span class="s1">'colsample_bylevel'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'max_depth'</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">'learning_rate'</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
@@ -138,67 +112,7 @@
         <span class="c1"># 'silent': 1, 'scale_pos_weight': 1,</span>
 
 
-<div class="viewcode-block" id="XGBoostMaker.add_files"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.add_files">[docs]</a>    <span class="k">def</span> <span class="nf">add_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
-        <span class="sd">"""**Fill the dataframes with all info in the input files**</span>
-
-<span class="sd">        This grabs all the variable information about each sample,</span>
-<span class="sd">        does some preliminary weighting and splits the data into the</span>
-<span class="sd">        test and train set (based on `self.split_ratio`)</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            directory(string): Path to directory where root files are kept</span>
-<span class="sd">        """</span>
-        <span class="n">arr_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
-        <span class="n">root_files</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">"*.root"</span><span class="p">)</span> <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="k">else</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">root_file</span> <span class="ow">in</span> <span class="n">root_files</span><span class="p">:</span>
-            <span class="n">groups</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-            <span class="k">with</span> <span class="n">uproot4</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">root_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">";1"</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="s2">"/"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">arr_dict</span><span class="p">:</span>
-                    <span class="n">arr_dict</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">=</span> <span class="n">VarGetter</span><span class="p">(</span><span class="n">root_file</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">arr_dict</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">+=</span> <span class="n">VarGetter</span><span class="p">(</span><span class="n">root_file</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
-
-        <span class="n">class_id</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">samples</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">totalSW</span><span class="p">,</span> <span class="n">totalEv</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">sample</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">arr_dict</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">"Could not found sample </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sample</span><span class="p">))</span>
-                    <span class="k">continue</span>
-                <span class="n">arr</span> <span class="o">=</span> <span class="n">arr_dict</span><span class="p">[</span><span class="n">sample</span><span class="p">]</span>
-                <span class="n">totalSW</span> <span class="o">+=</span> <span class="n">ak</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span>
-                <span class="n">totalEv</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span>
-                <span class="n">df_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-                <span class="k">for</span> <span class="n">varname</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">df_dict</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="s2">"arr.</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">func</span><span class="p">)))</span>
-                <span class="n">df_dict</span><span class="p">[</span><span class="s2">"scale_factor"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span>
-                
-                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">df_dict</span><span class="p">)</span>
-                <span class="n">df</span><span class="p">[</span><span class="s2">"classID"</span><span class="p">]</span> <span class="o">=</span> <span class="n">class_id</span>
-                <span class="n">df</span><span class="p">[</span><span class="s2">"groupName"</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span>
-                <span class="n">df</span><span class="p">[</span><span class="s2">"finalWeight"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">scale_factor</span><span class="p">)</span>
-                <span class="n">total_evts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">total_evts</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">"Add Tree </span><span class="si">{}</span><span class="s2"> of type </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">group</span><span class="p">))</span>
-                    <span class="k">continue</span>
-                <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">split_ratio</span><span class="p">,</span>
-                                           <span class="n">random_state</span><span class="o">=</span><span class="mi">12345</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">test</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">train</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">"Add Tree </span><span class="si">{}</span><span class="s2"> of type </span><span class="si">{}</span><span class="s2"> with </span><span class="si">{}</span><span class="s2"> event"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)))</span>
-
-            <span class="k">if</span> <span class="n">totalSW</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="n">scale</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">*</span><span class="n">totalEv</span><span class="o">/</span><span class="n">totalSW</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">classID</span><span class="o">==</span><span class="n">class_id</span><span class="p">,</span> <span class="s2">"finalWeight"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">scale</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="o">.</span><span class="n">classID</span><span class="o">==</span><span class="n">class_id</span><span class="p">,</span> <span class="s2">"finalWeight"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">scale</span>
-            <span class="n">class_id</span> <span class="o">+=</span> <span class="mi">1</span></div>
-
-<div class="viewcode-block" id="XGBoostMaker.train"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="XGBoostMaker.train_mult"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.train_mult">[docs]</a>    <span class="k">def</span> <span class="nf">train_mult</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_model</span><span class="p">):</span>
         <span class="sd">"""**Train for multiclass BDT**</span>
 
 <span class="sd">        Does final weighting of the data (normalize all groups total</span>
@@ -223,34 +137,28 @@
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"Signal"</span><span class="p">):</span>
                 <span class="n">w_train</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="s2">"classID"</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span> <span class="o">*=</span> <span class="mi">2</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">'objective'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'multi:softprob'</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">'eval_metric'</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"mlogloss"</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">'num_class'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y_train</span><span class="p">))</span>
-
-        <span class="n">fit_model</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">XGBClassifier</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
         <span class="n">fit_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">w_train</span><span class="p">,</span>
-        <span class="n">eval_set</span><span class="o">=</span><span class="p">[(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)],</span>
+                      <span class="n">eval_set</span><span class="o">=</span><span class="p">[(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)],</span>
                       <span class="n">early_stopping_rounds</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">grp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group_names</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pred_test</span><span class="p">[</span><span class="n">grp</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pred_train</span><span class="p">[</span><span class="n">grp</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            
 
-        <span class="c1"># dtrain = xgb.DMatrix(x_train, label=y_train, weight=w_train)</span>
-        <span class="c1"># dtest = xgb.DMatrix(x_test, label=y_test,weight=self.test_set["finalWeight"])</span>
-        <span class="c1"># new_param = {"booster": "gbtree", "objective": "multi:softprob", "num_class": 3,</span>
-        <span class="c1">#              "eval_metric": "mlogloss"}</span>
-        <span class="c1"># new_train = xgb.cv(self.param, dtrain, verbose_eval=True,#evals=[(dtest,'eval'), (dtrain,'train')],</span>
-        <span class="c1">#                    num_boost_round = 10, nfold = 5,  stratified = True,</span>
-        <span class="c1">#                    early_stopping_rounds = 20, maximize = False, shuffle=True)</span>
-        <span class="c1"># print(new_train)</span>
-        <span class="c1"># fit_model = None</span>
-        <span class="c1"># exit()</span>
+        <span class="c1"># loss, accuracy = fit_model.evaluate(x_test, y_test, verbose=1)</span>
+        <span class="c1"># print("loss: {}".format(loss))</span>
+        <span class="c1"># print("accuracy: {}".format(accuracy))</span>
 
-        <span class="k">return</span> <span class="n">fit_model</span></div>
+        <span class="n">fpr_train</span><span class="p">,</span> <span class="n">tpr_train</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y_train</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred_train</span><span class="p">[</span><span class="n">groupName</span><span class="p">])</span>
+        <span class="n">fpr_test</span><span class="p">,</span> <span class="n">tpr_test</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y_test</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred_test</span><span class="p">[</span><span class="n">groupName</span><span class="p">])</span>
 
-<div class="viewcode-block" id="XGBoostMaker.train_single"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.train_single">[docs]</a>    <span class="k">def</span> <span class="nf">train_single</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">auc_train</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr_train</span><span class="p">,</span> <span class="n">tpr_train</span><span class="p">)</span>
+        <span class="n">auc_test</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr_test</span><span class="p">,</span> <span class="n">tpr_test</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"AUC for train: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">auc_train</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"AUC for test: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">auc_train</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="XGBoostMaker.train"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""**Train for multiclass BDT**</span>
 
 <span class="sd">        Does final weighting of the data (normalize all groups total</span>
@@ -261,13 +169,6 @@
 <span class="sd">          xgboost.XGBClassifer: XGBoost model that was just trained</span>
 
 <span class="sd">        """</span>
-        <span class="c1"># tr_signal = self.train_set.classID == 0</span>
-        <span class="c1"># self.train_set.classID[tr_signal] = 1</span>
-        <span class="c1"># self.train_set.classID[tr_signal==False] = 0</span>
-        <span class="c1"># t_signal = self.test_set.classID == 0</span>
-        <span class="c1"># self.test_set.classID[t_signal] = 1</span>
-        <span class="c1"># self.test_set.classID[t_signal==False] = 0</span>
-
         <span class="n">x_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">w_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="s2">"finalWeight"</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">y_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">classID</span>
@@ -280,20 +181,27 @@
         <span class="n">w_train</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">[</span><span class="s2">"classID"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="nb">max</span><span class="p">(</span><span class="n">group_tot</span><span class="p">)</span><span class="o">/</span><span class="n">group_tot</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">'objective'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'binary:logistic'</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">'eval_metric'</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"logloss"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="s1">'eval_metric'</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"auc"</span><span class="c1">#"logloss"</span>
         <span class="n">num_rounds</span> <span class="o">=</span> <span class="mi">150</span>
 
-        <span class="n">dtrain</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">y_train</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">w_train</span><span class="p">)</span>
-        <span class="n">dtrainAll</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-        <span class="n">dtest</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">y_test</span><span class="p">,</span>
-                            <span class="n">weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="p">[</span><span class="s2">"finalWeight"</span><span class="p">])</span>
-        <span class="n">evallist</span> <span class="o">=</span> <span class="p">[(</span><span class="n">dtrain</span><span class="p">,</span><span class="s1">'train'</span><span class="p">),</span> <span class="p">(</span><span class="n">dtest</span><span class="p">,</span> <span class="s1">'test'</span><span class="p">)]</span>
-        <span class="n">fit_model</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">,</span> <span class="n">dtrain</span><span class="p">,</span> <span class="n">num_rounds</span><span class="p">,</span> <span class="n">evallist</span><span class="p">,</span>
-                              <span class="n">verbose_eval</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
-
+        <span class="n">fit_model</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">XGBRegressor</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
+        <span class="n">fit_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span>
+                      <span class="n">eval_set</span><span class="o">=</span><span class="p">[(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)],</span>
+                      <span class="n">early_stopping_rounds</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+        
         <span class="n">groupName</span> <span class="o">=</span> <span class="s2">"Background"</span><span class="c1">#self.group_names[-1]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pred_test</span><span class="p">[</span><span class="n">groupName</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dtest</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pred_train</span><span class="p">[</span><span class="n">groupName</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dtrainAll</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pred_test</span><span class="p">[</span><span class="n">groupName</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pred_train</span><span class="p">[</span><span class="n">groupName</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span>
+
+        <span class="n">fpr_train</span><span class="p">,</span> <span class="n">tpr_train</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y_train</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred_train</span><span class="p">[</span><span class="n">groupName</span><span class="p">])</span>
+        <span class="n">fpr_test</span><span class="p">,</span> <span class="n">tpr_test</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y_test</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred_test</span><span class="p">[</span><span class="n">groupName</span><span class="p">])</span>
+
+        <span class="n">auc_train</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr_train</span><span class="p">,</span> <span class="n">tpr_train</span><span class="p">)</span>
+        <span class="n">auc_test</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr_test</span><span class="p">,</span> <span class="n">tpr_test</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"AUC for train: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">auc_train</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"AUC for test: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">auc_train</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="n">fit_model</span></div>
 
 <div class="viewcode-block" id="XGBoostMaker.apply_model"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.apply_model">[docs]</a>    <span class="k">def</span> <span class="nf">apply_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
@@ -304,66 +212,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">pred_test</span><span class="p">[</span><span class="n">grp</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pred_train</span><span class="p">[</span><span class="n">grp</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">fit_model</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="XGBoostMaker.output"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">):</span>
-        <span class="sd">"""Wrapper for write out commands</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">          outname: Directory where files will be written</span>
-
-<span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_write_pandas</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">/test.root"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outdir</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_set</span><span class="p">,</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">pred_test</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_write_pandas</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">/train.root"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outdir</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="p">,</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">pred_train</span><span class="p">)</span></div>
-
-    <span class="c1"># Private Functions</span>
-
-    <span class="k">def</span> <span class="nf">_cut_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
-        <span class="sd">"""**Reduce frame using root style cut string**</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">          frame(pandas.DataFrame): DataFrame to cut on</span>
-
-<span class="sd">        """</span>
-        <span class="k">for</span> <span class="n">cut</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">cut</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"&lt;"</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                <span class="n">tmp</span> <span class="o">=</span> <span class="n">cut</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"&lt;"</span><span class="p">)</span>
-                <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">frame</span><span class="p">[</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
-            <span class="k">elif</span> <span class="n">cut</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"&gt;"</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                <span class="n">tmp</span> <span class="o">=</span> <span class="n">cut</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"&gt;"</span><span class="p">)</span>
-                <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">frame</span><span class="p">[</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="nb">float</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
-            <span class="k">elif</span> <span class="n">cut</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"=="</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                <span class="n">tmp</span> <span class="o">=</span> <span class="n">cut</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"=="</span><span class="p">)</span>
-                <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">frame</span><span class="p">[</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
-        <span class="k">return</span> <span class="n">frame</span>
-
-    <span class="k">def</span> <span class="nf">_write_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">workSet</span><span class="p">,</span> <span class="n">prediction</span><span class="p">):</span>
-        <span class="sd">"""**Write out pandas file as a compressed pickle file</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">          outfile(string): Name of file to write</span>
-<span class="sd">          workSet(pandas.DataFrame): DataFrame of variables to write out</span>
-<span class="sd">          prediction(pandas.DataFrame): DataFrame of BDT predictions</span>
-
-<span class="sd">        """</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">prediction</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">workSet</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">arr</span><span class="p">)</span>
-
-        <span class="n">keepList</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">workSet</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">is_numeric_dtype</span><span class="p">(</span><span class="n">workSet</span><span class="p">[</span><span class="n">key</span><span class="p">])]</span>
-        <span class="n">branches</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">workSet</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keepList</span><span class="p">}</span>
-        <span class="k">with</span> <span class="n">upwrite</span><span class="o">.</span><span class="n">recreate</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">workSet</span><span class="o">.</span><span class="n">groupName</span><span class="p">):</span>
-                <span class="n">groupSet</span> <span class="o">=</span> <span class="n">workSet</span><span class="p">[</span><span class="n">workSet</span><span class="o">.</span><span class="n">groupName</span> <span class="o">==</span> <span class="n">group</span><span class="p">][</span><span class="n">keepList</span><span class="p">]</span>
-                <span class="n">f</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">=</span> <span class="n">upwrite</span><span class="o">.</span><span class="n">newtree</span><span class="p">(</span><span class="n">branches</span><span class="p">)</span>
-                <span class="n">f</span><span class="p">[</span><span class="n">group</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">groupSet</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">'list'</span><span class="p">))</span></div>
-        
-        <span class="c1"># workSet.to_parquet(outname, compression="gzip")</span>
+<div class="viewcode-block" id="XGBoostMaker.save_model"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.save_model">[docs]</a>    <span class="k">def</span> <span class="nf">save_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_model</span><span class="p">,</span> <span class="n">outdir</span><span class="p">):</span>
+        <span class="n">fit_model</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">/model.bin"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outdir</span><span class="p">))</span></div></div>
 </code></pre>
 </main>
-<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.5.1</a></footer>
+<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.5.2</a></footer>
 </div>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">
 <div class="flex justify-center items-center">

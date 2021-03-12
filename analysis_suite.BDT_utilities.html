@@ -79,7 +79,7 @@
 <h2><code class="docutils literal notranslate">BDT_utilities.MVAPlotter</code><a aria-label="Copy link to section: BDT_utilities.MVAPlotter." class="headerlink tooltipped tooltipped-ne" href="#bdt-utilities-mvaplotter" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
 <dl class="py class code-definition">
 <dt id="analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter">
-<em class="property">class </em><code class="sig-prename descclassname">analysis_suite.BDT_utilities.MVAPlotter.</code><code class="sig-name descname">MVAPlotter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">workdir</span></em>, <em class="sig-param"><span class="n">groups</span></em>, <em class="sig-param"><span class="n">groupMembers</span></em>, <em class="sig-param"><span class="n">lumi</span><span class="o">=</span><span class="default_value">140000</span></em>, <em class="sig-param"><span class="n">is_train</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/BDT_utilities/MVAPlotter.html#MVAPlotter"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">analysis_suite.BDT_utilities.MVAPlotter.</code><code class="sig-name descname">MVAPlotter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">workdir</span></em>, <em class="sig-param"><span class="n">groups</span></em>, <em class="sig-param"><span class="n">lumi</span><span class="o">=</span><span class="default_value">140000</span></em>, <em class="sig-param"><span class="n">is_train</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/BDT_utilities/MVAPlotter.html#MVAPlotter"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
 <dd>
 <p>Bases: <code class="xref py py-class docutils literal notranslate">object</code></p>
 <p>Wrapper for a bunch of plotting and outputing functions</p>
@@ -504,9 +504,9 @@ events.</p>
 <h2><code class="docutils literal notranslate">BDT_utilities.MvaMaker</code><a aria-label="Copy link to section: BDT_utilities.MvaMaker." class="headerlink tooltipped tooltipped-ne" href="#bdt-utilities-mvamaker" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
 <dl class="py class code-definition">
 <dt id="analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker">
-<em class="property">class </em><code class="sig-prename descclassname">analysis_suite.BDT_utilities.MvaMaker.</code><code class="sig-name descname">XGBoostMaker</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">use_vars</span></em>, <em class="sig-param"><span class="n">groupDict</span></em>, <em class="sig-param"><span class="n">cuts</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/BDT_utilities/MvaMaker.html#XGBoostMaker"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">analysis_suite.BDT_utilities.MvaMaker.</code><code class="sig-name descname">XGBoostMaker</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/BDT_utilities/MvaMaker.html#XGBoostMaker"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
 <dd>
-<p>Bases: <code class="xref py py-class docutils literal notranslate">object</code></p>
+<p>Bases: <code class="xref py py-class docutils literal notranslate">analysis_suite.BDT_utilities.dataholder.MLHolder</code></p>
 <p>Wrapper for XGBoost training. Takes an uproot input, a list of
 groups to do a multiclass training, as well as a cut string if
 needed and trains the data. After it is done, the results can be
@@ -527,34 +527,14 @@ outputed to be piped into MVAPlotter</p>
 </dl>
 <p>Constructor method</p>
 <dl class="py method code-definition">
-<dt id="analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.add_files">
-<code class="sig-name descname">add_files</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/BDT_utilities/MvaMaker.html#XGBoostMaker.add_files"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.add_files" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
-<dd>
-<p><strong>Fill the dataframes with all info in the input files</strong></p>
-<p>This grabs all the variable information about each sample,
-does some preliminary weighting and splits the data into the
-test and train set (based on <cite>self.split_ratio</cite>)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>directory</strong> (<em>string</em>) – Path to directory where root files are kept</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method code-definition">
 <dt id="analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.apply_model">
 <code class="sig-name descname">apply_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/BDT_utilities/MvaMaker.html#XGBoostMaker.apply_model"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.apply_model" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
 <dd>
 </dd></dl>
 <dl class="py method code-definition">
-<dt id="analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.output">
-<code class="sig-name descname">output</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">outdir</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/BDT_utilities/MvaMaker.html#XGBoostMaker.output"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.output" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dt id="analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.save_model">
+<code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fit_model</span></em>, <em class="sig-param"><span class="n">outdir</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/BDT_utilities/MvaMaker.html#XGBoostMaker.save_model"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.save_model" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
 <dd>
-<p>Wrapper for write out commands</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>outname</strong> – Directory where files will be written</p>
-</dd>
-</dl>
 </dd></dl>
 <dl class="py method code-definition">
 <dt id="analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.train">
@@ -574,8 +554,8 @@ predictions ie the BDT values for each group.</p>
 </dl>
 </dd></dl>
 <dl class="py method code-definition">
-<dt id="analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.train_single">
-<code class="sig-name descname">train_single</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/BDT_utilities/MvaMaker.html#XGBoostMaker.train_single"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.train_single" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<dt id="analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.train_mult">
+<code class="sig-name descname">train_mult</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fit_model</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/BDT_utilities/MvaMaker.html#XGBoostMaker.train_mult"><span class="viewcode-link">[source]</span></a><a aria-label="Copy link to this definition." class="headerlink tooltipped tooltipped-ne" href="#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.train_mult" role="button"><svg pointer-events="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
 <dd>
 <p><strong>Train for multiclass BDT</strong></p>
 <p>Does final weighting of the data (normalize all groups total
@@ -594,7 +574,7 @@ predictions ie the BDT values for each group.</p>
 </section>
 </section>
 </main>
-<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.5.1</a></footer>
+<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.5.2</a></footer>
 </div>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">
 <div class="flex justify-center items-center">
