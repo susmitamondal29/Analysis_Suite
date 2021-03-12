@@ -114,7 +114,8 @@ class MLHolder:
                                            random_state=12345)
                 self.test_set = pd.concat([test.reset_index(drop=True), self.test_set], sort=True)
                 self.train_set = pd.concat([train.reset_index(drop=True), self.train_set], sort=True)
-                print("Add Tree {} of type {} with {} event".format(sample, group, len(train)))
+                print("Add Tree {} of type {} with {} rawevents and {:.2E} events"
+                      .format(sample, group, len(train), np.sum(df.scale_factor)))
 
             if totalSW == 0:
                 continue

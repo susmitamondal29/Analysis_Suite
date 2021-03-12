@@ -5,6 +5,8 @@
 """
 import numpy as np
 import xgboost as xgb
+from sklearn.metrics import roc_auc_score, roc_curve, auc
+
 from .dataholder import MLHolder
 
 class XGBoostMaker(MLHolder):
@@ -28,14 +30,15 @@ class XGBoostMaker(MLHolder):
         """Constructor method
         """
         super().__init__(*args, **kwargs)
-        self.param = {"eta": 0.09,  "nthread": 3, 'reg_alpha': 0.0,
+        self.param = {"eta": 0.09, 'reg_alpha': 0.0,
                       'min_child_weight': 1e-6, 'n_estimators': 200,
                       'reg_lambda': 0.05,  'subsample': 1, 'base_score': 0.5,
                       'colsample_bylevel': 1, 'max_depth': 5, 'learning_rate': 0.1,
                       'colsample_bytree': 1, 'gamma': 0, 'max_delta_step': 0,}
         # 'silent': 1, 'scale_pos_weight': 1,
 
-    def train(self):
+
+    def train_mult(self, fit_model):
         """**Train for multiclass BDT**
 
         Does final weighting of the data (normalize all groups total
@@ -60,22 +63,28 @@ class XGBoostMaker(MLHolder):
             if i == self.group_names.index("Signal"):
                 w_train[self.train_set["classID"] == i] *= 2
 
-        self.param['objective'] = 'multi:softprob'
-        self.param['eval_metric'] = "mlogloss"
-        self.param['num_class'] = len(np.unique(y_train))
-
-        fit_model = xgb.XGBClassifier(**self.param)
         fit_model.fit(x_train, y_train, w_train,
-        eval_set=[(x_train, y_train), (x_test, y_test)],
+                      eval_set=[(x_train, y_train), (x_test, y_test)],
                       early_stopping_rounds=100, verbose=50)
 
         for i, grp in enumerate(self.group_names):
             self.pred_test[grp] = fit_model.predict_proba(x_test).T[i]
             self.pred_train[grp] = fit_model.predict_proba(x_train).T[i]
 
-        return fit_model
+        # loss, accuracy = fit_model.evaluate(x_test, y_test, verbose=1)
+        # print("loss: {}".format(loss))
+        # print("accuracy: {}".format(accuracy))
 
-    def train_single(self):
+        fpr_train, tpr_train, _ = roc_curve(y_train.astype(int), self.pred_train[groupName])
+        fpr_test, tpr_test, _ = roc_curve(y_test.astype(int), self.pred_test[groupName])
+
+        auc_train = auc(fpr_train, tpr_train)
+        auc_test = auc(fpr_test, tpr_test)
+
+        print("AUC for train: {}".format(auc_train))
+        print("AUC for test: {}".format(auc_train))
+
+    def train(self):
         """**Train for multiclass BDT**
 
         Does final weighting of the data (normalize all groups total
@@ -98,20 +107,27 @@ class XGBoostMaker(MLHolder):
         w_train[self.train_set["classID"] == 1] *= max(group_tot)/group_tot[1]
 
         self.param['objective'] = 'binary:logistic'
-        self.param['eval_metric'] = "logloss"
+        self.param['eval_metric'] = "auc"#"logloss"
         num_rounds = 150
 
-        dtrain = xgb.DMatrix(x_train, label=y_train, weight=w_train)
-        dtrainAll = xgb.DMatrix(self.train_set.drop(self._drop_vars, axis=1))
-        dtest = xgb.DMatrix(x_test, label=y_test,
-                            weight=self.test_set["finalWeight"])
-        evallist = [(dtrain,'train'), (dtest, 'test')]
-        fit_model = xgb.train(self.param, dtrain, num_rounds, evallist,
-                              verbose_eval=50)
-
+        fit_model = xgb.XGBRegressor(**self.param)
+        fit_model.fit(x_train, y_train,
+                      eval_set=[(x_train, y_train), (x_test, y_test)],
+                      early_stopping_rounds=25, verbose=50)
+        
         groupName = "Background"#self.group_names[-1]
-        self.pred_test[groupName] = fit_model.predict(dtest)
-        self.pred_train[groupName] = fit_model.predict(dtrainAll)
+        self.pred_test[groupName] = fit_model.predict(x_test)
+        self.pred_train[groupName] = fit_model.predict(x_train)
+
+        fpr_train, tpr_train, _ = roc_curve(y_train.astype(int), self.pred_train[groupName])
+        fpr_test, tpr_test, _ = roc_curve(y_test.astype(int), self.pred_test[groupName])
+
+        auc_train = auc(fpr_train, tpr_train)
+        auc_test = auc(fpr_test, tpr_test)
+
+        print("AUC for train: {}".format(auc_train))
+        print("AUC for test: {}".format(auc_train))
+
         return fit_model
 
     def apply_model(self, model_file):
@@ -123,5 +139,6 @@ class XGBoostMaker(MLHolder):
                 self.test_set.drop(self._drop_vars, axis=1)).T[i]
             self.pred_train[grp] = fit_model.predict_proba(
                 self.train_set.drop(self._drop_vars, axis=1)).T[i]
-        return fit_model
 
+    def save_model(self, fit_model, outdir):
+        fit_model.save_model("{}/model.bin".format(outdir))

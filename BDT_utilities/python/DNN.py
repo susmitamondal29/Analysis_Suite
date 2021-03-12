@@ -118,38 +118,39 @@ class KerasMaker(MLHolder):
         w_train[self.train_set["classID"] == 0] *= max(group_tot) / group_tot[0]
         w_train[self.train_set["classID"] == 1] *= max(group_tot) / group_tot[1]
 
-        fit_model = self.build_model()
         callback = [
             keras.callbacks.EarlyStopping(**self.early_stop),
-            keras.callbacks.ModelCheckpoint(verbose=0, **self.checkpoint),
+            # keras.callbacks.ModelCheckpoint("test.h5", verbose=0, **self.checkpoint),
         ]
 
         # Train
         print(">> Training.")
-        history = self.model.fit(
-            x_train, y_train, callbacks=callback, verbose=1, **self.params
+        fit_model = self.build_model()
+        history = fit_model.fit(
+            x_train, y_train.astype(bool), callbacks=callback,
+            verbose=1, **self.params
         )
 
         # Test
         print(">> Testing.")
         groupName = "Background"
-        self.pred_test[groupName] = fit_model.predict(x_test)
-        self.pred_train[groupName] = fit_model.predict(x_train)
+        self.pred_test[groupName] = fit_model.predict(x_test).flatten()
+        self.pred_train[groupName] = fit_model.predict(x_train).flatten()
 
-        print(self.pred_train[groupName])
+        loss, accuracy = fit_model.evaluate(x_test, y_test, verbose=1)
+        print("loss: {}".format(loss))
+        print("accuracy: {}".format(accuracy))
+
+        fpr_train, tpr_train, _ = roc_curve(y_train.astype(int), self.pred_train[groupName])
+        fpr_test, tpr_test, _ = roc_curve(y_test.astype(int), self.pred_test[groupName])
+
+        auc_train = auc(fpr_train, tpr_train)
+        auc_test = auc(fpr_test, tpr_test)
+        
+        print("AUC for train: {}".format(auc_train))
+        print("AUC for test: {}".format(auc_test))
+
         return fit_model
-
-        # self.loss, self.accuracy = fit_model.evaluate(test_x, test_y, verbose=1)
-
-        # self.fpr_train, self.tpr_train, _ = roc_curve(
-        #     train_y.astype(int), model_ckp.predict(train_x)[:, 0]
-        # )
-        # self.fpr_test, self.tpr_test, _ = roc_curve(
-        #     test_y.astype(int), model_ckp.predict(test_x)[:, 0]
-        # )
-
-        # self.auc_train = auc(self.fpr_train, self.tpr_train)
-        # self.auc_test = auc(self.fpr_test, self.tpr_test)
 
     def apply_model(self, model_file):
         fit_model = keras.models.load_model(model_file)
@@ -162,144 +163,143 @@ class KerasMaker(MLHolder):
             ).T[i]
         return fit_model
 
+    def save_model(self, fit_model, outdir):
+        fit_model.save("{}/model.h5".format(outdir))
 
-# class CrossValidationModel( HyperParameterModel ):
-#     def __init__( self, parameters, model_folder, num_folds = 5 ):
-#         HyperParameterModel.__init__( self, parameters, None )
-#         self.model_folder = model_folder
-#         self.num_folds = num_folds
-#         if not os.path.exists( self.model_folder ):
-#             os.mkdir( self.model_folder )
+class CrossValidationModel( KerasMaker ):
+    def __init__(self, num_folds, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.num_folds = num_folds
 
-#     def train_model( self ):
-#         shuffle = ShuffleSplit( n_splits = self.num_folds, test_size = float( 1.0 / self.num_folds ), random_state = 0 )
+    def train_model( self ):
+        shuffle = ShuffleSplit( n_splits = self.num_folds, test_size = float( 1.0 / self.num_folds ), random_state = 0 )
 
-#         # Set up and store k-way cross validation events
-#         # Event inclusion masks
-#         print( ">> Splitting events into {} sets for cross-validation.".format( self.num_folds ) )
-#         fold_mask = {"signal": {}, "background": {}}
+        # Set up and store k-way cross validation events
+        # Event inclusion masks
+        print( ">> Splitting events into {} sets for cross-validation.".format( self.num_folds ) )
+        fold_mask = {"signal": {}, "background": {}}
 
-#         for path, events in self.cut_events[ "signal" ].iteritems():
-#             self.cut_events[ "signal" ][path] = np.array(events)
+        for path, events in self.cut_events[ "signal" ].iteritems():
+            self.cut_events[ "signal" ][path] = np.array(events)
 
-#         for path, events in self.cut_events["background"].iteritems():
-#             self.cut_events["background"][path] = np.array(events)
+        for path, events in self.cut_events["background"].iteritems():
+            self.cut_events["background"][path] = np.array(events)
 
-#         for path, events in self.cut_events["signal"].iteritems():
-#             k = 0
-#             fold_mask["signal"][path] = {}
-#             for train, test in shuffle.split(events):
-#                 fold_mask["signal"][path][k] = {"train": train, "test": test}
-#                 k += 1
+        for path, events in self.cut_events["signal"].iteritems():
+            k = 0
+            fold_mask["signal"][path] = {}
+            for train, test in shuffle.split(events):
+                fold_mask["signal"][path][k] = {"train": train, "test": test}
+                k += 1
 
-#         for path, events in self.cut_events["background"].iteritems():
-#             k = 0
-#             fold_mask["background"][path] = {}
-#             for train, test in shuffle.split(events):
-#                 fold_mask["background"][path][k] = {
-#                     "train": train,
-#                     "test": test
-#                 }
-#                 k += 1
+        for path, events in self.cut_events["background"].iteritems():
+            k = 0
+            fold_mask["background"][path] = {}
+            for train, test in shuffle.split(events):
+                fold_mask["background"][path][k] = {
+                    "train": train,
+                    "test": test
+                }
+                k += 1
 
-#         # Event lists
-#         fold_data = []
-#         for k in range(self.num_folds):
-#             sig_train_k = np.concatenate([
-#                 self.cut_events["signal"][path][fold_mask["signal"][path][k]["train"]] for path in self.cut_events["signal"]
-#             ])
-#             sig_test_k = np.concatenate([
-#                 self.cut_events["signal"][path][fold_mask["signal"][path][k]["test"]] for path in self.cut_events["signal"]
-#             ])
-#             bkg_train_k = np.concatenate([
-#                 self.cut_events["background"][path][fold_mask["background"][path][k]["train"]] for path in self.cut_events["background"]
-#             ])
-#             bkg_test_k = np.concatenate([
-#                 self.cut_events["background"][path][fold_mask["background"][path][k]["test"]] for path in self.cut_events["background"]
-#             ])
+        # Event lists
+        fold_data = []
+        for k in range(self.num_folds):
+            sig_train_k = np.concatenate([
+                self.cut_events["signal"][path][fold_mask["signal"][path][k]["train"]] for path in self.cut_events["signal"]
+            ])
+            sig_test_k = np.concatenate([
+                self.cut_events["signal"][path][fold_mask["signal"][path][k]["test"]] for path in self.cut_events["signal"]
+            ])
+            bkg_train_k = np.concatenate([
+                self.cut_events["background"][path][fold_mask["background"][path][k]["train"]] for path in self.cut_events["background"]
+            ])
+            bkg_test_k = np.concatenate([
+                self.cut_events["background"][path][fold_mask["background"][path][k]["test"]] for path in self.cut_events["background"]
+            ])
 
-#             fold_data.append( {
-#                 "train_x": np.array( self.select_ml_variables(
-#                   sig_train_k, bkg_train_k, self.parameters[ "variables" ] ) ),
-#                 "test_x": np.array( self.select_ml_variables(
-#                     sig_test_k, bkg_test_k, self.parameters[ "variables" ] ) ),
+            fold_data.append( {
+                "train_x": np.array( self.select_ml_variables(
+                  sig_train_k, bkg_train_k, self.parameters[ "variables" ] ) ),
+                "test_x": np.array( self.select_ml_variables(
+                    sig_test_k, bkg_test_k, self.parameters[ "variables" ] ) ),
 
-#                 "train_y": np.concatenate( (
-#                   np.full( np.shape( sig_train_k )[0], 1 ).astype( "bool" ),
-#                   np.full( np.shape( bkg_train_k )[0], 0 ).astype( "bool" ) ) ),
-#                 "test_y": np.concatenate( (
-#                     np.full( np.shape( sig_test_k )[0], 1 ).astype( "bool" ),
-#                     np.full( np.shape( bkg_test_k )[0], 0 ).astype( "bool" ) ) )
-#             } )
+                "train_y": np.concatenate( (
+                  np.full( np.shape( sig_train_k )[0], 1 ).astype( "bool" ),
+                  np.full( np.shape( bkg_train_k )[0], 0 ).astype( "bool" ) ) ),
+                "test_y": np.concatenate( (
+                    np.full( np.shape( sig_test_k )[0], 1 ).astype( "bool" ),
+                    np.full( np.shape( bkg_test_k )[0], 0 ).astype( "bool" ) ) )
+            } )
 
-#         # Train each fold
-#         print( ">> Beginning Training and Evaluation." )
-#         self.model_paths = []
-#         self.loss = []
-#         self.accuracy = []
-#         self.fpr_train = []
-#         self.fpr_test = []
-#         self.tpr_train = []
-#         self.tpr_test = []
-#         self.auc_train = []
-#         self.auc_test = []
-#         self.best_fold = -1
+        # Train each fold
+        print( ">> Beginning Training and Evaluation." )
+        self.model_paths = []
+        self.loss = []
+        self.accuracy = []
+        self.fpr_train = []
+        self.fpr_test = []
+        self.tpr_train = []
+        self.tpr_test = []
+        self.auc_train = []
+        self.auc_test = []
+        self.best_fold = -1
 
-#         for k, events in enumerate(fold_data):
-#             print("CV Iteration {} of {}".format(k + 1, self.num_folds))
-#             keras.backend.clear_session()
+        for k, events in enumerate(fold_data):
+            print("CV Iteration {} of {}".format(k + 1, self.num_folds))
+            keras.backend.clear_session()
 
-#             model_name = os.path.join(self.model_folder, "fold_{}.h5".format(k))
+            model_name = os.path.join(self.model_folder, "fold_{}.h5".format(k))
 
-#             self.build_model(events["train_x"].shape[1])
+            self.build_model(events["train_x"].shape[1])
 
-#             model_checkpoint = ModelCheckpoint(
-#                 model_name,
-#                 verbose=0,
-#                 save_best_only=True,
-#                 save_weights_only=False,
-#                 mode="auto",
-#                 period=1
-#             )
+            model_checkpoint = ModelCheckpoint(
+                model_name,
+                verbose=0,
+                save_best_only=True,
+                save_weights_only=False,
+                mode="auto",
+                period=1
+            )
 
-#             early_stopping = EarlyStopping(
-#                 monitor = "val_loss",
-#                 patience=self.parameters[ "patience" ]
-#             )
+            early_stopping = EarlyStopping(
+                monitor = "val_loss",
+                patience=self.parameters[ "patience" ]
+            )
 
-#             shuffled_x, shuffled_y = shuffle_data( events[ "train_x" ], events[ "train_y" ], random_state=0 )
-#             shuffled_test_x, shuffled_test_y = shuffle_data( events[ "test_x" ], events[ "test_y" ], random_state=0 )
+            shuffled_x, shuffled_y = shuffle_data( events[ "train_x" ], events[ "train_y" ], random_state=0 )
+            shuffled_test_x, shuffled_test_y = shuffle_data( events[ "test_x" ], events[ "test_y" ], random_state=0 )
 
-#             history = self.model.fit(
-#                 shuffled_x, shuffled_y,
-#                 epochs = self.parameters[ "epochs" ],
-#                 batch_size = 2**self.parameters[ "batch_power" ],
-#                 shuffle = True,
-#                 verbose = 1,
-#                 callbacks = [ early_stopping, model_checkpoint ],
-#                 validation_split = 0.25
-#             )
+            history = self.model.fit(
+                shuffled_x, shuffled_y,
+                epochs = self.parameters[ "epochs" ],
+                batch_size = 2**self.parameters[ "batch_power" ],
+                shuffle = True,
+                verbose = 1,
+                callbacks = [ early_stopping, model_checkpoint ],
+                validation_split = 0.25
+            )
 
-#             model_ckp = load_model(model_name)
-#             loss, accuracy = model_ckp.evaluate(shuffled_test_x, shuffled_test_y, verbose=1)
+            model_ckp = load_model(model_name)
+            loss, accuracy = model_ckp.evaluate(shuffled_test_x, shuffled_test_y, verbose=1)
 
-#             fpr_train, tpr_train, _ = roc_curve( shuffled_y.astype(int), model_ckp.predict(shuffled_x)[:,0] )
-#             fpr_test, tpr_test, _ = roc_curve( shuffled_test_y.astype(int), model_ckp.predict(shuffled_test_x)[:,0] )
+            fpr_train, tpr_train, _ = roc_curve( shuffled_y.astype(int), model_ckp.predict(shuffled_x)[:,0] )
+            fpr_test, tpr_test, _ = roc_curve( shuffled_test_y.astype(int), model_ckp.predict(shuffled_test_x)[:,0] )
 
-#             auc_train = auc( fpr_train, tpr_train )
-#             auc_test  = auc( fpr_test, tpr_test )
+            auc_train = auc( fpr_train, tpr_train )
+            auc_test  = auc( fpr_test, tpr_test )
 
-#             if self.best_fold == -1 or auc_test > max(self.auc_test):
-#                 self.best_fold = k
+            if self.best_fold == -1 or auc_test > max(self.auc_test):
+                self.best_fold = k
 
-#             self.model_paths.append( model_name )
-#             self.loss.append( loss )
-#             self.accuracy.append( accuracy )
-#             self.fpr_train.append( fpr_train[ 0::int( len(fpr_train) / SAVE_FPR_TPR_POINTS ) ] )
-#             self.tpr_train.append( tpr_train[ 0::int( len(tpr_train) / SAVE_FPR_TPR_POINTS ) ] )
-#             self.fpr_test.append( fpr_test[ 0::int( len(fpr_test) / SAVE_FPR_TPR_POINTS ) ] )
-#             self.tpr_test.append( tpr_test[ 0::int( len(tpr_test) / SAVE_FPR_TPR_POINTS ) ] )
-#             self.auc_train.append( auc_train )
-#             self.auc_test.append( auc_test )
+            self.model_paths.append( model_name )
+            self.loss.append( loss )
+            self.accuracy.append( accuracy )
+            self.fpr_train.append( fpr_train[ 0::int( len(fpr_train) / SAVE_FPR_TPR_POINTS ) ] )
+            self.tpr_train.append( tpr_train[ 0::int( len(tpr_train) / SAVE_FPR_TPR_POINTS ) ] )
+            self.fpr_test.append( fpr_test[ 0::int( len(fpr_test) / SAVE_FPR_TPR_POINTS ) ] )
+            self.tpr_test.append( tpr_test[ 0::int( len(tpr_test) / SAVE_FPR_TPR_POINTS ) ] )
+            self.auc_train.append( auc_train )
+            self.auc_test.append( auc_test )
 
-#         print( "[OK ] Finished." )
+        print( "[OK ] Finished." )
