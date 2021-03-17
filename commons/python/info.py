@@ -11,7 +11,7 @@ class BasicInfo:
     def __init__(self, analysis="", year="", selection="", lumi=140000, **kwargs):
         self.analysis = analysis
         self.selection = selection
-        self.year = year
+        self.year = int(year)
         self.lumi = lumi
         self.base_path = "analysis_suite.data"
 
@@ -59,19 +59,19 @@ class GroupInfo(BasicInfo):
 class FileInfo(BasicInfo):
     def __init__(self,  **kwargs):
         super().__init__(**kwargs)
-        file_path = "{}.FileInfo.{}.yr{}".format(self.base_path, self.analysis, self.year)
+        file_path = "{}.FileInfo.{}".format(self.base_path, self.analysis, self.year)
         self.fileInfo = importlib.import_module(file_path).info
+        for key, info in self.fileInfo.items():
+            self.fileInfo[key]["DAS"] = info["DAS"][self.year]
 
     def get_group(self, splitname):
-        for d in splitname:
-            if d in self.fileInfo:
-                return self.fileInfo[d]['alias']
+        for key, info in self.fileInfo.items():
+            if info["DAS"] in splitname:
+                return key
         return None
 
     def get_info(self, alias):
-        for _, info in self.fileInfo.items():
-            if info['alias'] == alias:
-                return info
+        return self.fileInfo[alias]
 
     def get_xsec(self, group):
         info = self.get_info(group)
