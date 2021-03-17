@@ -11,9 +11,9 @@ struct BJetOut {
     std::vector<Float_t> phi;
     std::vector<Float_t> mass;
     std::vector<Float_t> discriminator;
-    UInt_t n_loose;
-    UInt_t n_medium;
-    UInt_t n_tight;
+    Int_t n_loose;
+    Int_t n_medium;
+    Int_t n_tight;
     void clear()
     {
         pt.clear();
