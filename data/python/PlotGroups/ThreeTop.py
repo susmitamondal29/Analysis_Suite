@@ -9,7 +9,7 @@ info ={
 	        "ttg_singleLept",
 	        "ttg_dilep",
 	        "zg",
-            "wg",
+            # "wg",
             "tg"
         ]
     },

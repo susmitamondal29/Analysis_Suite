@@ -12,3 +12,5 @@ __pycache__
 *parquet
 poetry.lock
 *~
+*.root
+!data/scale_factors/*.root
