@@ -25,7 +25,8 @@ class Histogram:
             self.hist[bh.overflow] = 0
             self.sumw2[-1] += self.sumw2[bh.overflow]
             self.sumw2[bh.overflow] = 0
-
+        else:
+            pass
         return self
 
     def __truediv__(self, denom):

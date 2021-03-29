@@ -5,6 +5,7 @@ from analysis_suite.commons.configs import checkOrCreateDir
 
 def setupPathAndDir(analysis, drawStyle, path, chans):
     """Setup HTML directory area and return path made"""
+
     extraPath = time.strftime("%Y_%m_%d")
     if path:
         extraPath = path + '/' + extraPath
@@ -18,8 +19,8 @@ def setupPathAndDir(analysis, drawStyle, path, chans):
     # for all directory
     checkOrCreateDir('{}/plots'.format(basePath))
     checkOrCreateDir('{}/logs'.format(basePath))
+
     for chan in chans:
-        if "all": continue
         path = "{}/{}".format(basePath, chan)
         checkOrCreateDir(path)
         checkOrCreateDir('{}/plots'.format(path))

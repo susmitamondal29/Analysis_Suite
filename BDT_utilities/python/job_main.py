@@ -20,35 +20,40 @@ def setup(cli_args):
             else:
                 new_samples.append(samp)
         groupDict[groupName] = new_samples
+        
+    argList = list()
+    for year in cli_args.years:
+        workdir = "{}/{}".format(cli_args.workdir, year)
+        checkOrCreateDir(workdir)
+        argList.append((groupDict, workdir, cli_args.train, cli_args.model, year))
+    return argList
 
-    outDir ="{}/{}".format(cli_args.workdir, cli_args.channels)
-    checkOrCreateDir("{}/test".format(outDir))
-    checkOrCreateDir("{}/train".format(outDir))
-    cli_args.groupDict = groupDict
-
-    if not cli_args.train:
-        return ()
-    return ((groupDict, outDir, cli_args.model),)
-
-def run(groupDict, outDir, applyModel):
-    useDNN = True
-    if useDNN:
+def run(groupDict, workdir, trainType, applyModel, year):
+    if trainType == "None":
+        from .dataholder import MLHolder
+        mvaRunner = MLHolder(mva_params.usevar, groupDict)
+    if trainType == "DNN":
         from .DNN import KerasMaker
         mvaRunner = KerasMaker(mva_params.usevar, groupDict)
+    elif trainType == "TMVA":
+        from .TMVA import TMVAMaker
+        mvaRunner = TMVAMaker(mva_params.usevar, groupDict)
     else:
         from .MvaMaker import XGBoostMaker
         mvaRunner = XGBoostMaker(mva_params.usevar, groupDict)
-    mvaRunner.add_files("result.root")
+
+    print("Reading files for year {}".format(year))
+    mvaRunner.add_files("result_{}.root".format(year))
+    print("Finished reading files for year {}".format(year))
 
     if applyModel:
         mvaRunner.apply_model(applyModel)
-    else:
-        fitModel = mvaRunner.train()
-        mvaRunner.save_model(fitModel, outDir)
+    elif trainType != "None":
+        fitModel = mvaRunner.train(workdir)
 
-    mvaRunner.output(outDir)
-
-
+    print("Starting to write out for year {}".format(year))
+    mvaRunner.output(workdir)
+    print("Finished writing out for year {}".format(year))
     # sorted_import = {k: v for k, v in sorted(impor.items(), key=lambda item: item[1])}
     # import matplotlib.pyplot as plt
     # plt.barh(range(len(sorted_import)), list(sorted_import.values()),
@@ -64,7 +69,7 @@ def run(groupDict, outDir, applyModel):
 def cleanup(cli_args):
     return
     lumi = cli_args.lumi*1000
-    outDir ="{}/{}".format(cli_args.workdir, cli_args.channels)
+    outDir ="{}/{}".format(cli_args.workdir, cli_args.year)
     # groupMembers = [item for sublist in cli_args.groupDict.values() for item in sublist]
     output = MVAPlotter(outDir, cli_args.groupDict, lumi)
     output.make_roc("Signal", ["Background"], "Background", "SignalvsAll")

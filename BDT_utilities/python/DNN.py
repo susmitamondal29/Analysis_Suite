@@ -12,6 +12,7 @@ from .dataholder import MLHolder
 from sklearn.metrics import roc_auc_score, roc_curve, auc
 from sklearn.model_selection import ShuffleSplit
 from sklearn.utils import shuffle as shuffle_data
+from sklearn.model_selection import cross_val_score
 
 import numpy as np
 
@@ -39,26 +40,27 @@ class KerasMaker(MLHolder):
         super().__init__(*args, **kwargs)
         self.build = Params(
             {
-                "initial_nodes": 50,
+                "initial_nodes": 20,
                 "hidden_layers": 1,
                 "node_pattern": "dynamic",
                 # "node_pattern": "static",
-                "lr": 1e-4,
+                "lr": 0.01,
                 "regulator": "dropout",
-                "activation": "tanh",
+                "activation": "elu",
                 "monitor": "val_loss",
                 "patience": 5,
                 "mode": "auto",
                 "period": 1,
                 "save_best_only": True,
                 "save_weights_only": False,
-                "epoch": 20,
+                # "epochs": 20,
+                "epochs": 1,
                 "batch_size": 2 ** 10,
                 "shuffle": True,
                 "validation_split": 0.25,
             }
         )
-        self.params = self.build["epoch", "batch_size", "shuffle", "validation_split"]
+        self.params = self.build["epochs", "batch_size", "shuffle", "validation_split"]
         self.early_stop = self.build["monitor", "patience"]
         self.checkpoint = self.build[
             "save_best_only", "save_weights_only", "mode", "period"
@@ -106,18 +108,31 @@ class KerasMaker(MLHolder):
         model.summary()
         return model
 
-    def train(self):
+    def train(self, outdir):
         x_train = self.train_set.drop(self._drop_vars, axis=1)
-        w_train = self.train_set["finalWeight"].copy()
+        w_train = self.train_set["finalWeight"].to_numpy()
         y_train = self.train_set.classID
 
         x_test = self.test_set.drop(self._drop_vars, axis=1)
         y_test = self.test_set.classID
 
         _, group_tot = np.unique(y_train, return_counts=True)
+
+        print("classID")
+        for classID in np.unique(self.train_set.classID):
+            groupSet = self.train_set[self.train_set.classID==classID]
+            print(classID, len(groupSet), np.sum(groupSet["finalWeight"]))
+
+        print("GroupName")
+        for groupName in np.unique(self.train_set.groupName):
+            groupSet = self.train_set[self.train_set.groupName==groupName]
+            factor = max(group_tot)/group_tot[groupSet["classID"][0]]
+            print(groupName, len(groupSet), factor*np.mean(groupSet["finalWeight"]),
+                  len(groupSet)*factor*np.mean(groupSet["finalWeight"]))
         w_train[self.train_set["classID"] == 0] *= max(group_tot) / group_tot[0]
         w_train[self.train_set["classID"] == 1] *= max(group_tot) / group_tot[1]
-
+        
+        classW = {i: max(group_tot)/tot for i, tot in enumerate(group_tot)}
         callback = [
             keras.callbacks.EarlyStopping(**self.early_stop),
             # keras.callbacks.ModelCheckpoint("test.h5", verbose=0, **self.checkpoint),
@@ -127,7 +142,10 @@ class KerasMaker(MLHolder):
         print(">> Training.")
         fit_model = self.build_model()
         history = fit_model.fit(
-            x_train, y_train.astype(bool), callbacks=callback,
+            x_train, y_train.astype(bool),
+            # sample_weight=w_train,
+            class_weight= classW,
+            callbacks=callback,
             verbose=1, **self.params
         )
 
@@ -150,7 +168,8 @@ class KerasMaker(MLHolder):
         print("AUC for train: {}".format(auc_train))
         print("AUC for test: {}".format(auc_test))
 
-        return fit_model
+        fit_model.save("{}/model.h5".format(outdir))
+
 
     def apply_model(self, model_file):
         fit_model = keras.models.load_model(model_file)
@@ -163,8 +182,6 @@ class KerasMaker(MLHolder):
             ).T[i]
         return fit_model
 
-    def save_model(self, fit_model, outdir):
-        fit_model.save("{}/model.h5".format(outdir))
 
 class CrossValidationModel( KerasMaker ):
     def __init__(self, num_folds, *args, **kwargs):

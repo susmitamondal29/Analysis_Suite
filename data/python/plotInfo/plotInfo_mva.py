@@ -9,7 +9,7 @@
 
 info = {
     # "BDT.Background" : {
-    #     "Column": "BDT.Background",
+    #     "Column": "Background",
     #     "set_xlabel": "$BDT_{Background}$",
     #     "Binning"     :  [20, 0, 1.],
     #     "Modify": "1-{}"
@@ -20,7 +20,7 @@ info = {
         "Binning"     :  [15, 0, 1200],
     },
     "Met" : {
-        "Column": "MET",
+        "Column": "Met",
         "set_xlabel": "$p_{T}^{miss}$ (GeV)",
         "Binning"     :  [20, 0, 500],
     },
@@ -48,12 +48,18 @@ info = {
     #     "Binning"     :  [10, 0, 10],
     #     "Discrete": True,
     # },
+    "NTops" : {
+        "Column": "NResolvedTops",
+        "set_xlabel": "$N_{t}$",
+        "Binning"     :  [5, 0, 5],
+        "Discrete": True,
+    },
     # "Jet1_pt" : {
     #     "Column": "j1Pt",
     #     "set_xlabel": "$p_{T}(j_{1})$",
     #     "Binning"     :  [30, 0, 500],
     # },
-    # "Jet2_pt" : {
+    # "Jet2_pt" : {p
     #     "Column": "j2Pt",
     #     "set_xlabel": "$p_{T}(j_{2})$",
     #     "Binning"     :  [30, 0, 500],

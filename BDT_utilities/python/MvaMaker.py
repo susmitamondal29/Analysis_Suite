@@ -84,7 +84,7 @@ class XGBoostMaker(MLHolder):
         print("AUC for train: {}".format(auc_train))
         print("AUC for test: {}".format(auc_train))
 
-    def train(self):
+    def train(self, outdir):
         """**Train for multiclass BDT**
 
         Does final weighting of the data (normalize all groups total
@@ -128,7 +128,8 @@ class XGBoostMaker(MLHolder):
         print("AUC for train: {}".format(auc_train))
         print("AUC for test: {}".format(auc_train))
 
-        return fit_model
+        fit_model.save_model("{}/model.bin".format(outdir))
+
 
     def apply_model(self, model_file):
         fit_model = xgb.XGBClassifier({'nthread': 4})  # init model
@@ -139,6 +140,3 @@ class XGBoostMaker(MLHolder):
                 self.test_set.drop(self._drop_vars, axis=1)).T[i]
             self.pred_train[grp] = fit_model.predict_proba(
                 self.train_set.drop(self._drop_vars, axis=1)).T[i]
-
-    def save_model(self, fit_model, outdir):
-        fit_model.save_model("{}/model.bin".format(outdir))

@@ -1,18 +1,11 @@
 #!/usr/bin/env python3
-import numpy as np
-import os
-import glob
-import imp
-import subprocess
 import importlib
-from pathlib import Path
+import numpy as np
 
 class BasicInfo:
-    def __init__(self, analysis="", year="", selection="", lumi=140000, **kwargs):
+    def __init__(self, analysis="", selection="", **kwargs):
         self.analysis = analysis
         self.selection = selection
-        self.year = int(year)
-        self.lumi = lumi
         self.base_path = "analysis_suite.data"
 
 class PlotInfo(BasicInfo):
@@ -20,6 +13,7 @@ class PlotInfo(BasicInfo):
         super().__init__(**kwargs)
         plot_path = "{}.plotInfo.{}".format(self.base_path, plotInfo)
         self.plotSpecs = importlib.import_module(plot_path).info
+        self.lumi = 140000
 
     def __getattr__(self, name):
         return {h: (vals[name] if name in vals else None) for h, vals in self.plotSpecs.items()}
@@ -36,6 +30,10 @@ class PlotInfo(BasicInfo):
         if self.Discrete[histname]:
             bins[1:] = bins[1:] - 0.5
         return bh.axis.Regular(int(bins[0]), *bins[1:])
+
+    def set_lumi(self, lumi):
+        self.lumi = lumi
+
 
 class GroupInfo(BasicInfo):
     def __init__(self, group2color={}, **kwargs):
@@ -57,17 +55,19 @@ class GroupInfo(BasicInfo):
         return self.group2color[group]
 
 class FileInfo(BasicInfo):
-    def __init__(self,  **kwargs):
+    def __init__(self, year="", **kwargs):
         super().__init__(**kwargs)
-        file_path = "{}.FileInfo.{}".format(self.base_path, self.analysis, self.year)
+        self.year = int(year)
+        file_path = "{}.FileInfo.{}".format(self.base_path, self.analysis)
         self.fileInfo = importlib.import_module(file_path).info
-        for key, info in self.fileInfo.items():
-            self.fileInfo[key]["DAS"] = info["DAS"][self.year]
+        self.dasNames = {info["DAS"][self.year]: key for key, info in self.fileInfo.items()}
 
     def get_group(self, splitname):
-        for key, info in self.fileInfo.items():
-            if info["DAS"] in splitname:
-                return key
+        if isinstance(splitname, str) and splitname in self.dasNames:
+            return self.dasNames[splitname]
+        for name in splitname:
+            if name in self.dasNames:
+                return self.dasNames[name]
         return None
 
     def get_info(self, alias):

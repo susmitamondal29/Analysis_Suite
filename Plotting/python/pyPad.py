@@ -57,7 +57,7 @@ class pyPad:
         self._right_align_label(self.up.get_yaxis(), True)
         self._right_align_label(axis.get_xaxis())
         if self.down:
-            self.down.set_ylabel("Signal/MC")
+            self.down.set_ylabel("Data/MC")
             self.down.set_ylim(top=2.0, bottom=0)
 
         # user specified

@@ -19,24 +19,22 @@ def get_cli():
     analyses = [ f.name for f in pkgutil.iter_modules(PlotGroups.__path__) if not f.ispkg]
     parser.add_argument("-a", "--analysis", type=str, required=True,
                         choices=analyses, help="Specificy analysis used")
-    parser.add_argument("-c", "--channels", type=str, default="",
-                        help="Channels to run over")
     parser.add_argument("-j", type=int, default=1, help="Number of cores")
-    parser.add_argument("-l", "--lumi", type=float, default=140,
-                        help="Luminsoity in fb-1. Default 35.9 fb-1. "
-                        "Set to -1 for unit normalization")
     parser.add_argument("--log", type=str, default="WARNING",
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
-                        help="Luminsoity in fb-1. Default 35.9 fb-1. "
-                        "Set to -1 for unit normalization")
+                        help="Set debug status (currently not used)")
+    parser.add_argument("-y", "--years", required=True,
+                        type=lambda x : ["2016", "2017", "2018"] if x == "all" \
+                                   else [i.strip() for i in x.split(',')],
+                        help="Year to use")
 
     if len(sys.argv) == 1:
         pass
     elif sys.argv[1] == "mva":
-        parser.add_argument('-t', '--train', action="store_true",
+        parser.add_argument('-t', '--train', default="None",
+                            choices=['None', 'DNN', 'TMVA', 'XGB'],
                             help="Run the training")
-        parser.add_argument("-m", "--model", type=str, default="",
-                            help="Model file")
+        parser.add_argument("-m", '--model', default='')
     elif sys.argv[1] == "plot":
         parser.add_argument("--drawStyle", type=str, default='stack',
                             help='Way to draw graph',
@@ -68,8 +66,6 @@ def get_cli():
                             default="", help="List of input file names, "
                             "as defined in AnalysisDatasetManager, separated "
                             "by commas")
-        parser.add_argument("-y", "--year", type=str, default="2016", required=True,
-                           help="Year to use")
         parser.add_argument("-r", "--rerun", type=str, help="Redo a function")
 
     elif sys.argv[1] == "combine":
@@ -111,7 +107,6 @@ def getNormedHistos(indir, file_info, plot_info, histName, chan):
                     array = f[mem].arrays([ak_col, "scale_factor"],
                                           # "Background<0.3"
                                           )
-                
             except:
                 print("problem with {} getting histogram {}".format(mem, ak_col))
                 continue
@@ -124,11 +119,11 @@ def getNormedHistos(indir, file_info, plot_info, histName, chan):
                     sf = ak.flatten(sf)
             narray[ak_col] = vals
             narray["scale_factor"] = sf
-            print("{}: {:.3f}+-{:.3f} ({})".format(mem, ak.sum(sf)*plot_info.lumi, plot_info.lumi*math.sqrt(ak.sum(sf**2)),len(sf)))
+            #print("{}: {:.3f}+-{:.3f} ({})".format(mem, ak.sum(sf)*plot_info.lumi, plot_info.lumi*math.sqrt(ak.sum(sf**2)),len(sf)))
             groupHists[group] += narray
 
     for name, hist in groupHists.items():
-        if file_info.lumi < 0:
+        if plot_info.lumi < 0:
             scale = 1 / sum(hist.hist)
             hist.scale(scale)
         else:
@@ -139,8 +134,9 @@ def getNormedHistos(indir, file_info, plot_info, histName, chan):
             s = hist.integral()
         else:
             b += hist.integral()
-    print("Figure of merit: ", s/math.sqrt(s+b))
-    exit()
+
+    print("Figure of merit: ", s/math.sqrt(s+b+1e-9))
+    
     return groupHists
 
 def copyDirectory(src, dest):

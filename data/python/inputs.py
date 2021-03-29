@@ -6,8 +6,9 @@ class mva_params:
     usevar = {
         "NJets": "num('Jets/pt')",
         "NBJets": "num('BJets/pt')",
-        # "NlooseBJets": "num_mask('Event_masks/Jet_looseBjetMask')",
-        # "NtightBJets": "num_mask('Event_masks/Jet_tightBjetMask')",
+        # "NlooseBJets": "var('BJets/n_loose')",
+        # "NtightBJets": "var('BJets/n_tight')",
+        "NResolvedTops": "num('ResolvedTops/pt')",
         # "NlooseLeps": "num('looseLeptons/Lepton_pt')",
         "HT": "var('HT')",
         "HT_b": "var('HT_b')",
@@ -39,17 +40,27 @@ class mva_params:
     }
 
     # Input Rootfile
-    single=False
+    single=True
     # Sampels and the groups they are a part of
     if single:
-        groups = [["Signal", ["ttt"]],
-                  ["Background", ["ttw", "ttz", "tth", "ttXY", "vvv", "vv","xg", "4top2016","other"]]]
+        groups = [["Signal", ["ttt", ]],
+                  ["Background", ["ttw", # "tttt",
+                                  "ttz", "tth", "ttXY",
+                                  # "vvv", "vv", "xg",
+                                  # "other",
+                                  ]]]
     else:
         groups = [["Signal", ["ttt"]],
                   ["FourTop", ["tttt",]],
-                  ["Background", ["ttw", "ttz", "tth", "ttXY", "vvv", "vv", "xg","other"]]] #
+                  ["Background", ["ttw", "ttz", "tth", "ttXY", "vvv", "vv", "xg","other"
+                                  ]]] #
 
 class plot_params:
+    lumi = {
+        "2016" : 35.9,
+        "2017" : 41.5,
+        "2018" : 59.6,
+    }
     color_by_group = {
         "ttt": "crimson",
         "ttz": "mediumseagreen",
