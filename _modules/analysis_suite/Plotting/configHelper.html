@@ -79,6 +79,7 @@
 
 <div class="viewcode-block" id="setupPathAndDir"><a class="viewcode-back" href="../../../analysis_suite.Plotting.html#analysis_suite.Plotting.configHelper.setupPathAndDir">[docs]</a><span class="k">def</span> <span class="nf">setupPathAndDir</span><span class="p">(</span><span class="n">analysis</span><span class="p">,</span> <span class="n">drawStyle</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">chans</span><span class="p">):</span>
     <span class="sd">"""Setup HTML directory area and return path made"""</span>
+
     <span class="n">extraPath</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y_%m_</span><span class="si">%d</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
         <span class="n">extraPath</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s1">'/'</span> <span class="o">+</span> <span class="n">extraPath</span>
@@ -92,8 +93,8 @@
     <span class="c1"># for all directory</span>
     <span class="n">checkOrCreateDir</span><span class="p">(</span><span class="s1">'</span><span class="si">{}</span><span class="s1">/plots'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">basePath</span><span class="p">))</span>
     <span class="n">checkOrCreateDir</span><span class="p">(</span><span class="s1">'</span><span class="si">{}</span><span class="s1">/logs'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">basePath</span><span class="p">))</span>
+
     <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="n">chans</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">"all"</span><span class="p">:</span> <span class="k">continue</span>
         <span class="n">path</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">basePath</span><span class="p">,</span> <span class="n">chan</span><span class="p">)</span>
         <span class="n">checkOrCreateDir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">checkOrCreateDir</span><span class="p">(</span><span class="s1">'</span><span class="si">{}</span><span class="s1">/plots'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
