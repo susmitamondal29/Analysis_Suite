@@ -57,7 +57,16 @@ void Electron::setup(TTreeReader& fReader, int year)
 void Electron::createLooseList()
 {
     for (size_t i = 0; i < pt->GetSize(); i++) {
-        if (pt->At(i) / eCorr->At(i) > 7 && abs(eta->At(i)) < 2.5 && convVeto->At(i) && lostHits->At(i) <= 1 && abs(dz->At(i)) < 0.1 && abs(dxy->At(i)) < 0.05 && passMVACut(i, false) && iso->At(i) < 0.4 && abs(eInvMinusPInv->At(i) < 0.01) && hoe->At(i) < 0.08 && ((abs(eta->At(i)) < BARREL_ETA && sieie->At(i) < 0.011) || (abs(eta->At(i)) >= BARREL_ETA && sieie->At(i) < 0.031)))
+        if (pt->At(i) / eCorr->At(i) > 7
+            && fabs(eta->At(i)) < 2.5
+            && convVeto->At(i)
+            && lostHits->At(i) <= 1
+            && fabs(dz->At(i)) < 0.1 && fabs(dxy->At(i)) < 0.05
+            && passMVACut(i, false)
+            && iso->At(i) < 0.4
+            && fabs(eInvMinusPInv->At(i) < 0.01)
+            && hoe->At(i) < 0.08
+            && ((fabs(eta->At(i)) < BARREL_ETA && sieie->At(i) < 0.011) || (fabs(eta->At(i)) >= BARREL_ETA && sieie->At(i) < 0.031)))
             looseList.push_back(i);
     }
 }
@@ -96,9 +105,9 @@ bool Electron::passMVACut(size_t idx, bool isTight)
     //// ETA Splitting
     if (pt_cor < 5)
         return false;
-    else if (abs(eta->At(idx)) < 0.8)
+    else if (fabs(eta->At(idx)) < 0.8)
         caseIdx = 0;
-    else if (abs(eta->At(idx)) < BARREL_ETA)
+    else if (fabs(eta->At(idx)) < BARREL_ETA)
         caseIdx = 1;
     else
         caseIdx = 2;

@@ -3,6 +3,7 @@
 
 #include "analysis_suite/Analyzer/interface/BaseSelector.h"
 #include "analysis_suite/Analyzer/interface/ResolvedTop.h"
+#include "analysis_suite/Analyzer/interface/GenParticle.h"
 #include <map>
 
 template <class T>
@@ -17,15 +18,16 @@ public:
     virtual void setupChannel() override;
     virtual void ApplyScaleFactors() override;
     virtual void clearValues() override;
-    virtual void setupParticles() override;
-    ClassDefOverride(ThreeTop, 0);
+        virtual void setOtherGoodParticles() override;
+        ClassDefOverride(ThreeTop, 0);
 
 private:
     void FillLeptons();
     void printStuff();
-    ResolvedTop rTop;
+        ResolvedTop rTop;
+        GenParticle rGen;
 
-    ParticleOut* o_looseMuons;
+        ParticleOut* o_looseMuons;
     ParticleOut* o_tightMuons;
     ParticleOut* o_looseElectrons;
     ParticleOut* o_tightElectrons;
@@ -44,8 +46,9 @@ private:
     TTRValue<Bool_t>* Flag_ecalBadCalibFilter;
     TTRValue<Float_t>* Met_pt;
     TTRValue<Float_t>* Met_phi;
+        TTRValue<Float_t>* Pileup_nTrueInt;
 
-    float o_ht, o_htb, o_met, o_metphi, o_centrality;
+        float o_ht, o_htb, o_met, o_metphi, o_centrality;
 };
 
 #endif

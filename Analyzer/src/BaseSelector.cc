@@ -27,7 +27,9 @@ void BaseSelector::Init(TTree* tree)
             xsec_ = std::stof(item->GetTitle());
         }
     }
+    
 
+    sfMaker = ScaleFactors(year_);
     isMC_ = true;
     outTree = new TTree("Analyzed", "Analyzed");
     outTree->Branch("weight", &weight, "weight/F");
@@ -71,7 +73,7 @@ float BaseSelector::GetPrefiringEfficiencyWeight(std::vector<float>* jetPt,
     float prefire_weight = 1;
     for (size_t i = 0; i < jetPt->size(); i++) {
         float jPt = jetPt->at(i);
-        float jEta = std::abs(jetEta->at(i));
+        float jEta = fabs(jetEta->at(i));
         prefire_weight *= (1 - prefireEff_->GetEfficiency(prefireEff_->FindFixBin(jEta, jPt)));
     }
     return prefire_weight;
@@ -87,10 +89,10 @@ void BaseSelector::SlaveTerminate()
 void BaseSelector::SetupEvent(int variation)
 {
     clearValues();
-    muon.setupLepton(jet);
-    elec.setupLepton(jet);
-    jet.setupJet();
-    setupParticles();
+    muon.setGoodParticles(jet);
+    elec.setGoodParticles(jet);
+    jet.setGoodParticles();
+    setOtherGoodParticles();
 
     setupChannel();
 

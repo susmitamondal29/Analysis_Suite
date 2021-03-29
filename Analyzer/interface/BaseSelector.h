@@ -20,6 +20,7 @@
 #include "analysis_suite/Analyzer/interface/Electron.h"
 #include "analysis_suite/Analyzer/interface/Jet.h"
 #include "analysis_suite/Analyzer/interface/Muon.h"
+#include "analysis_suite/Analyzer/interface/ScaleFactors.h"
 
 class BaseSelector : public TSelector {
 public:
@@ -50,8 +51,8 @@ public:
     virtual bool passSelection(int variations) { return true; }
     virtual void FillValues(int variation) {}
     virtual void setupChannel(){};
-    virtual void setupParticles(){};
-    virtual void ApplyScaleFactors(){};
+        virtual void setOtherGoodParticles(){};
+        virtual void ApplyScaleFactors(){};
     virtual void clearValues(){};
     ClassDef(BaseSelector, 0);
 
@@ -73,7 +74,8 @@ protected:
     bool isMC_;
     int channel_, currentChannel_;
 
-    Muon muon;
+        ScaleFactors sfMaker;
+        Muon muon;
     Electron elec;
     Jet jet;
 };

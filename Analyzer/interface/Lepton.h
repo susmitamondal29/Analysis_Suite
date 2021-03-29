@@ -16,12 +16,12 @@ public:
     std::pair<size_t, float> getCloseJet(size_t lidx, Particle& jet);
     bool passJetIsolation(size_t idx, Particle& jets);
 
-    void setupLepton(Particle& jets)
-    {
-        createLooseList();
-        createFakeList(jets);
-        createTightList();
-    }
+        void setGoodParticles(Particle& jets)
+        {
+            createLooseList();
+            createFakeList(jets);
+            createTightList();
+        }
 
     void clear()
     {

@@ -11,6 +11,9 @@ void ThreeTop::Init(TTree* tree)
     channel_ = CHAN_SS;
     BaseSelector::Init(tree);
 
+    rTop.setup(fReader, year_);
+    rGen.setup(fReader, year_);
+
     event = new TTRValue<ULong64_t>(fReader, "event");
     Flag_goodVertices = new TTRValue<Bool_t>(fReader, "Flag_goodVertices");
     Flag_globalSuperTightHalo2016Filter = new TTRValue<Bool_t>(fReader, "Flag_globalSuperTightHalo2016Filter");
@@ -21,6 +24,7 @@ void ThreeTop::Init(TTree* tree)
     Flag_ecalBadCalibFilter = new TTRValue<Bool_t>(fReader, "Flag_ecalBadCalibFilter");
     Met_pt = new TTRValue<Float_t>(fReader, "MET_pt");
     Met_phi = new TTRValue<Float_t>(fReader, "MET_phi");
+    Pileup_nTrueInt = new TTRValue<Float_t>(fReader, "Pileup_nTrueInt");
 }
 
 void ThreeTop::SetupOutTree()
@@ -48,6 +52,7 @@ void ThreeTop::clearValues()
     elec.clear();
     jet.clear();
     rTop.clear();
+    rGen.clear();
 
     o_looseMuons->clear();
     o_tightMuons->clear();
@@ -59,11 +64,31 @@ void ThreeTop::clearValues()
     o_resolvedTop->clear();
 }
 
-void ThreeTop::ApplyScaleFactors() {}
+void ThreeTop::ApplyScaleFactors() {
+    // bool doPrint = false;
 
-void ThreeTop::setupParticles()
+    weight *= sfMaker.getBJetSF(jet);
+    // if (weight < 0.2) doPrint = true;
+    // if (doPrint) std::cout << "bjet: " << weight << std::endl;
+    weight *= sfMaker.getPileupSF(**Pileup_nTrueInt);
+    // if (weight < 0.2) doPrint = true;
+    // if (doPrint) std::cout << "pileup: " << **Pileup_nTrueInt << " " << weight << std::endl;
+    weight *= sfMaker.getResolvedTopSF(rTop, rGen);
+    // if (weight < 0.2) doPrint = true;
+    // if (doPrint) std::cout << "top: " << weight  << std::endl;
+    weight *= sfMaker.getElectronSF(elec);
+    // if (weight < 0.2) doPrint = true;
+    // if (doPrint) std::cout << "electron: " << weight  << std::endl;
+    weight *= sfMaker.getMuonSF(muon);
+    // if (weight < 0.2) doPrint = true;
+    // if (doPrint) std::cout << "muon: " << weight  << std::endl;
+    // if (doPrint) std::cout << std::endl;
+}
+
+void ThreeTop::setOtherGoodParticles()
 {
-    rTop.setupTops();
+    rTop.setGoodParticles();
+    rGen.setGoodParticles();
 }
 
 void ThreeTop::setupChannel()

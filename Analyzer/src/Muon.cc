@@ -27,7 +27,13 @@ void Muon::createLooseList()
 {
     for (size_t i = 0; i < pt->GetSize(); i++) {
 
-        if (pt->At(i) > 5 && abs(eta->At(i)) < 2.4 && (isGlobal->At(i) || isTracker->At(i)) && isPFcand->At(i) && iso->At(i) < 0.4 && abs(dz->At(i)) < 0.1 && abs(dxy->At(i)) < 0.05)
+        if (pt->At(i) > 5
+            && fabs(eta->At(i)) < 2.4
+            && (isGlobal->At(i) || isTracker->At(i))
+            && isPFcand->At(i)
+            && iso->At(i) < 0.4
+            && fabs(dz->At(i)) < 0.1
+            && fabs(dxy->At(i)) < 0.05)
             looseList.push_back(i);
     }
 }

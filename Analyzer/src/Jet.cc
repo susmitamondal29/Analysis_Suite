@@ -25,7 +25,10 @@ void Jet::setup(TTreeReader& fReader, int year)
 void Jet::createLooseList()
 {
     for (size_t i = 0; i < pt->GetSize(); i++) {
-        if (pt->At(i) > 5 && abs(eta->At(i)) < 2.4 && (jetId->At(i) & looseId) != 0 && (closeJetDr_by_index.find(i) == closeJetDr_by_index.end() || closeJetDr_by_index.at(i) >= pow(0.4, 2)))
+        if (pt->At(i) > 5
+            && fabs(eta->At(i)) < 2.4
+            && (jetId->At(i) & looseId) != 0
+            && (closeJetDr_by_index.find(i) == closeJetDr_by_index.end() || closeJetDr_by_index.at(i) >= pow(0.4, 2)))
             looseList.push_back(i);
     }
 }

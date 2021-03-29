@@ -35,9 +35,9 @@ public:
     Particle();
     virtual ~Particle(){};
     void setup(std::string name, TTreeReader& fReader, int year);
-    virtual void setupParticles(){};
+        virtual void setGoodParticles(){};
 
-    void fillParticle(std::vector<size_t>& fillList, ParticleOut& fillObject);
+        void fillParticle(std::vector<size_t>& fillList, ParticleOut& fillObject);
 
     TTRArray<Float_t>* pt;
     TTRArray<Float_t>* eta;
