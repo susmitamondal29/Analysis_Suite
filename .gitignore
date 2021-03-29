@@ -18,3 +18,4 @@ poetry.lock
 *~
 *.root
 *.csv
+!data/scale_factors/event_scalefactors.root
