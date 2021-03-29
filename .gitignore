@@ -1,7 +1,11 @@
-.DS_Store
-.idea
-*.log
-tmp/
+/*
+
+!Analyzer/
+!BDT_utilities/
+!commons/
+!data/
+!Plotting/
+!ScaleFactors/
 
 *.py[cod]
 *.egg
@@ -13,4 +17,4 @@ __pycache__
 poetry.lock
 *~
 *.root
-!data/scale_factors/*.root
+*.csv
