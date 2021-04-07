@@ -1,15 +1,30 @@
 #include "analysis_suite/Analyzer/interface/ThreeTop.h"
 
+#define getElec(var, i) (elec.var->At(elec.tightList[i]))
+#define getMuon(var, i) (muon.var->At(muon.tightList[i]))
+
 enum CHANNELS { CHAN_HAD,
     CHAN_SINGLE,
     CHAN_OS,
     CHAN_SS,
     CHAN_MULTI };
 
+enum SUBCHANNELS {
+    CHAN_MM,
+    CHAN_EM,
+    CHAN_ME,
+    CHAN_EE,
+};
+
 void ThreeTop::Init(TTree* tree)
 {
     channel_ = CHAN_SS;
     BaseSelector::Init(tree);
+
+    passTrigger_leadPt = new TH2F("passTrigger", "passTrigger", 4, 0, 4, 100, 0, 100);
+    fOutput->Add(passTrigger_leadPt);
+    failTrigger_leadPt = new TH2F("failTrigger", "failTrigger", 4, 0, 4, 100, 0, 100);
+    fOutput->Add(failTrigger_leadPt);
 
     rTop.setup(fReader, year_);
     rGen.setup(fReader, year_);
@@ -25,6 +40,11 @@ void ThreeTop::Init(TTree* tree)
     Met_pt = new TTRValue<Float_t>(fReader, "MET_pt");
     Met_phi = new TTRValue<Float_t>(fReader, "MET_phi");
     Pileup_nTrueInt = new TTRValue<Float_t>(fReader, "Pileup_nTrueInt");
+
+    HLT_MuMu = new TTRValue<Bool_t>(fReader, "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8");
+    HLT_MuEle = new TTRValue<Bool_t>(fReader, "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL");
+    HLT_EleMu = new TTRValue<Bool_t>(fReader, "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL");
+    HLT_EleEle = new TTRValue<Bool_t>(fReader, "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL");
 }
 
 void ThreeTop::SetupOutTree()
@@ -64,7 +84,8 @@ void ThreeTop::clearValues()
     o_resolvedTop->clear();
 }
 
-void ThreeTop::ApplyScaleFactors() {
+void ThreeTop::ApplyScaleFactors()
+{
     // bool doPrint = false;
 
     weight *= sfMaker.getBJetSF(jet);
@@ -100,10 +121,17 @@ void ThreeTop::setupChannel()
         currentChannel_ = CHAN_SINGLE;
     else if (nLep == 2) {
         int q_product = 1;
-        for (auto i : elec.tightList)
-            q_product *= elec.charge->At(i);
-        for (auto i : muon.tightList)
-            q_product *= muon.charge->At(i);
+        if (elec.tightList.size() == 2) {
+            subChannel_ = CHAN_EE;
+            q_product *= getElec(charge, 0) * getElec(charge, 1);
+        } else if (muon.tightList.size() == 2) {
+            subChannel_ = CHAN_MM;
+            q_product *= getMuon(charge, 0) * getMuon(charge, 1);
+        } else {
+            q_product *= getMuon(charge, 0) * getElec(charge, 0);
+            subChannel_ = (getMuon(pt, 0) > getElec(pt, 0)) ? CHAN_ME : CHAN_EM;
+        }
+        // Set Dilepton channel
         if (q_product > 0)
             currentChannel_ = CHAN_SS;
         else
@@ -122,7 +150,30 @@ bool ThreeTop::passSelection(int variation)
     bool passMetCut = **Met_pt > 25;
     bool passHTCut = jet.getHT(jet.tightList) > 250;
 
-    return (passMETFilter && passMetCut && passZVeto && passChannel && passJetNumber && passBJetNumber && passHTCut);
+    return (passMETFilter && passMetCut && passZVeto && passChannel
+        && passJetNumber && passBJetNumber && passHTCut);
+}
+
+bool ThreeTop::passTrigger()
+{
+    bool passLeadPt = true; //getLeadPt() > 25;
+    bool passTrig;
+    if (subChannel_ == CHAN_MM)
+        passTrig = **HLT_MuMu;
+    else if (subChannel_ == CHAN_EM)
+        passTrig = **HLT_EleMu;
+    else if (subChannel_ == CHAN_ME)
+        passTrig = **HLT_MuEle;
+    else if (subChannel_ == CHAN_EE)
+        passTrig = **HLT_EleEle;
+
+    if (passTrig) {
+        passTrigger_leadPt->Fill(subChannel_, getLeadPt());
+    } else {
+        failTrigger_leadPt->Fill(subChannel_, getLeadPt());
+    }
+
+    return (passLeadPt && passTrig);
 }
 
 void ThreeTop::FillValues(int variation)
@@ -162,6 +213,16 @@ void ThreeTop::FillLeptons()
             elecItr++;
         }
     }
+}
+
+float ThreeTop::getLeadPt()
+{
+    if (channel_ != CHAN_SS)
+        return 0.;
+    else if (subChannel_ % 2 == 0)
+        return getMuon(pt, 0);
+    else
+        return getElec(pt, 0);
 }
 
 void ThreeTop::printStuff()

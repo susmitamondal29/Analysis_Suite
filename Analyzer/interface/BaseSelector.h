@@ -49,10 +49,11 @@ public:
     virtual void SetupOutTree() {}
     void SetupEvent(int variation);
     virtual bool passSelection(int variations) { return true; }
+    virtual bool passTrigger() { return true; }
     virtual void FillValues(int variation) {}
     virtual void setupChannel(){};
-        virtual void setOtherGoodParticles(){};
-        virtual void ApplyScaleFactors(){};
+    virtual void setOtherGoodParticles(){};
+    virtual void ApplyScaleFactors(){};
     virtual void clearValues(){};
     ClassDef(BaseSelector, 0);
 
@@ -74,8 +75,8 @@ protected:
     bool isMC_;
     int channel_, currentChannel_;
 
-        ScaleFactors sfMaker;
-        Muon muon;
+    ScaleFactors sfMaker;
+    Muon muon;
     Electron elec;
     Jet jet;
 };

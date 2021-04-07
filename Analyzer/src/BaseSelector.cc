@@ -27,7 +27,6 @@ void BaseSelector::Init(TTree* tree)
             xsec_ = std::stof(item->GetTitle());
         }
     }
-    
 
     sfMaker = ScaleFactors(year_);
     isMC_ = true;
@@ -56,7 +55,7 @@ Bool_t BaseSelector::Process(Long64_t entry)
     fReader.SetLocalEntry(entry);
     for (const auto& variation : variations_) {
         SetupEvent(variation);
-        if (passSelection(variation)) {
+        if (passSelection(variation) && passTrigger()) {
             FillValues(variation);
             outTree->Fill();
             passed_events++;
