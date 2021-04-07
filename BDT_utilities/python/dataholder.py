@@ -34,7 +34,7 @@ class MLHolder:
       param(dict): Variables used in the training
 
     """
-    def __init__(self, use_vars, groupDict, cuts=""):
+    def __init__(self, use_vars, groupDict):
         """Constructor method
         """
         self.split_ratio = 1/3.
@@ -57,9 +57,6 @@ class MLHolder:
             self.test_set[key] = self.test_set[key].astype(dtype)
 
         self.param = dict()
-        self.cuts = cuts.split("&&")
-        
-
 
     def get_final_dict(self, directory):
         arr_dict = dict()
@@ -87,6 +84,7 @@ class MLHolder:
         df_dict["scale_factor"] = ak.to_numpy(arr.scale)
 
         df = pd.DataFrame.from_dict(df_dict)
+        df = self._cut_frame(df)
         df["classID"] = class_id
         df["groupName"] = sample
         genWeightFactor = sumW/np.sum(abs(df.scale_factor))
@@ -187,6 +185,9 @@ class MLHolder:
                 tmp = cut.split("==")
                 frame = frame[frame[tmp[0]] == float(tmp[1])]
         return frame
+
+    def add_cut(self, cut_string):
+        self.cuts = cut_string
 
     def _write_uproot(self, outfile, workSet, prediction=dict()):
         """**Write out pandas file as a compressed pickle file

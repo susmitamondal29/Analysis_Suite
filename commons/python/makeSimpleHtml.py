@@ -2,6 +2,7 @@
 import argparse
 import pkg_resources as pkg
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 def writeHTML(path, name, channels=[]):
     """**Creates a useable HTML page of plots**
@@ -17,6 +18,17 @@ def writeHTML(path, name, channels=[]):
     channels : list of strings, optional
         List of channels to create the differnt sub-webpages
     """
+    needWrite = False
+    basePath = Path(path)
+    for filename in pkg.resource_listdir(__name__, "../html"):
+        if (basePath / filename).exists():
+            continue
+        needWrite = True
+        data = pkg.resource_string(__name__, "../html/{}".format(filename)).decode()
+        with open("{}/{}".format(path, filename), 'w') as f:
+            f.write(data)
+    if not needWrite:
+        return
     info = ET.Element("Info")
     ET.SubElement(info, "Title").text = name
     for chan in channels:
@@ -24,10 +36,7 @@ def writeHTML(path, name, channels=[]):
     tree = ET.ElementTree(info)
     tree.write('{}/extraInfo.xml'.format(path))
 
-    for filename in pkg.resource_listdir(__name__, "../html"):
-        data = pkg.resource_string(__name__, "../html/{}".format(filename)).decode()
-        with open("{}/{}".format(path, filename), 'w') as f:
-            f.write(data)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

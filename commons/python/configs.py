@@ -89,31 +89,30 @@ def checkOrCreateDir(path):
         os.makedirs(path)
 
 
-def getNormedHistos(indir, file_info, plot_info, histName, chan):
+def getNormedHistos(infilename, file_info, plot_info, histName):
     import awkward1 as ak
     import uproot4 as uproot
     from analysis_suite.commons.histogram import Histogram
 
     groupHists = dict()
-    ak_col = plot_info.Column[histName]
+    ak_col = plot_info.at(histName, "Column")
     for group, members in file_info.group2MemberMap.items():
         groupHists[group] = Histogram(file_info.get_legend_name(group),
                                       file_info.get_color(group),
                                       plot_info.get_binning(histName))
         for mem in members:
             narray = dict()
-            try:
-                with uproot.open(indir) as f:
-                    array = f[mem].arrays([ak_col, "scale_factor"],
-                                          # "Background<0.3"
-                                          )
-            except:
-                print("problem with {} getting histogram {}".format(mem, ak_col))
-                continue
+            with uproot.open(infilename) as f:
+                if mem not in f:
+                    print("problem with {} getting histogram {}".format(mem, ak_col))
+                    continue
+                array = f[mem].arrays([ak_col, "scale_factor"],)
+
+
             sf = array["scale_factor"]
             vals = array[ak_col]
-            if plot_info.Modify[histName]:
-                vals = eval(plot_info.Modify[histName].format("vals"))
+            if plot_info.at(histName, "Modify"):
+                vals = eval(plot_info.at(histName, "Modify").format("vals"))
                 if len(vals) != len(sf):
                     sf,_ = ak.unzip(ak.cartesian([sf, array[ak_col]]))
                     sf = ak.flatten(sf)

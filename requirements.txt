@@ -10,7 +10,7 @@ prettytable
 numpy
 awkward1==0.4.5
 matplotlib
-uproot4==0.1.0
+uproot4==0.1.2
 uproot==3.13.0
 uproot_methods==0.9.2
 atomic

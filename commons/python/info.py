@@ -15,8 +15,13 @@ class PlotInfo(BasicInfo):
         self.plotSpecs = importlib.import_module(plot_path).info
         self.lumi = 140000
 
-    def __getattr__(self, name):
-        return {h: (vals[name] if name in vals else None) for h, vals in self.plotSpecs.items()}
+    def at(self, histname, name=None):
+        if name is None:
+            return self.plotSpecs[histname]
+        elif name in self.plotSpecs[histname]:
+            return self.plotSpecs[histname][name]
+        else:
+            return None
 
     def __getitem__(self, key):
         return self.plotSpecs[key]
@@ -26,8 +31,8 @@ class PlotInfo(BasicInfo):
 
     def get_binning(self, histname):
         import boost_histogram as bh
-        bins = np.array(self.Binning[histname], dtype=float)
-        if self.Discrete[histname]:
+        bins = np.array(self.at(histname, "Binning"), dtype=float)
+        if self.at(histname, "Discrete"):
             bins[1:] = bins[1:] - 0.5
         return bh.axis.Regular(int(bins[0]), *bins[1:])
 
@@ -41,12 +46,8 @@ class GroupInfo(BasicInfo):
         group_path = "{}.PlotGroups.{}".format(self.base_path, self.analysis)
         self.groupInfo = importlib.import_module(group_path).info
         self.group2color = group2color
-        if group2color:
-            self.group2MemberMap = {key: item["Members"] for key, item in
-                                    self.groupInfo.items() if key in self.group2color}
-        else:
-            self.group2MemberMap = {key: item["Members"]
-                                    for key, item in self.groupInfo.items()}
+        self.group2MemberMap = self.get_memberMap()
+
 
     def get_legend_name(self, group):
         return self.groupInfo[group]["Name"]
@@ -54,8 +55,27 @@ class GroupInfo(BasicInfo):
     def get_color(self, group):
         return self.group2color[group]
 
+    def get_memberMap(self):
+        keys = self.groupInfo.keys() if self.group2color is None else self.group2color
+        final = dict()
+        for key in keys:
+            if key not in self.groupInfo:
+                continue
+            info = self.groupInfo[key]
+            members = info["Members"]
+            if "Composite" in info and info["Composite"]:
+                tmpMembers = list()
+                for mem in members:
+                    if mem in self.groupInfo:
+                        tmpMembers += self.groupInfo[mem]["Members"]
+                    else:
+                        tmpMembers.append(mem)
+                members = tmpMembers
+            final[key] = members
+        return final
+
 class FileInfo(BasicInfo):
-    def __init__(self, year="", **kwargs):
+    def __init__(self, year="2018", **kwargs):
         super().__init__(**kwargs)
         self.year = int(year)
         file_path = "{}.FileInfo.{}".format(self.base_path, self.analysis)

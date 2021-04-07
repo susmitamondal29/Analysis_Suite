@@ -39,6 +39,8 @@ class mva_params:
         "mwT" : "mwT('TightLeptons')",
     }
 
+    cuts = ["l1Pt>25", "l2Pt>20"]
+
     # Input Rootfile
     single=True
     # Sampels and the groups they are a part of
@@ -60,15 +62,16 @@ class plot_params:
         "2016" : 35.9,
         "2017" : 41.5,
         "2018" : 59.6,
+        "all" : 137.0,
     }
     color_by_group = {
         "ttt": "crimson",
-        "ttz": "mediumseagreen",
         "ttw": "darkgreen",
+        "rare": "darkorange",
         "tth": "slategray",
-        "rare_no3top": "darkorange",
-        "ttXY": "cornflowerblue",
+        "ttz": "mediumseagreen",
         "xg": "indigo",
-        #"other": "blue",
+        "ttXY": "cornflowerblue",
+        # "other": "blue",
         "tttt": "darkmagenta",
     }

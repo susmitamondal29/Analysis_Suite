@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import os
-import argparse
 import numpy as np
 from collections import OrderedDict
 
@@ -42,6 +40,7 @@ def run(groupDict, workdir, trainType, applyModel, year):
         from .MvaMaker import XGBoostMaker
         mvaRunner = XGBoostMaker(mva_params.usevar, groupDict)
 
+    mvaRunner.add_cut(mva_params.cuts)
     print("Reading files for year {}".format(year))
     mvaRunner.add_files("result_{}.root".format(year))
     print("Finished reading files for year {}".format(year))

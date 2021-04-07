@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import datetime
 import subprocess
-import multiprocessing as mp
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -22,6 +20,8 @@ from .pyPad import pyPad
 from .LogFile import LogFile
 from .configHelper import setupPathAndDir
 
+ALLYEARS = ["2016", "2017", "2018"]
+
 def setup(cli_args):
     signalNames = cli_args.signal.split(',')
     if not set(signalNames) & set(plot_params.color_by_group.keys()):
@@ -29,23 +29,25 @@ def setup(cli_args):
         print(plot_params.color_by_group.keys())
         exit(1)
 
-    file_info = GroupInfo(plot_params.color_by_group, **vars(cli_args))
     plot_info = PlotInfo(cli_args.info)
+    group_info = GroupInfo(plot_params.color_by_group, **vars(cli_args))
+
     basePath = setupPathAndDir(cli_args.analysis, cli_args.drawStyle,
                                cli_args.workdir, cli_args.years)
 
     argList = list()
-    for year in cli_args.years:
-        infile ="{}/{}/test.root".format(cli_args.workdir, year)
-        plot_info.set_lumi(1000*plot_params.lumi[year])
+    for year in ["all"] + cli_args.years:
         for histName in plot_info.get_hists():
-            argList.append((histName, file_info, plot_info, basePath, infile,
-                            signalNames, year))
+
+            argList.append((histName, group_info, plot_info,basePath,
+                            cli_args.workdir, signalNames, year))
+
     return argList
 
 
-def run(histName, file_info, plot_info, basePath, infileName, signalNames, year):
+def run(histName, file_info, plot_info, basePath, indir, signalNames, year):
     print("Processing {} for year {}".format(histName, year))
+    plot_info.set_lumi(1000*plot_params.lumi[year])
     binning = plot_info.get_binning(histName)
 
     ratio = Histogram("Ratio", "black", binning)
@@ -54,8 +56,21 @@ def run(histName, file_info, plot_info, basePath, infileName, signalNames, year)
     data = Histogram("Data", "black", binning)
     stacker = Stack(binning)
 
-    groupHists = config.getNormedHistos(infileName, file_info, plot_info,
-                                        histName, year)
+    if year == "all":
+        groupHists = dict()
+        yearHists = [config.getNormedHistos("{}/{}/test.root".format(indir, yr),
+                                            file_info, plot_info, histName)
+                     for yr in ALLYEARS]
+        for yrHist in yearHists:
+            for group, hist in yrHist.items():
+                if group in groupHists:
+                    groupHists[group] += hist
+                else:
+                    groupHists[group] = hist
+
+    else:
+        groupHists = config.getNormedHistos("{}/{}/test.root".format(indir, year),
+                                            file_info, plot_info, histName)
     exclude = ['data'] + signalNames
     signal = groupHists[signalNames[0]] if signalNames[0] in groupHists else None
     # signals = {sig: groupHists[sig] for sig in (sig for sig in signalNames
@@ -95,15 +110,15 @@ def run(histName, file_info, plot_info, basePath, infileName, signalNames, year)
         pad(sub_pad=True).errorbar(**ratio.getInputs())
         pad(sub_pad=True).hist(**band.getInputsError())
 
-    pad.setLegend(plot_info[histName])
-    pad.axisSetup(plot_info[histName])
-    hep.cms.label(ax=pad(), year=year, data=data, lumi=plot_info.lumi/1000)
+    pad.setLegend(plot_info.at(histName))
+    pad.axisSetup(plot_info.at(histName))
+    hep.cms.label(ax=pad(), data=data, lumi=plot_info.lumi/1000) #year=year
 
     fig = plt.gcf()
 
     # if chan == "all" or len(channels) == 1:
     #     chan = ""
-    baseYear = "{}/{}".format(basePath, year)
+    baseYear = basePath if year == "all" else "{}/{}".format(basePath, year)
     plotBase = "{}/plots/{}".format(baseYear, histName)
     plt.savefig("{}.png".format(plotBase), format="png", bbox_inches='tight')
     subprocess.call('convert {0}.png -quality 0 {0}.pdf'.format(plotBase),
@@ -121,17 +136,9 @@ def run(histName, file_info, plot_info, basePath, infileName, signalNames, year)
 
 
 def cleanup(cli_args):
-    # try:
-    #     channels.remove("all")
-    # except ValueError:
-    #     if len(channels) == 1:
-    #         channels = []
-    #     else:
-    #         print("No all channel")
-
     basePath = setupPathAndDir(cli_args.analysis, cli_args.drawStyle,
                                cli_args.workdir, cli_args.years)
-    writeHTML(basePath, cli_args.analysis, cli_args.years)
+    writeHTML(basePath, cli_args.analysis, ALLYEARS)
     for year in cli_args.years:
         writeHTML("{}/{}".format(basePath, year),
                   "{}/{}".format(cli_args.analysis, year))

@@ -78,8 +78,6 @@ info ={
             "DYm10-50",
             "wjets",
             "tzq",
-            "ggh2zz",
-            "st_twll",
             "ttjet"
         ]
     },
@@ -93,4 +91,15 @@ info ={
             "tth"
         ]
     },
+    "rare": {
+        "Composite": True,
+        "Name": r"Rare",
+        "Members": [
+            "vvv",
+            "vv",
+            "st_twll",
+	        "ggh2zz",
+        ]
+    }
+
 }

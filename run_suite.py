@@ -1,20 +1,12 @@
 #!/usr/bin/env python3
-
-from threading import Thread
-from queue import Queue
 import multiprocessing as mp
 import warnings
-import os
 import sys
 import datetime
 import logging
 
 from analysis_suite.commons.configs import get_cli, checkOrCreateDir
 warnings.filterwarnings('ignore')
-
-
-def job_run(func, *args):
-    func(*args)
 
 if __name__ == "__main__":
     cli_args = get_cli()
@@ -42,8 +34,7 @@ if __name__ == "__main__":
     if cli_args.j == 1:
         [func(*al) for al in argList]
     else:
-        pool = mp.Pool(args.j)
-        pool.map(func, argList)
-        pool.close()
+        with mp.Pool(cli_args.j) as pool:
+            pool.starmap(func, argList)
 
     job_main.cleanup(cli_args)
