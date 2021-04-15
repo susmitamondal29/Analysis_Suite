@@ -48,7 +48,6 @@ class GroupInfo(BasicInfo):
         self.group2color = group2color
         self.group2MemberMap = self.get_memberMap()
 
-
     def get_legend_name(self, group):
         return self.groupInfo[group]["Name"]
 
@@ -56,7 +55,7 @@ class GroupInfo(BasicInfo):
         return self.group2color[group]
 
     def get_memberMap(self):
-        keys = self.groupInfo.keys() if self.group2color is None else self.group2color
+        keys = self.groupInfo.keys() if not self.group2color else self.group2color
         final = dict()
         for key in keys:
             if key not in self.groupInfo:

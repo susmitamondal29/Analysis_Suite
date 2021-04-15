@@ -55,22 +55,8 @@ def run(histName, file_info, plot_info, basePath, indir, signalNames, year):
     error = Histogram("Stat Errors", "plum", binning)
     data = Histogram("Data", "black", binning)
     stacker = Stack(binning)
-
-    if year == "all":
-        groupHists = dict()
-        yearHists = [config.getNormedHistos("{}/{}/test.root".format(indir, yr),
-                                            file_info, plot_info, histName)
-                     for yr in ALLYEARS]
-        for yrHist in yearHists:
-            for group, hist in yrHist.items():
-                if group in groupHists:
-                    groupHists[group] += hist
-                else:
-                    groupHists[group] = hist
-
-    else:
-        groupHists = config.getNormedHistos("{}/{}/test.root".format(indir, year),
-                                            file_info, plot_info, histName)
+    gropuHists = getYearNormedHistos("{}/{}/test.root".format(indir), file_info,
+                                     plot_info, histName, year)
     exclude = ['data'] + signalNames
     signal = groupHists[signalNames[0]] if signalNames[0] in groupHists else None
     # signals = {sig: groupHists[sig] for sig in (sig for sig in signalNames
@@ -113,11 +99,8 @@ def run(histName, file_info, plot_info, basePath, indir, signalNames, year):
     pad.setLegend(plot_info.at(histName))
     pad.axisSetup(plot_info.at(histName))
     hep.cms.label(ax=pad(), data=data, lumi=plot_info.lumi/1000) #year=year
-
     fig = plt.gcf()
 
-    # if chan == "all" or len(channels) == 1:
-    #     chan = ""
     baseYear = basePath if year == "all" else "{}/{}".format(basePath, year)
     plotBase = "{}/plots/{}".format(baseYear, histName)
     plt.savefig("{}.png".format(plotBase), format="png", bbox_inches='tight')

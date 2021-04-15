@@ -15,7 +15,7 @@ void ResolvedTop::createLooseList()
     if (!pt)
         return;
     for (size_t i = 0; i < pt->GetSize(); i++) {
-        if (discriminator->At(i) == 0.85)
+        if (discriminator->At(i) > 0.85)
             looseList.push_back(i);
     }
 }

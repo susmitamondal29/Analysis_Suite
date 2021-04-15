@@ -42,6 +42,7 @@ inputs["DAS_Name"] = sampleName
 inputs["Group"] = groupName
 inputs['Analysis'] = analysis
 inputs['Selection'] = selection
+inputs["Xsec"] = info.get_xsec(groupName)
 inputs["Year"] = year
 
 fChain = ROOT.TChain()

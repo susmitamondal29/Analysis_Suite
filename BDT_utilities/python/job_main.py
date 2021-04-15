@@ -5,6 +5,7 @@ from collections import OrderedDict
 from analysis_suite.commons import GroupInfo
 from analysis_suite.commons.configs import checkOrCreateDir
 from .MVAPlotter import MVAPlotter
+from .data_processor import DataProcessor
 from analysis_suite.data.inputs import mva_params
 
 def setup(cli_args):
@@ -19,12 +20,16 @@ def setup(cli_args):
                 new_samples.append(samp)
         groupDict[groupName] = new_samples
         
-    argList = list()
-    for year in cli_args.years:
-        workdir = "{}/{}".format(cli_args.workdir, year)
-        checkOrCreateDir(workdir)
-        argList.append((groupDict, workdir, cli_args.train, cli_args.model, year))
-    return argList
+    # data = DataProcessor(mva_params.usevar, groupDict)
+    # for year in cli_args.years:
+    #     checkOrCreateDir("{}/{}".format(cli_args.workdir, year))
+    #     print("Processing year {} MC".format(year))
+    #     data.process_year(year, cli_args.workdir)
+    # data.write_train(cli_args.workdir)
+
+    return [(groupDict, cli_args.workdir, cli_args.train, cli_args.model,
+        cli_args.years[0])]
+        
 
 def run(groupDict, workdir, trainType, applyModel, year):
     if trainType == "None":
@@ -40,19 +45,18 @@ def run(groupDict, workdir, trainType, applyModel, year):
         from .MvaMaker import XGBoostMaker
         mvaRunner = XGBoostMaker(mva_params.usevar, groupDict)
 
-    mvaRunner.add_cut(mva_params.cuts)
-    print("Reading files for year {}".format(year))
-    mvaRunner.add_files("result_{}.root".format(year))
-    print("Finished reading files for year {}".format(year))
+    # mvaRunner.add_cut(mva_params.cuts)
+    mvaRunner.setup_files(workdir)
+
 
     if applyModel:
         mvaRunner.apply_model(applyModel)
     elif trainType != "None":
         fitModel = mvaRunner.train(workdir)
 
-    print("Starting to write out for year {}".format(year))
-    mvaRunner.output(workdir)
-    print("Finished writing out for year {}".format(year))
+    # print("Starting to write out for year {}".format(year))
+    # mvaRunner.output(workdir)
+    # print("Finished writing out for year {}".format(year))
     # sorted_import = {k: v for k, v in sorted(impor.items(), key=lambda item: item[1])}
     # import matplotlib.pyplot as plt
     # plt.barh(range(len(sorted_import)), list(sorted_import.values()),

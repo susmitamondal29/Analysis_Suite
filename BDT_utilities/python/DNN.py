@@ -117,27 +117,31 @@ class KerasMaker(MLHolder):
         y_test = self.test_set.classID
 
         _, group_tot = np.unique(y_train, return_counts=True)
-
-        print("classID")
-        for classID in np.unique(self.train_set.classID):
-            groupSet = self.train_set[self.train_set.classID==classID]
-            print(classID, len(groupSet), np.sum(groupSet["finalWeight"]))
-
-        print("GroupName")
-        for groupName in np.unique(self.train_set.groupName):
-            groupSet = self.train_set[self.train_set.groupName==groupName]
-            factor = max(group_tot)/group_tot[groupSet["classID"][0]]
-            print(groupName, len(groupSet), factor*np.mean(groupSet["finalWeight"]),
-                  len(groupSet)*factor*np.mean(groupSet["finalWeight"]))
         w_train[self.train_set["classID"] == 0] *= max(group_tot) / group_tot[0]
         w_train[self.train_set["classID"] == 1] *= max(group_tot) / group_tot[1]
-        
+
+        # print("classID")
+        # for classID in np.unique(self.train_set.classID):
+        #     groupSet = self.train_set[self.train_set.classID==classID]
+        #     print(classID, len(groupSet), np.sum(groupSet["finalWeight"]))
+
+        # print("GroupName")
+        # for group, samples in self.group_dict.items():
+
+
+        # for groupName in np.unique(self.train_set.groupName):
+        #     sampleID = self.sample_map[sample]
+        #     groupSet = self.train_set[self.train_set.groupName==groupName]
+        #     factor = max(group_tot)/group_tot[groupSet["classID"][0]]
+        #     print(groupName, len(groupSet), factor*np.mean(groupSet["finalWeight"]),
+        #           len(groupSet)*factor*np.mean(groupSet["finalWeight"]))
+
         classW = {i: max(group_tot)/tot for i, tot in enumerate(group_tot)}
         callback = [
             keras.callbacks.EarlyStopping(**self.early_stop),
             # keras.callbacks.ModelCheckpoint("test.h5", verbose=0, **self.checkpoint),
         ]
-
+        
         # Train
         print(">> Training.")
         fit_model = self.build_model()
@@ -152,6 +156,9 @@ class KerasMaker(MLHolder):
         # Test
         print(">> Testing.")
         groupName = "Background"
+        print(x_test)
+        print(x_train)
+        print(fit_model.predict(x_test))
         self.pred_test[groupName] = fit_model.predict(x_test).flatten()
         self.pred_train[groupName] = fit_model.predict(x_train).flatten()
 

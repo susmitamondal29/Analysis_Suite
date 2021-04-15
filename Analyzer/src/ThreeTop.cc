@@ -157,7 +157,7 @@ bool ThreeTop::passSelection(int variation)
 bool ThreeTop::passTrigger()
 {
     bool passLeadPt = true; //getLeadPt() > 25;
-    bool passTrig;
+    bool passTrig = false;
     if (subChannel_ == CHAN_MM)
         passTrig = **HLT_MuMu;
     else if (subChannel_ == CHAN_EM)
@@ -168,9 +168,9 @@ bool ThreeTop::passTrigger()
         passTrig = **HLT_EleEle;
 
     if (passTrig) {
-        passTrigger_leadPt->Fill(subChannel_, getLeadPt());
+        passTrigger_leadPt->Fill(subChannel_, getLeadPt(), weight);
     } else {
-        failTrigger_leadPt->Fill(subChannel_, getLeadPt());
+        failTrigger_leadPt->Fill(subChannel_, getLeadPt(), weight);
     }
 
     return (passLeadPt && passTrig);

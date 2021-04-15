@@ -135,7 +135,20 @@ def getNormedHistos(infilename, file_info, plot_info, histName):
             b += hist.integral()
 
     print("Figure of merit: ", s/math.sqrt(s+b+1e-9))
-    
+    return groupHists
+
+def getYearNormedHistos(yearFilename, file_info, plot_info, histName, year):
+    if year == "all":
+        yearHists = [config.getNormedHistos(yearFilename.format(yr),
+                                            file_info, plot_info, histName)
+                     for yr in ALLYEARS]
+        groupHists = yearHists.pop()
+        for yrHist in yearHists:
+            for group, hist in yrHist.items():
+                groupHists[group] += hist
+    else:
+        groupHists = config.getNormedHistos(yearFilename.format(year),
+                                            file_info, plot_info, histName)
     return groupHists
 
 def copyDirectory(src, dest):

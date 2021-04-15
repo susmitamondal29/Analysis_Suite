@@ -14,6 +14,7 @@ import awkward1 as ak
 from pathlib import Path
 import uproot4
 import uproot as upwrite
+import json
 
 from sklearn.model_selection import train_test_split
 
@@ -37,13 +38,12 @@ class MLHolder:
     def __init__(self, use_vars, groupDict):
         """Constructor method
         """
-        self.split_ratio = 1/3.
-        self.max_events = 3000
         self.group_names = list(groupDict.keys())
         self.group_dict = groupDict
         self.pred_train = dict()
         self.pred_test = dict()
-
+        self.sample_map = dict()
+        
         self.use_vars = use_vars
         self._include_vars = list(use_vars.keys())
         self._drop_vars = ["classID", "groupName", "finalWeight", "scale_factor"]
@@ -58,52 +58,52 @@ class MLHolder:
 
         self.param = dict()
 
-    def get_final_dict(self, directory):
-        arr_dict = dict()
-        path = Path(directory)
-        root_files = path.rglob("*.root") if path.is_dir() else [path]
-        for root_file in root_files:
-            groups = list()
-            with uproot4.open(root_file) as f:
-                groups = [key.strip(";1") for key in f.keys() if "/" not in key]
-            for group in groups:
-                if group not in arr_dict:
-                    arr_dict[group] = VarGetter(root_file, group)
-                else:
-                    arr_dict[group] += VarGetter(root_file, group)
+    # def get_final_dict(self, directory):
+    #     arr_dict = dict()
+    #     path = Path(directory)
+    #   root_files = path.rglob("*.root") if path.is_dir() else [path]
+    #     for root_file in root_files:
+    #         groups = list()
+    #         with uproot4.open(root_file) as f:
+    #             groups = [key.strip(";1") for key in f.keys() if "/" not in key]
+    #         for group in groups:
+    #             if group not in arr_dict:
+    #                 arr_dict[group] = VarGetter(root_file, group)
+    #             else:
+    #                 arr_dict[group] += VarGetter(root_file, group)
 
-        return arr_dict
+    #     return arr_dict
 
-    def setup_test_train(self, arr, group, sample, class_id, noTrain):
-        sumW = ak.sum(arr.scale)
-        totalEv = len(arr.scale)
+    # def setup_test_train(self, arr, group, sample, class_id, noTrain):
+    #     sumW = ak.sum(arr.scale)
+    #     totalEv = len(arr.scale)
 
-        df_dict = dict()
-        for varname, func in self.use_vars.items():
-            df_dict[varname] = ak.to_numpy(eval("arr.{}".format(func)))
-        df_dict["scale_factor"] = ak.to_numpy(arr.scale)
+    #     df_dict = dict()
+    #     for varname, func in self.use_vars.items():
+    #         df_dict[varname] = ak.to_numpy(eval("arr.{}".format(func)))
+    #     df_dict["scale_factor"] = ak.to_numpy(arr.scale)
 
-        df = pd.DataFrame.from_dict(df_dict)
-        df = self._cut_frame(df)
-        df["classID"] = class_id
-        df["groupName"] = sample
-        genWeightFactor = sumW/np.sum(abs(df.scale_factor))
-        df["finalWeight"] = abs(df.scale_factor)*genWeightFactor
-        total_evts = len(df)
-        if noTrain:
-            self.test_set = pd.concat([df.reset_index(drop=True), self.test_set], sort=True)
-            print("Add Tree {} of type {}".format(sample, group))
-            return 0, 0
-        split_ratio = self.split_ratio if len(df) < self.max_events else self.max_events
-        train, test = train_test_split(df, train_size=split_ratio,
-                                   random_state=12345)
-        self.test_set = pd.concat([test.reset_index(drop=True), self.test_set], sort=True)
-        self.train_set = pd.concat([train.reset_index(drop=True), self.train_set], sort=True)
-        print("Add Tree {} of type {} with {} rawevents and {:.2E} events"
-              .format(sample, group, len(train), np.sum(df.scale_factor)))
-        return sumW, totalEv
+    #     df = pd.DataFrame.from_dict(df_dict)
+    #     df = self._cut_frame(df)
+    #     df["classID"] = class_id
+    #     df["groupName"] = sample
+    #     genWeightFactor = sumW/np.sum(abs(df.scale_factor))
+    #     df["finalWeight"] = abs(df.scale_factor)*genWeightFactor
+    #     total_evts = len(df)
+    #     if noTrain:
+    #         self.test_set = pd.concat([df.reset_index(drop=True), self.test_set], sort=True)
+    #         print("Add Tree {} of type {}".format(sample, group))
+    #         return 0, 0
+    #     split_ratio = self.split_ratio if len(df) < self.max_events else self.max_events
+    #     train, test = train_test_split(df, train_size=split_ratio,
+    #                                random_state=12345)
+    #     self.test_set = pd.concat([test.reset_index(drop=True), self.test_set], sort=True)
+    #     self.train_set = pd.concat([train.reset_index(drop=True), self.train_set], sort=True)
+    #     print("Add Tree {} of type {} with {} rawevents and {:.2E} events"
+    #           .format(sample, group, len(train), np.sum(df.scale_factor)))
+    #     return sumW, totalEv
 
-    def add_files(self, directory):
+    def setup_files(self, directory, year="2018"):
         """**Fill the dataframes with all info in the input files**
 
         This grabs all the variable information about each sample,
@@ -113,39 +113,35 @@ class MLHolder:
         Args:
             directory(string): Path to directory where root files are kept
         """
-        trainGroups = set(sum(self.group_dict.values(), []))
-        arr_dict = self.get_final_dict(directory)
-        allGroups = set(arr_dict.keys())
-        self.group_dict["NotTrained"] = list(allGroups-trainGroups)
+        train_file = "{}/train.root".format(directory)
+        test_file = "{}/{}/train.root".format(directory, year)
+        classID = {"Signal": 1, "NotTrained": -1, "Background": 0}
 
+
+        with uproot4.open(train_file) as f:
+            groups = json.loads(f["sample_map"]).keys()
+            for group in groups:
+                self.train_set = pd.concat([f[group].arrays(library="pd"), self.train_set], sort=True)
+        with uproot4.open(test_file) as f:
+            self.sample_map = json.loads(f["sample_map"])
+            groups = json.loads(f["sample_map"]).keys()
+            for group in groups:
+                self.test_set = pd.concat([f[group].arrays(library="pd"), self.train_set], sort=True)
+
+        self.train_set["finalWeight"] = 1.
         for group, samples in self.group_dict.items():
-            totalSW, totalEv = 0, 0
-            if group == "Signal":
-                class_id = 1
-            elif group == "NotTrained":
-                class_id = -1
-            else:
-                class_id = 0
-            for sample in samples:
-                noTrain = False
-                if sample not in arr_dict:
-                    print("Could not found sample {}".format(sample))
-                    continue
-                if len(arr_dict[sample].scale) == 0:
-                    print("Sample {} has no events in it!".format(sample))
-                    continue
-
-                noTrain = class_id < 0 or len(arr_dict[sample].scale) < 10
-                sumW, nevents = self.setup_test_train(arr_dict[sample], group, sample,
-                                                      class_id, noTrain)
-                totalSW += sumW
-                totalEv += nevents
-
-            if totalSW == 0:
+            clsID =  classID[group]
+            if group == "NotTrained":
                 continue
-            scale = 1.*totalEv/totalSW
-            self.train_set.loc[self.train_set.classID==class_id, "finalWeight"] *= scale
-            # self.test_set.loc[self.test_set.classID==class_id, "finalWeight"] *= scaleclass_id -= 1
+            group_set = self.train_set[self.train_set["classID"] == clsID]
+            scale = 1.*len(group_set)/sum(group_set["scale_factor"])
+            print(np.unique(group_set["groupName"]))
+            for sample in samples:
+                sampleID = self.sample_map[sample]
+                sampleScale = group_set[group_set["groupName"] == sampleID]["scale_factor"]
+                sumW = sum(sampleScale)
+                finalWeight = scale*abs(sampleScale)*sumW/np.sum(abs(sampleScale))
+                self.train_set[self.train_set["groupName"] == sampleID]["finalWeight"] = finalWeight
 
     def train(self):
         pass
