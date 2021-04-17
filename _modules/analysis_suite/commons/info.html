@@ -26,7 +26,7 @@
 </form>
 </header>
 <div class="md:overflow-hidden flex flex-col md:flex-row flex-1"><nav class="h-full fixed md:relative inset-y-0 left-0 z-20 md:z-0 bg-white text-gray-700 border-r overflow-x-hidden pt-16 print:hidden flex flex-col" data-menu="closed" role="navigation" style="width: 270px;">
-<div class="nav-toc"><p class="caption">Contents:</p>
+<div class="nav-toc"><p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><div class="nav-link"><a class="reference internal" href="../../../index.html">Main Page</a></div></li>
 <li class="toctree-l1"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="../../../running.html">Basic running</a></div><ul>
@@ -89,8 +89,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">plot_path</span><span class="p">)</span><span class="o">.</span><span class="n">info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lumi</span> <span class="o">=</span> <span class="mi">140000</span>
 
-    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">h</span><span class="p">:</span> <span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">vals</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+<div class="viewcode-block" id="PlotInfo.at"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.PlotInfo.at">[docs]</a>    <span class="k">def</span> <span class="nf">at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">histname</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span><span class="p">[</span><span class="n">histname</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span><span class="p">[</span><span class="n">histname</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span><span class="p">[</span><span class="n">histname</span><span class="p">][</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
@@ -100,8 +105,8 @@
 
 <div class="viewcode-block" id="PlotInfo.get_binning"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.PlotInfo.get_binning">[docs]</a>    <span class="k">def</span> <span class="nf">get_binning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">histname</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">boost_histogram</span> <span class="k">as</span> <span class="nn">bh</span>
-        <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Binning</span><span class="p">[</span><span class="n">histname</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Discrete</span><span class="p">[</span><span class="n">histname</span><span class="p">]:</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">histname</span><span class="p">,</span> <span class="s2">"Binning"</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">histname</span><span class="p">,</span> <span class="s2">"Discrete"</span><span class="p">):</span>
             <span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="mf">0.5</span>
         <span class="k">return</span> <span class="n">bh</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">Regular</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="o">*</span><span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span></div>
 
@@ -115,21 +120,35 @@
         <span class="n">group_path</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">.PlotGroups.</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">group_path</span><span class="p">)</span><span class="o">.</span><span class="n">info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group2color</span> <span class="o">=</span> <span class="n">group2color</span>
-        <span class="k">if</span> <span class="n">group2color</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group2MemberMap</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s2">"Members"</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group2color</span><span class="p">}</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">group2MemberMap</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s2">"Members"</span><span class="p">]</span>
-                                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group2MemberMap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_memberMap</span><span class="p">()</span>
 
 <div class="viewcode-block" id="GroupInfo.get_legend_name"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.GroupInfo.get_legend_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_legend_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span><span class="p">[</span><span class="n">group</span><span class="p">][</span><span class="s2">"Name"</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="GroupInfo.get_color"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.GroupInfo.get_color">[docs]</a>    <span class="k">def</span> <span class="nf">get_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group2color</span><span class="p">[</span><span class="n">group</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group2color</span><span class="p">[</span><span class="n">group</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="GroupInfo.get_memberMap"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.GroupInfo.get_memberMap">[docs]</a>    <span class="k">def</span> <span class="nf">get_memberMap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">group2color</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">group2color</span>
+        <span class="n">final</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">members</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">"Members"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">"Composite"</span> <span class="ow">in</span> <span class="n">info</span> <span class="ow">and</span> <span class="n">info</span><span class="p">[</span><span class="s2">"Composite"</span><span class="p">]:</span>
+                <span class="n">tmpMembers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">mem</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">mem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span><span class="p">:</span>
+                        <span class="n">tmpMembers</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span><span class="p">[</span><span class="n">mem</span><span class="p">][</span><span class="s2">"Members"</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">tmpMembers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mem</span><span class="p">)</span>
+                <span class="n">members</span> <span class="o">=</span> <span class="n">tmpMembers</span>
+            <span class="n">final</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">members</span>
+        <span class="k">return</span> <span class="n">final</span></div></div>
 
 <div class="viewcode-block" id="FileInfo"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.FileInfo">[docs]</a><span class="k">class</span> <span class="nc">FileInfo</span><span class="p">(</span><span class="n">BasicInfo</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="s2">"2018"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">.FileInfo.</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="p">)</span>
@@ -155,7 +174,7 @@
         <span class="k">return</span> <span class="n">scale</span></div></div>
 </code></pre>
 </main>
-<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.5.3</a></footer>
+<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.5.4</a></footer>
 </div>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">
 <div class="flex justify-center items-center">

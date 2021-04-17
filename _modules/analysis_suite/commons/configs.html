@@ -26,7 +26,7 @@
 </form>
 </header>
 <div class="md:overflow-hidden flex flex-col md:flex-row flex-1"><nav class="h-full fixed md:relative inset-y-0 left-0 z-20 md:z-0 bg-white text-gray-700 border-r overflow-x-hidden pt-16 print:hidden flex flex-col" data-menu="closed" role="navigation" style="width: 270px;">
-<div class="nav-toc"><p class="caption">Contents:</p>
+<div class="nav-toc"><p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><div class="nav-link"><a class="reference internal" href="../../../index.html">Main Page</a></div></li>
 <li class="toctree-l1"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="../../../running.html">Basic running</a></div><ul>
@@ -163,31 +163,30 @@
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="getNormedHistos"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.getNormedHistos">[docs]</a><span class="k">def</span> <span class="nf">getNormedHistos</span><span class="p">(</span><span class="n">indir</span><span class="p">,</span> <span class="n">file_info</span><span class="p">,</span> <span class="n">plot_info</span><span class="p">,</span> <span class="n">histName</span><span class="p">,</span> <span class="n">chan</span><span class="p">):</span>
+<div class="viewcode-block" id="getNormedHistos"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.getNormedHistos">[docs]</a><span class="k">def</span> <span class="nf">getNormedHistos</span><span class="p">(</span><span class="n">infilename</span><span class="p">,</span> <span class="n">file_info</span><span class="p">,</span> <span class="n">plot_info</span><span class="p">,</span> <span class="n">histName</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">awkward1</span> <span class="k">as</span> <span class="nn">ak</span>
     <span class="kn">import</span> <span class="nn">uproot4</span> <span class="k">as</span> <span class="nn">uproot</span>
     <span class="kn">from</span> <span class="nn">analysis_suite.commons.histogram</span> <span class="kn">import</span> <span class="n">Histogram</span>
 
     <span class="n">groupHists</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-    <span class="n">ak_col</span> <span class="o">=</span> <span class="n">plot_info</span><span class="o">.</span><span class="n">Column</span><span class="p">[</span><span class="n">histName</span><span class="p">]</span>
+    <span class="n">ak_col</span> <span class="o">=</span> <span class="n">plot_info</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">histName</span><span class="p">,</span> <span class="s2">"Column"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">members</span> <span class="ow">in</span> <span class="n">file_info</span><span class="o">.</span><span class="n">group2MemberMap</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">groupHists</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="n">file_info</span><span class="o">.</span><span class="n">get_legend_name</span><span class="p">(</span><span class="n">group</span><span class="p">),</span>
                                       <span class="n">file_info</span><span class="o">.</span><span class="n">get_color</span><span class="p">(</span><span class="n">group</span><span class="p">),</span>
                                       <span class="n">plot_info</span><span class="o">.</span><span class="n">get_binning</span><span class="p">(</span><span class="n">histName</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">mem</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
             <span class="n">narray</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">with</span> <span class="n">uproot</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">indir</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="n">array</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">mem</span><span class="p">]</span><span class="o">.</span><span class="n">arrays</span><span class="p">([</span><span class="n">ak_col</span><span class="p">,</span> <span class="s2">"scale_factor"</span><span class="p">],</span>
-                                          <span class="c1"># "Background&lt;0.3"</span>
-                                          <span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">"problem with </span><span class="si">{}</span><span class="s2"> getting histogram </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">ak_col</span><span class="p">))</span>
-                <span class="k">continue</span>
+            <span class="k">with</span> <span class="n">uproot</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">infilename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">mem</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">"problem with </span><span class="si">{}</span><span class="s2"> getting histogram </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">ak_col</span><span class="p">))</span>
+                    <span class="k">continue</span>
+                <span class="n">array</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">mem</span><span class="p">]</span><span class="o">.</span><span class="n">arrays</span><span class="p">([</span><span class="n">ak_col</span><span class="p">,</span> <span class="s2">"scale_factor"</span><span class="p">],)</span>
+
+
             <span class="n">sf</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="s2">"scale_factor"</span><span class="p">]</span>
             <span class="n">vals</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">ak_col</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">plot_info</span><span class="o">.</span><span class="n">Modify</span><span class="p">[</span><span class="n">histName</span><span class="p">]:</span>
-                <span class="n">vals</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">plot_info</span><span class="o">.</span><span class="n">Modify</span><span class="p">[</span><span class="n">histName</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">"vals"</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">plot_info</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">histName</span><span class="p">,</span> <span class="s2">"Modify"</span><span class="p">):</span>
+                <span class="n">vals</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">plot_info</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">histName</span><span class="p">,</span> <span class="s2">"Modify"</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">"vals"</span><span class="p">))</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sf</span><span class="p">):</span>
                     <span class="n">sf</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">unzip</span><span class="p">(</span><span class="n">ak</span><span class="o">.</span><span class="n">cartesian</span><span class="p">([</span><span class="n">sf</span><span class="p">,</span> <span class="n">array</span><span class="p">[</span><span class="n">ak_col</span><span class="p">]]))</span>
                     <span class="n">sf</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">sf</span><span class="p">)</span>
@@ -210,7 +209,20 @@
             <span class="n">b</span> <span class="o">+=</span> <span class="n">hist</span><span class="o">.</span><span class="n">integral</span><span class="p">()</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">"Figure of merit: "</span><span class="p">,</span> <span class="n">s</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s</span><span class="o">+</span><span class="n">b</span><span class="o">+</span><span class="mf">1e-9</span><span class="p">))</span>
-    
+    <span class="k">return</span> <span class="n">groupHists</span></div>
+
+<div class="viewcode-block" id="getYearNormedHistos"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.getYearNormedHistos">[docs]</a><span class="k">def</span> <span class="nf">getYearNormedHistos</span><span class="p">(</span><span class="n">yearFilename</span><span class="p">,</span> <span class="n">file_info</span><span class="p">,</span> <span class="n">plot_info</span><span class="p">,</span> <span class="n">histName</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">year</span> <span class="o">==</span> <span class="s2">"all"</span><span class="p">:</span>
+        <span class="n">yearHists</span> <span class="o">=</span> <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">getNormedHistos</span><span class="p">(</span><span class="n">yearFilename</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">yr</span><span class="p">),</span>
+                                            <span class="n">file_info</span><span class="p">,</span> <span class="n">plot_info</span><span class="p">,</span> <span class="n">histName</span><span class="p">)</span>
+                     <span class="k">for</span> <span class="n">yr</span> <span class="ow">in</span> <span class="n">ALLYEARS</span><span class="p">]</span>
+        <span class="n">groupHists</span> <span class="o">=</span> <span class="n">yearHists</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">yrHist</span> <span class="ow">in</span> <span class="n">yearHists</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">hist</span> <span class="ow">in</span> <span class="n">yrHist</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">groupHists</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">+=</span> <span class="n">hist</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">groupHists</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getNormedHistos</span><span class="p">(</span><span class="n">yearFilename</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">),</span>
+                                            <span class="n">file_info</span><span class="p">,</span> <span class="n">plot_info</span><span class="p">,</span> <span class="n">histName</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">groupHists</span></div>
 
 <div class="viewcode-block" id="copyDirectory"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.copyDirectory">[docs]</a><span class="k">def</span> <span class="nf">copyDirectory</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
@@ -226,7 +238,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">'Directory not copied. Error: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span></div>
 </code></pre>
 </main>
-<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.5.3</a></footer>
+<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.5.4</a></footer>
 </div>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">
 <div class="flex justify-center items-center">

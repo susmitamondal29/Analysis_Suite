@@ -26,7 +26,7 @@
 </form>
 </header>
 <div class="md:overflow-hidden flex flex-col md:flex-row flex-1"><nav class="h-full fixed md:relative inset-y-0 left-0 z-20 md:z-0 bg-white text-gray-700 border-r overflow-x-hidden pt-16 print:hidden flex flex-col" data-menu="closed" role="navigation" style="width: 270px;">
-<div class="nav-toc"><p class="caption">Contents:</p>
+<div class="nav-toc"><p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><div class="nav-link"><a class="reference internal" href="../../../index.html">Main Page</a></div></li>
 <li class="toctree-l1"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="../../../running.html">Basic running</a></div><ul>
@@ -76,6 +76,7 @@
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">pkg_resources</span> <span class="k">as</span> <span class="nn">pkg</span>
 <span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <div class="viewcode-block" id="writeHTML"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.makeSimpleHtml.writeHTML">[docs]</a><span class="k">def</span> <span class="nf">writeHTML</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="p">[]):</span>
     <span class="sd">"""**Creates a useable HTML page of plots**</span>
@@ -91,17 +92,25 @@
 <span class="sd">    channels : list of strings, optional</span>
 <span class="sd">        List of channels to create the differnt sub-webpages</span>
 <span class="sd">    """</span>
+    <span class="n">needWrite</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">basePath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">pkg</span><span class="o">.</span><span class="n">resource_listdir</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">"../html"</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">basePath</span> <span class="o">/</span> <span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">needWrite</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">resource_string</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">"../html/</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">needWrite</span><span class="p">:</span>
+        <span class="k">return</span>
     <span class="n">info</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">"Info"</span><span class="p">)</span>
     <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">"Title"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">name</span>
     <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">:</span>
         <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">"Channel"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">chan</span>
     <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
-    <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="si">{}</span><span class="s1">/extraInfo.xml'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+    <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="si">{}</span><span class="s1">/extraInfo.xml'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span></div>
 
-    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">pkg</span><span class="o">.</span><span class="n">resource_listdir</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">"../html"</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">resource_string</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">"../html/</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
@@ -113,7 +122,7 @@
  
 </code></pre>
 </main>
-<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.5.3</a></footer>
+<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.5.4</a></footer>
 </div>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">
 <div class="flex justify-center items-center">
