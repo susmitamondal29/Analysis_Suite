@@ -18,7 +18,7 @@ class DataProcessor:
         """Constructor method
         """
         self.split_ratio = 1/3.
-        self.max_events = 300000000
+        self.max_events = 30
         self.sample_name_map = dict()
 
         self.group_dict = groupDict

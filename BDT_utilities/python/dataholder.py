@@ -57,51 +57,9 @@ class MLHolder:
             self.test_set[key] = self.test_set[key].astype(dtype)
 
         self.param = dict()
+        self.auc_train = 0.
+        self.auc_test = 0.
 
-    # def get_final_dict(self, directory):
-    #     arr_dict = dict()
-    #     path = Path(directory)
-    #   root_files = path.rglob("*.root") if path.is_dir() else [path]
-    #     for root_file in root_files:
-    #         groups = list()
-    #         with uproot4.open(root_file) as f:
-    #             groups = [key.strip(";1") for key in f.keys() if "/" not in key]
-    #         for group in groups:
-    #             if group not in arr_dict:
-    #                 arr_dict[group] = VarGetter(root_file, group)
-    #             else:
-    #                 arr_dict[group] += VarGetter(root_file, group)
-
-    #     return arr_dict
-
-    # def setup_test_train(self, arr, group, sample, class_id, noTrain):
-    #     sumW = ak.sum(arr.scale)
-    #     totalEv = len(arr.scale)
-
-    #     df_dict = dict()
-    #     for varname, func in self.use_vars.items():
-    #         df_dict[varname] = ak.to_numpy(eval("arr.{}".format(func)))
-    #     df_dict["scale_factor"] = ak.to_numpy(arr.scale)
-
-    #     df = pd.DataFrame.from_dict(df_dict)
-    #     df = self._cut_frame(df)
-    #     df["classID"] = class_id
-    #     df["groupName"] = sample
-    #     genWeightFactor = sumW/np.sum(abs(df.scale_factor))
-    #     df["finalWeight"] = abs(df.scale_factor)*genWeightFactor
-    #     total_evts = len(df)
-    #     if noTrain:
-    #         self.test_set = pd.concat([df.reset_index(drop=True), self.test_set], sort=True)
-    #         print("Add Tree {} of type {}".format(sample, group))
-    #         return 0, 0
-    #     split_ratio = self.split_ratio if len(df) < self.max_events else self.max_events
-    #     train, test = train_test_split(df, train_size=split_ratio,
-    #                                random_state=12345)
-    #     self.test_set = pd.concat([test.reset_index(drop=True), self.test_set], sort=True)
-    #     self.train_set = pd.concat([train.reset_index(drop=True), self.train_set], sort=True)
-    #     print("Add Tree {} of type {} with {} rawevents and {:.2E} events"
-    #           .format(sample, group, len(train), np.sum(df.scale_factor)))
-    #     return sumW, totalEv
 
     def setup_files(self, directory, year="2018"):
         """**Fill the dataframes with all info in the input files**
@@ -135,13 +93,12 @@ class MLHolder:
                 continue
             group_set = self.train_set[self.train_set["classID"] == clsID]
             scale = 1.*len(group_set)/sum(group_set["scale_factor"])
-            print(np.unique(group_set["groupName"]))
             for sample in samples:
                 sampleID = self.sample_map[sample]
                 sampleScale = group_set[group_set["groupName"] == sampleID]["scale_factor"]
                 sumW = sum(sampleScale)
                 finalWeight = scale*abs(sampleScale)*sumW/np.sum(abs(sampleScale))
-                self.train_set[self.train_set["groupName"] == sampleID]["finalWeight"] = finalWeight
+                self.train_set.loc[self.train_set["groupName"] == sampleID, "finalWeight"] = finalWeight
 
     def train(self):
         pass
@@ -204,5 +161,3 @@ class MLHolder:
                 groupSet = workSet[workSet.groupName == group][keepList]
                 f[group] = upwrite.newtree(branches)
                 f[group].extend(groupSet.to_dict('list'))
-
-        # workSet.to_parquet(outname, compression="gzip")
