@@ -26,7 +26,7 @@ public:
     void setup(TTreeReader& fReader, int year);
     void createLooseList();
     void fillTop(std::vector<size_t>& fillList, TopOut& fillObject);
-    void setGoodParticles()
+    void setGoodParticles(size_t syst)
     {
         createLooseList();
     }

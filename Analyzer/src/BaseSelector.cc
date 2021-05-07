@@ -39,7 +39,7 @@ void BaseSelector::Init(TTree* tree)
         genWeight = new TTreeReaderValue<Float_t>(fReader, "genWeight");
     }
 
-    variations_.push_back(1);
+    variations_.push_back("Nominal");
     Particle::nSyst = variations_.size();
 
     muon.setup(fReader, year_);
@@ -54,17 +54,18 @@ void BaseSelector::SetScaleFactors()
 
 Bool_t BaseSelector::Process(Long64_t entry)
 {
-
     if (entry % 10000 == 0)
         std::cout << "At entry: " << entry << std::endl;
+
+    clearValues();
     fReader.SetLocalEntry(entry);
-    for (const auto& variation : variations_) {
-        SetupEvent(variation);
-        if (passSelection(variation) && passTrigger()) {
-            FillValues(variation);
-            outTree->Fill();
-            passed_events++;
-        }
+    std::vector<bool> systPassSelection;
+    for (size_t syst = 0; syst < variations_.size(); ++syst) {
+        SetupEvent(syst);
+        systPassSelection.push_back(passSelection() && passTrigger());
+        FillValues(systPassSelection);
+        outTree->Fill();
+        passed_events += systPassSelection.at(0);
     }
     return kTRUE;
 }
@@ -92,11 +93,10 @@ void BaseSelector::SlaveTerminate()
 
 void BaseSelector::SetupEvent(size_t syst)
 {
-    clearValues();
-    muon.setGoodParticles(jet);
-    elec.setGoodParticles(jet);
-    jet.setGoodParticles();
-    setOtherGoodParticles();
+    muon.setGoodParticles(jet, syst);
+    elec.setGoodParticles(jet, syst);
+    jet.setGoodParticles(syst);
+    setOtherGoodParticles(syst);
 
     setupChannel();
 

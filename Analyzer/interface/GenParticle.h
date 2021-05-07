@@ -7,7 +7,7 @@ class GenParticle : public Particle {
 public:
     void setup(TTreeReader& fReader, int year, bool isMC);
     void createLooseList();
-    void setupParticles()
+    void setupParticles(size_t syst)
     {
         if (!isMC)
             return;

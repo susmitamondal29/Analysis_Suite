@@ -2,23 +2,13 @@
 
 #include <limits>
 
-Lepton::Lepton()
-    : looseArray(1)
-    , fakeArray(1)
-    , tightArray(1)
-    , looseList(looseArray[0])
-    , fakeList(fakeArray[0])
-    , tightList(tightArray[0])
-{
-}
-
 void Lepton::setup(std::string name, TTreeReader& fReader, int year)
 {
     charge = new TTreeReaderArray<Int_t>(fReader, (name + "_charge").c_str());
     Particle::setup(name, fReader, year);
-    looseList = PartList(nSyst);
-    fakeList = PartList(nSyst);
-    tightList = PartList(nSyst);
+    looseArray = PartList(nSyst);
+    fakeArray = PartList(nSyst);
+    tightArray = PartList(nSyst);
 }
 
 std::pair<size_t, float> Lepton::getCloseJet(size_t lidx, Particle& jet)
@@ -43,10 +33,10 @@ std::pair<size_t, float> Lepton::getCloseJet(size_t lidx, Particle& jet)
 
 bool Lepton::passZVeto()
 {
-    for (auto tidx : looseList) { //tightList
+    for (auto tidx : *looseList) { //tightList
         LorentzVector tlep(pt->At(tidx), eta->At(tidx), phi->At(tidx),
             mass->At(tidx));
-        for (auto lidx : looseList) {
+        for (auto lidx : *looseList) {
             if (tidx >= lidx || charge->At(tidx) * charge->At(lidx) > 0)
                 continue;
             LorentzVector llep(pt->At(lidx), eta->At(lidx), phi->At(lidx),

@@ -1,7 +1,7 @@
 #include "analysis_suite/Analyzer/interface/ThreeTop.h"
 
-#define getElec(var, i) (elec.var->At(elec.tightList[i]))
-#define getMuon(var, i) (muon.var->At(muon.tightList[i]))
+#define getElec(var, i) (elec.var->At(elec.tightList->at(i)))
+#define getMuon(var, i) (muon.var->At(muon.tightList->at(i)))
 
 enum CHANNELS { CHAN_HAD,
     CHAN_SINGLE,
@@ -45,7 +45,8 @@ void ThreeTop::Init(TTree* tree)
     Met_phi = new TTRValue<Float_t>(fReader, "MET_phi");
     Pileup_nTrueInt = new TTRValue<Float_t>(fReader, "Pileup_nTrueInt");
 
-    HLT_MuMu = new TTRValue<Bool_t>(fReader, "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8");
+    //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8
+    HLT_MuMu = new TTRValue<Bool_t>(fReader, "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ");
     HLT_MuEle = new TTRValue<Bool_t>(fReader, "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL");
     HLT_EleMu = new TTRValue<Bool_t>(fReader, "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL");
     HLT_EleEle = new TTRValue<Bool_t>(fReader, "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL");
@@ -90,45 +91,33 @@ void ThreeTop::clearValues()
 
 void ThreeTop::ApplyScaleFactors()
 {
-    // bool doPrint = false;
-
     weight *= sfMaker.getBJetSF(jet);
-    // if (weight < 0.2) doPrint = true;
-    // if (doPrint) std::cout << "bjet: " << weight << std::endl;
     weight *= sfMaker.getPileupSF(**Pileup_nTrueInt);
-    // if (weight < 0.2) doPrint = true;
-    // if (doPrint) std::cout << "pileup: " << **Pileup_nTrueInt << " " << weight << std::endl;
     weight *= sfMaker.getResolvedTopSF(rTop, rGen);
-    // if (weight < 0.2) doPrint = true;
-    // if (doPrint) std::cout << "top: " << weight  << std::endl;
     weight *= sfMaker.getElectronSF(elec);
-    // if (weight < 0.2) doPrint = true;
-    // if (doPrint) std::cout << "electron: " << weight  << std::endl;
     weight *= sfMaker.getMuonSF(muon);
-    // if (weight < 0.2) doPrint = true;
-    // if (doPrint) std::cout << "muon: " << weight  << std::endl;
-    // if (doPrint) std::cout << std::endl;
+
 }
 
-void ThreeTop::setOtherGoodParticles()
+void ThreeTop::setOtherGoodParticles(size_t syst)
 {
-    rTop.setGoodParticles();
-    rGen.setGoodParticles();
+    rTop.setGoodParticles(syst);
+    rGen.setGoodParticles(syst);
 }
 
 void ThreeTop::setupChannel()
 {
-    size_t nLep = muon.tightList.size() + elec.tightList.size();
+    size_t nLep = muon.tightList->size() + elec.tightList->size();
     if (nLep == 0)
         currentChannel_ = CHAN_HAD;
     else if (nLep == 1)
         currentChannel_ = CHAN_SINGLE;
     else if (nLep == 2) {
         int q_product = 1;
-        if (elec.tightList.size() == 2) {
+        if (elec.tightList->size() == 2) {
             subChannel_ = CHAN_EE;
             q_product *= getElec(charge, 0) * getElec(charge, 1);
-        } else if (muon.tightList.size() == 2) {
+        } else if (muon.tightList->size() == 2) {
             subChannel_ = CHAN_MM;
             q_product *= getMuon(charge, 0) * getMuon(charge, 1);
         } else {
@@ -144,18 +133,51 @@ void ThreeTop::setupChannel()
         currentChannel_ = CHAN_MULTI;
 }
 
-bool ThreeTop::passSelection(int variation)
+bool ThreeTop::passSelection()
 {
-    bool passMETFilter = (**Flag_goodVertices && **Flag_globalSuperTightHalo2016Filter && **Flag_HBHENoiseFilter && **Flag_HBHENoiseIsoFilter && **Flag_EcalDeadCellTriggerPrimitiveFilter && **Flag_BadPFMuonFilter && **Flag_ecalBadCalibFilter);
-    bool passZVeto = muon.passZVeto() && elec.passZVeto();
-    bool passChannel = currentChannel_ == channel_;
-    bool passJetNumber = jet.tightList.size() >= 2;
-    bool passBJetNumber = jet.bjetList.size() >= 1;
-    bool passMetCut = **Met_pt > 25;
-    bool passHTCut = jet.getHT(jet.tightList) > 250;
+    std::vector<std::pair<std::string, bool>> cuts;
+    cuts.push_back(std::make_pair("passPreselection", true));
 
-    return (passMETFilter && passMetCut && passZVeto && passChannel
-        && passJetNumber && passBJetNumber && passHTCut);
+    cuts.push_back(std::make_pair("passMETFilter",
+        (**Flag_goodVertices && **Flag_globalSuperTightHalo2016Filter && **Flag_HBHENoiseFilter && **Flag_HBHENoiseIsoFilter && **Flag_EcalDeadCellTriggerPrimitiveFilter && **Flag_BadPFMuonFilter && **Flag_ecalBadCalibFilter)));
+    cuts.push_back(std::make_pair("passZVeto",
+        muon.passZVeto() && elec.passZVeto()));
+    cuts.push_back(std::make_pair("passChannel",
+        currentChannel_ == channel_));
+    cuts.push_back(std::make_pair("passJetNumber",
+        jet.tightList.size() >= 2));
+    cuts.push_back(std::make_pair("passBJetNumber",
+        jet.bjetList.size() >= 1));
+    cuts.push_back(std::make_pair("passMetCut",
+        **Met_pt > 25));
+    cuts.push_back(std::make_pair("passHTCut",
+        jet.getHT(jet.tightList) > 250));
+
+    return fillCutFlow(cuts);
+}
+
+bool ThreeTop::fillCutFlow(std::vector<std::pair<std::string, bool>> cuts)
+{
+    if (!cutFlows_setBins) {
+        cutFlows_setBins = true;
+        int i = 1;
+        for (auto cut : cuts) {
+            cutFlow->GetXaxis()->SetBinLabel(i, cut.first.c_str());
+            cutFlow_individual->GetXaxis()->SetBinLabel(i, cut.first.c_str());
+            i++;
+        }
+    }
+
+    bool passAll = true;
+    for (auto cut : cuts) {
+        bool truth = cut.second;
+        passAll &= truth;
+        if (truth)
+            cutFlow_individual->Fill(cut.first.c_str(), weight);
+        if (passAll)
+            cutFlow->Fill(cut.first.c_str(), weight);
+    }
+    return passAll;
 }
 
 bool ThreeTop::passTrigger()
@@ -180,16 +202,16 @@ bool ThreeTop::passTrigger()
     return (passLeadPt && passTrig);
 }
 
-void ThreeTop::FillValues(int variation)
+void ThreeTop::FillValues(std::vector<bool> passVec)
 {
-    muon.fillParticle(muon.looseList, *o_looseMuons);
-    muon.fillParticle(muon.tightList, *o_tightMuons);
-    elec.fillParticle(elec.looseList, *o_looseElectrons);
-    elec.fillParticle(elec.tightList, *o_tightElectrons);
-    jet.fillParticle(jet.tightList, *o_jets);
-    jet.fillBJet(jet.bjetList, *o_bJets);
-    rTop.fillTop(rTop.looseList, *o_resolvedTop);
-    FillLeptons();
+    // muon.fillParticle(muon.looseList, *o_looseMuons);
+    // muon.fillParticle(muon.tightList, *o_tightMuons);
+    // elec.fillParticle(elec.looseList, *o_looseElectrons);
+    // elec.fillParticle(elec.tightList, *o_tightElectrons);
+    // jet.fillParticle(jet.tightList, *o_jets);
+    // jet.fillBJet(jet.bjetList, *o_bJets);
+    // rTop.fillTop(rTop.looseList, *o_resolvedTop);
+    // FillLeptons();
 
     o_ht = jet.getHT(jet.tightList);
     o_htb = jet.getHT(jet.bjetList);
@@ -200,8 +222,8 @@ void ThreeTop::FillValues(int variation)
 
 void ThreeTop::FillLeptons()
 {
-    auto muonItr = muon.tightList.begin(), muonEnd = muon.tightList.end();
-    auto elecItr = elec.tightList.begin(), elecEnd = elec.tightList.end();
+    auto muonItr = muon.tightList->begin(), muonEnd = muon.tightList->end();
+    auto elecItr = elec.tightList->begin(), elecEnd = elec.tightList->end();
     while (muonItr != muonEnd || elecItr != elecEnd) {
         if (muonItr != muonEnd && (elecItr == elecEnd || muon.pt->At(*muonItr) > elec.pt->At(*elecItr))) {
             o_tightLeptons->pt.push_back(muon.pt->At(*muonItr));
@@ -236,7 +258,7 @@ void ThreeTop::printStuff()
     std::cout << "HT: " << jet.getHT(jet.tightList) << std::endl;
     std::cout << "njet: " << jet.tightList.size() << std::endl;
     std::cout << "nbjet: " << jet.bjetList.size() << std::endl;
-    std::cout << "nlep: " << muon.tightList.size() << " " << elec.tightList.size() << std::endl;
+    std::cout << "nlep: " << muon.tightList->size() << " " << elec.tightList->size() << std::endl;
     std::cout << "lepVeto: " << muon.passZVeto() << " " << elec.passZVeto() << std::endl;
     std::cout << std::endl;
 }

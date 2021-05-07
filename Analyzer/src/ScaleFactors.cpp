@@ -115,7 +115,7 @@ float ScaleFactors::getResolvedTopSF(ResolvedTop& top, GenParticle& genPart)
 float ScaleFactors::getElectronSF(Lepton& electron)
 {
     float weight = 1.;
-    for (auto eidx : electron.tightList) {
+    for (auto eidx : *electron.tightList) {
         float pt = std::min(electron.pt->At(eidx), elecPtMax);
         float eta = electron.eta->At(eidx);
         if (pt < 20) {
@@ -131,7 +131,7 @@ float ScaleFactors::getElectronSF(Lepton& electron)
 float ScaleFactors::getMuonSF(Lepton& muon)
 {
     float weight = 1.;
-    for (auto midx : muon.tightList) {
+    for (auto midx : *muon.tightList) {
         float pt = std::min(muon.pt->At(midx), muonPtMax);
         if (pt < muonPtMin)
             pt = muonPtMin;

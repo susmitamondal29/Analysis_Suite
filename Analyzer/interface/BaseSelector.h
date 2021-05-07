@@ -47,19 +47,19 @@ public:
     virtual void Terminate();
 
     virtual void SetupOutTree() {}
-    void SetupEvent(int variation);
-    virtual bool passSelection(int variations) { return true; }
+    void SetupEvent(size_t syst);
+    virtual bool passSelection() { return true; }
     virtual bool passTrigger() { return true; }
-    virtual void FillValues(int variation) {}
+    virtual void FillValues(std::vector<bool> passVec) {}
     virtual void setupChannel(){};
-    virtual void setOtherGoodParticles(){};
+    virtual void setOtherGoodParticles(size_t syst){};
     virtual void ApplyScaleFactors(){};
     virtual void clearValues(){};
     ClassDef(BaseSelector, 0);
 
 protected:
     float GetPrefiringEfficiencyWeight(std::vector<float>* jetPt, std::vector<float>* jetEta);
-    std::vector<int> variations_;
+    std::vector<std::string> variations_;
     TEfficiency* prefireEff_;
     size_t passed_events = 0;
     TTreeReader fReader;

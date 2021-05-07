@@ -38,7 +38,7 @@ public:
     Particle();
     virtual ~Particle(){};
     void setup(std::string name, TTreeReader& fReader, int year);
-    virtual void setGoodParticles(){};
+    virtual void setGoodParticles(size_t syst){};
 
     void fillParticle(PartList& fillList, ParticleOut& fillObject);
 

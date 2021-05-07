@@ -32,7 +32,7 @@ public:
     float getCentrality(std::vector<size_t> jet_list);
     void fillBJet(std::vector<size_t>& fillList, BJetOut& fillObject);
 
-    void setGoodParticles()
+    void setGoodParticles(size_t syst)
     {
         createLooseList();
         createBJetList();
