@@ -26,15 +26,16 @@ public:
     void setup(TTreeReader& fReader, int year);
     void createLooseList();
     void fillTop(std::vector<size_t>& fillList, TopOut& fillObject);
-        void setGoodParticles() {
-            createLooseList();
-        }
+    void setGoodParticles()
+    {
+        createLooseList();
+    }
 
-        void clear() { looseList.clear(); }
+    void clear() { looseList.clear(); }
 
-        std::vector<size_t> looseList;
+    std::vector<size_t> looseList;
 
-        TTRArray<Float_t>* discriminator;
+    TTRArray<Float_t>* discriminator;
 };
 
 #endif // __RESOLVEDTOP_H_

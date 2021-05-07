@@ -5,20 +5,24 @@
 
 class GenParticle : public Particle {
 public:
-    void setup(TTreeReader& fReader, int year);
+    void setup(TTreeReader& fReader, int year, bool isMC);
     void createLooseList();
-    void setupParticles() {
+    void setupParticles()
+    {
+        if (!isMC)
+            return;
         createLooseList();
     }
 
-    void clear() {
+    void clear()
+    {
         topList.clear();
     }
 
     std::vector<size_t> topList;
 
     TTRArray<Int_t>* pdgId;
+    bool isMC = true;
 };
 
- 
 #endif // __GENPARTICLE_H_

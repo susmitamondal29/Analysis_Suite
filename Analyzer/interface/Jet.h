@@ -28,29 +28,29 @@ class Jet : public Particle {
 public:
     void setup(TTreeReader& fReader, int year);
 
-        float getHT(std::vector<size_t> jet_list);
-        float getCentrality(std::vector<size_t> jet_list);
-        void fillBJet(std::vector<size_t>& fillList, BJetOut& fillObject);
+    float getHT(std::vector<size_t> jet_list);
+    float getCentrality(std::vector<size_t> jet_list);
+    void fillBJet(std::vector<size_t>& fillList, BJetOut& fillObject);
 
-        void setGoodParticles()
-        {
-            createLooseList();
-            createBJetList();
-            createTightList();
-        }
+    void setGoodParticles()
+    {
+        createLooseList();
+        createBJetList();
+        createTightList();
+    }
 
-        void clear()
-        {
-            looseList.clear();
-            bjetList.clear();
-            tightList.clear();
-            closeJetDr_by_index.clear();
-            n_loose_bjet = 0;
-            n_medium_bjet = 0;
-            n_tight_bjet = 0;
-        }
+    void clear()
+    {
+        looseList.clear();
+        bjetList.clear();
+        tightList.clear();
+        closeJetDr_by_index.clear();
+        n_loose_bjet = 0;
+        n_medium_bjet = 0;
+        n_tight_bjet = 0;
+    }
 
-        std::vector<size_t> looseList;
+    std::vector<size_t> looseList;
     std::vector<size_t> bjetList;
     std::vector<size_t> tightList;
     std::unordered_map<size_t, size_t> closeJetDr_by_index;
@@ -62,11 +62,11 @@ public:
 
 private:
     float loose_bjet_cut, medium_bjet_cut, tight_bjet_cut;
-        int looseId = 0b11;
+    int looseId = 0b11;
 
-        void createLooseList();
-        void createBJetList();
-        void createTightList();
+    void createLooseList();
+    void createBJetList();
+    void createTightList();
 };
 
 #endif // __JET_H_
