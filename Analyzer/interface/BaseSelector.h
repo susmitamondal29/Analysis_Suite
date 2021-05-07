@@ -69,7 +69,7 @@ protected:
     int year_;
     float xsec_;
     TTree* outTree;
-    TTreeReaderValue<Float_t> genWeight = { fReader, "genWeight" };
+    TTreeReaderValue<Float_t>* genWeight;
     float weight = 1;
 
     bool isMC_;

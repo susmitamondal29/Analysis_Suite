@@ -35,7 +35,12 @@ void BaseSelector::Init(TTree* tree)
     SetupOutTree();
     fOutput->Add(outTree);
 
+    if (isMC_) {
+        genWeight = new TTreeReaderValue<Float_t>(fReader, "genWeight");
+    }
+
     variations_.push_back(1);
+    Particle::nSyst = variations_.size();
 
     muon.setup(fReader, year_);
     elec.setup(fReader, year_);
@@ -85,7 +90,7 @@ void BaseSelector::SlaveTerminate()
     std::cout << passed_events << " events passed selection" << std::endl;
 }
 
-void BaseSelector::SetupEvent(int variation)
+void BaseSelector::SetupEvent(size_t syst)
 {
     clearValues();
     muon.setGoodParticles(jet);
@@ -96,7 +101,7 @@ void BaseSelector::SetupEvent(int variation)
     setupChannel();
 
     if (isMC_) {
-        weight = *genWeight;
+        weight = **genWeight;
         ApplyScaleFactors();
     }
 }

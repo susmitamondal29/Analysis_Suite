@@ -12,18 +12,21 @@
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>
     LorentzVector;
+typedef std::vector<std::vector<size_t>> PartList;
 
 struct ParticleOut {
     std::vector<Float_t> pt;
     std::vector<Float_t> eta;
     std::vector<Float_t> phi;
     std::vector<Float_t> mass;
+    std::vector<Int_t> syst_bitMap;
     void clear()
     {
         pt.clear();
         eta.clear();
         phi.clear();
         mass.clear();
+        syst_bitMap.clear();
     }
 };
 
@@ -35,15 +38,16 @@ public:
     Particle();
     virtual ~Particle(){};
     void setup(std::string name, TTreeReader& fReader, int year);
-        virtual void setGoodParticles(){};
+    virtual void setGoodParticles(){};
 
-        void fillParticle(std::vector<size_t>& fillList, ParticleOut& fillObject);
+    void fillParticle(PartList& fillList, ParticleOut& fillObject);
 
     TTRArray<Float_t>* pt;
     TTRArray<Float_t>* eta;
     TTRArray<Float_t>* phi;
     TTRArray<Float_t>* mass;
 
+    static size_t nSyst;
     int year_;
 };
 

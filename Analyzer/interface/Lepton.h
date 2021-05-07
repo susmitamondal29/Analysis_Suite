@@ -16,24 +16,31 @@ public:
     std::pair<size_t, float> getCloseJet(size_t lidx, Particle& jet);
     bool passJetIsolation(size_t idx, Particle& jets);
 
-        void setGoodParticles(Particle& jets)
-        {
-            createLooseList();
-            createFakeList(jets);
-            createTightList();
-        }
+    void setGoodParticles(Particle& jets)
+    {
+        createLooseList();
+        createFakeList(jets);
+        createTightList();
+    }
 
     void clear()
     {
-        looseList.clear();
-        fakeList.clear();
-        tightList.clear();
+        for (size_t i = 0; i < nSyst; ++i) {
+            looseArray[i].clear();
+            fakeArray[i].clear();
+            tightArray[i].clear();
+        }
+
         closeJet_by_lepton.clear();
     }
 
-    std::vector<size_t> looseList;
-    std::vector<size_t> fakeList;
-    std::vector<size_t> tightList;
+    PartList looseArray;
+    PartList fakeArray;
+    PartList tightArray;
+    vector<size_t>& looseList;
+    vector<size_t>& fakeList;
+    vector<size_t>& tightList;
+
     std::unordered_map<size_t, size_t> closeJet_by_lepton;
 
     TTRArray<Int_t>* charge;

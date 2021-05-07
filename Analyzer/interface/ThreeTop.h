@@ -57,6 +57,8 @@ private:
     float o_ht, o_htb, o_met, o_metphi, o_centrality;
 
     TH2F *passTrigger_leadPt, *failTrigger_leadPt;
+    TH1F *cutFlow, *cutFlow_individual;
+    bool cutFlows_setBins = false;
 };
 
 #endif

@@ -25,9 +25,13 @@ void ThreeTop::Init(TTree* tree)
     fOutput->Add(passTrigger_leadPt);
     failTrigger_leadPt = new TH2F("failTrigger", "failTrigger", 4, 0, 4, 100, 0, 100);
     fOutput->Add(failTrigger_leadPt);
+    cutFlow = new TH1F("cutFlow", "cutFlow", 15, 0, 15);
+    fOutput->Add(cutFlow);
+    cutFlow_individual = new TH1F("cutFlow_individual", "cutFlow_individual", 15, 0, 15);
+    fOutput->Add(cutFlow_individual);
 
     rTop.setup(fReader, year_);
-    rGen.setup(fReader, year_);
+    rGen.setup(fReader, year_, isMC_);
 
     event = new TTRValue<ULong64_t>(fReader, "event");
     Flag_goodVertices = new TTRValue<Bool_t>(fReader, "Flag_goodVertices");
