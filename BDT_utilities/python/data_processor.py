@@ -10,6 +10,7 @@ from pathlib import Path
 import uproot4
 import uproot as upwrite
 import json
+import re
 
 from sklearn.model_selection import train_test_split
 
@@ -18,7 +19,8 @@ class DataProcessor:
         """Constructor method
         """
         self.split_ratio = 1/3.
-        self.max_events = 30
+        self.max_events = 2000
+        self.max_events_scaled = self.max_events/self.split_ratio
         self.sample_name_map = dict()
 
         self.group_dict = groupDict
@@ -71,6 +73,7 @@ class DataProcessor:
 
     def process_year(self, year, outdir):
         # Setup dataframes to be used
+        pattern = re.compile('(\w+)\(')
         train_set = pd.DataFrame(columns=self._all_vars)
         test_set = pd.DataFrame(columns=self._all_vars)
         for key, func in self.use_vars.items():
@@ -82,7 +85,7 @@ class DataProcessor:
         arr_dict = self.get_final_dict("result_{}.root".format(year))
         allGroups = set(arr_dict.keys())
         self.group_dict["NotTrained"] = list(allGroups-self.train_groups)
-        classID_dict = {"Signal": 1, "NotTrained": -1, "Background": 0}
+        classID_dict = {"Signal": 1, "NotTrained": 0, "Background": 0}
         
         for group, samples in self.group_dict.items():
             class_id = classID_dict[group]
@@ -95,12 +98,14 @@ class DataProcessor:
                     print("Sample {} has no events in it!".format(sample))
                     continue
 
-                noTrain = class_id < 0 or len(arr_dict[sample].scale) < 10
+                noTrain = group == "NotTrained" or len(arr_dict[sample].scale) < 10
 
                 df_dict = dict()
                 arr = arr_dict[sample]
                 for varname, func in self.use_vars.items():
-                    df_dict[varname] = ak.to_numpy(eval("arr.{}".format(func)))
+                    for rpl in np.unique(re.findall(pattern, func)):
+                        func = func.replace(rpl, "arr."+rpl)
+                    df_dict[varname] = ak.to_numpy(eval(func))
                 df_dict["scale_factor"] = ak.to_numpy(arr.scale)
 
                 df = pd.DataFrame.from_dict(df_dict)
@@ -114,10 +119,13 @@ class DataProcessor:
                     test_set = pd.concat([df.reset_index(drop=True), test_set], sort=True)
                     continue
                 
-                split_ratio = self.split_ratio if len(df) < self.max_events \
+                split_ratio = self.split_ratio if len(df) < self.max_events_scaled \
                     else self.max_events
                 train, test = train_test_split(df, train_size=split_ratio,
                                                random_state=12345)
+                test["scale_factor"] *= len(df)/len(test)
+                train["scale_factor"] *= len(df)/len(train)
+
                 test_set = pd.concat([test.reset_index(drop=True), test_set], sort=True)
                 train_set = pd.concat([train.reset_index(drop=True), train_set], sort=True)
 
@@ -146,5 +154,7 @@ class DataProcessor:
             for group in self.sample_name_map.keys():
                 groupNum = self.sample_name_map[group]
                 groupSet = workSet[workSet.groupName == groupNum][keepList]
+                if len(groupSet) == 0:
+                    continue
                 f[group] = upwrite.newtree(branches)
                 f[group].extend(groupSet.to_dict('list'))

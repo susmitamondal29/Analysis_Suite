@@ -6,7 +6,7 @@ from analysis_suite.commons import GroupInfo
 from analysis_suite.commons.configs import checkOrCreateDir
 from .MVAPlotter import MVAPlotter
 from .data_processor import DataProcessor
-from analysis_suite.data.inputs import mva_params
+import analysis_suite.data.inputs as mva_params
 
 def setup(cli_args):
     group_info = GroupInfo(**vars(cli_args))
@@ -20,15 +20,17 @@ def setup(cli_args):
                 new_samples.append(samp)
         groupDict[groupName] = new_samples
         
-    # data = DataProcessor(mva_params.usevar, groupDict)
-    # for year in cli_args.years:
-    #     checkOrCreateDir("{}/{}".format(cli_args.workdir, year))
-    #     print("Processing year {} MC".format(year))
-    #     data.process_year(year, cli_args.workdir)
-    # data.write_train(cli_args.workdir)
-
-    return [(groupDict, cli_args.workdir, cli_args.train, cli_args.model,
-        cli_args.years[0])]
+    data = DataProcessor(mva_params.usevar, groupDict)
+    for year in cli_args.years:
+        checkOrCreateDir("{}/{}".format(cli_args.workdir, year))
+        print("Processing year {} MC".format(year))
+        data.process_year(year, cli_args.workdir)
+    data.write_train(cli_args.workdir)
+    # exit()
+    argList = list()
+    for year in cli_args.years:
+        argList.append((groupDict, cli_args.workdir, cli_args.train, cli_args.model, year))
+    return argList
         
 
 def run(groupDict, workdir, trainType, applyModel, year):

@@ -78,7 +78,7 @@ info ={
             "DYm10-50",
             "wjets",
             "tzq",
-            "ttjet"
+            # "ttjet"
         ]
     },
 

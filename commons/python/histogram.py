@@ -9,6 +9,7 @@ class Histogram:
     def __init__(self, name, color, args):
         self.hist = bh.Histogram(args)
         self.sumw2 = bh.Histogram(args)
+        self.breakdown = dict()
         self.name = r'${}$'.format(name) if '\\' in name else name
         self.color = color
         self.draw_sc = 1.
@@ -17,14 +18,22 @@ class Histogram:
         if isinstance(right, Histogram):
             self.hist += right.hist
             self.sumw2 += right.sumw2
+            for mem, info in right.breakdown.items():
+                if mem not in self.breakdown:
+                    self.breakdown[mem] = np.array([0.,0.])
+                self.breakdown[mem] += info
+
         elif isinstance(right, dict):
-            histName = (set(right.keys()) - {"scale_factor"}).pop()
+            histName = (set(right.keys()) - {"scale_factor", "name"}).pop()
             self.hist.fill(right[histName], weight=right["scale_factor"])
             self.sumw2.fill(right[histName], weight=right["scale_factor"]**2)
             self.hist[-1] += self.hist[bh.overflow]
             self.hist[bh.overflow] = 0
             self.sumw2[-1] += self.sumw2[bh.overflow]
             self.sumw2[bh.overflow] = 0
+            total = sum(right["scale_factor"])
+            sw2 = sum(right["scale_factor"]**2)
+            self.breakdown[right["name"]] = np.array([total, sw2])
         else:
             pass
         return self
@@ -60,6 +69,9 @@ class Histogram:
         else:
             raise Exception()
 
+    def get_xrange(self):
+        return [self.axis.edges[0], self.axis.edges[-1]]
+
     def scale(self, scale, forPlot=False):
         if forPlot:
             self.draw_sc *= scale
@@ -67,6 +79,9 @@ class Histogram:
         else:
             self.hist *= scale
             self.sumw2 *= scale**2
+            for mem, info in self.breakdown.items():
+                self.breakdown[mem][0] = scale*info[0]
+                self.breakdown[mem][1] = scale**2*info[1]
 
     def integral(self):
         return self.hist.sum(flow=True)
@@ -95,6 +110,6 @@ class Histogram:
                 'align': 'mid', 'stacked': True, "hatch": '//',
                 "alpha": 0.4, "label":self.name}, **kwargs)
 
-    def get_int_err(self, sqrt_err=False):
+    def get_int_err(self, sqrt_err=False, roundDigit=2):
         err = math.sqrt(self.sumw2.sum()) if sqrt_err else self.sumw2.sum()
-        return np.array([self.hist.sum(), err])
+        return np.round([self.hist.sum(), err], roundDigit)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import datetime
 import subprocess
 import matplotlib
@@ -14,15 +15,17 @@ plt.style.use([hep.style.CMS, hep.style.firamath])
 import analysis_suite.commons.configs as config
 from analysis_suite.commons import writeHTML, PlotInfo, GroupInfo
 from analysis_suite.commons.histogram import Histogram
-from analysis_suite.data.inputs import plot_params
+import analysis_suite.data.inputs as plot_params
 from .stack import Stack
 from .pyPad import pyPad
 from .LogFile import LogFile
 from .configHelper import setupPathAndDir
 
-ALLYEARS = ["2016", "2017", "2018"]
-
 def setup(cli_args):
+    callTime = str(datetime.datetime.now())
+    command = ' '.join(sys.argv)
+    LogFile.add_metainfo(callTime, command)
+    
     signalNames = cli_args.signal.split(',')
     if not set(signalNames) & set(plot_params.color_by_group.keys()):
         print("signal not in list of groups!")
@@ -47,16 +50,19 @@ def setup(cli_args):
 
 def run(histName, file_info, plot_info, basePath, indir, signalNames, year):
     print("Processing {} for year {}".format(histName, year))
-    plot_info.set_lumi(1000*plot_params.lumi[year])
-    binning = plot_info.get_binning(histName)
 
+    baseYear = basePath if year == "all" else "{}/{}".format(basePath, year)
+    logger = LogFile(histName, plot_info.at(histName), plot_info.get_lumi(year),
+                     "{}/logs".format(baseYear))
+    binning = plot_info.get_binning(histName)
+    # Setup histograms
     ratio = Histogram("Ratio", "black", binning)
     band = Histogram("Ratio", "plum", binning)
     error = Histogram("Stat Errors", "plum", binning)
     data = Histogram("Data", "black", binning)
     stacker = Stack(binning)
-    gropuHists = getYearNormedHistos("{}/{}/test.root".format(indir), file_info,
-                                     plot_info, histName, year)
+    groupHists = config.getYearNormedHistos("{}/{}/test.root".format(indir, "{}"),
+                                            file_info, plot_info, histName, year)
     exclude = ['data'] + signalNames
     signal = groupHists[signalNames[0]] if signalNames[0] in groupHists else None
     # signals = {sig: groupHists[sig] for sig in (sig for sig in signalNames
@@ -97,31 +103,31 @@ def run(histName, file_info, plot_info, basePath, indir, signalNames, year):
         pad(sub_pad=True).hist(**band.getInputsError())
 
     pad.setLegend(plot_info.at(histName))
-    pad.axisSetup(plot_info.at(histName))
-    hep.cms.label(ax=pad(), data=data, lumi=plot_info.lumi/1000) #year=year
+    pad.axisSetup(plot_info.at(histName), stacker.get_xrange())
+    hep.cms.label(ax=pad(), data=data, lumi=plot_info.get_lumi(year)) #year=year
     fig = plt.gcf()
 
-    baseYear = basePath if year == "all" else "{}/{}".format(basePath, year)
+
     plotBase = "{}/plots/{}".format(baseYear, histName)
     plt.savefig("{}.png".format(plotBase), format="png", bbox_inches='tight')
     subprocess.call('convert {0}.png -quality 0 {0}.pdf'.format(plotBase),
                     shell=True)
     plt.close()
 
-    # # setup log file
-    # logger = LogFile(histName, plot_info, "{}/logs".format(baseYear))
-    # logger.add_metainfo(callTime, command)
-    # logger.add_mc(stacker)
-    # if signal:
-    #     logger.add_signal(signal)
-    # logger.write_out()
+    # setup log file
+    for group, hist in groupHists.items():
+        logger.add_breakdown(group, hist.breakdown)
+    logger.add_mc(stacker)
+    if signal:
+        logger.add_signal(signal)
+    logger.write_out()
 
 
 
 def cleanup(cli_args):
     basePath = setupPathAndDir(cli_args.analysis, cli_args.drawStyle,
                                cli_args.workdir, cli_args.years)
-    writeHTML(basePath, cli_args.analysis, ALLYEARS)
+    writeHTML(basePath, cli_args.analysis, plot_params.all_years)
     for year in cli_args.years:
         writeHTML("{}/{}".format(basePath, year),
                   "{}/{}".format(cli_args.analysis, year))

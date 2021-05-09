@@ -36,31 +36,31 @@ info = {
         "Binning"     :  [10, 0, 10],
         "Discrete": True,
     },
-    # "NlooseBJets" : {
-    #     "Column": "NlooseBJets",
-    #     "set_xlabel": "$N_{looseb}$",
-    #     "Binning"     :  [10, 0, 10],
-    #     "Discrete": True,
-    # },
-    # "NtightBJets" : {
-    #     "Column": "NtightBJets",
-    #     "set_xlabel": "$N_{tightb}$",
-    #     "Binning"     :  [10, 0, 10],
-    #     "Discrete": True,
-    # },
+    "NlooseBJets" : {
+        "Column": "NlooseBJets",
+        "set_xlabel": "$N_{looseb}$",
+        "Binning"     :  [10, 0, 10],
+        "Discrete": True,
+    },
+    "NtightBJets" : {
+        "Column": "NtightBJets",
+        "set_xlabel": "$N_{tightb}$",
+        "Binning"     :  [10, 0, 10],
+        "Discrete": True,
+    },
     "NTops" : {
         "Column": "NResolvedTops",
         "set_xlabel": "$N_{t}$",
         "Binning"     :  [5, 0, 5],
         "Discrete": True,
     },
-    # "Jet1_pt" : {
-    #     "Column": "j1Pt",
+    # "lep1_pt" : {
+    #     "Column": "l1Pt",
     #     "set_xlabel": "$p_{T}(j_{1})$",
     #     "Binning"     :  [30, 0, 500],
     # },
-    # "Jet2_pt" : {p
-    #     "Column": "j2Pt",
+    # "lep2_pt" : {
+    #     "Column": "l2Pt",
     #     "set_xlabel": "$p_{T}(j_{2})$",
     #     "Binning"     :  [30, 0, 500],
     # },

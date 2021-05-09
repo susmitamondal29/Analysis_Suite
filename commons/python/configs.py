@@ -6,6 +6,7 @@ import sys
 import shutil
 import pkgutil
 import analysis_suite.data.PlotGroups as PlotGroups
+import analysis_suite.data.inputs as inputs
 
 def get_cli():
     parser = argparse.ArgumentParser(prog="main", description="Central script for running tools in the Analysis suite")
@@ -89,7 +90,7 @@ def checkOrCreateDir(path):
         os.makedirs(path)
 
 
-def getNormedHistos(infilename, file_info, plot_info, histName):
+def getNormedHistos(infilename, file_info, plot_info, histName, year):
     import awkward1 as ak
     import uproot4 as uproot
     from analysis_suite.commons.histogram import Histogram
@@ -100,33 +101,31 @@ def getNormedHistos(infilename, file_info, plot_info, histName):
         groupHists[group] = Histogram(file_info.get_legend_name(group),
                                       file_info.get_color(group),
                                       plot_info.get_binning(histName))
-        for mem in members:
-            narray = dict()
-            with uproot.open(infilename) as f:
+        with uproot.open(infilename) as f:
+            for mem in members:
                 if mem not in f:
                     print("problem with {} getting histogram {}".format(mem, ak_col))
                     continue
                 array = f[mem].arrays([ak_col, "scale_factor"],)
-
-
-            sf = array["scale_factor"]
-            vals = array[ak_col]
-            if plot_info.at(histName, "Modify"):
-                vals = eval(plot_info.at(histName, "Modify").format("vals"))
-                if len(vals) != len(sf):
-                    sf,_ = ak.unzip(ak.cartesian([sf, array[ak_col]]))
-                    sf = ak.flatten(sf)
-            narray[ak_col] = vals
-            narray["scale_factor"] = sf
-            #print("{}: {:.3f}+-{:.3f} ({})".format(mem, ak.sum(sf)*plot_info.lumi, plot_info.lumi*math.sqrt(ak.sum(sf**2)),len(sf)))
-            groupHists[group] += narray
+                narray = {"name": mem}
+                sf = array["scale_factor"]
+                vals = array[ak_col]
+                if plot_info.at(histName, "Modify"):
+                    vals = eval(plot_info.at(histName, "Modify").format("vals"))
+                    if len(vals) != len(sf):
+                        sf,_ = ak.unzip(ak.cartesian([sf, array[ak_col]]))
+                        sf = ak.flatten(sf)
+                narray[ak_col] = vals
+                narray["scale_factor"] = sf
+                #print("{}: {:.3f}+-{:.3f} ({})".format(mem, ak.sum(sf)*plot_info.lumi, plot_info.lumi*math.sqrt(ak.sum(sf**2)),len(sf)))
+                groupHists[group] += narray
 
     for name, hist in groupHists.items():
-        if plot_info.lumi < 0:
-            scale = 1 / sum(hist.hist)
-            hist.scale(scale)
-        else:
-            hist.scale(plot_info.lumi)
+        # if plot_info.lumi < 0:
+        #     scale = 1 / sum(hist.hist)
+        #     hist.scale(scale)
+        # else:
+        hist.scale(plot_info.get_lumi(year)*1000)
     s, b = 0, 0
     for group, hist in groupHists.items():
         if group == "ttt":
@@ -139,16 +138,16 @@ def getNormedHistos(infilename, file_info, plot_info, histName):
 
 def getYearNormedHistos(yearFilename, file_info, plot_info, histName, year):
     if year == "all":
-        yearHists = [config.getNormedHistos(yearFilename.format(yr),
-                                            file_info, plot_info, histName)
-                     for yr in ALLYEARS]
+        yearHists = [getNormedHistos(yearFilename.format(yr),
+                                            file_info, plot_info, histName, yr)
+                     for yr in inputs.all_years]
         groupHists = yearHists.pop()
         for yrHist in yearHists:
             for group, hist in yrHist.items():
                 groupHists[group] += hist
     else:
-        groupHists = config.getNormedHistos(yearFilename.format(year),
-                                            file_info, plot_info, histName)
+        groupHists = getNormedHistos(yearFilename.format(year),
+                                     file_info, plot_info, histName, year)
     return groupHists
 
 def copyDirectory(src, dest):

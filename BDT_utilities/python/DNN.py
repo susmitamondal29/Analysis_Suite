@@ -25,7 +25,7 @@ class Params:
         super(Params, self).__setattr__("dictionary", indict)
 
     def __getitem__(self, *args):
-        if isinstance(*args, str):
+        if len(args) == 1:
             keys = [args[0]]  # args is a string
         else:
             keys = list(*args)  # args is a tuple
@@ -41,14 +41,14 @@ class Params:
         self.dictionary.update(new)
 
 class KerasMaker(MLHolder):
-    def __init__(self, *args, params={}, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.build = Params(
             {
                 #"shuffle": True,
-                "initial_nodes": 20,
-                "hidden_layers": 1,
-                "node_pattern": "dynamic",
+                "initial_nodes": 10,
+                "hidden_layers": 2,
+                "node_pattern": "static",
                 "learning_rate": 0.01,
                 "regulator": "dropout",
                 "activation": "elu",
@@ -58,13 +58,14 @@ class KerasMaker(MLHolder):
                 "period": 1,
                 "save_best_only": True,
                 "save_weights_only": False,
-                "epochs": 1,
-                "batch_power": 10,
+                "epochs": 20,
+                "batch_power": 9,
                 "validation_split": 0.25,
                 "verbose": False,
             }
         )
-        self.build.update(params)
+        if "params" in kwargs:
+            self.build.update(kwargs["params"])
         self.build.batch_size = 2**self.build.batch_power
         
         self.params = self.build["epochs", "batch_size", "shuffle", "validation_split"]
@@ -118,22 +119,22 @@ class KerasMaker(MLHolder):
 
     def train(self, outdir=""):
         shuf_train = self.train_set.sample(frac=1, random_state=0).reset_index(drop=True)
-        print(shuf_train.to_string())
+
         signal = shuf_train[shuf_train["classID"] == 1]
         bkg = shuf_train[shuf_train["classID"] == 0]
 
-        print("BJETS")
-        print(np.histogram(signal["NBJets"], bins=np.arange(10)))
-        print(np.histogram(bkg["NBJets"], bins=np.arange(10)))
-        print()
-        print("JETS")
-        print(np.histogram(signal["NJets"], bins=np.arange(10)))
-        print(np.histogram(bkg["NJets"], bins=np.arange(10)))
+        # print("BJETS")
+        # print(np.histogram(signal["NBJets"], bins=np.arange(10)))
+        # print(np.histogram(bkg["NBJets"], bins=np.arange(10)))
+        # print()
+        # print("JETS")
+        # print(np.histogram(signal["NJets"], bins=np.arange(10)))
+        # print(np.histogram(bkg["NJets"], bins=np.arange(10)))
 
         x_train = shuf_train.drop(self._drop_vars, axis=1)
         w_train = shuf_train["finalWeight"].to_numpy()
         y_train = shuf_train.classID
-        exit()
+        
         x_test = self.test_set.drop(self._drop_vars, axis=1)
         y_test = self.test_set.classID
 
@@ -148,14 +149,14 @@ class KerasMaker(MLHolder):
             keras.callbacks.EarlyStopping(**self.early_stop),
             # keras.callbacks.ModelCheckpoint("test.h5", verbose=0, **self.checkpoint),
         ]
-        
+        print(classW)
         # Train
         print(">> Training.")
         fit_model = self.build_model()
         history = fit_model.fit(
             x_train, y_train.astype(bool),
             # sample_weight=w_train,
-            # class_weight= classW,
+            class_weight= classW,
             callbacks=callback,
             verbose=self.build.verbose,
             **self.params
@@ -167,18 +168,9 @@ class KerasMaker(MLHolder):
 
         self.pred_test[groupName] = fit_model.predict(x_test).flatten()
         self.pred_train[groupName] = fit_model.predict(x_train).flatten()
-        # print(fit_model.predict(x_train))
-        # print(x_train)
-        # loss, accuracy = fit_model.evaluate(x_test, y_test, verbose=1)
-        # print("loss: {}".format(loss))
-        # print("accuracy: {}".format(accuracy))
-        print(y_train.to_numpy(dtype=int))
-        print(self.pred_train[groupName])
-        ftrain, ttrain, _ = roc_curve(y_train.astype(int), self.pred_train[groupName])
-        print(ftrain)
-        print(ttrain)
-        print(auc(ftrain, ttrain))
-
+        loss, accuracy = fit_model.evaluate(x_test, y_test, verbose=1)
+        print("loss: {}".format(loss))
+        print("accuracy: {}".format(accuracy))
 
         fpr_train, tpr_train, _ = roc_curve(y_train.astype(int), self.pred_train[groupName])
         fpr_test, tpr_test, _ = roc_curve(y_test.astype(int), self.pred_test[groupName])
@@ -188,8 +180,9 @@ class KerasMaker(MLHolder):
         
         print("AUC for train: {}".format(self.auc_train))
         print("AUC for test: {}".format(self.auc_test))
-        exit()
-        # fit_model.save("{}/model.h5".format(outdir))
+
+        if outdir:
+            fit_model.save("{}/model.h5".format(outdir))
 
 
     def apply_model(self, model_file):

@@ -1,4 +1,6 @@
 from prettytable import PrettyTable
+from pprint import pformat
+
 import math
 import numpy as np
 
@@ -33,14 +35,17 @@ class LogFile:
         Name of the histogram
     
     """
-    def __init__(self, name, info, path='.'):
+    callTime = ""
+    command = ""
+    def __init__(self, name, info, lumi, path='.'):
         self.plotTable = PrettyTable(["Plot Group", "Weighted Events", "Error"])
-        self.output_name = "{}/{}_info.log".format(path, name)
+        self.breakTable = PrettyTable(["Plot Group", "Sample", "Weighted Events", "Error"])
+        self.path = path
+        self.output_name = "{}_info.log".format(name)
         self.analysis, self.selection = "", ""#info.getAnalysis()
-        self.lumi = info.lumi / 1000
+        self.lumi = lumi
         self.hists = [np.array([0., 0.]) for i in range(4)] 
-        self.callTime = ""
-        self.command = ""
+        self.hist_info = info
         self.name = name
 
     def add_mc(self, stacker):
@@ -72,7 +77,8 @@ class LogFile:
         self.plotTable.add_row([signal.name, integral, error])
         self.hists[TOTAL] += self.hists[SIGNAL]
 
-    def add_metainfo(self, callTime, command):
+    @staticmethod
+    def add_metainfo(callTime, command):
         """Set specific metadata for output file
 
         Parameters
@@ -83,8 +89,8 @@ class LogFile:
             Full commandline string use for this run
 
         """
-        self.callTime = callTime
-        self.command = command
+        LogFile.callTime = callTime
+        LogFile.command = command
 
     def get_sqrt_err(self, idx):
         """Grab the Integral and error on that information
@@ -106,10 +112,11 @@ class LogFile:
         isLatex : bool, optional
             Whether table should be written out in latex or org style table
         """
-        with open(self.output_name, 'w') as out:
+        with open("{}/{}".format(self.path, self.output_name), 'w') as out:
+            out.write("<html><pre><code>\n")
             out.write('-' * 80 + '\n')
-            out.write("Script called at {} \n".format(self.callTime))
-            out.write("The command was: {} \n".format(self.command))
+            out.write("Script called at {} \n".format(LogFile.callTime))
+            out.write("The command was: {} \n".format(LogFile.command))
             out.write("The name of this Histogram is: {} \n"
                          .format(self.name))
             out.write('-' * 80 + '\n')
@@ -136,6 +143,14 @@ class LogFile:
             if self.hists[DATA].any():
                 out.write("Number of events in data {} \n"
                           .format(self.hists[DATA][0]))
+            if isLatex:
+                out.write('\n' + self.breakTable.get_latex_string() + '\n'*2)
+            else:
+                out.write('\n' + self.breakTable.get_string() + '\n'*2)
+            out.write("\n" + pformat(self.hist_info))
+
+            out.write("</code></pre></html>\n")
+
 
     def get_sig_bkg_ratio(self):
         """Get S/B with its error
@@ -165,3 +180,12 @@ class LogFile:
         likelihoodErr = likelihood * math.sqrt((sigErr / sig)**2 +
                                                (0.5 * totErr / tot)**2)
         return (likelihood, likelihoodErr)
+
+    def add_breakdown(self, group, break_dict):
+        breakList = list()
+        break_dict = {k: v for k, v in sorted(break_dict.items(), key=lambda item: item[1][1], reverse=True)}
+        for sample, info in break_dict.items():
+            events = round(info[0], 2)
+            err = round(math.sqrt(info[1]), 2)
+            self.breakTable.add_row([group, sample, events, err])
+            group = ""

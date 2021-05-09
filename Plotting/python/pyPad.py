@@ -47,13 +47,13 @@ class pyPad:
         else:
             return self.up
 
-    def axisSetup(self, info):
+    def axisSetup(self, info, binning):
         axis = self.getXaxis()
 
         # Defaults
         self.up.set_ylim(bottom=0.)
         self.up.set_ylabel("Events/bin")
-        axis.set_xlim(*info["Binning"][1:])
+        axis.set_xlim(binning)
         self._right_align_label(self.up.get_yaxis(), True)
         self._right_align_label(axis.get_xaxis())
         if self.down:

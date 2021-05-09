@@ -74,16 +74,19 @@ class MLHolder:
         train_file = "{}/train.root".format(directory)
         test_file = "{}/{}/train.root".format(directory, year)
         classID = {"Signal": 1, "NotTrained": -1, "Background": 0}
-
-
+        train_groups = sum(self.group_dict.values(), [])
         with uproot4.open(train_file) as f:
             groups = json.loads(f["sample_map"]).keys()
-            for group in groups:
+            for group in train_groups:
+                if group not in f:
+                    continue
                 self.train_set = pd.concat([f[group].arrays(library="pd"), self.train_set], sort=True)
         with uproot4.open(test_file) as f:
             self.sample_map = json.loads(f["sample_map"])
             groups = json.loads(f["sample_map"]).keys()
             for group in groups:
+                if group not in f:
+                    continue
                 self.test_set = pd.concat([f[group].arrays(library="pd"), self.train_set], sort=True)
 
         self.train_set["finalWeight"] = 1.

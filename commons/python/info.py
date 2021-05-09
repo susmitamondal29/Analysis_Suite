@@ -13,7 +13,12 @@ class PlotInfo(BasicInfo):
         super().__init__(**kwargs)
         plot_path = "{}.plotInfo.{}".format(self.base_path, plotInfo)
         self.plotSpecs = importlib.import_module(plot_path).info
-        self.lumi = 140000
+        self.lumi = {
+            "2016" : 35.9,
+            "2017" : 41.5,
+            "2018" : 59.6,
+            "all" : 137.0,
+        }
 
     def at(self, histname, name=None):
         if name is None:
@@ -36,8 +41,8 @@ class PlotInfo(BasicInfo):
             bins[1:] = bins[1:] - 0.5
         return bh.axis.Regular(int(bins[0]), *bins[1:])
 
-    def set_lumi(self, lumi):
-        self.lumi = lumi
+    def get_lumi(self, year):
+        return self.lumi[year]
 
 
 class GroupInfo(BasicInfo):
