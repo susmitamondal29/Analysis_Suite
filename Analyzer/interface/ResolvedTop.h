@@ -28,12 +28,19 @@ public:
     void fillTop(std::vector<size_t>& fillList, TopOut& fillObject);
     void setGoodParticles(size_t syst)
     {
+        looseList = &looseArray[syst];
         createLooseList();
     }
 
-    void clear() { looseList.clear(); }
+    void clear()
+    {
+        for (size_t i = 0; i < nSyst; ++i) {
+            looseArray[i].clear();
+        }
+    }
 
-    std::vector<size_t> looseList;
+    PartList looseArray;
+    std::vector<size_t>* looseList;
 
     TTRArray<Float_t>* discriminator;
 };

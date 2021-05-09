@@ -90,7 +90,7 @@ float ScaleFactors::getPileupSF(int nPU)
 float ScaleFactors::getResolvedTopSF(ResolvedTop& top, GenParticle& genPart)
 {
     float weight = 1.;
-    for (auto tidx : top.looseList) {
+    for (auto tidx : *top.looseList) {
         bool foundMatch = false;
         float minDR = 0.1;
         float tpt = top.pt->At(tidx);
