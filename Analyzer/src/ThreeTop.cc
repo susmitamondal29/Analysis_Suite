@@ -96,7 +96,6 @@ void ThreeTop::ApplyScaleFactors()
     weight *= sfMaker.getResolvedTopSF(rTop, rGen);
     weight *= sfMaker.getElectronSF(elec);
     weight *= sfMaker.getMuonSF(muon);
-
 }
 
 void ThreeTop::setOtherGoodParticles(size_t syst)
@@ -145,9 +144,9 @@ bool ThreeTop::passSelection()
     cuts.push_back(std::make_pair("passChannel",
         currentChannel_ == channel_));
     cuts.push_back(std::make_pair("passJetNumber",
-        jet.tightList.size() >= 2));
+        jet.tightList->size() >= 2));
     cuts.push_back(std::make_pair("passBJetNumber",
-        jet.bjetList.size() >= 1));
+        jet.bjetList->size() >= 1));
     cuts.push_back(std::make_pair("passMetCut",
         **Met_pt > 25));
     cuts.push_back(std::make_pair("passHTCut",
@@ -256,8 +255,8 @@ void ThreeTop::printStuff()
     std::cout << "Event: " << **event << std::endl;
     std::cout << "Met: " << **Met_pt << std::endl;
     std::cout << "HT: " << jet.getHT(jet.tightList) << std::endl;
-    std::cout << "njet: " << jet.tightList.size() << std::endl;
-    std::cout << "nbjet: " << jet.bjetList.size() << std::endl;
+    std::cout << "njet: " << jet.tightList->size() << std::endl;
+    std::cout << "nbjet: " << jet.bjetList->size() << std::endl;
     std::cout << "nlep: " << muon.tightList->size() << " " << elec.tightList->size() << std::endl;
     std::cout << "lepVeto: " << muon.passZVeto() << " " << elec.passZVeto() << std::endl;
     std::cout << std::endl;

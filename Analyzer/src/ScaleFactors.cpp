@@ -44,7 +44,7 @@ float ScaleFactors::getBJetSF(Jet& jets)
 {
 
     float weight = 1.;
-    auto goodBJets = jets.bjetList;
+    auto goodBJets = *jets.bjetList;
     BTagEntry::JetFlavor flav;
 
     for (auto bidx : goodBJets) {
@@ -57,7 +57,7 @@ float ScaleFactors::getBJetSF(Jet& jets)
             flav = BTagEntry::FLAV_UDSG;
         weight *= btag_reader.eval_auto_bounds("central", flav, jets.eta->At(bidx), jets.pt->At(bidx));
     }
-    for (auto jidx : jets.tightList) {
+    for (auto jidx : *jets.tightList) {
         if (std::find(goodBJets.begin(), goodBJets.end(), jidx) != goodBJets.end()) {
             continue; // is a bjet, weighting already taken care of
         }
