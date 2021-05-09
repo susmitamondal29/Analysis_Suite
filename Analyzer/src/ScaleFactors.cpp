@@ -96,7 +96,7 @@ float ScaleFactors::getResolvedTopSF(ResolvedTop& top, GenParticle& genPart)
         float tpt = top.pt->At(tidx);
         float teta = top.eta->At(tidx);
         float tphi = top.phi->At(tidx);
-        for (auto gidx : genPart.topList) {
+        for (auto gidx : *genPart.topList) {
             float dr2 = pow(genPart.eta->At(gidx) - teta, 2)
                 + pow(genPart.phi->At(gidx) - tphi, 2);
             if (dr2 < minDR) {
