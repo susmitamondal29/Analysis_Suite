@@ -60,13 +60,17 @@ Bool_t BaseSelector::Process(Long64_t entry)
     clearValues();
     fReader.SetLocalEntry(entry);
     std::vector<bool> systPassSelection;
+    bool passAny = false;
     for (size_t syst = 0; syst < variations_.size(); ++syst) {
         SetupEvent(syst);
         systPassSelection.push_back(passSelection() && passTrigger());
+        passAny |= systPassSelection.back();
+    }
+    if (passAny) {
         FillValues(systPassSelection);
         outTree->Fill();
-        passed_events += systPassSelection.at(0);
     }
+    passed_events += systPassSelection.at(0);
     return kTRUE;
 }
 

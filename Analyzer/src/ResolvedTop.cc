@@ -20,14 +20,3 @@ void ResolvedTop::createLooseList()
             looseList->push_back(i);
     }
 }
-
-void ResolvedTop::fillTop(std::vector<size_t>& fillList, TopOut& fillObject)
-{
-    for (auto midx : fillList) {
-        fillObject.pt.push_back(pt->At(midx));
-        fillObject.eta.push_back(eta->At(midx));
-        fillObject.phi.push_back(phi->At(midx));
-        fillObject.mass.push_back(mass->At(midx));
-        fillObject.discriminator.push_back(discriminator->At(midx));
-    }
-}

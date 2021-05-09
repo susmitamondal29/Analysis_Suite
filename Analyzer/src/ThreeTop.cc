@@ -203,13 +203,13 @@ bool ThreeTop::passTrigger()
 
 void ThreeTop::FillValues(std::vector<bool> passVec)
 {
-    // muon.fillParticle(muon.looseList, *o_looseMuons);
-    // muon.fillParticle(muon.tightList, *o_tightMuons);
-    // elec.fillParticle(elec.looseList, *o_looseElectrons);
-    // elec.fillParticle(elec.tightList, *o_tightElectrons);
-    // jet.fillParticle(jet.tightList, *o_jets);
-    // jet.fillBJet(jet.bjetList, *o_bJets);
-    // rTop.fillTop(rTop.looseList, *o_resolvedTop);
+    muon.fillParticle(muon.looseArray, *o_looseMuons);
+    muon.fillParticle(muon.tightArray, *o_tightMuons);
+    elec.fillParticle(elec.looseArray, *o_looseElectrons);
+    elec.fillParticle(elec.tightArray, *o_tightElectrons);
+    jet.fillParticle(jet.tightArray, *o_jets);
+    jet.fillBJet(jet.bjetArray, *o_bJets);
+    rTop.fillTop(rTop.looseArray, *o_resolvedTop);
     // FillLeptons();
 
     o_ht = jet.getHT(jet.tightList);

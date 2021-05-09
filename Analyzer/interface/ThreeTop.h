@@ -3,6 +3,7 @@
 
 #include "analysis_suite/Analyzer/interface/BaseSelector.h"
 #include "analysis_suite/Analyzer/interface/GenParticle.h"
+#include "analysis_suite/Analyzer/interface/Output.h"
 #include "analysis_suite/Analyzer/interface/ResolvedTop.h"
 #include <map>
 

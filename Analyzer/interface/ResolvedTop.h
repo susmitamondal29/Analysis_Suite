@@ -5,27 +5,12 @@
 
 #include "analysis_suite/Analyzer/interface/Particle.h"
 
-struct TopOut {
-    std::vector<Float_t> pt;
-    std::vector<Float_t> eta;
-    std::vector<Float_t> phi;
-    std::vector<Float_t> mass;
-    std::vector<Float_t> discriminator;
-    void clear()
-    {
-        pt.clear();
-        eta.clear();
-        phi.clear();
-        mass.clear();
-        discriminator.clear();
-    }
-};
-
 class ResolvedTop : public Particle {
 public:
     void setup(TTreeReader& fReader, int year);
     void createLooseList();
-    void fillTop(std::vector<size_t>& fillList, TopOut& fillObject);
+    template <class T>
+    void fillTop(PartList& fillArray, T& fillObject);
     void setGoodParticles(size_t syst)
     {
         looseList = &looseArray[syst];
@@ -44,5 +29,18 @@ public:
 
     TTRArray<Float_t>* discriminator;
 };
+
+template <class T>
+void ResolvedTop::fillTop(PartList& fillArray, T& fillObject)
+{
+    std::vector<Int_t> bitMap(pt->GetSize());
+    fillParticle(fillArray, fillObject, bitMap);
+
+    for (size_t idx = 0; idx < pt->GetSize(); ++idx) {
+        if (bitMap.at(idx) != 0) {
+            fillObject.discriminator.push_back(discriminator->At(idx));
+        }
+    }
+}
 
 #endif // __RESOLVEDTOP_H_
