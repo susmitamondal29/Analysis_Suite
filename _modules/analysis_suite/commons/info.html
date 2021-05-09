@@ -11,6 +11,8 @@
     </title>
 <link href="../../../_static/pygments.css" rel="stylesheet"/>
 <link href="../../../_static/theme.css" rel="stylesheet"/>
+<link href="../../../_static/pygments.css" rel="stylesheet"/>
+<link href="../../../_static/theme.css" rel="stylesheet"/>
 <link href="../../../_static/style.css" rel="stylesheet"/>
 <link href="../../../search.html" rel="search" title="Search"/>
 <link href="../../../genindex.html" rel="index" title="Index"/>
@@ -87,7 +89,12 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">plot_path</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{}</span><span class="s2">.plotInfo.</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span> <span class="n">plotInfo</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">plot_path</span><span class="p">)</span><span class="o">.</span><span class="n">info</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lumi</span> <span class="o">=</span> <span class="mi">140000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lumi</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"2016"</span> <span class="p">:</span> <span class="mf">35.9</span><span class="p">,</span>
+            <span class="s2">"2017"</span> <span class="p">:</span> <span class="mf">41.5</span><span class="p">,</span>
+            <span class="s2">"2018"</span> <span class="p">:</span> <span class="mf">59.6</span><span class="p">,</span>
+            <span class="s2">"all"</span> <span class="p">:</span> <span class="mf">137.0</span><span class="p">,</span>
+        <span class="p">}</span>
 
 <div class="viewcode-block" id="PlotInfo.at"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.PlotInfo.at">[docs]</a>    <span class="k">def</span> <span class="nf">at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">histname</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -110,8 +117,8 @@
             <span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="mf">0.5</span>
         <span class="k">return</span> <span class="n">bh</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">Regular</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="o">*</span><span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span></div>
 
-<div class="viewcode-block" id="PlotInfo.set_lumi"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.PlotInfo.set_lumi">[docs]</a>    <span class="k">def</span> <span class="nf">set_lumi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lumi</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lumi</span> <span class="o">=</span> <span class="n">lumi</span></div></div>
+<div class="viewcode-block" id="PlotInfo.get_lumi"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.PlotInfo.get_lumi">[docs]</a>    <span class="k">def</span> <span class="nf">get_lumi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lumi</span><span class="p">[</span><span class="n">year</span><span class="p">]</span></div></div>
 
 
 <div class="viewcode-block" id="GroupInfo"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.GroupInfo">[docs]</a><span class="k">class</span> <span class="nc">GroupInfo</span><span class="p">(</span><span class="n">BasicInfo</span><span class="p">):</span>
@@ -174,7 +181,7 @@
         <span class="k">return</span> <span class="n">scale</span></div></div>
 </code></pre>
 </main>
-<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 3.5.4</a></footer>
+<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.0.0</a></footer>
 </div>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">
 <div class="flex justify-center items-center">
@@ -203,6 +210,7 @@
 </div>
 <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js">
 </script>
+<script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
 <script src="../../../_static/jquery.js"></script>
 <script src="../../../_static/underscore.js"></script>
 <script src="../../../_static/doctools.js"></script>
