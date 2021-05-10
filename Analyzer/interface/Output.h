@@ -1,6 +1,11 @@
 #ifndef __OUTPUT_H_
 #define __OUTPUT_H_
 
+#include "analysis_suite/Analyzer/interface/Jet.h"
+#include "analysis_suite/Analyzer/interface/Lepton.h"
+#include "analysis_suite/Analyzer/interface/Particle.h"
+#include "analysis_suite/Analyzer/interface/ResolvedTop.h"
+
 struct ParticleOut {
     std::vector<Float_t> pt;
     std::vector<Float_t> eta;
@@ -59,5 +64,19 @@ struct TopOut {
         discriminator.clear();
     }
 };
+
+template <class T>
+void fillParticle(Particle& particle, PartList& fillArray, T& fillObject, std::vector<Int_t>& bitMap);
+
+template <class T>
+void fillParticle(Particle& particle, PartList& fillArray, T& fillObject);
+
+void fillBJet(Jet& jet, PartList& fillArray, BJetOut& fillObject);
+
+void fillTop(ResolvedTop& top, PartList& fillArray, TopOut& fillObject);
+
+void fillLeptons(Lepton& muon, Lepton& elec, ParticleOut& fillObject);
+
+#include "analysis_suite/Analyzer/interface/Output.hxx"
 
 #endif // __OUTPUT_H_

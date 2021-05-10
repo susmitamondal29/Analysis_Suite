@@ -24,7 +24,6 @@ public:
     ClassDefOverride(ThreeTop, 0);
 
 private:
-    void FillLeptons();
     void printStuff();
     float getLeadPt();
     bool fillCutFlow(std::vector<std::pair<std::string, bool>> cuts);

@@ -203,41 +203,20 @@ bool ThreeTop::passTrigger()
 
 void ThreeTop::FillValues(std::vector<bool> passVec)
 {
-    muon.fillParticle(muon.looseArray, *o_looseMuons);
-    muon.fillParticle(muon.tightArray, *o_tightMuons);
-    elec.fillParticle(elec.looseArray, *o_looseElectrons);
-    elec.fillParticle(elec.tightArray, *o_tightElectrons);
-    jet.fillParticle(jet.tightArray, *o_jets);
-    jet.fillBJet(jet.bjetArray, *o_bJets);
-    rTop.fillTop(rTop.looseArray, *o_resolvedTop);
-    // FillLeptons();
+    fillParticle(muon, muon.looseArray, *o_looseMuons);
+    fillParticle(muon, muon.tightArray, *o_tightMuons);
+    fillParticle(elec, elec.looseArray, *o_looseElectrons);
+    fillParticle(elec, elec.tightArray, *o_tightElectrons);
+    fillParticle(jet, jet.tightArray, *o_jets);
+    fillBJet(jet, jet.bjetArray, *o_bJets);
+    fillTop(rTop, rTop.looseArray, *o_resolvedTop);
+    // fillLeptons(muon, elec, *o_tightLeptons);
 
     o_ht = jet.getHT(jet.tightList);
     o_htb = jet.getHT(jet.bjetList);
     o_met = **Met_pt;
     o_metphi = **Met_phi;
     o_centrality = jet.getCentrality(jet.tightList);
-}
-
-void ThreeTop::FillLeptons()
-{
-    auto muonItr = muon.tightList->begin(), muonEnd = muon.tightList->end();
-    auto elecItr = elec.tightList->begin(), elecEnd = elec.tightList->end();
-    while (muonItr != muonEnd || elecItr != elecEnd) {
-        if (muonItr != muonEnd && (elecItr == elecEnd || muon.pt->At(*muonItr) > elec.pt->At(*elecItr))) {
-            o_tightLeptons->pt.push_back(muon.pt->At(*muonItr));
-            o_tightLeptons->eta.push_back(muon.eta->At(*muonItr));
-            o_tightLeptons->phi.push_back(muon.phi->At(*muonItr));
-            o_tightLeptons->mass.push_back(muon.mass->At(*muonItr));
-            muonItr++;
-        } else {
-            o_tightLeptons->pt.push_back(elec.pt->At(*elecItr));
-            o_tightLeptons->eta.push_back(elec.eta->At(*elecItr));
-            o_tightLeptons->phi.push_back(elec.phi->At(*elecItr));
-            o_tightLeptons->mass.push_back(elec.mass->At(*elecItr));
-            elecItr++;
-        }
-    }
 }
 
 float ThreeTop::getLeadPt()

@@ -11,8 +11,6 @@ public:
 
     float getHT(std::vector<size_t>* jet_list);
     float getCentrality(std::vector<size_t>* jet_list);
-    template <class T>
-    void fillBJet(PartList& fillArray, T& fillObject);
 
     void setGoodParticles(size_t syst)
     {
@@ -63,24 +61,5 @@ private:
     void createBJetList();
     void createTightList();
 };
-
-template <class T>
-void Jet::fillBJet(PartList& fillArray, T& fillObject)
-{
-    std::vector<Int_t> bitMap(pt->GetSize());
-    fillParticle(fillArray, fillObject, bitMap);
-
-    for (size_t syst = 0; syst < nSyst; ++syst) {
-        fillObject.n_loose.push_back(n_loose_bjet.at(syst));
-        fillObject.n_medium.push_back(n_medium_bjet.at(syst));
-        fillObject.n_tight.push_back(n_tight_bjet.at(syst));
-    }
-
-    for (size_t idx = 0; idx < pt->GetSize(); ++idx) {
-        if (bitMap.at(idx) != 0) {
-            fillObject.discriminator.push_back(btag->At(idx));
-        }
-    }
-}
 
 #endif // __JET_H_
