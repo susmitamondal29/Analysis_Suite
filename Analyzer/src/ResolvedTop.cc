@@ -13,9 +13,7 @@ void ResolvedTop::setup(TTreeReader& fReader, int year)
 
 void ResolvedTop::createLooseList()
 {
-    if (!pt)
-        return;
-    for (size_t i = 0; i < pt->GetSize(); i++) {
+    for (size_t i = 0; i < size(); i++) {
         if (discriminator->At(i) > 0.85)
             looseList->push_back(i);
     }

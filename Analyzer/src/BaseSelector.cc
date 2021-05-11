@@ -31,7 +31,9 @@ void BaseSelector::Init(TTree* tree)
     sfMaker = ScaleFactors(year_);
     isMC_ = true;
     outTree = new TTree("Analyzed", "Analyzed");
-    outTree->Branch("weight", &weight, "weight/F");
+    outTree->Branch("weight", &o_weight);
+    outTree->Branch("PassEvent", &o_pass_event);
+
     SetupOutTree();
     fOutput->Add(outTree);
 
@@ -40,7 +42,9 @@ void BaseSelector::Init(TTree* tree)
     }
 
     variations_.push_back("Nominal");
+    variations_.push_back("Other");
     Particle::nSyst = variations_.size();
+    o_weight.resize(variations_.size());
 
     muon.setup(fReader, year_);
     elec.setup(fReader, year_);
@@ -67,6 +71,7 @@ Bool_t BaseSelector::Process(Long64_t entry)
         passAny |= systPassSelection.back();
     }
     if (passAny) {
+        o_pass_event = systPassSelection;
         FillValues(systPassSelection);
         outTree->Fill();
     }
@@ -97,6 +102,7 @@ void BaseSelector::SlaveTerminate()
 
 void BaseSelector::SetupEvent(size_t syst)
 {
+    weight = &o_weight[syst];
     muon.setGoodParticles(jet, syst);
     elec.setGoodParticles(jet, syst);
     jet.setGoodParticles(syst);
@@ -105,7 +111,16 @@ void BaseSelector::SetupEvent(size_t syst)
     setupChannel();
 
     if (isMC_) {
-        weight = **genWeight;
+        (*weight) = **genWeight;
         ApplyScaleFactors();
     }
+}
+
+void BaseSelector::clearValues()
+{
+    muon.clear();
+    elec.clear();
+    jet.clear();
+
+    std::fill(o_weight.begin(), o_weight.end(), 1.);
 }

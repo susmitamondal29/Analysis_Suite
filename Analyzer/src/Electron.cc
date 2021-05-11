@@ -56,9 +56,9 @@ void Electron::setup(TTreeReader& fReader, int year)
 
 void Electron::createLooseList()
 {
-    for (size_t i = 0; i < pt->GetSize(); i++) {
-        if (pt->At(i) / eCorr->At(i) > 7
-            && fabs(eta->At(i)) < 2.5
+    for (size_t i = 0; i < size(); i++) {
+        if (pt(i) > 7
+            && fabs(eta(i)) < 2.5
             && convVeto->At(i)
             && lostHits->At(i) <= 1
             && fabs(dz->At(i)) < 0.1 && fabs(dxy->At(i)) < 0.05
@@ -66,7 +66,7 @@ void Electron::createLooseList()
             && iso->At(i) < 0.4
             && fabs(eInvMinusPInv->At(i) < 0.01)
             && hoe->At(i) < 0.08
-            && ((fabs(eta->At(i)) < BARREL_ETA && sieie->At(i) < 0.011) || (fabs(eta->At(i)) >= BARREL_ETA && sieie->At(i) < 0.031)))
+            && ((fabs(eta(i)) < BARREL_ETA && sieie->At(i) < 0.011) || (fabs(eta(i)) >= BARREL_ETA && sieie->At(i) < 0.031)))
             looseList->push_back(i);
     }
 }
@@ -76,7 +76,7 @@ void Electron::createFakeList(Particle& jets)
 {
     std::vector<size_t> pre_list;
     for (auto i : *looseList) {
-        if (pt->At(i) / eCorr->At(i) >= 10 && sip3d->At(i) < 4 && lostHits->At(i) == 0 && tightCharge->At(i) == 2)
+        if (pt(i) >= 10 && sip3d->At(i) < 4 && lostHits->At(i) == 0 && tightCharge->At(i) == 2)
             pre_list.push_back(i);
     }
     for (auto i : pre_list) {
@@ -91,8 +91,7 @@ void Electron::createFakeList(Particle& jets)
 void Electron::createTightList()
 {
     for (auto i : *fakeList) {
-        float pt_cor = pt->At(i) / eCorr->At(i);
-        if (pt_cor > 15 && iso->At(i) < 0.12 && ecalSumEt->At(i) / pt_cor < 0.45 && hcalSumEt->At(i) / pt_cor < 0.25 && tkSumPt->At(i) / pt_cor < 0.2 && passMVACut(i, true))
+        if (pt(i) > 15 && iso->At(i) < 0.12 && ecalSumEt->At(i) / pt(i) < 0.45 && hcalSumEt->At(i) / pt(i) < 0.25 && tkSumPt->At(i) / pt(i) < 0.2 && passMVACut(i, true))
             tightList->push_back(i);
     }
 }
@@ -100,25 +99,24 @@ void Electron::createTightList()
 bool Electron::passMVACut(size_t idx, bool isTight)
 {
     int caseIdx = 0;
-    float pt_cor = pt->At(idx) / eCorr->At(idx);
 
     //// ETA Splitting
-    if (pt_cor < 5)
+    if (pt(idx) < 5)
         return false;
-    else if (fabs(eta->At(idx)) < 0.8)
+    else if (fabs(eta(idx)) < 0.8)
         caseIdx = 0;
-    else if (fabs(eta->At(idx)) < BARREL_ETA)
+    else if (fabs(eta(idx)) < BARREL_ETA)
         caseIdx = 1;
     else
         caseIdx = 2;
     auto& mvaCuts = (isTight) ? mvaTight[caseIdx] : mvaLoose[caseIdx];
 
     //// PT Splitting
-    if (pt_cor < 10)
+    if (pt(idx) < 10)
         caseIdx = 0;
-    else if (pt_cor < 15 && year_ == yr2016)
+    else if (pt(idx) < 15 && year_ == yr2016)
         caseIdx = 1;
-    else if (pt_cor < 25)
+    else if (pt(idx) < 25)
         caseIdx = 2;
     else
         caseIdx = 3;
@@ -130,5 +128,5 @@ bool Electron::passMVACut(size_t idx, bool isTight)
     if (caseIdx % 4 != 2)
         return mvaValue > mvaCuts[caseIdx % 4];
     else
-        return mvaValue > mvaCuts[1] + mvaCuts[2] * (pt_cor - 15);
+        return mvaValue > mvaCuts[1] + mvaCuts[2] * (pt(idx) - 15);
 }

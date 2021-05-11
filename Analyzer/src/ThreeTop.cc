@@ -1,7 +1,7 @@
 #include "analysis_suite/Analyzer/interface/ThreeTop.h"
 
-#define getElec(var, i) (elec.var->At(elec.tightList->at(i)))
-#define getMuon(var, i) (muon.var->At(muon.tightList->at(i)))
+#define getElec(var, i) (elec.var(elec.tightList->at(i)))
+#define getMuon(var, i) (muon.var(muon.tightList->at(i)))
 
 enum CHANNELS { CHAN_HAD,
     CHAN_SINGLE,
@@ -63,19 +63,17 @@ void ThreeTop::SetupOutTree()
     outTree->Branch("BJets", "BJetOut", &o_bJets);
     outTree->Branch("ResolvedTops", "TopOut", &o_resolvedTop);
 
-    outTree->Branch("HT", &o_ht, "HT/F");
-    outTree->Branch("HT_b", &o_htb, "HT_b/F");
-    outTree->Branch("Met", &o_met, "Met/F");
-    outTree->Branch("Met_phi", &o_metphi, "Met_phi/F");
-    outTree->Branch("Centrality", &o_centrality, "Centrality/F");
+    outTree->Branch("HT", &o_ht);
+    outTree->Branch("HT_b", &o_htb);
+    outTree->Branch("Met", &o_met);
+    outTree->Branch("Met_phi", &o_metphi);
+    outTree->Branch("Centrality", &o_centrality);
 }
 
 /// Make to seperate fuctionality
 void ThreeTop::clearValues()
 {
-    muon.clear();
-    elec.clear();
-    jet.clear();
+    BaseSelector::clearValues();
     rTop.clear();
     rGen.clear();
 
@@ -87,15 +85,21 @@ void ThreeTop::clearValues()
     o_jets->clear();
     o_bJets->clear();
     o_resolvedTop->clear();
+
+    o_ht.clear();
+    o_htb.clear();
+    o_met.clear();
+    o_metphi.clear();
+    o_centrality.clear();
 }
 
 void ThreeTop::ApplyScaleFactors()
 {
-    weight *= sfMaker.getBJetSF(jet);
-    weight *= sfMaker.getPileupSF(**Pileup_nTrueInt);
-    weight *= sfMaker.getResolvedTopSF(rTop, rGen);
-    weight *= sfMaker.getElectronSF(elec);
-    weight *= sfMaker.getMuonSF(muon);
+    (*weight) *= sfMaker.getBJetSF(jet);
+    (*weight) *= sfMaker.getPileupSF(**Pileup_nTrueInt);
+    (*weight) *= sfMaker.getResolvedTopSF(rTop, rGen);
+    (*weight) *= sfMaker.getElectronSF(elec);
+    (*weight) *= sfMaker.getMuonSF(muon);
 }
 
 void ThreeTop::setOtherGoodParticles(size_t syst)
@@ -172,9 +176,9 @@ bool ThreeTop::fillCutFlow(std::vector<std::pair<std::string, bool>> cuts)
         bool truth = cut.second;
         passAll &= truth;
         if (truth)
-            cutFlow_individual->Fill(cut.first.c_str(), weight);
+            cutFlow_individual->Fill(cut.first.c_str(), *weight);
         if (passAll)
-            cutFlow->Fill(cut.first.c_str(), weight);
+            cutFlow->Fill(cut.first.c_str(), *weight);
     }
     return passAll;
 }
@@ -193,9 +197,9 @@ bool ThreeTop::passTrigger()
         passTrig = **HLT_EleEle;
 
     if (passTrig) {
-        passTrigger_leadPt->Fill(subChannel_, getLeadPt(), weight);
+        passTrigger_leadPt->Fill(subChannel_, getLeadPt(), *weight);
     } else {
-        failTrigger_leadPt->Fill(subChannel_, getLeadPt(), weight);
+        failTrigger_leadPt->Fill(subChannel_, getLeadPt(), *weight);
     }
 
     return (passLeadPt && passTrig);
@@ -203,20 +207,22 @@ bool ThreeTop::passTrigger()
 
 void ThreeTop::FillValues(std::vector<bool> passVec)
 {
-    fillParticle(muon, muon.looseArray, *o_looseMuons);
-    fillParticle(muon, muon.tightArray, *o_tightMuons);
-    fillParticle(elec, elec.looseArray, *o_looseElectrons);
-    fillParticle(elec, elec.tightArray, *o_tightElectrons);
-    fillParticle(jet, jet.tightArray, *o_jets);
-    fillBJet(jet, jet.bjetArray, *o_bJets);
-    fillTop(rTop, rTop.looseArray, *o_resolvedTop);
+    fillParticle(muon, muon.looseArray, *o_looseMuons, passVec);
+    fillParticle(muon, muon.tightArray, *o_tightMuons, passVec);
+    fillParticle(elec, elec.looseArray, *o_looseElectrons, passVec);
+    fillParticle(elec, elec.tightArray, *o_tightElectrons, passVec);
+    fillParticle(jet, jet.tightArray, *o_jets, passVec);
+    fillBJet(jet, jet.bjetArray, *o_bJets, passVec);
+    fillTop(rTop, rTop.looseArray, *o_resolvedTop, passVec);
     // fillLeptons(muon, elec, *o_tightLeptons);
 
-    o_ht = jet.getHT(jet.tightList);
-    o_htb = jet.getHT(jet.bjetList);
-    o_met = **Met_pt;
-    o_metphi = **Met_phi;
-    o_centrality = jet.getCentrality(jet.tightList);
+    for (size_t syst = 0; syst < variations_.size(); ++syst) {
+        o_ht.push_back(jet.getHT(&jet.tightArray[syst]));
+        o_htb.push_back(jet.getHT(&jet.bjetArray[syst]));
+        o_met.push_back(**Met_pt);
+        o_metphi.push_back(**Met_phi);
+        o_centrality.push_back(jet.getCentrality(&jet.tightArray[syst]));
+    }
 }
 
 float ThreeTop::getLeadPt()

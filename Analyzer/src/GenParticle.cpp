@@ -15,7 +15,7 @@ void GenParticle::setup(TTreeReader& fReader, int year, bool isMC_)
 
 void GenParticle::createLooseList()
 {
-    for (size_t i = 0; i < pt->GetSize(); i++) {
+    for (size_t i = 0; i < size(); i++) {
         if (abs(pdgId->At(i)) == PID_TOP) {
             topList->push_back(i);
         }

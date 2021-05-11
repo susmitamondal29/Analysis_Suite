@@ -55,7 +55,7 @@ private:
 
     TTRValue<Bool_t>*HLT_MuMu, *HLT_MuEle, *HLT_EleMu, *HLT_EleEle;
 
-    float o_ht, o_htb, o_met, o_metphi, o_centrality;
+    std::vector<Float_t> o_ht, o_htb, o_met, o_metphi, o_centrality;
 
     TH2F *passTrigger_leadPt, *failTrigger_leadPt;
     TH1F *cutFlow, *cutFlow_individual;

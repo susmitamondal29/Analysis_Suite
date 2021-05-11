@@ -10,6 +10,8 @@ public:
     virtual void createFakeList(Particle& jets) override;
     virtual void createTightList() override;
 
+    Float_t pt(size_t idx) { return m_pt->At(idx) / eCorr->At(idx); };
+
     TTRArray<Float_t>* eCorr;
     TTRArray<UChar_t>* lostHits;
     TTRArray<Bool_t>* convVeto;

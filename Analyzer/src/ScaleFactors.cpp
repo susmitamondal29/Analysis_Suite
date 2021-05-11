@@ -55,15 +55,15 @@ float ScaleFactors::getBJetSF(Jet& jets)
             flav = BTagEntry::FLAV_C;
         else
             flav = BTagEntry::FLAV_UDSG;
-        weight *= btag_reader.eval_auto_bounds("central", flav, jets.eta->At(bidx), jets.pt->At(bidx));
+        weight *= btag_reader.eval_auto_bounds("central", flav, jets.eta(bidx), jets.pt(bidx));
     }
     for (auto jidx : *jets.tightList) {
         if (std::find(goodBJets.begin(), goodBJets.end(), jidx) != goodBJets.end()) {
             continue; // is a bjet, weighting already taken care of
         }
         int pdgId = std::abs(jets.hadronFlavour->At(jidx));
-        float pt = jets.pt->At(jidx);
-        float eta = fabs(jets.eta->At(jidx));
+        float pt = jets.pt(jidx);
+        float eta = fabs(jets.eta(jidx));
         float eff = 1;
         if (pdgId == PID_BJET) {
             flav = BTagEntry::FLAV_B;
@@ -75,7 +75,7 @@ float ScaleFactors::getBJetSF(Jet& jets)
             flav = BTagEntry::FLAV_UDSG;
             eff = getWeight(h_btag_eff_udsg, pt, eta);
         }
-        double bSF = btag_reader.eval_auto_bounds("central", flav, jets.eta->At(jidx), jets.pt->At(jidx));
+        double bSF = btag_reader.eval_auto_bounds("central", flav, jets.eta(jidx), jets.pt(jidx));
         weight *= (1 - bSF * eff) / (1 - eff);
     }
 
@@ -93,12 +93,12 @@ float ScaleFactors::getResolvedTopSF(ResolvedTop& top, GenParticle& genPart)
     for (auto tidx : *top.looseList) {
         bool foundMatch = false;
         float minDR = 0.1;
-        float tpt = top.pt->At(tidx);
-        float teta = top.eta->At(tidx);
-        float tphi = top.phi->At(tidx);
+        float tpt = top.pt(tidx);
+        float teta = top.eta(tidx);
+        float tphi = top.phi(tidx);
         for (auto gidx : *genPart.topList) {
-            float dr2 = pow(genPart.eta->At(gidx) - teta, 2)
-                + pow(genPart.phi->At(gidx) - tphi, 2);
+            float dr2 = pow(genPart.eta(gidx) - teta, 2)
+                + pow(genPart.phi(gidx) - tphi, 2);
             if (dr2 < minDR) {
                 foundMatch = true;
                 weight *= getWeight(topSF, tpt);
@@ -116,8 +116,8 @@ float ScaleFactors::getElectronSF(Lepton& electron)
 {
     float weight = 1.;
     for (auto eidx : *electron.tightList) {
-        float pt = std::min(electron.pt->At(eidx), elecPtMax);
-        float eta = electron.eta->At(eidx);
+        float pt = std::min(electron.pt(eidx), elecPtMax);
+        float eta = electron.eta(eidx);
         if (pt < 20) {
             weight *= getWeight(electronLowSF, eta, pt);
         } else {
@@ -132,10 +132,10 @@ float ScaleFactors::getMuonSF(Lepton& muon)
 {
     float weight = 1.;
     for (auto midx : *muon.tightList) {
-        float pt = std::min(muon.pt->At(midx), muonPtMax);
+        float pt = std::min(muon.pt(midx), muonPtMax);
         if (pt < muonPtMin)
             pt = muonPtMin;
-        float eta = muon.eta->At(midx);
+        float eta = muon.eta(midx);
         weight *= (year_ == yr2016) ? getWeight(muonSF, eta, pt) : getWeightPtAbsEta(muonSF, pt, eta);
     }
 

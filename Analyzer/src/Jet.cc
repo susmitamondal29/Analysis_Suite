@@ -28,9 +28,9 @@ void Jet::setup(TTreeReader& fReader, int year)
 
 void Jet::createLooseList()
 {
-    for (size_t i = 0; i < pt->GetSize(); i++) {
-        if (pt->At(i) > 5
-            && fabs(eta->At(i)) < 2.4
+    for (size_t i = 0; i < size(); i++) {
+        if (pt(i) > 5
+            && fabs(eta(i)) < 2.4
             && (jetId->At(i) & looseId) != 0
             && (closeJetDr_by_index.find(i) == closeJetDr_by_index.end() || closeJetDr_by_index.at(i) >= pow(0.4, 2)))
             looseList->push_back(i);
@@ -51,7 +51,7 @@ void Jet::createBJetList()
 void Jet::createTightList()
 {
     for (auto i : *looseList) {
-        if (pt->At(i) > 40)
+        if (pt(i) > 40)
             tightList->push_back(i);
     }
 }
@@ -60,7 +60,7 @@ float Jet::getHT(std::vector<size_t>* jet_list)
 {
     float ht = 0;
     for (auto i : *jet_list) {
-        ht += pt->At(i);
+        ht += pt(i);
     }
     return ht;
 }
@@ -69,7 +69,7 @@ float Jet::getCentrality(std::vector<size_t>* jet_list)
 {
     float etot = 0;
     for (auto i : *jet_list) {
-        LorentzVector jet(pt->At(i), eta->At(i), phi->At(i), mass->At(i));
+        LorentzVector jet(pt(i), eta(i), phi(i), mass(i));
         etot += jet.E();
     }
     return getHT(jet_list) / etot;

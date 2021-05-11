@@ -25,9 +25,9 @@ void Muon::setup(TTreeReader& fReader, int year)
 
 void Muon::createLooseList()
 {
-    for (size_t i = 0; i < pt->GetSize(); i++) {
-        if (pt->At(i) > 5
-            && fabs(eta->At(i)) < 2.4
+    for (size_t i = 0; i < size(); i++) {
+        if (pt(i) > 5
+            && fabs(eta(i)) < 2.4
             && (isGlobal->At(i) || isTracker->At(i))
             && isPFcand->At(i)
             && iso->At(i) < 0.4
@@ -41,7 +41,7 @@ void Muon::createFakeList(Particle& jets)
 {
     std::vector<size_t> pre_list;
     for (auto i : *looseList) {
-        if (pt->At(i) > 10 && tightCharge->At(i) == 2 && mediumId->At(i) && sip3d->At(i) < 4)
+        if (pt(i) > 10 && tightCharge->At(i) == 2 && mediumId->At(i) && sip3d->At(i) < 4)
             pre_list.push_back(i);
     }
     for (auto i : pre_list) {
@@ -55,7 +55,7 @@ void Muon::createFakeList(Particle& jets)
 void Muon::createTightList()
 {
     for (auto i : *fakeList) {
-        if (pt->At(i) > 15 && iso->At(i) < 0.16)
+        if (pt(i) > 15 && iso->At(i) < 0.16)
             tightList->push_back(i);
     }
 }

@@ -15,6 +15,7 @@ public:
     void setup(std::string name, TTreeReader& fReader, int year);
     std::pair<size_t, float> getCloseJet(size_t lidx, Particle& jet);
     bool passJetIsolation(size_t idx, Particle& jets);
+    Int_t charge(size_t idx) { return m_charge->At(idx); };
 
     void setGoodParticles(Particle& jets, size_t syst)
     {
@@ -46,13 +47,14 @@ public:
 
     std::unordered_map<size_t, size_t> closeJet_by_lepton;
 
-    TTRArray<Int_t>* charge;
+    float ptRatioCut, ptRelCut;
+
+protected:
+    TTRArray<Int_t>* m_charge;
 
     const float ZMASS = 91.188;
     const float ZWINDOW = 15;
     const float LOW_ENERGY_CUT = 12;
-
-    float ptRatioCut, ptRelCut;
 };
 
 #endif // __LEPTON_H_

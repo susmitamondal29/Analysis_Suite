@@ -2,19 +2,22 @@
 #define __OUTPUT_HXX_
 
 template <class T>
-void fillParticle(Particle& particle, PartList& fillArray, T& fillObject, std::vector<Int_t>& bitMap)
+void fillParticle(Particle& particle, PartList& fillArray, T& fillObject, std::vector<Int_t>& bitMap, std::vector<bool> passVec)
 {
     for (size_t syst = 0; syst < fillArray.size(); ++syst) {
+        if (!passVec.at(syst)) {
+            continue;
+        }
         for (auto idx : fillArray[syst]) {
             bitMap[idx] += 1 << syst;
         }
     }
-    for (size_t idx = 0; idx < particle.pt->GetSize(); ++idx) {
+    for (size_t idx = 0; idx < particle.size(); ++idx) {
         if (bitMap.at(idx) != 0) {
-            fillObject.pt.push_back(particle.pt->At(idx));
-            fillObject.eta.push_back(particle.eta->At(idx));
-            fillObject.phi.push_back(particle.phi->At(idx));
-            fillObject.mass.push_back(particle.mass->At(idx));
+            fillObject.pt.push_back(particle.pt(idx));
+            fillObject.eta.push_back(particle.eta(idx));
+            fillObject.phi.push_back(particle.phi(idx));
+            fillObject.mass.push_back(particle.mass(idx));
         }
     }
     fillObject.syst_bitMap = bitMap;
@@ -24,10 +27,10 @@ void fillParticle(Particle& particle, PartList& fillArray, T& fillObject, std::v
 }
 
 template <class T>
-void fillParticle(Particle& particle, PartList& fillArray, T& fillObject)
+void fillParticle(Particle& particle, PartList& fillArray, T& fillObject, std::vector<bool> passVec)
 {
-    std::vector<Int_t> bitMap(particle.pt->GetSize());
-    fillParticle(particle, fillArray, fillObject, bitMap);
+    std::vector<Int_t> bitMap(particle.size());
+    fillParticle(particle, fillArray, fillObject, bitMap, passVec);
 }
 
 #endif // __OUTPUT_HXX_

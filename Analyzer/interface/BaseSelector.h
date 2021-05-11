@@ -54,7 +54,7 @@ public:
     virtual void setupChannel(){};
     virtual void setOtherGoodParticles(size_t syst){};
     virtual void ApplyScaleFactors(){};
-    virtual void clearValues(){};
+    virtual void clearValues();
     ClassDef(BaseSelector, 0);
 
 protected:
@@ -70,7 +70,9 @@ protected:
     float xsec_;
     TTree* outTree;
     TTreeReaderValue<Float_t>* genWeight;
-    float weight = 1;
+    std::vector<Float_t> o_weight;
+    std::vector<Bool_t> o_pass_event;
+    float* weight;
 
     bool isMC_;
     int channel_, currentChannel_;

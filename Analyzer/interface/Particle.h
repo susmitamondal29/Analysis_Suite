@@ -28,13 +28,20 @@ public:
     void setup(std::string name, TTreeReader& fReader, int year);
     virtual void setGoodParticles(size_t syst){};
 
-    TTRArray<Float_t>* pt;
-    TTRArray<Float_t>* eta;
-    TTRArray<Float_t>* phi;
-    TTRArray<Float_t>* mass;
+    size_t size() { return (m_pt) ? m_pt->GetSize() : 0; }
+    Float_t pt(size_t idx) { return m_pt->At(idx); }
+    Float_t eta(size_t idx) { return m_eta->At(idx); }
+    Float_t phi(size_t idx) { return m_phi->At(idx); }
+    Float_t mass(size_t idx) { return m_mass->At(idx); }
 
     static size_t nSyst;
     int year_;
+
+protected:
+    TTRArray<Float_t>* m_pt;
+    TTRArray<Float_t>* m_eta;
+    TTRArray<Float_t>* m_phi;
+    TTRArray<Float_t>* m_mass;
 };
 
 #endif // __PARTICLE_H_
