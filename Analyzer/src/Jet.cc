@@ -7,9 +7,9 @@ void Jet::setup(TTreeReader& fReader, int year)
     hadronFlavour = new TTRArray<Int_t>(fReader, "Jet_hadronFlavour");
     btag = new TTRArray<Float_t>(fReader, "Jet_btagDeepB");
 
-    looseArray = PartList(nSyst);
-    bjetArray = PartList(nSyst);
-    tightArray = PartList(nSyst);
+    m_partArray[eLoose] = PartList(nSyst);
+    m_partArray[eBottom]= PartList(nSyst);
+    m_partArray[eTight] = PartList(nSyst);
 
     if (year_ == yr2016) {
         loose_bjet_cut = 0.2219;
@@ -33,15 +33,15 @@ void Jet::createLooseList()
             && fabs(eta(i)) < 2.4
             && (jetId->At(i) & looseId) != 0
             && (closeJetDr_by_index.find(i) == closeJetDr_by_index.end() || closeJetDr_by_index.at(i) >= pow(0.4, 2)))
-            looseList->push_back(i);
+            list(eLoose)->push_back(i);
     }
 }
 
 void Jet::createBJetList()
 {
-    for (auto i : *looseList) {
+    for (auto i : *list(eLoose)) {
         if (btag->At(i) > medium_bjet_cut)
-            bjetList->push_back(i);
+            list(eBottom)->push_back(i);
         n_loose_bjet.back() += (btag->At(i) > loose_bjet_cut) ? 1 : 0;
         n_medium_bjet.back() += (btag->At(i) > medium_bjet_cut) ? 1 : 0;
         n_tight_bjet.back() += (btag->At(i) > tight_bjet_cut) ? 1 : 0;
@@ -50,25 +50,25 @@ void Jet::createBJetList()
 
 void Jet::createTightList()
 {
-    for (auto i : *looseList) {
+    for (auto i : *list(eLoose)) {
         if (pt(i) > 40)
-            tightList->push_back(i);
+            list(eTight)->push_back(i);
     }
 }
 
-float Jet::getHT(std::vector<size_t>* jet_list)
+float Jet::getHT(std::vector<size_t> jet_list)
 {
     float ht = 0;
-    for (auto i : *jet_list) {
+    for (auto i : jet_list) {
         ht += pt(i);
     }
     return ht;
 }
 
-float Jet::getCentrality(std::vector<size_t>* jet_list)
+float Jet::getCentrality(std::vector<size_t> jet_list)
 {
     float etot = 0;
-    for (auto i : *jet_list) {
+    for (auto i : jet_list) {
         LorentzVector jet(pt(i), eta(i), phi(i), mass(i));
         etot += jet.E();
     }

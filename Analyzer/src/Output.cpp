@@ -1,11 +1,11 @@
 #include "analysis_suite/Analyzer/interface/Output.h"
 
-void fillBJet(Jet& jet, PartList& fillArray, BJetOut& fillObject, std::vector<bool> passVec)
+void fillBJet(Jet& jet, int listName, BJetOut& fillObject, std::vector<bool> passVec)
 {
     std::vector<Int_t> bitMap(jet.size());
-    fillParticle(jet, fillArray, fillObject, bitMap, passVec);
+    fillParticle(jet, listName, fillObject, bitMap, passVec);
 
-    for (size_t syst = 0; syst < fillArray.size(); ++syst) {
+    for (size_t syst = 0; syst < Particle::nSyst; ++syst) {
         fillObject.n_loose.push_back(jet.n_loose_bjet.at(syst));
         fillObject.n_medium.push_back(jet.n_medium_bjet.at(syst));
         fillObject.n_tight.push_back(jet.n_tight_bjet.at(syst));
@@ -18,10 +18,10 @@ void fillBJet(Jet& jet, PartList& fillArray, BJetOut& fillObject, std::vector<bo
     }
 }
 
-void fillTop(ResolvedTop& top, PartList& fillArray, TopOut& fillObject, std::vector<bool> passVec)
+void fillTop(ResolvedTop& top, int listName, TopOut& fillObject, std::vector<bool> passVec)
 {
     std::vector<Int_t> bitMap(top.size());
-    fillParticle(top, fillArray, fillObject, bitMap, passVec);
+    fillParticle(top, listName, fillObject, bitMap, passVec);
 
     for (size_t idx = 0; idx < top.size(); ++idx) {
         if (bitMap.at(idx) != 0) {

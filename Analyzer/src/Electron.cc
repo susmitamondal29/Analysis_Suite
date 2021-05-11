@@ -67,7 +67,7 @@ void Electron::createLooseList()
             && fabs(eInvMinusPInv->At(i) < 0.01)
             && hoe->At(i) < 0.08
             && ((fabs(eta(i)) < BARREL_ETA && sieie->At(i) < 0.011) || (fabs(eta(i)) >= BARREL_ETA && sieie->At(i) < 0.031)))
-            looseList->push_back(i);
+            list(eLoose)->push_back(i);
     }
 }
 
@@ -75,14 +75,14 @@ void Electron::createLooseList()
 void Electron::createFakeList(Particle& jets)
 {
     std::vector<size_t> pre_list;
-    for (auto i : *looseList) {
+    for (auto i : *list(eLoose)) {
         if (pt(i) >= 10 && sip3d->At(i) < 4 && lostHits->At(i) == 0 && tightCharge->At(i) == 2)
             pre_list.push_back(i);
     }
     for (auto i : pre_list) {
         auto closeJetInfo = getCloseJet(i, jets);
         if (passJetIsolation(i, jets))
-            fakeList->push_back(i);
+            list(eFake)->push_back(i);
         dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(closeJetInfo);
     }
 }
@@ -90,9 +90,9 @@ void Electron::createFakeList(Particle& jets)
 // need iso
 void Electron::createTightList()
 {
-    for (auto i : *fakeList) {
+    for (auto i : *list(eFake)) {
         if (pt(i) > 15 && iso->At(i) < 0.12 && ecalSumEt->At(i) / pt(i) < 0.45 && hcalSumEt->At(i) / pt(i) < 0.25 && tkSumPt->At(i) / pt(i) < 0.2 && passMVACut(i, true))
-            tightList->push_back(i);
+            list(eTight)->push_back(i);
     }
 }
 

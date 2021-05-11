@@ -12,3 +12,19 @@ void Particle::setup(std::string name, TTreeReader& fReader, int year)
     m_phi = new TTreeReaderArray<Float_t>(fReader, (name + "_phi").c_str());
     m_mass = new TTreeReaderArray<Float_t>(fReader, (name + "_mass").c_str());
 }
+
+void Particle::clear()
+{
+    for (auto& [key, plist]: m_partArray) {
+        for (size_t i = 0; i < nSyst; ++i) {
+            plist[i].clear();
+        }
+    }
+}
+
+void Particle::setGoodParticles(size_t syst)
+{
+    for (auto& [key, plist]: m_partArray) {
+        m_partList[key] = &plist[syst];
+    }
+}

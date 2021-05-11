@@ -8,13 +8,13 @@ void ResolvedTop::setup(TTreeReader& fReader, int year)
     // Medium 0.85
     // AltTight 0.92
     // Tight 0.95
-    looseArray = PartList(nSyst);
+    m_partArray[eLoose] = PartList(nSyst);
 }
 
 void ResolvedTop::createLooseList()
 {
     for (size_t i = 0; i < size(); i++) {
         if (discriminator->At(i) > 0.85)
-            looseList->push_back(i);
+            list(eLoose)->push_back(i);
     }
 }

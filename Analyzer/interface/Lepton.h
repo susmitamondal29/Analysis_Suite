@@ -17,33 +17,19 @@ public:
     bool passJetIsolation(size_t idx, Particle& jets);
     Int_t charge(size_t idx) { return m_charge->At(idx); };
 
-    void setGoodParticles(Particle& jets, size_t syst)
+    void setGoodParticles(Particle& jets, size_t syst) 
     {
-        looseList = &looseArray[syst];
+        Particle::setGoodParticles(syst);
         createLooseList();
-        fakeList = &fakeArray[syst];
         createFakeList(jets);
-        tightList = &tightArray[syst];
         createTightList();
     }
 
-    void clear()
+    virtual void clear() override
     {
-        for (size_t i = 0; i < nSyst; ++i) {
-            looseArray[i].clear();
-            fakeArray[i].clear();
-            tightArray[i].clear();
-        }
-
+        Particle::clear();
         closeJet_by_lepton.clear();
     }
-
-    PartList looseArray;
-    PartList fakeArray;
-    PartList tightArray;
-    std::vector<size_t>* looseList;
-    std::vector<size_t>* fakeList;
-    std::vector<size_t>* tightList;
 
     std::unordered_map<size_t, size_t> closeJet_by_lepton;
 

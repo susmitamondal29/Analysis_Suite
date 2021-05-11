@@ -2,13 +2,13 @@
 #define __OUTPUT_HXX_
 
 template <class T>
-void fillParticle(Particle& particle, PartList& fillArray, T& fillObject, std::vector<Int_t>& bitMap, std::vector<bool> passVec)
+void fillParticle(Particle& particle, int listName, T& fillObject, std::vector<Int_t>& bitMap, std::vector<bool> passVec)
 {
-    for (size_t syst = 0; syst < fillArray.size(); ++syst) {
+    for (size_t syst = 0; syst < Particle::nSyst; ++syst) {
         if (!passVec.at(syst)) {
             continue;
         }
-        for (auto idx : fillArray[syst]) {
+        for (auto idx : particle.list(listName, syst)) {
             bitMap[idx] += 1 << syst;
         }
     }
@@ -27,10 +27,10 @@ void fillParticle(Particle& particle, PartList& fillArray, T& fillObject, std::v
 }
 
 template <class T>
-void fillParticle(Particle& particle, PartList& fillArray, T& fillObject, std::vector<bool> passVec)
+void fillParticle(Particle& particle, int listName, T& fillObject, std::vector<bool> passVec)
 {
     std::vector<Int_t> bitMap(particle.size());
-    fillParticle(particle, fillArray, fillObject, bitMap, passVec);
+    fillParticle(particle, listName, fillObject, bitMap, passVec);
 }
 
 #endif // __OUTPUT_HXX_

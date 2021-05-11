@@ -7,23 +7,13 @@ class GenParticle : public Particle {
 public:
     void setup(TTreeReader& fReader, int year, bool isMC);
     void createLooseList();
-    void setGoodParticles(size_t syst)
+    virtual void setGoodParticles(size_t syst) override
     {
         if (!isMC)
             return;
-        topList = &topArray[syst];
+        Particle::setGoodParticles(syst);
         createLooseList();
     }
-
-    void clear()
-    {
-        for (size_t i = 0; i < nSyst; ++i) {
-            topArray[i].clear();
-        }
-    }
-
-    PartList topArray;
-    std::vector<size_t>* topList;
 
     TTRArray<Int_t>* pdgId;
     bool isMC = true;

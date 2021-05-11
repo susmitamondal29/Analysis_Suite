@@ -66,14 +66,14 @@ struct TopOut {
 };
 
 template <class T>
-void fillParticle(Particle& particle, PartList& fillArray, T& fillObject, std::vector<Int_t>& bitMap, std::vector<bool> passVec);
+void fillParticle(Particle& particle, int listName, T& fillObject, std::vector<Int_t>& bitMap, std::vector<bool> passVec);
 
 template <class T>
-void fillParticle(Particle& particle, PartList& fillArray, T& fillObject, std::vector<bool> passVec);
+void fillParticle(Particle& particle, int listName, T& fillObject, std::vector<bool> passVec);
 
-void fillBJet(Jet& jet, PartList& fillArray, BJetOut& fillObject, std::vector<bool> passVec);
+void fillBJet(Jet& jet, int listName , BJetOut& fillObject, std::vector<bool> passVec);
 
-void fillTop(ResolvedTop& top, PartList& fillArray, TopOut& fillObject, std::vector<bool> passVec);
+void fillTop(ResolvedTop& top, int listName, TopOut& fillObject, std::vector<bool> passVec);
 
 void fillLeptons(Lepton& muon, Lepton& elec, ParticleOut& fillObject);
 

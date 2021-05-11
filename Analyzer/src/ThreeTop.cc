@@ -1,7 +1,7 @@
 #include "analysis_suite/Analyzer/interface/ThreeTop.h"
 
-#define getElec(var, i) (elec.var(elec.tightList->at(i)))
-#define getMuon(var, i) (muon.var(muon.tightList->at(i)))
+#define getElec(var, i) (elec.var(elec.list(eTight)->at(i)))
+#define getMuon(var, i) (muon.var(muon.list(eTight)->at(i)))
 
 enum CHANNELS { CHAN_HAD,
     CHAN_SINGLE,
@@ -110,17 +110,17 @@ void ThreeTop::setOtherGoodParticles(size_t syst)
 
 void ThreeTop::setupChannel()
 {
-    size_t nLep = muon.tightList->size() + elec.tightList->size();
+    size_t nLep = muon.list(eTight)->size() + elec.list(eTight)->size();
     if (nLep == 0)
         currentChannel_ = CHAN_HAD;
     else if (nLep == 1)
         currentChannel_ = CHAN_SINGLE;
     else if (nLep == 2) {
         int q_product = 1;
-        if (elec.tightList->size() == 2) {
+        if (elec.list(eTight)->size() == 2) {
             subChannel_ = CHAN_EE;
             q_product *= getElec(charge, 0) * getElec(charge, 1);
-        } else if (muon.tightList->size() == 2) {
+        } else if (muon.list(eTight)->size() == 2) {
             subChannel_ = CHAN_MM;
             q_product *= getMuon(charge, 0) * getMuon(charge, 1);
         } else {
@@ -148,13 +148,13 @@ bool ThreeTop::passSelection()
     cuts.push_back(std::make_pair("passChannel",
         currentChannel_ == channel_));
     cuts.push_back(std::make_pair("passJetNumber",
-        jet.tightList->size() >= 2));
+                                  jet.list(eTight)->size() >= 2));
     cuts.push_back(std::make_pair("passBJetNumber",
-        jet.bjetList->size() >= 1));
+                                  jet.list(eBottom)->size() >= 1));
     cuts.push_back(std::make_pair("passMetCut",
         **Met_pt > 25));
     cuts.push_back(std::make_pair("passHTCut",
-        jet.getHT(jet.tightList) > 250));
+                                  jet.getHT(eTight) > 250));
 
     return fillCutFlow(cuts);
 }
@@ -207,21 +207,21 @@ bool ThreeTop::passTrigger()
 
 void ThreeTop::FillValues(std::vector<bool> passVec)
 {
-    fillParticle(muon, muon.looseArray, *o_looseMuons, passVec);
-    fillParticle(muon, muon.tightArray, *o_tightMuons, passVec);
-    fillParticle(elec, elec.looseArray, *o_looseElectrons, passVec);
-    fillParticle(elec, elec.tightArray, *o_tightElectrons, passVec);
-    fillParticle(jet, jet.tightArray, *o_jets, passVec);
-    fillBJet(jet, jet.bjetArray, *o_bJets, passVec);
-    fillTop(rTop, rTop.looseArray, *o_resolvedTop, passVec);
+    fillParticle(muon, eLoose, *o_looseMuons, passVec);
+    fillParticle(muon, eTight, *o_tightMuons, passVec);
+    fillParticle(elec, eLoose, *o_looseElectrons, passVec);
+    fillParticle(elec, eTight, *o_tightElectrons, passVec);
+    fillParticle(jet, eTight, *o_jets, passVec);
+    fillBJet(jet, eBottom, *o_bJets, passVec);
+    fillTop(rTop, eLoose, *o_resolvedTop, passVec);
     // fillLeptons(muon, elec, *o_tightLeptons);
 
     for (size_t syst = 0; syst < variations_.size(); ++syst) {
-        o_ht.push_back(jet.getHT(&jet.tightArray[syst]));
-        o_htb.push_back(jet.getHT(&jet.bjetArray[syst]));
+        o_ht.push_back(jet.getHT(eTight, syst));
+        o_htb.push_back(jet.getHT(eBottom, syst));
         o_met.push_back(**Met_pt);
         o_metphi.push_back(**Met_phi);
-        o_centrality.push_back(jet.getCentrality(&jet.tightArray[syst]));
+        o_centrality.push_back(jet.getCentrality(eTight, syst));
     }
 }
 
@@ -237,12 +237,12 @@ float ThreeTop::getLeadPt()
 
 void ThreeTop::printStuff()
 {
-    std::cout << "Event: " << **event << std::endl;
-    std::cout << "Met: " << **Met_pt << std::endl;
-    std::cout << "HT: " << jet.getHT(jet.tightList) << std::endl;
-    std::cout << "njet: " << jet.tightList->size() << std::endl;
-    std::cout << "nbjet: " << jet.bjetList->size() << std::endl;
-    std::cout << "nlep: " << muon.tightList->size() << " " << elec.tightList->size() << std::endl;
-    std::cout << "lepVeto: " << muon.passZVeto() << " " << elec.passZVeto() << std::endl;
-    std::cout << std::endl;
+    // std::cout << "Event: " << **event << std::endl;
+    // std::cout << "Met: " << **Met_pt << std::endl;
+    // std::cout << "HT: " << jet.getHT(jet.list(eTight)) << std::endl;
+    // std::cout << "njet: " << jet.list(eTight)->size() << std::endl;
+    // std::cout << "nbjet: " << jet.list(eBottom)->size() << std::endl;
+    // std::cout << "nlep: " << muon.list(eTight)->size() << " " << elec.list(eTight)->size() << std::endl;
+    // std::cout << "lepVeto: " << muon.passZVeto() << " " << elec.passZVeto() << std::endl;
+    // std::cout << std::endl;
 }

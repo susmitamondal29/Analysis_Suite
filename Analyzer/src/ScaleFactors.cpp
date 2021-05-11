@@ -44,7 +44,7 @@ float ScaleFactors::getBJetSF(Jet& jets)
 {
 
     float weight = 1.;
-    auto goodBJets = *jets.bjetList;
+    auto goodBJets = *jets.list(eBottom);
     BTagEntry::JetFlavor flav;
 
     for (auto bidx : goodBJets) {
@@ -57,7 +57,7 @@ float ScaleFactors::getBJetSF(Jet& jets)
             flav = BTagEntry::FLAV_UDSG;
         weight *= btag_reader.eval_auto_bounds("central", flav, jets.eta(bidx), jets.pt(bidx));
     }
-    for (auto jidx : *jets.tightList) {
+    for (auto jidx : *jets.list(eTight)) {
         if (std::find(goodBJets.begin(), goodBJets.end(), jidx) != goodBJets.end()) {
             continue; // is a bjet, weighting already taken care of
         }
@@ -90,13 +90,13 @@ float ScaleFactors::getPileupSF(int nPU)
 float ScaleFactors::getResolvedTopSF(ResolvedTop& top, GenParticle& genPart)
 {
     float weight = 1.;
-    for (auto tidx : *top.looseList) {
+    for (auto tidx : *top.list(eLoose)) {
         bool foundMatch = false;
         float minDR = 0.1;
         float tpt = top.pt(tidx);
         float teta = top.eta(tidx);
         float tphi = top.phi(tidx);
-        for (auto gidx : *genPart.topList) {
+        for (auto gidx : *genPart.list(eTop)) {
             float dr2 = pow(genPart.eta(gidx) - teta, 2)
                 + pow(genPart.phi(gidx) - tphi, 2);
             if (dr2 < minDR) {
@@ -115,7 +115,7 @@ float ScaleFactors::getResolvedTopSF(ResolvedTop& top, GenParticle& genPart)
 float ScaleFactors::getElectronSF(Lepton& electron)
 {
     float weight = 1.;
-    for (auto eidx : *electron.tightList) {
+    for (auto eidx : *electron.list(eTight)) {
         float pt = std::min(electron.pt(eidx), elecPtMax);
         float eta = electron.eta(eidx);
         if (pt < 20) {
@@ -131,7 +131,7 @@ float ScaleFactors::getElectronSF(Lepton& electron)
 float ScaleFactors::getMuonSF(Lepton& muon)
 {
     float weight = 1.;
-    for (auto midx : *muon.tightList) {
+    for (auto midx : *muon.list(eTight)) {
         float pt = std::min(muon.pt(midx), muonPtMax);
         if (pt < muonPtMin)
             pt = muonPtMin;

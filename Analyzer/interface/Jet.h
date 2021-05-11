@@ -9,42 +9,33 @@ class Jet : public Particle {
 public:
     void setup(TTreeReader& fReader, int year);
 
-    float getHT(std::vector<size_t>* jet_list);
-    float getCentrality(std::vector<size_t>* jet_list);
+    float getHT(int name, size_t syst) { return getHT(list(name, syst)); };
+    float getHT(int name) { return getHT(*list(name)); };
+    
+    float getCentrality(int name, size_t syst) { return getCentrality(list(name, syst)); };
+    float getCentrality(int name) { return getCentrality(*list(name)); };
 
-    void setGoodParticles(size_t syst)
+    virtual void setGoodParticles(size_t syst) override
     {
+        Particle::setGoodParticles(syst);
         n_loose_bjet.push_back(0);
         n_medium_bjet.push_back(0);
         n_tight_bjet.push_back(0);
 
-        looseList = &looseArray[syst];
         createLooseList();
-        bjetList = &bjetArray[syst];
         createBJetList();
-        tightList = &tightArray[syst];
         createTightList();
     }
 
-    void clear()
+    virtual void clear() override
     {
-        for (size_t i = 0; i < nSyst; ++i) {
-            looseArray[i].clear();
-            bjetArray[i].clear();
-            tightArray[i].clear();
-        }
+        Particle::clear();
         closeJetDr_by_index.clear();
         n_loose_bjet.clear();
         n_medium_bjet.clear();
         n_tight_bjet.clear();
     }
 
-    PartList looseArray;
-    PartList bjetArray;
-    PartList tightArray;
-    std::vector<size_t>* looseList;
-    std::vector<size_t>* bjetList;
-    std::vector<size_t>* tightList;
     std::unordered_map<size_t, size_t> closeJetDr_by_index;
 
     std::vector<Int_t> n_loose_bjet, n_medium_bjet, n_tight_bjet;
@@ -60,6 +51,10 @@ private:
     void createLooseList();
     void createBJetList();
     void createTightList();
+
+    float getHT(std::vector<size_t> jet_list);
+    float getCentrality(std::vector<size_t> jet_list);
+
 };
 
 #endif // __JET_H_

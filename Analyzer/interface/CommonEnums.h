@@ -1,7 +1,8 @@
 #ifndef __COMMONENUMS_H_
 #define __COMMONENUMS_H_
 
-enum YEAR { yr2016,
+enum YEAR {
+    yr2016,
     yr2017,
     yr2018 };
 
@@ -12,6 +13,14 @@ enum PID {
     PID_BJET = 5,
     PID_CJET = 4,
     PID_JET
+};
+
+enum LIST {
+    eLoose,
+    eFake,
+    eTight,
+    eTop,
+    eBottom,
 };
 
 #endif // __COMMONENUMS_H_

@@ -9,21 +9,11 @@ class ResolvedTop : public Particle {
 public:
     void setup(TTreeReader& fReader, int year);
     void createLooseList();
-    void setGoodParticles(size_t syst)
+    virtual void setGoodParticles(size_t syst) override
     {
-        looseList = &looseArray[syst];
+        Particle::setGoodParticles(syst);
         createLooseList();
     }
-
-    void clear()
-    {
-        for (size_t i = 0; i < nSyst; ++i) {
-            looseArray[i].clear();
-        }
-    }
-
-    PartList looseArray;
-    std::vector<size_t>* looseList;
 
     TTRArray<Float_t>* discriminator;
 };
