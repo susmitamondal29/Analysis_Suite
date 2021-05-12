@@ -2,6 +2,7 @@
 
 void fillBJet(const Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitmap)
 {
+    fillObject.clear();
     for (size_t syst = 0; syst < Particle::nSyst; ++syst) {
         if ((pass_bitmap >> syst) & 1) {
             fillObject.n_loose.push_back(jet.n_loose_bjet.at(syst));
@@ -20,6 +21,7 @@ void fillBJet(const Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitm
 
 void fillTop(const ResolvedTop& top, Level level, TopOut& fillObject, size_t pass_bitmap)
 {
+    fillObject.clear();
     for (size_t idx = 0; idx < top.size(); ++idx) {
         size_t final_bitmap = fillParticle(top, level, fillObject, idx, pass_bitmap);
         if (final_bitmap != 0) {
@@ -30,6 +32,7 @@ void fillTop(const ResolvedTop& top, Level level, TopOut& fillObject, size_t pas
 
 void fillLeptons(const Lepton& muon, const Lepton& elec, ParticleOut& fillObject, size_t pass_bitmap)
 {
+    fillObject.clear();
     size_t midx = 0;
     size_t eidx = 0;
     while (midx != muon.size() || eidx != elec.size()) {

@@ -64,15 +64,6 @@ void ThreeTop::clearValues()
     rTop.clear();
     rGen.clear();
 
-    o_looseMuons->clear();
-    o_tightMuons->clear();
-    o_looseElectrons->clear();
-    o_tightElectrons->clear();
-    o_tightLeptons->clear();
-    o_jets->clear();
-    o_bJets->clear();
-    o_resolvedTop->clear();
-
     o_ht.clear();
     o_htb.clear();
     o_met.clear();

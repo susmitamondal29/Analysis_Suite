@@ -18,6 +18,7 @@ size_t fillParticle(const Particle& particle, Level level, T& fillObject, size_t
 template <class T>
 void fillParticle(const Particle& particle, Level level, T& fillObject, size_t pass_bitmap)
 {
+    fillObject.clear();
     for (size_t idx = 0; idx < particle.size(); ++idx) {
         fillParticle(particle, level, fillObject, idx, pass_bitmap);
     }
