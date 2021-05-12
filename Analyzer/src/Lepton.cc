@@ -6,9 +6,9 @@ void Lepton::setup(std::string name, TTreeReader& fReader, int year)
 {
     m_charge = new TTreeReaderArray<Int_t>(fReader, (name + "_charge").c_str());
     Particle::setup(name, fReader, year);
-    m_partArray[eLoose] = PartList(nSyst);
-    m_partArray[eFake] = PartList(nSyst);
-    m_partArray[eTight] = PartList(nSyst);
+    setup_map(eLoose);
+    setup_map(eFake);
+    setup_map(eTight);
 }
 
 std::pair<size_t, float> Lepton::getCloseJet(size_t lidx, Particle& jet)

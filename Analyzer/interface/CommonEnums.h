@@ -4,7 +4,8 @@
 enum YEAR {
     yr2016,
     yr2017,
-    yr2018 };
+    yr2018
+};
 
 enum PID {
     PID_MUON = 13,

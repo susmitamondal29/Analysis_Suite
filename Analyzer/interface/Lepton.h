@@ -17,12 +17,13 @@ public:
     bool passJetIsolation(size_t idx, Particle& jets);
     Int_t charge(size_t idx) { return m_charge->At(idx); };
 
-    void setGoodParticles(Particle& jets, size_t syst) 
+    void setGoodParticles(Particle& jets, size_t syst)
     {
         Particle::setGoodParticles(syst);
         createLooseList();
         createFakeList(jets);
         createTightList();
+        fill_bitmap();
     }
 
     virtual void clear() override

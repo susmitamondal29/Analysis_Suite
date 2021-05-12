@@ -15,7 +15,8 @@ void Particle::setup(std::string name, TTreeReader& fReader, int year)
 
 void Particle::clear()
 {
-    for (auto& [key, plist]: m_partArray) {
+    for (auto& [key, plist] : m_partArray) {
+        m_bitArray[key].clear();
         for (size_t i = 0; i < nSyst; ++i) {
             plist[i].clear();
         }
@@ -24,7 +25,26 @@ void Particle::clear()
 
 void Particle::setGoodParticles(size_t syst)
 {
-    for (auto& [key, plist]: m_partArray) {
+    for (auto& [key, plist] : m_partArray) {
         m_partList[key] = &plist[syst];
+        m_bitArray[key].assign(size(), 0);
     }
+}
+
+void Particle::fill_bitmap()
+{
+    for (const auto& [key, plist] : m_partArray) {
+        for (size_t syst = 0; syst < nSyst; ++syst) {
+            for (auto idx : plist[syst]) {
+                m_bitArray[key][idx] += 1 << syst;
+            }
+        }
+    }
+}
+
+void Particle::setup_map(int name)
+{
+    m_partArray[name] = PartList(nSyst);
+    m_partList[name] = nullptr;
+    m_bitArray[name] = std::vector<size_t>();
 }

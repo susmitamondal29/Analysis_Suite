@@ -13,6 +13,8 @@ public:
             return;
         Particle::setGoodParticles(syst);
         createLooseList();
+
+        fill_bitmap();
     }
 
     TTRArray<Int_t>* pdgId;

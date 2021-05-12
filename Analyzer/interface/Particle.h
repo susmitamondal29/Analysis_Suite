@@ -35,8 +35,9 @@ public:
     Float_t mass(size_t idx) { return m_mass->At(idx); }
 
     std::vector<size_t>* list(int name) { return m_partList[name]; };
-    std::vector<size_t> list(int name, size_t syst) { return m_partArray[name][syst]; };
-    
+    std::vector<size_t>& list(int name, size_t syst) { return m_partArray[name][syst]; };
+    const std::vector<size_t>& bitmap(int name) { return m_bitArray[name]; };
+
     virtual void clear();
 
     static size_t nSyst;
@@ -50,6 +51,10 @@ protected:
 
     std::unordered_map<int, std::vector<size_t>*> m_partList;
     std::unordered_map<int, PartList> m_partArray;
+    std::unordered_map<int, std::vector<size_t>> m_bitArray;
+
+    void setup_map(int name);
+    void fill_bitmap();
 };
 
 #endif // __PARTICLE_H_

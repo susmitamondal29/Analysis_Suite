@@ -13,6 +13,8 @@ public:
     {
         Particle::setGoodParticles(syst);
         createLooseList();
+
+        fill_bitmap();
     }
 
     TTRArray<Float_t>* discriminator;

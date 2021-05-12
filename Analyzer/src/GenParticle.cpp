@@ -10,7 +10,7 @@ void GenParticle::setup(TTreeReader& fReader, int year, bool isMC_)
     Particle::setup("Jet", fReader, year);
     pdgId = new TTRArray<Int_t>(fReader, "GenPart_pdgId");
 
-    m_partArray[eTop] = PartList(nSyst);
+    setup_map(eTop);
 }
 
 void GenParticle::createLooseList()

@@ -7,9 +7,9 @@ void Jet::setup(TTreeReader& fReader, int year)
     hadronFlavour = new TTRArray<Int_t>(fReader, "Jet_hadronFlavour");
     btag = new TTRArray<Float_t>(fReader, "Jet_btagDeepB");
 
-    m_partArray[eLoose] = PartList(nSyst);
-    m_partArray[eBottom]= PartList(nSyst);
-    m_partArray[eTight] = PartList(nSyst);
+    setup_map(eLoose);
+    setup_map(eBottom);
+    setup_map(eTight);
 
     if (year_ == yr2016) {
         loose_bjet_cut = 0.2219;

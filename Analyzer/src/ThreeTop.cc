@@ -148,13 +148,13 @@ bool ThreeTop::passSelection()
     cuts.push_back(std::make_pair("passChannel",
         currentChannel_ == channel_));
     cuts.push_back(std::make_pair("passJetNumber",
-                                  jet.list(eTight)->size() >= 2));
+        jet.list(eTight)->size() >= 2));
     cuts.push_back(std::make_pair("passBJetNumber",
-                                  jet.list(eBottom)->size() >= 1));
+        jet.list(eBottom)->size() >= 1));
     cuts.push_back(std::make_pair("passMetCut",
         **Met_pt > 25));
     cuts.push_back(std::make_pair("passHTCut",
-                                  jet.getHT(eTight) > 250));
+        jet.getHT(eTight) > 250));
 
     return fillCutFlow(cuts);
 }
@@ -207,13 +207,18 @@ bool ThreeTop::passTrigger()
 
 void ThreeTop::FillValues(std::vector<bool> passVec)
 {
-    fillParticle(muon, eLoose, *o_looseMuons, passVec);
-    fillParticle(muon, eTight, *o_tightMuons, passVec);
-    fillParticle(elec, eLoose, *o_looseElectrons, passVec);
-    fillParticle(elec, eTight, *o_tightElectrons, passVec);
-    fillParticle(jet, eTight, *o_jets, passVec);
-    fillBJet(jet, eBottom, *o_bJets, passVec);
-    fillTop(rTop, eLoose, *o_resolvedTop, passVec);
+    size_t pass_bitmap = 0;
+    for (size_t i = 0; i < passVec.size(); ++i) {
+        pass_bitmap += passVec.at(i) << i;
+    }
+
+    fillParticle(muon, eLoose, *o_looseMuons, pass_bitmap);
+    fillParticle(muon, eTight, *o_tightMuons, pass_bitmap);
+    fillParticle(elec, eLoose, *o_looseElectrons, pass_bitmap);
+    fillParticle(elec, eTight, *o_tightElectrons, pass_bitmap);
+    fillParticle(jet, eTight, *o_jets, pass_bitmap);
+    fillBJet(jet, eBottom, *o_bJets, pass_bitmap);
+    fillTop(rTop, eLoose, *o_resolvedTop, pass_bitmap);
     // fillLeptons(muon, elec, *o_tightLeptons);
 
     for (size_t syst = 0; syst < variations_.size(); ++syst) {

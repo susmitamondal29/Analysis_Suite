@@ -11,7 +11,7 @@ public:
 
     float getHT(int name, size_t syst) { return getHT(list(name, syst)); };
     float getHT(int name) { return getHT(*list(name)); };
-    
+
     float getCentrality(int name, size_t syst) { return getCentrality(list(name, syst)); };
     float getCentrality(int name) { return getCentrality(*list(name)); };
 
@@ -25,6 +25,8 @@ public:
         createLooseList();
         createBJetList();
         createTightList();
+
+        fill_bitmap();
     }
 
     virtual void clear() override
@@ -54,7 +56,6 @@ private:
 
     float getHT(std::vector<size_t> jet_list);
     float getCentrality(std::vector<size_t> jet_list);
-
 };
 
 #endif // __JET_H_

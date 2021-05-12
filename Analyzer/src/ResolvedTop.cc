@@ -8,7 +8,7 @@ void ResolvedTop::setup(TTreeReader& fReader, int year)
     // Medium 0.85
     // AltTight 0.92
     // Tight 0.95
-    m_partArray[eLoose] = PartList(nSyst);
+    setup_map(eLoose);
 }
 
 void ResolvedTop::createLooseList()

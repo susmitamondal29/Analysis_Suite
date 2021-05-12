@@ -1,30 +1,28 @@
 #include "analysis_suite/Analyzer/interface/Output.h"
 
-void fillBJet(Jet& jet, int listName, BJetOut& fillObject, std::vector<bool> passVec)
+void fillBJet(Jet& jet, int listName, BJetOut& fillObject, size_t pass_bitmap)
 {
-    std::vector<Int_t> bitMap(jet.size());
-    fillParticle(jet, listName, fillObject, bitMap, passVec);
-
     for (size_t syst = 0; syst < Particle::nSyst; ++syst) {
-        fillObject.n_loose.push_back(jet.n_loose_bjet.at(syst));
-        fillObject.n_medium.push_back(jet.n_medium_bjet.at(syst));
-        fillObject.n_tight.push_back(jet.n_tight_bjet.at(syst));
+        if ((pass_bitmap >> syst) & 1) {
+            fillObject.n_loose.push_back(jet.n_loose_bjet.at(syst));
+            fillObject.n_medium.push_back(jet.n_medium_bjet.at(syst));
+            fillObject.n_tight.push_back(jet.n_tight_bjet.at(syst));
+        }
     }
 
     for (size_t idx = 0; idx < jet.size(); ++idx) {
-        if (bitMap.at(idx) != 0) {
+        size_t final_bitmap = fillParticle(jet, listName, fillObject, idx, pass_bitmap);
+        if (final_bitmap != 0) {
             fillObject.discriminator.push_back(jet.btag->At(idx));
         }
     }
 }
 
-void fillTop(ResolvedTop& top, int listName, TopOut& fillObject, std::vector<bool> passVec)
+void fillTop(ResolvedTop& top, int listName, TopOut& fillObject, size_t pass_bitmap)
 {
-    std::vector<Int_t> bitMap(top.size());
-    fillParticle(top, listName, fillObject, bitMap, passVec);
-
     for (size_t idx = 0; idx < top.size(); ++idx) {
-        if (bitMap.at(idx) != 0) {
+        size_t final_bitmap = fillParticle(top, listName, fillObject, idx, pass_bitmap);
+        if (final_bitmap != 0) {
             fillObject.discriminator.push_back(top.discriminator->At(idx));
         }
     }
