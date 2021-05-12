@@ -1,6 +1,6 @@
 #include "analysis_suite/Analyzer/interface/Output.h"
 
-void fillBJet(Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitmap)
+void fillBJet(const Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitmap)
 {
     for (size_t syst = 0; syst < Particle::nSyst; ++syst) {
         if ((pass_bitmap >> syst) & 1) {
@@ -18,7 +18,7 @@ void fillBJet(Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitmap)
     }
 }
 
-void fillTop(ResolvedTop& top, Level level, TopOut& fillObject, size_t pass_bitmap)
+void fillTop(const ResolvedTop& top, Level level, TopOut& fillObject, size_t pass_bitmap)
 {
     for (size_t idx = 0; idx < top.size(); ++idx) {
         size_t final_bitmap = fillParticle(top, level, fillObject, idx, pass_bitmap);
@@ -28,7 +28,7 @@ void fillTop(ResolvedTop& top, Level level, TopOut& fillObject, size_t pass_bitm
     }
 }
 
-void fillLeptons(Lepton& muon, Lepton& elec, ParticleOut& fillObject, size_t pass_bitmap)
+void fillLeptons(const Lepton& muon, const Lepton& elec, ParticleOut& fillObject, size_t pass_bitmap)
 {
     size_t midx = 0;
     size_t eidx = 0;

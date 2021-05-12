@@ -28,15 +28,16 @@ public:
     void setup(std::string name, TTreeReader& fReader, Year year);
     virtual void setGoodParticles(size_t syst);
 
-    size_t size() { return (m_pt) ? m_pt->GetSize() : 0; }
-    Float_t pt(size_t idx) { return m_pt->At(idx); }
-    Float_t eta(size_t idx) { return m_eta->At(idx); }
-    Float_t phi(size_t idx) { return m_phi->At(idx); }
-    Float_t mass(size_t idx) { return m_mass->At(idx); }
+    size_t size() const { return (m_pt) ? m_pt->GetSize() : 0; }
+    size_t size(Level level) const { return list(level).size(); }
+    Float_t pt(size_t idx) const { return m_pt->At(idx); }
+    Float_t eta(size_t idx) const { return m_eta->At(idx); }
+    Float_t phi(size_t idx) const { return m_phi->At(idx); }
+    Float_t mass(size_t idx) const { return m_mass->At(idx); }
 
-    std::vector<size_t>* list(Level level) { return m_partList[level]; };
-    std::vector<size_t>& list(Level level, size_t syst) { return m_partArray[level][syst]; };
-    const std::vector<size_t>& bitmap(Level level) { return m_bitArray[level]; };
+    const std::vector<size_t>& list(Level level) const { return *m_partList.at(level); };
+    const std::vector<size_t>& list(Level level, size_t syst) const { return m_partArray.at(level).at(syst); };
+    const std::vector<size_t>& bitmap(Level level) const { return m_bitArray.at(level); };
 
     virtual void clear();
 

@@ -10,10 +10,10 @@ public:
     void setup(TTreeReader& fReader, Year year);
 
     float getHT(Level level, size_t syst) { return getHT(list(level, syst)); };
-    float getHT(Level level) { return getHT(*list(level)); };
+    float getHT(Level level) { return getHT(list(level)); };
 
     float getCentrality(Level level, size_t syst) { return getCentrality(list(level, syst)); };
-    float getCentrality(Level level) { return getCentrality(*list(level)); };
+    float getCentrality(Level level) { return getCentrality(list(level)); };
 
     virtual void setGoodParticles(size_t syst) override
     {
@@ -54,8 +54,8 @@ private:
     void createBJetList();
     void createTightList();
 
-    float getHT(std::vector<size_t>& jet_list);
-    float getCentrality(std::vector<size_t>& jet_list);
+    float getHT(const std::vector<size_t>& jet_list);
+    float getCentrality(const std::vector<size_t>& jet_list);
 };
 
 #endif // __JET_H_

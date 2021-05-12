@@ -33,29 +33,29 @@ void Muon::createLooseList()
             && iso->At(i) < 0.4
             && fabs(dz->At(i)) < 0.1
             && fabs(dxy->At(i)) < 0.05)
-            list(Level::Loose)->push_back(i);
+            m_partList[Level::Loose]->push_back(i);
     }
 }
 
 void Muon::createFakeList(Particle& jets)
 {
     std::vector<size_t> pre_list;
-    for (auto i : *list(Level::Loose)) {
+    for (auto i : list(Level::Loose)) {
         if (pt(i) > 10 && tightCharge->At(i) == 2 && mediumId->At(i) && sip3d->At(i) < 4)
             pre_list.push_back(i);
     }
     for (auto i : pre_list) {
         auto closeJetInfo = getCloseJet(i, jets);
         if (passJetIsolation(i, jets))
-            list(Level::Fake)->push_back(i);
+            m_partList[Level::Fake]->push_back(i);
         dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(closeJetInfo);
     }
 }
 
 void Muon::createTightList()
 {
-    for (auto i : *list(Level::Fake)) {
+    for (auto i : list(Level::Fake)) {
         if (pt(i) > 15 && iso->At(i) < 0.16)
-            list(Level::Tight)->push_back(i);
+            m_partList[Level::Tight]->push_back(i);
     }
 }

@@ -33,15 +33,15 @@ void Jet::createLooseList()
             && fabs(eta(i)) < 2.4
             && (jetId->At(i) & looseId) != 0
             && (closeJetDr_by_index.find(i) == closeJetDr_by_index.end() || closeJetDr_by_index.at(i) >= pow(0.4, 2)))
-            list(Level::Loose)->push_back(i);
+            m_partList[Level::Loose]->push_back(i);
     }
 }
 
 void Jet::createBJetList()
 {
-    for (auto i : *list(Level::Loose)) {
+    for (auto i : list(Level::Loose)) {
         if (btag->At(i) > medium_bjet_cut)
-            list(Level::Bottom)->push_back(i);
+            m_partList[Level::Bottom]->push_back(i);
         n_loose_bjet.back() += (btag->At(i) > loose_bjet_cut) ? 1 : 0;
         n_medium_bjet.back() += (btag->At(i) > medium_bjet_cut) ? 1 : 0;
         n_tight_bjet.back() += (btag->At(i) > tight_bjet_cut) ? 1 : 0;
@@ -50,13 +50,13 @@ void Jet::createBJetList()
 
 void Jet::createTightList()
 {
-    for (auto i : *list(Level::Loose)) {
+    for (auto i : list(Level::Loose)) {
         if (pt(i) > 40)
-            list(Level::Tight)->push_back(i);
+            m_partList[Level::Tight]->push_back(i);
     }
 }
 
-float Jet::getHT(std::vector<size_t>& jet_list)
+float Jet::getHT(const std::vector<size_t>& jet_list)
 {
     float ht = 0;
     for (auto i : jet_list) {
@@ -65,7 +65,7 @@ float Jet::getHT(std::vector<size_t>& jet_list)
     return ht;
 }
 
-float Jet::getCentrality(std::vector<size_t>& jet_list)
+float Jet::getCentrality(const std::vector<size_t>& jet_list)
 {
     float etot = 0;
     for (auto i : jet_list) {

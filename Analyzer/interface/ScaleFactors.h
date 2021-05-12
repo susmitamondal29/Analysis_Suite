@@ -21,12 +21,12 @@ public:
     ScaleFactors() {}
     ScaleFactors(Year year);
 
-    float getBJetSF(Jet& jets);
+    float getBJetSF(const Jet& jets);
     float getPileupSF(int nPU);
-    float getResolvedTopSF(ResolvedTop& top, GenParticle& genPart);
+    float getResolvedTopSF(const ResolvedTop& top, const GenParticle& genPart);
 
-    float getElectronSF(Lepton& elec);
-    float getMuonSF(Lepton& muon);
+    float getElectronSF(const Lepton& elec);
+    float getMuonSF(const Lepton& muon);
 
 private:
     Year year_;

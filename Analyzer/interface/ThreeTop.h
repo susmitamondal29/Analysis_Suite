@@ -29,7 +29,7 @@ class ThreeTop : public BaseSelector {
 public:
     virtual void Init(TTree* tree) override;
     virtual bool passSelection() override;
-    virtual void FillValues(std::vector<bool>& passVec) override;
+    virtual void FillValues(const std::vector<bool>& passVec) override;
     virtual void SetupOutTree() override;
     virtual void setupChannel() override;
     virtual void ApplyScaleFactors() override;

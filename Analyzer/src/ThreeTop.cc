@@ -1,7 +1,7 @@
 #include "analysis_suite/Analyzer/interface/ThreeTop.h"
 
-#define getElec(var, i) (elec.var(elec.list(Level::Tight)->at(i)))
-#define getMuon(var, i) (muon.var(muon.list(Level::Tight)->at(i)))
+#define getElec(var, i) (elec.var(elec.list(Level::Tight).at(i)))
+#define getMuon(var, i) (muon.var(muon.list(Level::Tight).at(i)))
 
 void ThreeTop::Init(TTree* tree)
 {
@@ -97,17 +97,17 @@ void ThreeTop::setOtherGoodParticles(size_t syst)
 
 void ThreeTop::setupChannel()
 {
-    size_t nLep = muon.list(Level::Tight)->size() + elec.list(Level::Tight)->size();
+    size_t nLep = muon.size(Level::Tight) + elec.size(Level::Tight);
     if (nLep == 0)
         currentChannel_ = Channel::Hadronic;
     else if (nLep == 1)
         currentChannel_ = Channel::Single;
     else if (nLep == 2) {
         int q_product = 1;
-        if (elec.list(Level::Tight)->size() == 2) {
+        if (elec.size(Level::Tight) == 2) {
             subChannel_ = Subchannel::EE;
             q_product *= getElec(charge, 0) * getElec(charge, 1);
-        } else if (muon.list(Level::Tight)->size() == 2) {
+        } else if (muon.size(Level::Tight) == 2) {
             subChannel_ = Subchannel::MM;
             q_product *= getMuon(charge, 0) * getMuon(charge, 1);
         } else {
@@ -131,8 +131,8 @@ bool ThreeTop::passSelection()
         (**Flag_goodVertices && **Flag_globalSuperTightHalo2016Filter && **Flag_HBHENoiseFilter && **Flag_HBHENoiseIsoFilter && **Flag_EcalDeadCellTriggerPrimitiveFilter && **Flag_BadPFMuonFilter && **Flag_ecalBadCalibFilter)));
     cuts.push_back(std::make_pair("passZVeto", muon.passZVeto() && elec.passZVeto()));
     cuts.push_back(std::make_pair("passChannel", currentChannel_ == channel_));
-    cuts.push_back(std::make_pair("passJetNumber", jet.list(Level::Tight)->size() >= 2));
-    cuts.push_back(std::make_pair("passBJetNumber", jet.list(Level::Bottom)->size() >= 1));
+    cuts.push_back(std::make_pair("passJetNumber", jet.size(Level::Tight) >= 2));
+    cuts.push_back(std::make_pair("passBJetNumber", jet.size(Level::Bottom) >= 1));
     cuts.push_back(std::make_pair("passMetCut", **Met_pt > 25));
     cuts.push_back(std::make_pair("passHTCut", jet.getHT(Level::Tight) > 250));
 
@@ -185,7 +185,7 @@ void ThreeTop::fillCutFlow()
     }
 }
 
-void ThreeTop::FillValues(std::vector<bool>& passVec)
+void ThreeTop::FillValues(const std::vector<bool>& passVec)
 {
     size_t pass_bitmap = 0;
     for (size_t i = 0; i < passVec.size(); ++i) {
@@ -225,9 +225,9 @@ void ThreeTop::printStuff()
     std::cout << "Event: " << **event << std::endl;
     std::cout << "Met: " << **Met_pt << std::endl;
     std::cout << "HT: " << jet.getHT(Level::Tight, 0) << std::endl;
-    std::cout << "njet: " << jet.list(Level::Tight)->size() << std::endl;
-    std::cout << "nbjet: " << jet.list(Level::Bottom)->size() << std::endl;
-    std::cout << "nlep: " << muon.list(Level::Tight)->size() << " " << elec.list(Level::Tight)->size() << std::endl;
+    std::cout << "njet: " << jet.size(Level::Tight) << std::endl;
+    std::cout << "nbjet: " << jet.size(Level::Bottom) << std::endl;
+    std::cout << "nlep: " << muon.size(Level::Tight) << " " << elec.size(Level::Tight) << std::endl;
     std::cout << "lepVeto: " << muon.passZVeto() << " " << elec.passZVeto() << std::endl;
     std::cout << std::endl;
 }

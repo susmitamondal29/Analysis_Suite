@@ -11,7 +11,7 @@ void Lepton::setup(std::string name, TTreeReader& fReader, Year year)
     setup_map(Level::Tight);
 }
 
-std::pair<size_t, float> Lepton::getCloseJet(size_t lidx, Particle& jet)
+std::pair<size_t, float> Lepton::getCloseJet(size_t lidx, const Particle& jet)
 {
     size_t minIdx = SIZE_MAX;
     float minDr = 100;
@@ -33,10 +33,10 @@ std::pair<size_t, float> Lepton::getCloseJet(size_t lidx, Particle& jet)
 
 bool Lepton::passZVeto()
 {
-    for (auto tidx : *list(Level::Loose)) { //tightList
+    for (auto tidx : list(Level::Loose)) { //tightList
         LorentzVector tlep(pt(tidx), eta(tidx), phi(tidx),
             mass(tidx));
-        for (auto lidx : *list(Level::Loose)) {
+        for (auto lidx : list(Level::Loose)) {
             if (tidx >= lidx || charge(tidx) * charge(lidx) > 0)
                 continue;
             LorentzVector llep(pt(lidx), eta(lidx), phi(lidx),
@@ -49,7 +49,7 @@ bool Lepton::passZVeto()
     return true;
 }
 
-bool Lepton::passJetIsolation(size_t idx, Particle& jets)
+bool Lepton::passJetIsolation(size_t idx, const Particle& jets)
 {
     if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
         return true; /// no close jet (probably no jets)

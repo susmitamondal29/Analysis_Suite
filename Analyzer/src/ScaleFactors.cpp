@@ -40,11 +40,11 @@ ScaleFactors::ScaleFactors(Year year)
     h_btag_eff_udsg = (TH2D*)gDirectory->Get("btagEff_udsg");
 }
 
-float ScaleFactors::getBJetSF(Jet& jets)
+float ScaleFactors::getBJetSF(const Jet& jets)
 {
 
     float weight = 1.;
-    auto goodBJets = *jets.list(Level::Bottom);
+    const auto goodBJets = jets.list(Level::Bottom);
     BTagEntry::JetFlavor flav;
 
     for (auto bidx : goodBJets) {
@@ -57,7 +57,7 @@ float ScaleFactors::getBJetSF(Jet& jets)
             flav = BTagEntry::FLAV_UDSG;
         weight *= btag_reader.eval_auto_bounds("central", flav, jets.eta(bidx), jets.pt(bidx));
     }
-    for (auto jidx : *jets.list(Level::Tight)) {
+    for (auto jidx : jets.list(Level::Tight)) {
         if (std::find(goodBJets.begin(), goodBJets.end(), jidx) != goodBJets.end()) {
             continue; // is a bjet, weighting already taken care of
         }
@@ -87,16 +87,16 @@ float ScaleFactors::getPileupSF(int nPU)
     return getWeight(pileupSF, nPU);
 }
 
-float ScaleFactors::getResolvedTopSF(ResolvedTop& top, GenParticle& genPart)
+float ScaleFactors::getResolvedTopSF(const ResolvedTop& top, const GenParticle& genPart)
 {
     float weight = 1.;
-    for (auto tidx : *top.list(Level::Loose)) {
+    for (auto tidx : top.list(Level::Loose)) {
         bool foundMatch = false;
         float minDR = 0.1;
         float tpt = top.pt(tidx);
         float teta = top.eta(tidx);
         float tphi = top.phi(tidx);
-        for (auto gidx : *genPart.list(Level::Top)) {
+        for (auto gidx : genPart.list(Level::Top)) {
             float dr2 = pow(genPart.eta(gidx) - teta, 2)
                 + pow(genPart.phi(gidx) - tphi, 2);
             if (dr2 < minDR) {
@@ -112,10 +112,10 @@ float ScaleFactors::getResolvedTopSF(ResolvedTop& top, GenParticle& genPart)
     return weight;
 }
 
-float ScaleFactors::getElectronSF(Lepton& electron)
+float ScaleFactors::getElectronSF(const Lepton& electron)
 {
     float weight = 1.;
-    for (auto eidx : *electron.list(Level::Tight)) {
+    for (auto eidx : electron.list(Level::Tight)) {
         float pt = std::min(electron.pt(eidx), elecPtMax);
         float eta = electron.eta(eidx);
         if (pt < 20) {
@@ -128,10 +128,10 @@ float ScaleFactors::getElectronSF(Lepton& electron)
     return weight;
 }
 
-float ScaleFactors::getMuonSF(Lepton& muon)
+float ScaleFactors::getMuonSF(const Lepton& muon)
 {
     float weight = 1.;
-    for (auto midx : *muon.list(Level::Tight)) {
+    for (auto midx : muon.list(Level::Tight)) {
         float pt = std::min(muon.pt(midx), muonPtMax);
         if (pt < muonPtMin)
             pt = muonPtMin;

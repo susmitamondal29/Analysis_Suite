@@ -51,7 +51,7 @@ public:
     virtual void SetupOutTree() {}
     void SetupEvent(size_t syst);
     virtual bool passSelection() { return true; }
-    virtual void FillValues(std::vector<bool>& passVec) {}
+    virtual void FillValues(const std::vector<bool>& passVec) {}
     virtual void setupChannel(){};
     virtual void setOtherGoodParticles(size_t syst){};
     virtual void ApplyScaleFactors(){};

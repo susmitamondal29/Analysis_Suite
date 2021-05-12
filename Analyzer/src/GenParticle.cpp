@@ -17,7 +17,7 @@ void GenParticle::createLooseList()
 {
     for (size_t i = 0; i < size(); i++) {
         if (abs(pdgId->At(i)) == static_cast<Int_t>(PID::Top)) {
-            list(Level::Top)->push_back(i);
+            m_partList[Level::Top]->push_back(i);
         }
     }
 }

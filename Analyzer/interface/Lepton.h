@@ -12,8 +12,8 @@ public:
     virtual void createTightList(){};
     bool passZVeto();
     void setup(std::string name, TTreeReader& fReader, Year year);
-    std::pair<size_t, float> getCloseJet(size_t lidx, Particle& jet);
-    bool passJetIsolation(size_t idx, Particle& jets);
+    std::pair<size_t, float> getCloseJet(size_t lidx, const Particle& jet);
+    bool passJetIsolation(size_t idx, const Particle& jets);
     Int_t charge(size_t idx) { return m_charge->At(idx); };
 
     void setGoodParticles(Particle& jets, size_t syst)

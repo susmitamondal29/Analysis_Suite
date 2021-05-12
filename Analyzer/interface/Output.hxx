@@ -2,7 +2,7 @@
 #define __OUTPUT_HXX_
 
 template <class T>
-size_t fillParticle(Particle& particle, Level level, T& fillObject, size_t idx, size_t pass_bitmap)
+size_t fillParticle(const Particle& particle, Level level, T& fillObject, size_t idx, size_t pass_bitmap)
 {
     size_t final_bitmap = particle.bitmap(level).at(idx) & pass_bitmap;
     if (final_bitmap != 0) {
@@ -16,7 +16,7 @@ size_t fillParticle(Particle& particle, Level level, T& fillObject, size_t idx, 
 }
 
 template <class T>
-void fillParticle(Particle& particle, Level level, T& fillObject, size_t pass_bitmap)
+void fillParticle(const Particle& particle, Level level, T& fillObject, size_t pass_bitmap)
 {
     for (size_t idx = 0; idx < particle.size(); ++idx) {
         fillParticle(particle, level, fillObject, idx, pass_bitmap);

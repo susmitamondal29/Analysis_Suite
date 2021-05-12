@@ -66,16 +66,16 @@ struct TopOut {
 };
 
 template <class T>
-size_t fillParticle(Particle& particle, Level level, T& fillObject, size_t idx, size_t pass_bitmap);
+size_t fillParticle(const Particle& particle, Level level, T& fillObject, size_t idx, size_t pass_bitmap);
 
 template <class T>
-void fillParticle(Particle& particle, Level level, T& fillObject, size_t pass_bitmap);
+void fillParticle(const Particle& particle, Level level, T& fillObject, size_t pass_bitmap);
 
-void fillBJet(Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitmap);
+void fillBJet(const Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitmap);
 
-void fillTop(ResolvedTop& top, Level level, TopOut& fillObject, size_t pass_bitmap);
+void fillTop(const ResolvedTop& top, Level level, TopOut& fillObject, size_t pass_bitmap);
 
-void fillLeptons(Lepton& muon, Lepton& elec, ParticleOut& fillObject, size_t pass_bitmap);
+void fillLeptons(const Lepton& muon, const Lepton& elec, ParticleOut& fillObject, size_t pass_bitmap);
 
 #include "analysis_suite/Analyzer/interface/Output.hxx"
 

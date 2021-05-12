@@ -15,6 +15,6 @@ void ResolvedTop::createLooseList()
 {
     for (size_t i = 0; i < size(); i++) {
         if (discriminator->At(i) > 0.85)
-            list(Level::Loose)->push_back(i);
+            m_partList[Level::Loose]->push_back(i);
     }
 }
