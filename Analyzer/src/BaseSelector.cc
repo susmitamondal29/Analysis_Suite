@@ -42,7 +42,7 @@ void BaseSelector::Init(TTree* tree)
     }
 
     variations_.push_back("Nominal");
-    variations_.push_back("Other");
+    // variations_.push_back("Other");
     Particle::nSyst = variations_.size();
     o_weight.resize(variations_.size());
 

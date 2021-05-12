@@ -33,7 +33,6 @@ void fillLeptons(Lepton& muon, Lepton& elec, ParticleOut& fillObject, size_t pas
     size_t midx = 0;
     size_t eidx = 0;
     while (midx != muon.size() || eidx != elec.size() ) {
-        // std::cout << midx << " " << eidx << " | " << muon.size() << " " << elec.size() << std::endl;
         if (midx != muon.size() && (eidx == elec.size() || muon.pt(midx) > elec.pt(eidx))) {
             fillParticle(muon, eTight, fillObject, midx, pass_bitmap);
             midx++;

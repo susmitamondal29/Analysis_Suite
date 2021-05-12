@@ -180,6 +180,11 @@ bool ThreeTop::fillCutFlow(std::vector<std::pair<std::string, bool>> cuts)
         if (passAll)
             cutFlow->Fill(cut.first.c_str(), *weight);
     }
+
+    if (passAll) {
+        printStuff();
+    }
+
     return passAll;
 }
 
@@ -242,12 +247,12 @@ float ThreeTop::getLeadPt()
 
 void ThreeTop::printStuff()
 {
-    // std::cout << "Event: " << **event << std::endl;
-    // std::cout << "Met: " << **Met_pt << std::endl;
-    // std::cout << "HT: " << jet.getHT(jet.list(eTight)) << std::endl;
-    // std::cout << "njet: " << jet.list(eTight)->size() << std::endl;
-    // std::cout << "nbjet: " << jet.list(eBottom)->size() << std::endl;
-    // std::cout << "nlep: " << muon.list(eTight)->size() << " " << elec.list(eTight)->size() << std::endl;
-    // std::cout << "lepVeto: " << muon.passZVeto() << " " << elec.passZVeto() << std::endl;
-    // std::cout << std::endl;
+    std::cout << "Event: " << **event << std::endl;
+    std::cout << "Met: " << **Met_pt << std::endl;
+    std::cout << "HT: " << jet.getHT(eTight, 0) << std::endl;
+    std::cout << "njet: " << jet.list(eTight)->size() << std::endl;
+    std::cout << "nbjet: " << jet.list(eBottom)->size() << std::endl;
+    std::cout << "nlep: " << muon.list(eTight)->size() << " " << elec.list(eTight)->size() << std::endl;
+    std::cout << "lepVeto: " << muon.passZVeto() << " " << elec.passZVeto() << std::endl;
+    std::cout << std::endl;
 }
