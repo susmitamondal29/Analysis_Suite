@@ -1,7 +1,7 @@
 #include "analysis_suite/Analyzer/interface/Muon.h"
 #include "analysis_suite/Analyzer/interface/Jet.h"
 
-void Muon::setup(TTreeReader& fReader, int year)
+void Muon::setup(TTreeReader& fReader, Year year)
 {
     Lepton::setup("Muon", fReader, year);
     isGlobal = new TTRArray<Bool_t>(fReader, "Muon_isGlobal");
@@ -14,7 +14,7 @@ void Muon::setup(TTreeReader& fReader, int year)
     mediumId = new TTRArray<Bool_t>(fReader, "Muon_mediumId");
     sip3d = new TTRArray<Float_t>(fReader, "Muon_sip3d");
 
-    if (year_ == yr2016) {
+    if (year_ == Year::yr2016) {
         ptRatioCut = 0.76;
         ptRelCut = pow(7.2, 2);
     } else {
@@ -33,29 +33,29 @@ void Muon::createLooseList()
             && iso->At(i) < 0.4
             && fabs(dz->At(i)) < 0.1
             && fabs(dxy->At(i)) < 0.05)
-            list(eLoose)->push_back(i);
+            list(Level::Loose)->push_back(i);
     }
 }
 
 void Muon::createFakeList(Particle& jets)
 {
     std::vector<size_t> pre_list;
-    for (auto i : *list(eLoose)) {
+    for (auto i : *list(Level::Loose)) {
         if (pt(i) > 10 && tightCharge->At(i) == 2 && mediumId->At(i) && sip3d->At(i) < 4)
             pre_list.push_back(i);
     }
     for (auto i : pre_list) {
         auto closeJetInfo = getCloseJet(i, jets);
         if (passJetIsolation(i, jets))
-            list(eFake)->push_back(i);
+            list(Level::Fake)->push_back(i);
         dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(closeJetInfo);
     }
 }
 
 void Muon::createTightList()
 {
-    for (auto i : *list(eFake)) {
+    for (auto i : *list(Level::Fake)) {
         if (pt(i) > 15 && iso->At(i) < 0.16)
-            list(eTight)->push_back(i);
+            list(Level::Tight)->push_back(i);
     }
 }

@@ -7,13 +7,13 @@
 
 class Jet : public Particle {
 public:
-    void setup(TTreeReader& fReader, int year);
+    void setup(TTreeReader& fReader, Year year);
 
-    float getHT(int name, size_t syst) { return getHT(list(name, syst)); };
-    float getHT(int name) { return getHT(*list(name)); };
+    float getHT(Level level, size_t syst) { return getHT(list(level, syst)); };
+    float getHT(Level level) { return getHT(*list(level)); };
 
-    float getCentrality(int name, size_t syst) { return getCentrality(list(name, syst)); };
-    float getCentrality(int name) { return getCentrality(*list(name)); };
+    float getCentrality(Level level, size_t syst) { return getCentrality(list(level, syst)); };
+    float getCentrality(Level level) { return getCentrality(*list(level)); };
 
     virtual void setGoodParticles(size_t syst) override
     {

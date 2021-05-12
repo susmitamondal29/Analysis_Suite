@@ -4,7 +4,7 @@ size_t Particle::nSyst = 0;
 
 Particle::Particle() {}
 
-void Particle::setup(std::string name, TTreeReader& fReader, int year)
+void Particle::setup(std::string name, TTreeReader& fReader, Year year)
 {
     year_ = year;
     m_pt = new TTreeReaderArray<Float_t>(fReader, (name + "_pt").c_str());
@@ -42,9 +42,9 @@ void Particle::fill_bitmap()
     }
 }
 
-void Particle::setup_map(int name)
+void Particle::setup_map(Level level)
 {
-    m_partArray[name] = PartList(nSyst);
-    m_partList[name] = nullptr;
-    m_bitArray[name] = std::vector<size_t>();
+    m_partArray[level] = PartList(nSyst);
+    m_partList[level] = nullptr;
+    m_bitArray[level] = std::vector<size_t>();
 }

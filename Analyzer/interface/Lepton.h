@@ -7,12 +7,11 @@
 
 class Lepton : public Particle {
 public:
-    void setup(std::string name, TTreeReader& fReader);
     virtual void createLooseList(){};
     virtual void createFakeList(Particle& jets){};
     virtual void createTightList(){};
     bool passZVeto();
-    void setup(std::string name, TTreeReader& fReader, int year);
+    void setup(std::string name, TTreeReader& fReader, Year year);
     std::pair<size_t, float> getCloseJet(size_t lidx, Particle& jet);
     bool passJetIsolation(size_t idx, Particle& jets);
     Int_t charge(size_t idx) { return m_charge->At(idx); };

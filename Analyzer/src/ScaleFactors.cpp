@@ -3,17 +3,17 @@
 #include "analysis_suite/Analyzer/interface/CommonEnums.h"
 #include <filesystem>
 
-ScaleFactors::ScaleFactors(int year)
+ScaleFactors::ScaleFactors(Year year)
     : year_(year)
 {
     std::string scaleDir = getenv("CMSSW_BASE");
     scaleDir += "/src/analysis_suite/data/scale_factors/";
 
     std::string strYear;
-    if (year == yr2016) {
+    if (year == Year::yr2016) {
         calib = BTagCalibration("deepcsv", scaleDir + "btag_2016.csv");
         strYear = "2016";
-    } else if (year == yr2017) {
+    } else if (year == Year::yr2017) {
         calib = BTagCalibration("deepcsv", scaleDir + "btag_2017.csv");
         strYear = "2017";
     } else {
@@ -44,20 +44,20 @@ float ScaleFactors::getBJetSF(Jet& jets)
 {
 
     float weight = 1.;
-    auto goodBJets = *jets.list(eBottom);
+    auto goodBJets = *jets.list(Level::Bottom);
     BTagEntry::JetFlavor flav;
 
     for (auto bidx : goodBJets) {
         int pdgId = std::abs(jets.hadronFlavour->At(bidx));
-        if (pdgId == PID_BJET)
+        if (pdgId == static_cast<Int_t>(PID::Bottom))
             flav = BTagEntry::FLAV_B;
-        else if (pdgId == PID_CJET)
+        else if (pdgId == static_cast<Int_t>(PID::Charm))
             flav = BTagEntry::FLAV_C;
         else
             flav = BTagEntry::FLAV_UDSG;
         weight *= btag_reader.eval_auto_bounds("central", flav, jets.eta(bidx), jets.pt(bidx));
     }
-    for (auto jidx : *jets.list(eTight)) {
+    for (auto jidx : *jets.list(Level::Tight)) {
         if (std::find(goodBJets.begin(), goodBJets.end(), jidx) != goodBJets.end()) {
             continue; // is a bjet, weighting already taken care of
         }
@@ -65,10 +65,10 @@ float ScaleFactors::getBJetSF(Jet& jets)
         float pt = jets.pt(jidx);
         float eta = fabs(jets.eta(jidx));
         float eff = 1;
-        if (pdgId == PID_BJET) {
+        if (pdgId == static_cast<Int_t>(PID::Bottom)) {
             flav = BTagEntry::FLAV_B;
             eff = getWeight(h_btag_eff_b, pt, eta);
-        } else if (pdgId == PID_CJET) {
+        } else if (pdgId == static_cast<Int_t>(PID::Charm)) {
             flav = BTagEntry::FLAV_C;
             eff = getWeight(h_btag_eff_c, pt, eta);
         } else {
@@ -90,13 +90,13 @@ float ScaleFactors::getPileupSF(int nPU)
 float ScaleFactors::getResolvedTopSF(ResolvedTop& top, GenParticle& genPart)
 {
     float weight = 1.;
-    for (auto tidx : *top.list(eLoose)) {
+    for (auto tidx : *top.list(Level::Loose)) {
         bool foundMatch = false;
         float minDR = 0.1;
         float tpt = top.pt(tidx);
         float teta = top.eta(tidx);
         float tphi = top.phi(tidx);
-        for (auto gidx : *genPart.list(eTop)) {
+        for (auto gidx : *genPart.list(Level::Top)) {
             float dr2 = pow(genPart.eta(gidx) - teta, 2)
                 + pow(genPart.phi(gidx) - tphi, 2);
             if (dr2 < minDR) {
@@ -115,7 +115,7 @@ float ScaleFactors::getResolvedTopSF(ResolvedTop& top, GenParticle& genPart)
 float ScaleFactors::getElectronSF(Lepton& electron)
 {
     float weight = 1.;
-    for (auto eidx : *electron.list(eTight)) {
+    for (auto eidx : *electron.list(Level::Tight)) {
         float pt = std::min(electron.pt(eidx), elecPtMax);
         float eta = electron.eta(eidx);
         if (pt < 20) {
@@ -131,12 +131,12 @@ float ScaleFactors::getElectronSF(Lepton& electron)
 float ScaleFactors::getMuonSF(Lepton& muon)
 {
     float weight = 1.;
-    for (auto midx : *muon.list(eTight)) {
+    for (auto midx : *muon.list(Level::Tight)) {
         float pt = std::min(muon.pt(midx), muonPtMax);
         if (pt < muonPtMin)
             pt = muonPtMin;
         float eta = muon.eta(midx);
-        weight *= (year_ == yr2016) ? getWeight(muonSF, eta, pt) : getWeightPtAbsEta(muonSF, pt, eta);
+        weight *= (year_ == Year::yr2016) ? getWeight(muonSF, eta, pt) : getWeightPtAbsEta(muonSF, pt, eta);
     }
 
     return weight;

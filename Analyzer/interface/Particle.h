@@ -25,7 +25,7 @@ class Particle {
 public:
     Particle();
     virtual ~Particle(){};
-    void setup(std::string name, TTreeReader& fReader, int year);
+    void setup(std::string name, TTreeReader& fReader, Year year);
     virtual void setGoodParticles(size_t syst);
 
     size_t size() { return (m_pt) ? m_pt->GetSize() : 0; }
@@ -34,14 +34,14 @@ public:
     Float_t phi(size_t idx) { return m_phi->At(idx); }
     Float_t mass(size_t idx) { return m_mass->At(idx); }
 
-    std::vector<size_t>* list(int name) { return m_partList[name]; };
-    std::vector<size_t>& list(int name, size_t syst) { return m_partArray[name][syst]; };
-    const std::vector<size_t>& bitmap(int name) { return m_bitArray[name]; };
+    std::vector<size_t>* list(Level level) { return m_partList[level]; };
+    std::vector<size_t>& list(Level level, size_t syst) { return m_partArray[level][syst]; };
+    const std::vector<size_t>& bitmap(Level level) { return m_bitArray[level]; };
 
     virtual void clear();
 
     static size_t nSyst;
-    int year_;
+    Year year_;
 
 protected:
     TTRArray<Float_t>* m_pt;
@@ -49,11 +49,11 @@ protected:
     TTRArray<Float_t>* m_phi;
     TTRArray<Float_t>* m_mass;
 
-    std::unordered_map<int, std::vector<size_t>*> m_partList;
-    std::unordered_map<int, PartList> m_partArray;
-    std::unordered_map<int, std::vector<size_t>> m_bitArray;
+    std::unordered_map<Level, std::vector<size_t>*> m_partList;
+    std::unordered_map<Level, PartList> m_partArray;
+    std::unordered_map<Level, std::vector<size_t>> m_bitArray;
 
-    void setup_map(int name);
+    void setup_map(Level level);
     void fill_bitmap();
 };
 

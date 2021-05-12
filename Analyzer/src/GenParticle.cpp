@@ -2,7 +2,7 @@
 
 #include "analysis_suite/Analyzer/interface/CommonEnums.h"
 
-void GenParticle::setup(TTreeReader& fReader, int year, bool isMC_)
+void GenParticle::setup(TTreeReader& fReader, Year year, bool isMC_)
 {
     isMC = isMC_;
     if (!isMC)
@@ -10,14 +10,14 @@ void GenParticle::setup(TTreeReader& fReader, int year, bool isMC_)
     Particle::setup("Jet", fReader, year);
     pdgId = new TTRArray<Int_t>(fReader, "GenPart_pdgId");
 
-    setup_map(eTop);
+    setup_map(Level::Top);
 }
 
 void GenParticle::createLooseList()
 {
     for (size_t i = 0; i < size(); i++) {
-        if (abs(pdgId->At(i)) == PID_TOP) {
-            list(eTop)->push_back(i);
+        if (abs(pdgId->At(i)) == static_cast<Int_t>(PID::Top)) {
+            list(Level::Top)->push_back(i);
         }
     }
 }

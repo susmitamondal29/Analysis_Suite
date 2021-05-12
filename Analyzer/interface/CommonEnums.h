@@ -1,27 +1,27 @@
 #ifndef __COMMONENUMS_H_
 #define __COMMONENUMS_H_
 
-enum YEAR {
+enum class Year {
     yr2016,
     yr2017,
     yr2018
 };
 
-enum PID {
-    PID_MUON = 13,
-    PID_ELECTRON = 11,
-    PID_TOP = 6,
-    PID_BJET = 5,
-    PID_CJET = 4,
-    PID_JET
-};
+enum class PID {
+    Muon = 13,
+        Electron = 11,
+        Top = 6,
+        Bottom = 5,
+        Charm = 4,
+        Jet
+        };
 
-enum LIST {
-    eLoose,
-    eFake,
-    eTight,
-    eTop,
-    eBottom,
-};
+enum class Level {
+    Loose,
+    Fake,
+    Tight,
+    Top,
+    Bottom,
+        };
 
 #endif // __COMMONENUMS_H_

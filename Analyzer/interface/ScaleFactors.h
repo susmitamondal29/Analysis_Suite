@@ -19,7 +19,7 @@
 class ScaleFactors {
 public:
     ScaleFactors() {}
-    ScaleFactors(int year);
+    ScaleFactors(Year year);
 
     float getBJetSF(Jet& jets);
     float getPileupSF(int nPU);
@@ -29,7 +29,7 @@ public:
     float getMuonSF(Lepton& muon);
 
 private:
-    int year_;
+    Year year_;
     BTagCalibration calib;
     BTagCalibrationReader btag_reader;
 

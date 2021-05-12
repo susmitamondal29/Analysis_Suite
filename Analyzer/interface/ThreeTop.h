@@ -10,6 +10,21 @@
 template <class T>
 using TTRValue = TTreeReaderValue<T>;
 
+enum class Channel {
+    Hadronic,
+    Single,
+    OS,
+    SS,
+    Multi
+};
+
+enum class Subchannel {
+    MM,
+    EM,
+    ME,
+    EE,
+};
+
 class ThreeTop : public BaseSelector {
 public:
     virtual void Init(TTree* tree) override;
@@ -26,7 +41,7 @@ public:
 private:
     void printStuff();
     float getLeadPt();
-    int subChannel_ = -1;
+    Subchannel subChannel_;
 
     ResolvedTop rTop;
     GenParticle rGen;

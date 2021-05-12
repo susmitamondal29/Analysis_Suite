@@ -2,13 +2,13 @@
 
 #include <limits>
 
-void Lepton::setup(std::string name, TTreeReader& fReader, int year)
+void Lepton::setup(std::string name, TTreeReader& fReader, Year year)
 {
     m_charge = new TTreeReaderArray<Int_t>(fReader, (name + "_charge").c_str());
     Particle::setup(name, fReader, year);
-    setup_map(eLoose);
-    setup_map(eFake);
-    setup_map(eTight);
+    setup_map(Level::Loose);
+    setup_map(Level::Fake);
+    setup_map(Level::Tight);
 }
 
 std::pair<size_t, float> Lepton::getCloseJet(size_t lidx, Particle& jet)
@@ -33,10 +33,10 @@ std::pair<size_t, float> Lepton::getCloseJet(size_t lidx, Particle& jet)
 
 bool Lepton::passZVeto()
 {
-    for (auto tidx : *list(eLoose)) { //tightList
+    for (auto tidx : *list(Level::Loose)) { //tightList
         LorentzVector tlep(pt(tidx), eta(tidx), phi(tidx),
             mass(tidx));
-        for (auto lidx : *list(eLoose)) {
+        for (auto lidx : *list(Level::Loose)) {
             if (tidx >= lidx || charge(tidx) * charge(lidx) > 0)
                 continue;
             LorentzVector llep(pt(lidx), eta(lidx), phi(lidx),

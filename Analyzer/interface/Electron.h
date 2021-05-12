@@ -5,7 +5,7 @@
 
 class Electron : public Lepton {
 public:
-    void setup(TTreeReader& fReader, int year);
+    void setup(TTreeReader& fReader, Year year);
     virtual void createLooseList() override;
     virtual void createFakeList(Particle& jets) override;
     virtual void createTightList() override;

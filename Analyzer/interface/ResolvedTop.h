@@ -7,7 +7,7 @@
 
 class ResolvedTop : public Particle {
 public:
-    void setup(TTreeReader& fReader, int year);
+    void setup(TTreeReader& fReader, Year year);
     void createLooseList();
     virtual void setGoodParticles(size_t syst) override
     {

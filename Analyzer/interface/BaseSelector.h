@@ -22,6 +22,8 @@
 #include "analysis_suite/Analyzer/interface/Muon.h"
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
 
+enum class Channel;
+
 class BaseSelector : public TSelector {
 public:
     TTree* fChain = 0; //! pointer to the analyzed TTree or TChain
@@ -63,10 +65,12 @@ protected:
     TEfficiency* prefireEff_;
     size_t passed_events = 0;
     TTreeReader fReader;
-    std::unordered_map<std::string, int> yearMap = {
-        { "2016", yr2016 }, { "2017", yr2017 }, { "2018", yr2018 }
+    std::unordered_map<std::string, Year> yearMap = {
+        { "2016", Year::yr2016 },
+        { "2017", Year::yr2017 },
+        { "2018", Year::yr2018 }
     };
-    int year_;
+    Year year_;
     float xsec_;
     TTree* outTree;
     TTreeReaderValue<Float_t>* genWeight;
@@ -77,7 +81,7 @@ protected:
     float* weight;
 
     bool isMC_;
-    int channel_, currentChannel_;
+    Channel channel_, currentChannel_;
 
     ScaleFactors sfMaker;
     Muon muon;

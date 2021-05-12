@@ -1,24 +1,11 @@
 #include "analysis_suite/Analyzer/interface/ThreeTop.h"
 
-#define getElec(var, i) (elec.var(elec.list(eTight)->at(i)))
-#define getMuon(var, i) (muon.var(muon.list(eTight)->at(i)))
-
-enum CHANNELS { CHAN_HAD,
-    CHAN_SINGLE,
-    CHAN_OS,
-    CHAN_SS,
-    CHAN_MULTI };
-
-enum SUBCHANNELS {
-    CHAN_MM,
-    CHAN_EM,
-    CHAN_ME,
-    CHAN_EE,
-};
+#define getElec(var, i) (elec.var(elec.list(Level::Tight)->at(i)))
+#define getMuon(var, i) (muon.var(muon.list(Level::Tight)->at(i)))
 
 void ThreeTop::Init(TTree* tree)
 {
-    channel_ = CHAN_SS;
+    channel_ = Channel::SS;
     BaseSelector::Init(tree);
 
     passTrigger_leadPt = new TH2F("passTrigger", "passTrigger", 4, 0, 4, 100, 0, 100);
@@ -110,30 +97,30 @@ void ThreeTop::setOtherGoodParticles(size_t syst)
 
 void ThreeTop::setupChannel()
 {
-    size_t nLep = muon.list(eTight)->size() + elec.list(eTight)->size();
+    size_t nLep = muon.list(Level::Tight)->size() + elec.list(Level::Tight)->size();
     if (nLep == 0)
-        currentChannel_ = CHAN_HAD;
+        currentChannel_ = Channel::Hadronic;
     else if (nLep == 1)
-        currentChannel_ = CHAN_SINGLE;
+        currentChannel_ = Channel::Single;
     else if (nLep == 2) {
         int q_product = 1;
-        if (elec.list(eTight)->size() == 2) {
-            subChannel_ = CHAN_EE;
+        if (elec.list(Level::Tight)->size() == 2) {
+            subChannel_ = Subchannel::EE;
             q_product *= getElec(charge, 0) * getElec(charge, 1);
-        } else if (muon.list(eTight)->size() == 2) {
-            subChannel_ = CHAN_MM;
+        } else if (muon.list(Level::Tight)->size() == 2) {
+            subChannel_ = Subchannel::MM;
             q_product *= getMuon(charge, 0) * getMuon(charge, 1);
         } else {
             q_product *= getMuon(charge, 0) * getElec(charge, 0);
-            subChannel_ = (getMuon(pt, 0) > getElec(pt, 0)) ? CHAN_ME : CHAN_EM;
+            subChannel_ = (getMuon(pt, 0) > getElec(pt, 0)) ? Subchannel::ME : Subchannel::EM;
         }
         // Set Dilepton channel
         if (q_product > 0)
-            currentChannel_ = CHAN_SS;
+            currentChannel_ = Channel::SS;
         else
-            currentChannel_ = CHAN_OS;
+            currentChannel_ = Channel::OS;
     } else
-        currentChannel_ = CHAN_MULTI;
+        currentChannel_ = Channel::Multi;
 }
 
 bool ThreeTop::passSelection()
@@ -144,22 +131,22 @@ bool ThreeTop::passSelection()
         (**Flag_goodVertices && **Flag_globalSuperTightHalo2016Filter && **Flag_HBHENoiseFilter && **Flag_HBHENoiseIsoFilter && **Flag_EcalDeadCellTriggerPrimitiveFilter && **Flag_BadPFMuonFilter && **Flag_ecalBadCalibFilter)));
     cuts.push_back(std::make_pair("passZVeto", muon.passZVeto() && elec.passZVeto()));
     cuts.push_back(std::make_pair("passChannel", currentChannel_ == channel_));
-    cuts.push_back(std::make_pair("passJetNumber", jet.list(eTight)->size() >= 2));
-    cuts.push_back(std::make_pair("passBJetNumber", jet.list(eBottom)->size() >= 1));
+    cuts.push_back(std::make_pair("passJetNumber", jet.list(Level::Tight)->size() >= 2));
+    cuts.push_back(std::make_pair("passBJetNumber", jet.list(Level::Bottom)->size() >= 1));
     cuts.push_back(std::make_pair("passMetCut", **Met_pt > 25));
-    cuts.push_back(std::make_pair("passHTCut", jet.getHT(eTight) > 250));
+    cuts.push_back(std::make_pair("passHTCut", jet.getHT(Level::Tight) > 250));
 
 
     // Trigger stuff
     passTrigger = true;
     // passLeadPt stuff
-    if (subChannel_ == CHAN_MM)
+    if (subChannel_ == Subchannel::MM)
         passTrigger &= **HLT_MuMu;
-    else if (subChannel_ == CHAN_EM)
+    else if (subChannel_ == Subchannel::EM)
         passTrigger &= **HLT_EleMu;
-    else if (subChannel_ == CHAN_ME)
+    else if (subChannel_ == Subchannel::ME)
         passTrigger &= **HLT_MuEle;
-    else if (subChannel_ == CHAN_EE)
+    else if (subChannel_ == Subchannel::EE)
         passTrigger &= **HLT_EleEle;
 
     for (auto& cut: cuts) {
@@ -193,9 +180,9 @@ void ThreeTop::fillCutFlow()
     }
 
     if (passAll && passTrigger) {
-        passTrigger_leadPt->Fill(subChannel_, getLeadPt(), *weight);
+        passTrigger_leadPt->Fill(static_cast<int>(subChannel_), getLeadPt(), *weight);
     } else if (passAll) {
-        failTrigger_leadPt->Fill(subChannel_, getLeadPt(), *weight);
+        failTrigger_leadPt->Fill(static_cast<int>(subChannel_), getLeadPt(), *weight);
     }
 }
 
@@ -206,29 +193,29 @@ void ThreeTop::FillValues(std::vector<bool> passVec)
         pass_bitmap += passVec.at(i) << i;
     }
 
-    fillParticle(muon, eLoose, *o_looseMuons, pass_bitmap);
-    fillParticle(muon, eTight, *o_tightMuons, pass_bitmap);
-    fillParticle(elec, eLoose, *o_looseElectrons, pass_bitmap);
-    fillParticle(elec, eTight, *o_tightElectrons, pass_bitmap);
-    fillParticle(jet, eTight, *o_jets, pass_bitmap);
-    fillBJet(jet, eBottom, *o_bJets, pass_bitmap);
-    fillTop(rTop, eLoose, *o_resolvedTop, pass_bitmap);
+    fillParticle(muon, Level::Loose, *o_looseMuons, pass_bitmap);
+    fillParticle(muon, Level::Tight, *o_tightMuons, pass_bitmap);
+    fillParticle(elec, Level::Loose, *o_looseElectrons, pass_bitmap);
+    fillParticle(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
+    fillParticle(jet, Level::Tight, *o_jets, pass_bitmap);
+    fillBJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
+    fillTop(rTop, Level::Loose, *o_resolvedTop, pass_bitmap);
     fillLeptons(muon, elec, *o_tightLeptons, pass_bitmap);
 
     for (size_t syst = 0; syst < variations_.size(); ++syst) {
-        o_ht.push_back(jet.getHT(eTight, syst));
-        o_htb.push_back(jet.getHT(eBottom, syst));
+        o_ht.push_back(jet.getHT(Level::Tight, syst));
+        o_htb.push_back(jet.getHT(Level::Bottom, syst));
         o_met.push_back(**Met_pt);
         o_metphi.push_back(**Met_phi);
-        o_centrality.push_back(jet.getCentrality(eTight, syst));
+        o_centrality.push_back(jet.getCentrality(Level::Tight, syst));
     }
 }
 
 float ThreeTop::getLeadPt()
 {
-    if (channel_ != CHAN_SS)
+    if (channel_ != Channel::SS)
         return 0.;
-    else if (subChannel_ % 2 == 0)
+    else if (static_cast<int>(subChannel_) % 2 == 0)
         return getMuon(pt, 0);
     else
         return getElec(pt, 0);
@@ -238,10 +225,10 @@ void ThreeTop::printStuff()
 {
     std::cout << "Event: " << **event << std::endl;
     std::cout << "Met: " << **Met_pt << std::endl;
-    std::cout << "HT: " << jet.getHT(eTight, 0) << std::endl;
-    std::cout << "njet: " << jet.list(eTight)->size() << std::endl;
-    std::cout << "nbjet: " << jet.list(eBottom)->size() << std::endl;
-    std::cout << "nlep: " << muon.list(eTight)->size() << " " << elec.list(eTight)->size() << std::endl;
+    std::cout << "HT: " << jet.getHT(Level::Tight, 0) << std::endl;
+    std::cout << "njet: " << jet.list(Level::Tight)->size() << std::endl;
+    std::cout << "nbjet: " << jet.list(Level::Bottom)->size() << std::endl;
+    std::cout << "nlep: " << muon.list(Level::Tight)->size() << " " << elec.list(Level::Tight)->size() << std::endl;
     std::cout << "lepVeto: " << muon.passZVeto() << " " << elec.passZVeto() << std::endl;
     std::cout << std::endl;
 }
