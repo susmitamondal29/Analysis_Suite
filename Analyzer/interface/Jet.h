@@ -54,8 +54,8 @@ private:
     void createBJetList();
     void createTightList();
 
-    float getHT(std::vector<size_t> jet_list);
-    float getCentrality(std::vector<size_t> jet_list);
+    float getHT(std::vector<size_t>& jet_list);
+    float getCentrality(std::vector<size_t>& jet_list);
 };
 
 #endif // __JET_H_

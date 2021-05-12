@@ -56,7 +56,7 @@ void Jet::createTightList()
     }
 }
 
-float Jet::getHT(std::vector<size_t> jet_list)
+float Jet::getHT(std::vector<size_t>& jet_list)
 {
     float ht = 0;
     for (auto i : jet_list) {
@@ -65,7 +65,7 @@ float Jet::getHT(std::vector<size_t> jet_list)
     return ht;
 }
 
-float Jet::getCentrality(std::vector<size_t> jet_list)
+float Jet::getCentrality(std::vector<size_t>& jet_list)
 {
     float etot = 0;
     for (auto i : jet_list) {

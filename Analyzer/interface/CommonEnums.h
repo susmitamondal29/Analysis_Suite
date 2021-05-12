@@ -9,12 +9,12 @@ enum class Year {
 
 enum class PID {
     Muon = 13,
-        Electron = 11,
-        Top = 6,
-        Bottom = 5,
-        Charm = 4,
-        Jet
-        };
+    Electron = 11,
+    Top = 6,
+    Bottom = 5,
+    Charm = 4,
+    Jet
+};
 
 enum class Level {
     Loose,
@@ -22,6 +22,6 @@ enum class Level {
     Tight,
     Top,
     Bottom,
-        };
+};
 
 #endif // __COMMONENUMS_H_

@@ -136,7 +136,6 @@ bool ThreeTop::passSelection()
     cuts.push_back(std::make_pair("passMetCut", **Met_pt > 25));
     cuts.push_back(std::make_pair("passHTCut", jet.getHT(Level::Tight) > 250));
 
-
     // Trigger stuff
     passTrigger = true;
     // passLeadPt stuff
@@ -149,7 +148,7 @@ bool ThreeTop::passSelection()
     else if (subChannel_ == Subchannel::EE)
         passTrigger &= **HLT_EleEle;
 
-    for (auto& cut: cuts) {
+    for (auto& cut : cuts) {
         if (!cut.second)
             return false;
     }
@@ -171,12 +170,12 @@ void ThreeTop::fillCutFlow()
 
     bool passAll = true;
     for (auto cut : cuts) {
-         bool truth = cut.second;
-         passAll &= truth;
-         if (truth)
-             cutFlow_individual->Fill(cut.first.c_str(), *weight);
-         if (passAll)
-             cutFlow->Fill(cut.first.c_str(), *weight);
+        bool truth = cut.second;
+        passAll &= truth;
+        if (truth)
+            cutFlow_individual->Fill(cut.first.c_str(), *weight);
+        if (passAll)
+            cutFlow->Fill(cut.first.c_str(), *weight);
     }
 
     if (passAll && passTrigger) {
@@ -186,7 +185,7 @@ void ThreeTop::fillCutFlow()
     }
 }
 
-void ThreeTop::FillValues(std::vector<bool> passVec)
+void ThreeTop::FillValues(std::vector<bool>& passVec)
 {
     size_t pass_bitmap = 0;
     for (size_t i = 0; i < passVec.size(); ++i) {

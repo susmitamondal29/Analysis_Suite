@@ -51,12 +51,12 @@ public:
     virtual void SetupOutTree() {}
     void SetupEvent(size_t syst);
     virtual bool passSelection() { return true; }
-    virtual void FillValues(std::vector<bool> passVec) {}
+    virtual void FillValues(std::vector<bool>& passVec) {}
     virtual void setupChannel(){};
     virtual void setOtherGoodParticles(size_t syst){};
     virtual void ApplyScaleFactors(){};
     virtual void clearValues();
-    virtual void fillCutFlow() {};
+    virtual void fillCutFlow(){};
     ClassDef(BaseSelector, 0);
 
 protected:
