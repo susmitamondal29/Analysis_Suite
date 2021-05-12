@@ -45,10 +45,10 @@ void Muon::createFakeList(Particle& jets)
             pre_list.push_back(i);
     }
     for (auto i : pre_list) {
-        // auto closeJetInfo = getCloseJet(i, jets);
-        // if (passJetIsolation(i, jets))
-        list(eFake)->push_back(i);
-        // dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(closeJetInfo);
+        auto closeJetInfo = getCloseJet(i, jets);
+        if (passJetIsolation(i, jets))
+            list(eFake)->push_back(i);
+        dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(closeJetInfo);
     }
 }
 
