@@ -28,36 +28,18 @@ void fillTop(ResolvedTop& top, int listName, TopOut& fillObject, size_t pass_bit
     }
 }
 
-void fillLeptons(Lepton& muon, Lepton& elec, ParticleOut& fillObject)
+void fillLeptons(Lepton& muon, Lepton& elec, ParticleOut& fillObject, size_t pass_bitmap)
 {
-    // size_t tot = muon.size() + elec.size();
-
-    // size_t midx, eidx;
-    // while (midx != muon.size() && eidx != elec.size() ) {
-    //     if (midx != muon.size() && (eidx == elec.size() ))
-    //         }
-
-    // std::vector<Int_t> bitMap(totLeptons);
-    // for (size_t syst = 0; syst < Particle::nSyst; ++syst) {
-    //     for (auto idx : fillArray[syst]) {
-    //         bitMap[idx] += 1 << syst;
-    //     }
-    // }
-    // auto muonItr = muon.tightList->begin(), muonEnd = muon.tightList->end();
-    // auto elecItr = elec.tightList->begin(), elecEnd = elec.tightList->end();
-    // while (muonItr != muonEnd || elecItr != elecEnd) {
-    //     if (muonItr != muonEnd && (elecItr == elecEnd || muon.pt->At(*muonItr) > elec.pt->At(*elecItr))) {
-    //         fillObject.pt.push_back(muon.pt->At(*muonItr));
-    //         fillObject.eta.push_back(muon.eta->At(*muonItr));
-    //         fillObject.phi.push_back(muon.phi->At(*muonItr));
-    //         fillObject.mass.push_back(muon.mass->At(*muonItr));
-    //         muonItr++;
-    //     } else {
-    //         fillObject.pt.push_back(elec.pt->At(*elecItr));
-    //         fillObject.eta.push_back(elec.eta->At(*elecItr));
-    //         fillObject.phi.push_back(elec.phi->At(*elecItr));
-    //         fillObject.mass.push_back(elec.mass->At(*elecItr));
-    //         elecItr++;
-    //     }
-    // }
+    size_t midx = 0;
+    size_t eidx = 0;
+    while (midx != muon.size() || eidx != elec.size() ) {
+        // std::cout << midx << " " << eidx << " | " << muon.size() << " " << elec.size() << std::endl;
+        if (midx != muon.size() && (eidx == elec.size() || muon.pt(midx) > elec.pt(eidx))) {
+            fillParticle(muon, eTight, fillObject, midx, pass_bitmap);
+            midx++;
+        } else {
+            fillParticle(elec, eTight, fillObject, eidx, pass_bitmap);
+            eidx++;
+        }
+    }
 }

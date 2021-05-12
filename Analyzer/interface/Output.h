@@ -75,7 +75,7 @@ void fillBJet(Jet& jet, int listName, BJetOut& fillObject, size_t pass_bitmap);
 
 void fillTop(ResolvedTop& top, int listName, TopOut& fillObject, size_t pass_bitmap);
 
-void fillLeptons(Lepton& muon, Lepton& elec, ParticleOut& fillObject);
+void fillLeptons(Lepton& muon, Lepton& elec, ParticleOut& fillObject, size_t pass_bitmap);
 
 #include "analysis_suite/Analyzer/interface/Output.hxx"
 

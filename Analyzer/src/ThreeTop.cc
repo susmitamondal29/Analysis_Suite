@@ -219,7 +219,7 @@ void ThreeTop::FillValues(std::vector<bool> passVec)
     fillParticle(jet, eTight, *o_jets, pass_bitmap);
     fillBJet(jet, eBottom, *o_bJets, pass_bitmap);
     fillTop(rTop, eLoose, *o_resolvedTop, pass_bitmap);
-    // fillLeptons(muon, elec, *o_tightLeptons);
+    fillLeptons(muon, elec, *o_tightLeptons, pass_bitmap);
 
     for (size_t syst = 0; syst < variations_.size(); ++syst) {
         o_ht.push_back(jet.getHT(eTight, syst));

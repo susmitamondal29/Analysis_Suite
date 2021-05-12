@@ -19,7 +19,7 @@ template <class T>
 void fillParticle(Particle& particle, int listName, T& fillObject, size_t pass_bitmap)
 {
     for (size_t idx = 0; idx < particle.size(); ++idx) {
-        size_t final_bitmap = fillParticle(particle, listName, fillObject, idx, pass_bitmap);
+        fillParticle(particle, listName, fillObject, idx, pass_bitmap);
     }
 }
 
