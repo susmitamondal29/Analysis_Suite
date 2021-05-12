@@ -67,7 +67,10 @@ Bool_t BaseSelector::Process(Long64_t entry)
     bool passAny = false;
     for (size_t syst = 0; syst < variations_.size(); ++syst) {
         SetupEvent(syst);
-        systPassSelection.push_back(passSelection() && passTrigger());
+        systPassSelection.push_back(passSelection());
+        if (syst == 0) {
+            fillCutFlow();
+        }
         passAny |= systPassSelection.back();
     }
     if (passAny) {
@@ -121,6 +124,8 @@ void BaseSelector::clearValues()
     muon.clear();
     elec.clear();
     jet.clear();
+
+    cuts.clear();
 
     std::fill(o_weight.begin(), o_weight.end(), 1.);
 }

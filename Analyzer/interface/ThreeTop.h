@@ -14,19 +14,18 @@ class ThreeTop : public BaseSelector {
 public:
     virtual void Init(TTree* tree) override;
     virtual bool passSelection() override;
-    virtual bool passTrigger() override;
     virtual void FillValues(std::vector<bool> passVec) override;
     virtual void SetupOutTree() override;
     virtual void setupChannel() override;
     virtual void ApplyScaleFactors() override;
     virtual void clearValues() override;
     virtual void setOtherGoodParticles(size_t syst) override;
+    virtual void fillCutFlow() override;
     ClassDefOverride(ThreeTop, 0);
 
 private:
     void printStuff();
     float getLeadPt();
-    bool fillCutFlow(std::vector<std::pair<std::string, bool>> cuts);
     int subChannel_ = -1;
 
     ResolvedTop rTop;

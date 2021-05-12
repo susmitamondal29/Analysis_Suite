@@ -138,29 +138,40 @@ void ThreeTop::setupChannel()
 
 bool ThreeTop::passSelection()
 {
-    std::vector<std::pair<std::string, bool>> cuts;
     cuts.push_back(std::make_pair("passPreselection", true));
 
     cuts.push_back(std::make_pair("passMETFilter",
         (**Flag_goodVertices && **Flag_globalSuperTightHalo2016Filter && **Flag_HBHENoiseFilter && **Flag_HBHENoiseIsoFilter && **Flag_EcalDeadCellTriggerPrimitiveFilter && **Flag_BadPFMuonFilter && **Flag_ecalBadCalibFilter)));
-    cuts.push_back(std::make_pair("passZVeto",
-        muon.passZVeto() && elec.passZVeto()));
-    cuts.push_back(std::make_pair("passChannel",
-        currentChannel_ == channel_));
-    cuts.push_back(std::make_pair("passJetNumber",
-        jet.list(eTight)->size() >= 2));
-    cuts.push_back(std::make_pair("passBJetNumber",
-        jet.list(eBottom)->size() >= 1));
-    cuts.push_back(std::make_pair("passMetCut",
-        **Met_pt > 25));
-    cuts.push_back(std::make_pair("passHTCut",
-        jet.getHT(eTight) > 250));
+    cuts.push_back(std::make_pair("passZVeto", muon.passZVeto() && elec.passZVeto()));
+    cuts.push_back(std::make_pair("passChannel", currentChannel_ == channel_));
+    cuts.push_back(std::make_pair("passJetNumber", jet.list(eTight)->size() >= 2));
+    cuts.push_back(std::make_pair("passBJetNumber", jet.list(eBottom)->size() >= 1));
+    cuts.push_back(std::make_pair("passMetCut", **Met_pt > 25));
+    cuts.push_back(std::make_pair("passHTCut", jet.getHT(eTight) > 250));
 
-    return fillCutFlow(cuts);
+
+    // Trigger stuff
+    passTrigger = true;
+    // passLeadPt stuff
+    if (subChannel_ == CHAN_MM)
+        passTrigger &= **HLT_MuMu;
+    else if (subChannel_ == CHAN_EM)
+        passTrigger &= **HLT_EleMu;
+    else if (subChannel_ == CHAN_ME)
+        passTrigger &= **HLT_MuEle;
+    else if (subChannel_ == CHAN_EE)
+        passTrigger &= **HLT_EleEle;
+
+    for (auto& cut: cuts) {
+        if (!cut.second)
+            return false;
+    }
+    return passTrigger;
 }
 
-bool ThreeTop::fillCutFlow(std::vector<std::pair<std::string, bool>> cuts)
+void ThreeTop::fillCutFlow()
 {
+    // Setup cutflow histogram
     if (!cutFlows_setBins) {
         cutFlows_setBins = true;
         int i = 1;
@@ -173,41 +184,19 @@ bool ThreeTop::fillCutFlow(std::vector<std::pair<std::string, bool>> cuts)
 
     bool passAll = true;
     for (auto cut : cuts) {
-        bool truth = cut.second;
-        passAll &= truth;
-        if (truth)
-            cutFlow_individual->Fill(cut.first.c_str(), *weight);
-        if (passAll)
-            cutFlow->Fill(cut.first.c_str(), *weight);
+         bool truth = cut.second;
+         passAll &= truth;
+         if (truth)
+             cutFlow_individual->Fill(cut.first.c_str(), *weight);
+         if (passAll)
+             cutFlow->Fill(cut.first.c_str(), *weight);
     }
 
-    if (passAll) {
-        printStuff();
-    }
-
-    return passAll;
-}
-
-bool ThreeTop::passTrigger()
-{
-    bool passLeadPt = true; //getLeadPt() > 25;
-    bool passTrig = false;
-    if (subChannel_ == CHAN_MM)
-        passTrig = **HLT_MuMu;
-    else if (subChannel_ == CHAN_EM)
-        passTrig = **HLT_EleMu;
-    else if (subChannel_ == CHAN_ME)
-        passTrig = **HLT_MuEle;
-    else if (subChannel_ == CHAN_EE)
-        passTrig = **HLT_EleEle;
-
-    if (passTrig) {
+    if (passAll && passTrigger) {
         passTrigger_leadPt->Fill(subChannel_, getLeadPt(), *weight);
-    } else {
+    } else if (passAll) {
         failTrigger_leadPt->Fill(subChannel_, getLeadPt(), *weight);
     }
-
-    return (passLeadPt && passTrig);
 }
 
 void ThreeTop::FillValues(std::vector<bool> passVec)

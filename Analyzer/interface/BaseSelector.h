@@ -49,12 +49,12 @@ public:
     virtual void SetupOutTree() {}
     void SetupEvent(size_t syst);
     virtual bool passSelection() { return true; }
-    virtual bool passTrigger() { return true; }
     virtual void FillValues(std::vector<bool> passVec) {}
     virtual void setupChannel(){};
     virtual void setOtherGoodParticles(size_t syst){};
     virtual void ApplyScaleFactors(){};
     virtual void clearValues();
+    virtual void fillCutFlow() {};
     ClassDef(BaseSelector, 0);
 
 protected:
@@ -72,6 +72,8 @@ protected:
     TTreeReaderValue<Float_t>* genWeight;
     std::vector<Float_t> o_weight;
     std::vector<Bool_t> o_pass_event;
+    std::vector<std::pair<std::string, bool>> cuts;
+    bool passTrigger;
     float* weight;
 
     bool isMC_;
