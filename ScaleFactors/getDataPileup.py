@@ -35,7 +35,7 @@ for year in [2016, 2017, 2018]:
         yearCommands.append(["-i", goldenJson[year],
                               "--inputLumiJSON", pileup_latest[year],
                               "--minBiasXsec", str(bias),
-                              "data/dataPileup_{}_{}.root".format(year, syst)])
+                              f'data/dataPileup_{year}_{syst}.root'])
 
 
 for yearCommand in yearCommands:

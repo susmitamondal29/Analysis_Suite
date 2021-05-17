@@ -41,7 +41,7 @@ class LogFile:
         self.plotTable = PrettyTable(["Plot Group", "Weighted Events", "Error"])
         self.breakTable = PrettyTable(["Plot Group", "Sample", "Weighted Events", "Error"])
         self.path = path
-        self.output_name = "{}_info.log".format(name)
+        self.output_name = f'{name}_info.log'
         self.analysis, self.selection = "", ""#info.getAnalysis()
         self.lumi = lumi
         self.hists = [np.array([0., 0.]) for i in range(4)] 
@@ -112,18 +112,15 @@ class LogFile:
         isLatex : bool, optional
             Whether table should be written out in latex or org style table
         """
-        with open("{}/{}".format(self.path, self.output_name), 'w') as out:
+        with open(f'{self.path}/{self.output_name}', 'w') as out:
             out.write("<html><pre><code>\n")
             out.write('-' * 80 + '\n')
-            out.write("Script called at {} \n".format(LogFile.callTime))
-            out.write("The command was: {} \n".format(LogFile.command))
-            out.write("The name of this Histogram is: {} \n"
-                         .format(self.name))
+            out.write(f'Script called at {LogFile.callTime} \n')
+            out.write(f'The command was: {LogFile.command} \n')
+            out.write(f'The name of this Histogram is: {self.name} \n')
             out.write('-' * 80 + '\n')
-            out.write("Selection: {}/{}\n".format(self.analysis,
-                                                     self.selection))
-            out.write("Luminosity: {:0.2f} fb^{{-1}}\n"
-                         .format(self.lumi))
+            out.write(f'Selection: {self.analysis,}/{self.selection}\n')
+            out.write(f'Luminosity: {self.lumi:0.2f} fb^{{-1}}\n')
             if isLatex:
                 out.write('\n' + self.plotTable.get_latex_string() + '\n'*2)
             else:
@@ -141,8 +138,7 @@ class LogFile:
                 out.write("Ratio S/sqrt(S+B): {:0.2f} +/- {:0.2f} \n"
                           .format(*self.get_likelihood()))
             if self.hists[DATA].any():
-                out.write("Number of events in data {} \n"
-                          .format(self.hists[DATA][0]))
+                out.write(f'Number of events in data {self.hists[DATA][0]} \n')
             if isLatex:
                 out.write('\n' + self.breakTable.get_latex_string() + '\n'*2)
             else:

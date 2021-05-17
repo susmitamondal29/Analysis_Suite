@@ -42,7 +42,7 @@ class MVAPlotter(object):
         work_file, other_file = ("train.root", "test.root") \
             if is_train else  ("test.root", "train.root")
         
-        with uproot.open("{}/{}".format(workdir, work_file)) as f:
+        with uproot.open(f'"{workdir}/{work_file}"') as f:
             for group, samples in groups.items():
                 for sample in [s for s in samples if s in f]:
                     temp = f[sample].arrays(library="pd")
@@ -50,7 +50,7 @@ class MVAPlotter(object):
                     self.work_set = pd.concat((self.work_set, temp))
 
         other = 0
-        with uproot.open("{}/{}".format(workdir, other_file)) as f:
+        with uproot.open(f'{workdir}/{other_file}') as f:
             column = self.work_set.columns[0]
             for sample in sum(list(groups.values()), []):
                 if sample not in f:
@@ -106,9 +106,9 @@ class MVAPlotter(object):
         bdt = list()
         for group in self.groups:
             if group == "Signal":
-                bdt.append(self.work_set["BDT.{}".format(group)])
+                bdt.append(self.work_set[f'BDT.{group}'])
             else:
-                bdt.append(1-self.work_set["BDT.{}".format(group)])
+                bdt.append(1-self.work_set[f'BDT.{group}'])
 
         max_bdt = np.argmax(bdt, axis=0)
         if is_max:
@@ -266,7 +266,7 @@ class MVAPlotter(object):
         # sig_name = sig if scale == 1 else "{} x {}".format(sig, scale)
         sig_name = sig
         if extra_name:
-            extra_name = "_{}".format(extra_name)
+            extra_name = f'_{extra_name}'
 
         # Make plot
         fig, ax = plt.subplots()
@@ -277,9 +277,9 @@ class MVAPlotter(object):
         ax.legend(loc='upper left')
         ax.set_xlabel(var)
         ax.set_ylabel("Events/bin")
-        ax.set_title("Lumi = {} ifb".format(self.lumi))
+        ax.set_title(f'Lumi = {self.lumi} ifb')
         fig.tight_layout()
-        plt.savefig("%s/%s%s.png" % (self.save_dir, var, extra_name))
+        plt.savefig(f'{self.save_dir}/{var}{extra_name}.png')
         if self.do_show:
             plt.show()
         plt.close()
@@ -310,9 +310,9 @@ class MVAPlotter(object):
         fig.colorbar(hist2d[-1])
         ax.set_xlabel(var1)
         ax.set_ylabel(var2)
-        ax.set_title("Lumi = {} ifb".format(self.lumi))
+        ax.set_title(f'Lumi = {self.lumi} ifb')
         fig.tight_layout()
-        plt.savefig("%s/2D_%s.png" % (self.save_dir, name))
+        plt.savefig(f'{self.save_dir}/2D_{name}.png')
         if self.do_show:
             plt.show()
         plt.close()
@@ -366,13 +366,13 @@ class MVAPlotter(object):
           list: List of (FOM, bin) for the max FOM
         """
         if extra_name:
-            extra_name = "_{}".format(extra_name)
+            extra_name = f'_{extra_name}'
         fom = self.get_fom(sig, bkg, var, bins, sb_denom, reverse)
         fom_maxbin = bins[fom.index(max(fom))]
 
         fig, ax = plt.subplots()
 
-        fom_plot = ax.plot(bins, fom, label="$S/\sqrt{S+B}=%.3f$\n cut=%.2f"%(max(fom), fom_maxbin),
+        fom_plot = ax.plot(bins, fom, label= f'$S/\sqrt{S+B}={max(fom):.3f}$\n cut={fom_maxbin:.2f}',
                            color='#fd6a02')
         ax.plot(np.linspace(bins[0], bins[-1], 5), [max(fom)]*5,
                 linestyle=':', color=fom_plot[-1].get_color())
@@ -424,7 +424,7 @@ class MVAPlotter(object):
 
         """
         if extra_name:
-            extra_name = "_{}".format(extra_name)
+            extra_name = f'_{extra_name}'
         grp_id = self.groups.index(sig)
 
         zvals = []
@@ -449,7 +449,7 @@ class MVAPlotter(object):
         plt.colorbar()
         plt.xlabel(var1)
         plt.ylabel(var2)
-        plt.savefig("{}/{}{}.png".format(self.save_dir, "stob2D", extra_name))
+        plt.savefig(f'{self.save_dir}/stob2D{extra_name}.png')
         plt.close()
 
         return max_fom
@@ -489,7 +489,7 @@ class MVAPlotter(object):
         final_set = pd.concat((self.get_sample(sig), self.get_sample(bkg)))
         pred = final_set[var].array
         if extra_name:
-            extra_name = "_{}".format(extra_name)
+            extra_name = f'_{extra_name}'
 
 
         truth = [1 if i == self.groups.index(sig) else 0
@@ -499,14 +499,13 @@ class MVAPlotter(object):
 
         # plot
         fig, ax = plt.subplots()
-        ax.plot(fpr, tpr, label="AUC = {:.3f}".format(auc))
+        ax.plot(fpr, tpr, label=f'AUC = {auc:.3f}')
         ax.plot(np.linspace(0, 1, 5), np.linspace(0, 1, 5), linestyle=':')
         ax.legend()
         ax.set_xlabel("False Positive Rate", horizontalalignment='right', x=1.0)
         ax.set_ylabel("True Positive Rate", horizontalalignment='right', y=1.0)
         fig.tight_layout()
-        plt.savefig("{}/roc_curve.BDT.{}{}.png" .format(self.save_dir, var,
-                                                        extra_name))
+        plt.savefig(f'{self.save_dir}/roc_curve.BDT.{var}{extra_name}.png')
         if self.do_show:
             plt.show()
         plt.close()
@@ -525,10 +524,10 @@ class MVAPlotter(object):
         write_set = self.work_set.drop(columns=rm_groups)
         type_by_name = {name: "float32" if name[0] != "N" else "int"
                         for name in write_set.keys()}
-        with uproot.recreate("{}/{}.root".format(self.save_dir, filename),
+        with uproot.recreate(f'{self.save_dir}/{filename}.root',
                              compression=uproot.ZLIB(4)) as outfile:
             for group in np.unique(self.work_set.groupName):
-                tree_name = "{}_{}".format(group, chan)
+                tree_name = f'{group}_{chan}'
                 try:
                     outfile[tree_name] = uproot.newtree(type_by_name)
                     outfile[tree_name].extend(
@@ -537,11 +536,11 @@ class MVAPlotter(object):
                     continue
 
     def write_out(self, outdir):
-        full_dir = "{}/{}".format(self.save_dir, outdir)
+        full_dir = f'{self.save_dir}/{outdir}'
         if not os.path.isdir(full_dir):
             os.mkdir(full_dir)
         for group in np.unique(self.work_set.groupName):
-            outname = "{}/{}.parquet".format(full_dir, group)
+            outname = f'{full_dir}/{group}.parquet'
             self.work_set[self.work_set.groupName == group].to_parquet(outname, compression="gzip")
 
     def print_info(self, var, subgroups):
@@ -568,8 +567,7 @@ class MVAPlotter(object):
         print("| name      | events | raw events | mean+-std | kurtosis |")
         print("-"*50)
         for arr in info:
-            print("|{:10} | {:.2f}| {} | {:.2f}+-{:.2f} | {:0.2f} |"
-                  .format(arr[5], arr[3], arr[4], arr[0], arr[1], arr[2]))
+            print(f'|{arr[5]:10} | {arr[3]:.2f}| {arr[4]} | {arr[0]:.2f}+-{arr[1]:.2f} | {arr[2]:0.2f} |')
         print("-"*50)
 
     def plot_all_shapes(self, var, bins, extra_name=""):
@@ -581,7 +579,7 @@ class MVAPlotter(object):
           extra_name(name: name to append to filename, defaults to "", optional): name to append to filename, defaults to ""
         """
         if extra_name:
-            extra_name = "_{}".format(extra_name)
+            extra_name = f'_{extra_name}'
 
         fig, ax = plt.subplots()
         for group in self.groups:
@@ -591,9 +589,9 @@ class MVAPlotter(object):
         ax.legend()
         ax.set_xlabel(var)
         ax.set_ylabel("A.U.")
-        ax.set_title("Lumi = {} ifb".format(self.lumi))
+        ax.set_title(f'Lumi = {self.lumi} ifb')
         fig.tight_layout()
-        plt.savefig("{}/{}{}.png".format(self.save_dir, var, extra_name))
+        plt.savefig(f'{self.save_dir}/{var}{extra_name}.png')
         plt.close()
 
     def _find_scale(self, s, b):

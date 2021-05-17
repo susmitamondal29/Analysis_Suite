@@ -24,8 +24,8 @@ def writeHTML(path, name, channels=[]):
         if (basePath / filename).exists():
             continue
         needWrite = True
-        data = pkg.resource_string(__name__, "../html/{}".format(filename)).decode()
-        with open("{}/{}".format(path, filename), 'w') as f:
+        data = pkg.resource_string(__name__, f'../html/{filename}').decode()
+        with open(f'{path}/{filename}', 'w') as f:
             f.write(data)
     if not needWrite:
         return
@@ -34,7 +34,7 @@ def writeHTML(path, name, channels=[]):
     for chan in channels:
         ET.SubElement(info, "Channel").text = chan
     tree = ET.ElementTree(info)
-    tree.write('{}/extraInfo.xml'.format(path))
+    tree.write(f'{path}/extraInfo.xml')
 
 
 

@@ -49,11 +49,11 @@ def setup(cli_args):
 
 
 def run(histName, file_info, plot_info, basePath, indir, signalNames, year):
-    print("Processing {} for year {}".format(histName, year))
+    print(f'Processing {histName} for year {year}')
 
-    baseYear = basePath if year == "all" else "{}/{}".format(basePath, year)
+    baseYear = basePath if year == "all" else f'{basePath}/{year}'
     logger = LogFile(histName, plot_info.at(histName), plot_info.get_lumi(year),
-                     "{}/logs".format(baseYear))
+                     f'{baseYear}/logs')
     binning = plot_info.get_binning(histName)
     # Setup histograms
     ratio = Histogram("Ratio", "black", binning)
@@ -61,7 +61,7 @@ def run(histName, file_info, plot_info, basePath, indir, signalNames, year):
     error = Histogram("Stat Errors", "plum", binning)
     data = Histogram("Data", "black", binning)
     stacker = Stack(binning)
-    groupHists = config.getYearNormedHistos("{}/{}/test.root".format(indir, "{}"),
+    groupHists = config.getYearNormedHistos(f'{indir}/{{}}/test.root',
                                             file_info, plot_info, histName, year)
     exclude = ['data'] + signalNames
     signal = groupHists[signalNames[0]] if signalNames[0] in groupHists else None
@@ -108,8 +108,8 @@ def run(histName, file_info, plot_info, basePath, indir, signalNames, year):
     fig = plt.gcf()
 
 
-    plotBase = "{}/plots/{}".format(baseYear, histName)
-    plt.savefig("{}.png".format(plotBase), format="png", bbox_inches='tight')
+    plotBase = f'{baseYear}/plots/{histName}'
+    plt.savefig(f'{plotBase}.png', format="png", bbox_inches='tight')
     subprocess.call('convert {0}.png -quality 0 {0}.pdf'.format(plotBase),
                     shell=True)
     plt.close()
@@ -129,12 +129,12 @@ def cleanup(cli_args):
                                cli_args.workdir, cli_args.years)
     writeHTML(basePath, cli_args.analysis, plot_params.all_years)
     for year in cli_args.years:
-        writeHTML("{}/{}".format(basePath, year),
-                  "{}/{}".format(cli_args.analysis, year))
+        writeHTML(f'{basePath}/{year}'
+                  f'{cli_args.analysis}/{year}')
 
     userName = os.environ['USER']
     htmlPath = basePath.split(userName)[1]
     if 'hep.wisc.edu' in os.environ['HOSTNAME']:
-        print("https://www.hep.wisc.edu/~{0}/{1}".format(userName, htmlPath[13:]))
+        print(f'https://www.hep.wisc.edu/~{userName}/{htmlPath[13:]}')
     else:
-        print("https://{0}.web.cern.ch/{0}/{1}".format(userName, htmlPath[4:]))
+        print(f'https://{0}.web.cern.ch/{userName}/{htmlPath[4:]}')

@@ -21,15 +21,15 @@ class TMVAMaker(MLHolder):
         for group, samples in self.group_dict.items():
             for sample in samples:
                 if sample not in arr_dict:
-                    print("Could not found sample {}".format(sample))
+                    print(f'Could not found sample {sample}')
                     continue
                 if len(arr_dict[sample].scale) == 0:
-                    print("Sample {} has no events in it!".format(sample))
+                    print(f'Sample {sample} has no events in it!')
                     continue
                 arr = arr_dict[sample]
                 df_dict = dict()
                 for varname, func in self.use_vars.items():
-                    df_dict[varname] = ak.to_numpy(eval("arr.{}".format(func)))
+                    df_dict[varname] = ak.to_numpy(eval(f'arr.{func}'))
                 df_dict["scale_factor"] = ak.to_numpy(arr.scale)
                 df = pd.DataFrame.from_dict(df_dict)
                 df["groupName"] = sample
@@ -76,8 +76,7 @@ class TMVAMaker(MLHolder):
 
         # Book methods
         factory.BookMethod(dataloader, TMVA.Types.kPyKeras, 'PyKeras',
-                           'H:!V:VarTransform=D,G:NumEpochs=20:BatchSize=32:FilenameModel={}'
-                           .format("model.h5"))
+                           'H:!V:VarTransform=D,G:NumEpochs=20:BatchSize=32:FilenameModel=model.h5')
         factory.BookMethod(dataloader, TMVA.Types.kBDT, 'BDTG',
                            '!H:!V:VarTransform=D,G:NTrees=1000:BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=20:MaxDepth=4')
 

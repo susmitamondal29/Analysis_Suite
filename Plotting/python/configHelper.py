@@ -11,18 +11,17 @@ def setupPathAndDir(analysis, drawStyle, path, chans):
         extraPath = path + '/' + extraPath
 
     if 'hep.wisc.edu' in os.environ['HOSTNAME']:
-        basePath = '{}/public_html'.format(os.environ['HOME'])
+        basePath = f'{os.environ["HOME"]}/public_html'
     elif 'uwlogin' in os.environ['HOSTNAME'] or 'lxplus' in os.environ['HOSTNAME']:
         basePath = '/eos/home-{0:1.1s}/{0}/www'.format(os.environ['USER'])
-    basePath += '/PlottingResults/{}/{}_{}'.format(analysis, extraPath,
-                                                   drawStyle)
+    basePath += f'/PlottingResults/{analysis}/{extraPath}_{drawStyle}'
     # for all directory
-    checkOrCreateDir('{}/plots'.format(basePath))
-    checkOrCreateDir('{}/logs'.format(basePath))
+    checkOrCreateDir(f'{basePath}/plots')
+    checkOrCreateDir(f'{basePath}/logs')
 
     for chan in chans:
-        path = "{}/{}".format(basePath, chan)
+        path = f'{basePath}/{chan}'
         checkOrCreateDir(path)
-        checkOrCreateDir('{}/plots'.format(path))
-        checkOrCreateDir('{}/logs'.format(path))
+        checkOrCreateDir(f'{path}/plots')
+        checkOrCreateDir(f'{path}/logs')
     return basePath

@@ -81,8 +81,8 @@ class XGBoostMaker(MLHolder):
         auc_train = auc(fpr_train, tpr_train)
         auc_test = auc(fpr_test, tpr_test)
 
-        print("AUC for train: {}".format(auc_train))
-        print("AUC for test: {}".format(auc_train))
+        print(f'AUC for train: {auc_train}')
+        print(f'AUC for test: {auc_train}')
 
     def train(self, outdir):
         """**Train for multiclass BDT**
@@ -125,10 +125,10 @@ class XGBoostMaker(MLHolder):
         auc_train = auc(fpr_train, tpr_train)
         auc_test = auc(fpr_test, tpr_test)
 
-        print("AUC for train: {}".format(auc_train))
-        print("AUC for test: {}".format(auc_train))
+        print(f'AUC for train: {auc_train}')
+        print(f'AUC for test: {auc_train}')
 
-        fit_model.save_model("{}/model.bin".format(outdir))
+        fit_model.save_model(f'{outdir}/model.bin')
 
 
     def apply_model(self, model_file):

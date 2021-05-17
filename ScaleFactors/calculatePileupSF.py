@@ -14,20 +14,20 @@ pileupProb = {
 years = [2016, 2017, 2018]
 systematics = ["nom", "dn", "up"]
 
-base = "{}/src/analysis_suite/data/scale_factors".format(os.getenv("CMSSW_BASE"))
-outfile = ROOT.TFile("{}/pileupSF.root".format(base), "RECREATE")
+base = f'{os.getenv("CMSSW_BASE")}/src/analysis_suite/data/scale_factors'
+outfile = ROOT.TFile(f'{base}/pileupSF.root', "RECREATE")
 for year in years:
     for syst in systematics:
-        df = ROOT.TFile.Open("data/dataPileup_{}_{}.root".format(year, syst))
+        df = ROOT.TFile.Open(f'data/dataPileup_{year}_{syst}.root')
         data = df.Get("pileup")
         data.Scale(1./data.Integral())
         nbins = data.GetNbinsX()
-        hist = ROOT.TH1D("MCpileup_{}_{}".format(year, syst), "MC Pileup", nbins, 0, nbins)
+        hist = ROOT.TH1D(f'MCpileup_{year}_{syst}', "MC Pileup", nbins, 0, nbins)
         for i in range(nbins):
             prob = pileupProb[year][i] if i < len(pileupProb[year]) else 1e-10
             hist.SetBinContent(i+1, prob)
         data.Divide(hist)
-        data.SetName("pileupSF_{}_{}".format(year, syst))
+        data.SetName(f'pileupSF_{year}_{syst}')
         outfile.cd()
         data.Write()
 

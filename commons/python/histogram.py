@@ -10,7 +10,7 @@ class Histogram:
         self.hist = bh.Histogram(args)
         self.sumw2 = bh.Histogram(args)
         self.breakdown = dict()
-        self.name = r'${}$'.format(name) if '\\' in name else name
+        self.name = f'${name}$' if '\\' in name else name
         self.color = color
         self.draw_sc = 1.
 

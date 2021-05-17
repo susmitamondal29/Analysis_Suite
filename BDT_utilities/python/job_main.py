@@ -22,8 +22,8 @@ def setup(cli_args):
         
     data = DataProcessor(mva_params.usevar, groupDict)
     for year in cli_args.years:
-        checkOrCreateDir("{}/{}".format(cli_args.workdir, year))
-        print("Processing year {} MC".format(year))
+        checkOrCreateDir(f'{cli_args.workdir}/{year}')
+        print(f'Processing year {year} MC')
         data.process_year(year, cli_args.workdir)
     data.write_train(cli_args.workdir)
     # exit()
@@ -74,7 +74,7 @@ def run(groupDict, workdir, trainType, applyModel, year):
 def cleanup(cli_args):
     return
     lumi = cli_args.lumi*1000
-    outDir ="{}/{}".format(cli_args.workdir, cli_args.year)
+    outDir = f'{cli_args.workdir}/{cli_args.year}'
     # groupMembers = [item for sublist in cli_args.groupDict.values() for item in sublist]
     output = MVAPlotter(outDir, cli_args.groupDict, lumi)
     output.make_roc("Signal", ["Background"], "Background", "SignalvsAll")

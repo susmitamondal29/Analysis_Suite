@@ -71,8 +71,8 @@ class MLHolder:
         Args:
             directory(string): Path to directory where root files are kept
         """
-        train_file = "{}/train.root".format(directory)
-        test_file = "{}/{}/train.root".format(directory, year)
+        train_file = f'{directory}/train.root'
+        test_file = f'{directory}/{year}/train.root'
         classID = {"Signal": 1, "NotTrained": -1, "Background": 0}
         train_groups = sum(self.group_dict.values(), [])
         with uproot4.open(train_file) as f:
@@ -116,9 +116,9 @@ class MLHolder:
           outname: Directory where files will be written
 
         """
-        self._write_uproot("{}/test.root".format(outdir), self.test_set,
+        self._write_uproot(f'{outdir}/test.root', self.test_set,
                            self.pred_test)
-        self._write_uproot("{}/train.root".format(outdir), self.train_set,
+        self._write_uproot(f'{outdir}/train.root', self.train_set,
                            self.pred_train)
 
     # Private Functions

@@ -55,7 +55,7 @@ class DataProcessor:
     def setup_test_train(self, arr, group, sample, class_id, noTrain):
         df_dict = dict()
         for varname, func in self.use_vars.items():
-            df_dict[varname] = ak.to_numpy(eval("arr.{}".format(func)))
+            df_dict[varname] = ak.to_numpy(eval(f'arr.{func}'))
         df_dict["scale_factor"] = ak.to_numpy(arr.scale)
 
         df = pd.DataFrame.from_dict(df_dict)
@@ -82,7 +82,7 @@ class DataProcessor:
             test_set[key] = test_set[key].astype(dtype)
 
         # Process input file
-        arr_dict = self.get_final_dict("result_{}.root".format(year))
+        arr_dict = self.get_final_dict(f'result_{year}.root')
         allGroups = set(arr_dict.keys())
         self.group_dict["NotTrained"] = list(allGroups-self.train_groups)
         classID_dict = {"Signal": 1, "NotTrained": 0, "Background": 0}
@@ -92,10 +92,10 @@ class DataProcessor:
             for sample in samples:
                 noTrain = False
                 if sample not in arr_dict:
-                    print("Could not found sample {}".format(sample))
+                    print(f'Could not found sample {sample}')
                     continue
                 if len(arr_dict[sample].scale) == 0:
-                    print("Sample {} has no events in it!".format(sample))
+                    print(f'Sample {sample} has no events in it!')
                     continue
 
                 noTrain = group == "NotTrained" or len(arr_dict[sample].scale) < 10
@@ -130,11 +130,11 @@ class DataProcessor:
                 train_set = pd.concat([train.reset_index(drop=True), train_set], sort=True)
 
         self.train_all = pd.concat([train_set.reset_index(drop=True), self.train_all], sort=True)
-        self._write_out("{}/{}/test.root".format(outdir, year), test_set)
-        self._write_out("{}/{}/train.root".format(outdir, year), train_set)
+        self._write_out(f'{outdir}/{year}/test.root', test_set)
+        self._write_out(f'{outdir}/{year}/train.root', train_set)
 
     def write_train(self, outdir):
-        self._write_out("{}/train.root".format(outdir), self.train_all)
+        self._write_out(f'{outdir}/train.root', self.train_all)
 
 
     def _write_out(self, outfile, workSet):

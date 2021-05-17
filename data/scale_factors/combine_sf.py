@@ -50,7 +50,7 @@ def fillSusyElectronSF(info, year, yearDir):
 
 def fillPileupSF(info, year, yearDir):
     f = ROOT.TFile(info["Name"])
-    histogram = getattr(f, "pileupSF_{}_nom".format(year)).Clone("pileupSF")
+    histogram = getattr(f, f'pileupSF_{year}_nom').Clone("pileupSF")
     yearDir.cd()
     histogram.Write()
     
@@ -59,8 +59,8 @@ def fillTopSF(info, year, yearDir):
     allWP = ["LWP", "MWP", "AltTWP", "TWP"]
     for wp in allWP:
         f = ROOT.TFile(info["Name"].format(wp))
-        sig = getattr(f, "{}/hSF_SIG".format(year)).Clone("topSF_{}_True".format(wp))
-        bg = getattr(f, "{}/hSF_BG".format(year)).Clone("topSF_{}_Fake".format(wp))
+        sig = getattr(f, f'{year}/hSF_SIG').Clone(f'topSF_{wp}_True')
+        bg = getattr(f, f'{year}/hSF_BG').Clone(f'topSF_{wp}_Fake')
         yearDir.cd()
         sig.Write()
         bg.Write()

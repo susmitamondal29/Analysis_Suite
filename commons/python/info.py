@@ -11,7 +11,7 @@ class BasicInfo:
 class PlotInfo(BasicInfo):
     def __init__(self, plotInfo, **kwargs):
         super().__init__(**kwargs)
-        plot_path = "{}.plotInfo.{}".format(self.base_path, plotInfo)
+        plot_path = f'{self.base_path}.plotInfo.{plotInfo}'
         self.plotSpecs = importlib.import_module(plot_path).info
         self.lumi = {
             "2016" : 35.9,
@@ -48,7 +48,7 @@ class PlotInfo(BasicInfo):
 class GroupInfo(BasicInfo):
     def __init__(self, group2color={}, **kwargs):
         super().__init__(**kwargs)
-        group_path = "{}.PlotGroups.{}".format(self.base_path, self.analysis)
+        group_path = f'{self.base_path}.PlotGroups.{self.analysis}'
         self.groupInfo = importlib.import_module(group_path).info
         self.group2color = group2color
         self.group2MemberMap = self.get_memberMap()
@@ -82,7 +82,7 @@ class FileInfo(BasicInfo):
     def __init__(self, year="2018", **kwargs):
         super().__init__(**kwargs)
         self.year = int(year)
-        file_path = "{}.FileInfo.{}".format(self.base_path, self.analysis)
+        file_path = f'{self.base_path}.FileInfo.{self.analysis}'
         self.fileInfo = importlib.import_module(file_path).info
         self.dasNames = {info["DAS"][self.year]: key for key, info in self.fileInfo.items()}
 

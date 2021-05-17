@@ -169,8 +169,8 @@ class KerasMaker(MLHolder):
         self.pred_test[groupName] = fit_model.predict(x_test).flatten()
         self.pred_train[groupName] = fit_model.predict(x_train).flatten()
         loss, accuracy = fit_model.evaluate(x_test, y_test, verbose=1)
-        print("loss: {}".format(loss))
-        print("accuracy: {}".format(accuracy))
+        print(f'loss: {loss}')
+        print(f'accuracy: {accuracy}')
 
         fpr_train, tpr_train, _ = roc_curve(y_train.astype(int), self.pred_train[groupName])
         fpr_test, tpr_test, _ = roc_curve(y_test.astype(int), self.pred_test[groupName])
@@ -178,11 +178,11 @@ class KerasMaker(MLHolder):
         self.auc_train = auc(fpr_train, tpr_train)
         self.auc_test = auc(fpr_test, tpr_test)
         
-        print("AUC for train: {}".format(self.auc_train))
-        print("AUC for test: {}".format(self.auc_test))
+        print(f'AUC for train: {self.auc_train}')
+        print(f'AUC for test: {self.auc_test}')
 
         if outdir:
-            fit_model.save("{}/model.h5".format(outdir))
+            fit_model.save(f'{outdir}/model.h5')
 
 
     def apply_model(self, model_file):

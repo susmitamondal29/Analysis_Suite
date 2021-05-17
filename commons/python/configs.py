@@ -56,7 +56,7 @@ def get_cli():
         args, _ = parser.parse_known_args()
         selection = None
         if os.path.exists("data/FileInfo/"):
-            selection = [f.name.strip(".py") for f in os.scandir("data/FileInfo/{}".format(args.analysis))
+            selection = [f.name.strip(".py") for f in os.scandir(f'data/FileInfo/{args.analysis}')
                       if f.name.endswith("py") ] + ["CONDOR"]
         else:
              selection = ["CONDOR"]
@@ -104,7 +104,7 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
         with uproot.open(infilename) as f:
             for mem in members:
                 if mem not in f:
-                    print("problem with {} getting histogram {}".format(mem, ak_col))
+                    print(f'problem with {mem} getting histogram {ak_col}')
                     continue
                 array = f[mem].arrays([ak_col, "scale_factor"],)
                 narray = {"name": mem}
