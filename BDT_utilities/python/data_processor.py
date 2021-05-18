@@ -49,7 +49,6 @@ class DataProcessor:
                     arr_dict[group] = VarGetter(root_file, group)
                 else:
                     arr_dict[group] += VarGetter(root_file, group)
-
         return arr_dict
 
     def setup_test_train(self, arr, group, sample, class_id, noTrain):
@@ -62,7 +61,6 @@ class DataProcessor:
         # df = self._cut_frame(df)
         df["classID"] = class_id
 
-        print(df["groupName"])
         if noTrain:
             return df, None
 
@@ -94,18 +92,19 @@ class DataProcessor:
                 if sample not in arr_dict:
                     print(f'Could not found sample {sample}')
                     continue
-                if len(arr_dict[sample].scale) == 0:
+                if not len(arr_dict[sample]):
                     print(f'Sample {sample} has no events in it!')
                     continue
 
-                noTrain = group == "NotTrained" or len(arr_dict[sample].scale) < 10
+                noTrain = group == "NotTrained" or len(arr_dict[sample]) < 10
 
                 df_dict = dict()
                 arr = arr_dict[sample]
-                for varname, func in self.use_vars.items():
-                    for rpl in np.unique(re.findall(pattern, func)):
-                        func = func.replace(rpl, "arr."+rpl)
-                    df_dict[varname] = ak.to_numpy(eval(func))
+                for varname, func_set in self.use_vars.items():
+                    func, args = func_set[0], func_set[1]
+                    if not isinstance(args, tuple):
+                        args = (args,)
+                    df_dict[varname] = func(arr, *args)
                 df_dict["scale_factor"] = ak.to_numpy(arr.scale)
 
                 df = pd.DataFrame.from_dict(df_dict)
@@ -114,7 +113,9 @@ class DataProcessor:
                 if sample not in self.sample_name_map:
                     self.sample_name_map[sample] = len(self.sample_name_map)
                 df["groupName"] = self.sample_name_map[sample]
-                
+
+
+
                 if noTrain:
                     test_set = pd.concat([df.reset_index(drop=True), test_set], sort=True)
                     continue
@@ -148,7 +149,7 @@ class DataProcessor:
         """
         workSet["groupName"] = workSet["groupName"].astype("int")
         keepList = [key for key in workSet.columns if is_numeric_dtype(workSet[key])]
-        branches = {key: workSet[key].dtype for key in keepList}
+        branches = {key: np.int32 if key[0] == "N" else  np.float32 for key in keepList}
         with upwrite.recreate(outfile) as f:
             f["sample_map"] = json.dumps(self.sample_name_map)
             for group in self.sample_name_map.keys():

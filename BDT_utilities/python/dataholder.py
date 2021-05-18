@@ -95,8 +95,10 @@ class MLHolder:
             if group == "NotTrained":
                 continue
             group_set = self.train_set[self.train_set["classID"] == clsID]
-            scale = 1.*len(group_set)/sum(group_set["scale_factor"])
+            scale = 1.*len(group_set)/sum(group_set["scale_factor"]) if len(group_set) != 0 else 0
             for sample in samples:
+                if sample not in self.sample_map:
+                    continue
                 sampleID = self.sample_map[sample]
                 sampleScale = group_set[group_set["groupName"] == sampleID]["scale_factor"]
                 sumW = sum(sampleScale)
