@@ -11,10 +11,7 @@
 #include <functional>
 #include <vector>
 
-#include "analysis_suite/Analyzer/interface/GenParticle.h"
 #include "analysis_suite/Analyzer/interface/Jet.h"
-#include "analysis_suite/Analyzer/interface/Lepton.h"
-#include "analysis_suite/Analyzer/interface/ResolvedTop.h"
 
 class ScaleFactors {
 public:
@@ -23,10 +20,6 @@ public:
 
     float getBJetSF(const Jet& jets);
     float getPileupSF(int nPU);
-    float getResolvedTopSF(const ResolvedTop& top, const GenParticle& genPart);
-
-    float getElectronSF(const Lepton& elec);
-    float getMuonSF(const Lepton& muon);
 
 private:
     Year year_;
@@ -34,10 +27,7 @@ private:
     BTagCalibrationReader btag_reader;
 
     TH2D *h_btag_eff_b, *h_btag_eff_c, *h_btag_eff_udsg;
-    TH1F *topSF, *fakeTopSF;
     TH1D* pileupSF;
-    TH2F *electronLowSF, *electronSF, *electronSusySF;
-    TH2D* muonSF;
 
     template <typename T>
     float getWeight(T* hist, float val)
@@ -50,16 +40,6 @@ private:
     {
         return hist->GetBinContent(hist->FindBin(val1, val2));
     }
-
-    template <typename T>
-    float getWeightPtAbsEta(T* hist, float pt, float eta)
-    {
-        return hist->GetBinContent(hist->FindBin(pt, fabs(eta)));
-    }
-
-    float elecPtMax = 500 - 0.1;
-    float muonPtMax = 120 - 0.1;
-    float muonPtMin = 20.;
 };
 
 #endif // __SCALEFACTORS_H_

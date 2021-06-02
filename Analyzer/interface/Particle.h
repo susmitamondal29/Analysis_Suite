@@ -2,6 +2,9 @@
 #define __PARTICLE_H_
 
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "TH1.h"
+#include "TH2.h"
+#include <TFile.h>
 #include <TTreeReader.h>
 #include <TTreeReaderArray.h>
 #include <TTreeReaderValue.h>
@@ -23,10 +26,13 @@ class TopOut;
 
 class Particle {
 public:
-    Particle();
+    Particle(){};
     virtual ~Particle(){};
-    void setup(std::string name, TTreeReader& fReader, Year year);
+
+    void setup(std::string name, TTreeReader& fReader);
     virtual void setGoodParticles(size_t syst);
+
+    virtual float getScaleFactor() { return 1.0; };
 
     size_t size() const { return (m_pt) ? m_pt->GetSize() : 0; }
     size_t size(Level level) const { return list(level).size(); }
@@ -42,7 +48,9 @@ public:
     virtual void clear();
 
     static size_t nSyst;
-    Year year_;
+    static TFile* f_scale_factors;
+    static Year year_;
+    static std::string yearStr_;
 
 protected:
     TTRArray<Float_t>* m_pt;
@@ -56,6 +64,18 @@ protected:
 
     void setup_map(Level level);
     void fill_bitmap();
+
+    template <class T>
+    void setSF(T*& sf, std::string name)
+    {
+        sf = static_cast<T*>(f_scale_factors->Get((yearStr_ + "/" + name).c_str()));
+    }
+
+    template <class T, class... Args>
+    float getWeight(T* hist, Args... args)
+    {
+        return hist->GetBinContent(hist->FindBin(args...));
+    }
 };
 
 #endif // __PARTICLE_H_

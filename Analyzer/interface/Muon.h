@@ -5,10 +5,11 @@
 
 class Muon : public Lepton {
 public:
-    void setup(TTreeReader& fReader, Year year);
+    void setup(TTreeReader& fReader);
     virtual void createLooseList() override;
     virtual void createFakeList(Particle& jets) override;
     virtual void createTightList() override;
+    virtual float getScaleFactor() override;
 
     TTRArray<Bool_t>* isGlobal;
     TTRArray<Bool_t>* isTracker;
@@ -19,6 +20,10 @@ public:
     TTRArray<Int_t>* tightCharge;
     TTRArray<Bool_t>* mediumId;
     TTRArray<Float_t>* sip3d;
+
+    TH2D* muonSF;
+    Float_t ptMax = 119;
+    Float_t ptMin = 20;
 };
 
 #endif // __MUON_H_

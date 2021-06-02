@@ -5,7 +5,7 @@
 
 class GenParticle : public Particle {
 public:
-    void setup(TTreeReader& fReader, Year year, bool isMC);
+    void setup(TTreeReader& fReader, bool isMC);
     void createLooseList();
     virtual void setGoodParticles(size_t syst) override
     {

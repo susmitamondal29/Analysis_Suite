@@ -7,7 +7,7 @@
 
 class Jet : public Particle {
 public:
-    void setup(TTreeReader& fReader, Year year);
+    void setup(TTreeReader& fReader);
 
     float getHT(Level level, size_t syst) { return getHT(list(level, syst)); };
     float getHT(Level level) { return getHT(list(level)); };

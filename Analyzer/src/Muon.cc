@@ -1,9 +1,9 @@
 #include "analysis_suite/Analyzer/interface/Muon.h"
 #include "analysis_suite/Analyzer/interface/Jet.h"
 
-void Muon::setup(TTreeReader& fReader, Year year)
+void Muon::setup(TTreeReader& fReader)
 {
-    Lepton::setup("Muon", fReader, year);
+    Lepton::setup("Muon", fReader);
     isGlobal = new TTRArray<Bool_t>(fReader, "Muon_isGlobal");
     isTracker = new TTRArray<Bool_t>(fReader, "Muon_isTracker");
     isPFcand = new TTRArray<Bool_t>(fReader, "Muon_isPFcand");
@@ -21,6 +21,8 @@ void Muon::setup(TTreeReader& fReader, Year year)
         ptRatioCut = 0.74;
         ptRelCut = pow(6.8, 2);
     }
+
+    setSF(muonSF, "muonSF");
 }
 
 void Muon::createLooseList()
@@ -58,4 +60,17 @@ void Muon::createTightList()
         if (pt(i) > 15 && iso->At(i) < 0.16)
             m_partList[Level::Tight]->push_back(i);
     }
+}
+
+float Muon::getScaleFactor()
+{
+    float weight = 1.;
+    for (auto midx : list(Level::Tight)) {
+        float fixed_pt = std::max(std::min(pt(midx), ptMax), ptMin);
+        if (year_ == Year::yr2016)
+            weight *= getWeight(muonSF, eta(midx), fixed_pt);
+        else
+            weight *= getWeight(muonSF, fixed_pt, fabs(eta(midx)));
+    }
+    return weight;
 }

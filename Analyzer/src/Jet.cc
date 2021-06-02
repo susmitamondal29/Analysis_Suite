@@ -1,8 +1,8 @@
 #include "analysis_suite/Analyzer/interface/Jet.h"
 
-void Jet::setup(TTreeReader& fReader, Year year)
+void Jet::setup(TTreeReader& fReader)
 {
-    Particle::setup("Jet", fReader, year);
+    Particle::setup("Jet", fReader);
     jetId = new TTRArray<Int_t>(fReader, "Jet_jetId");
     hadronFlavour = new TTRArray<Int_t>(fReader, "Jet_hadronFlavour");
     btag = new TTRArray<Float_t>(fReader, "Jet_btagDeepB");

@@ -2,10 +2,10 @@
 
 #include <limits>
 
-void Lepton::setup(std::string name, TTreeReader& fReader, Year year)
+void Lepton::setup(std::string name, TTreeReader& fReader)
 {
     m_charge = new TTreeReaderArray<Int_t>(fReader, (name + "_charge").c_str());
-    Particle::setup(name, fReader, year);
+    Particle::setup(name, fReader);
     setup_map(Level::Loose);
     setup_map(Level::Fake);
     setup_map(Level::Tight);

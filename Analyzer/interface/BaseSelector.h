@@ -79,6 +79,7 @@ protected:
 
 private:
     void SetupEvent(Systematic syst, Variation var, size_t systNum);
+    void setupParticleInfo();
 
     std::vector<Systematic> systematics_ = { Systematic::Nominal };
     size_t passed_events = 0;

@@ -1,12 +1,12 @@
 #include "analysis_suite/Analyzer/interface/Particle.h"
 
 size_t Particle::nSyst = 0;
+Year Particle::year_ = Year::yrDefault;
+std::string Particle::yearStr_ = "";
+TFile* Particle::f_scale_factors = nullptr;
 
-Particle::Particle() {}
-
-void Particle::setup(std::string name, TTreeReader& fReader, Year year)
+void Particle::setup(std::string name, TTreeReader& fReader)
 {
-    year_ = year;
     m_pt = new TTreeReaderArray<Float_t>(fReader, (name + "_pt").c_str());
     m_eta = new TTreeReaderArray<Float_t>(fReader, (name + "_eta").c_str());
     m_phi = new TTreeReaderArray<Float_t>(fReader, (name + "_phi").c_str());

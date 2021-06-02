@@ -1,9 +1,9 @@
 #include "analysis_suite/Analyzer/interface/Electron.h"
 #include "analysis_suite/Analyzer/interface/Jet.h"
 
-void Electron::setup(TTreeReader& fReader, Year year)
+void Electron::setup(TTreeReader& fReader)
 {
-    Lepton::setup("Electron", fReader, year);
+    Lepton::setup("Electron", fReader);
     eCorr = new TTRArray<Float_t>(fReader, "Electron_eCorr");
     lostHits = new TTRArray<UChar_t>(fReader, "Electron_lostHits");
     convVeto = new TTRArray<Bool_t>(fReader, "Electron_convVeto");
@@ -52,6 +52,10 @@ void Electron::setup(TTreeReader& fReader, Year year)
             { 100, 2.552, 0.06, 3.152 },
             { 100, 1.489, 0.087, 2.359 } };
     }
+
+    setSF(electronLowSF, "electronSF_low");
+    setSF(electronSF, "electronSF");
+    setSF(electronSusySF, "electronSF_susy");
 }
 
 void Electron::createLooseList()
@@ -129,4 +133,19 @@ bool Electron::passMVACut(size_t idx, bool isTight)
         return mvaValue > mvaCuts[caseIdx % 4];
     else
         return mvaValue > mvaCuts[1] + mvaCuts[2] * (pt(idx) - 15);
+}
+
+float Electron::getScaleFactor()
+{
+    float weight = 1.;
+    for (auto eidx : list(Level::Tight)) {
+        float fixed_pt = std::min(pt(eidx), ptMax);
+        if (fixed_pt < 20) {
+            weight *= getWeight(electronLowSF, eta(eidx), fixed_pt);
+        } else {
+            weight *= getWeight(electronSF, eta(eidx), fixed_pt);
+        }
+        weight *= getWeight(electronSusySF, eta(eidx), fixed_pt);
+    }
+    return weight;
 }

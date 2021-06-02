@@ -2,12 +2,12 @@
 
 #include "analysis_suite/Analyzer/interface/CommonEnums.h"
 
-void GenParticle::setup(TTreeReader& fReader, Year year, bool isMC_)
+void GenParticle::setup(TTreeReader& fReader, bool isMC_)
 {
     isMC = isMC_;
     if (!isMC)
         return;
-    Particle::setup("Jet", fReader, year);
+    Particle::setup("Jet", fReader);
     pdgId = new TTRArray<Int_t>(fReader, "GenPart_pdgId");
 
     setup_map(Level::Top);

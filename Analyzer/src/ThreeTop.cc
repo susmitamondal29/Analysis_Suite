@@ -13,8 +13,8 @@ void ThreeTop::Init(TTree* tree)
     createObject(cutFlow, "cutFlow", 15, 0, 15);
     createObject(cutFlow_individual, "cutFlow_individual", 15, 0, 15);
 
-    rTop.setup(fReader, year_);
-    rGen.setup(fReader, year_, isMC_);
+    rTop.setup(fReader);
+    rGen.setup(fReader, isMC_);
 
     event = new TTRValue<ULong64_t>(fReader, "event");
     Flag_goodVertices = new TTRValue<Bool_t>(fReader, "Flag_goodVertices");
@@ -71,9 +71,9 @@ void ThreeTop::ApplyScaleFactors()
 {
     (*weight) *= sfMaker.getBJetSF(jet);
     (*weight) *= sfMaker.getPileupSF(**Pileup_nTrueInt);
-    (*weight) *= sfMaker.getResolvedTopSF(rTop, rGen);
-    (*weight) *= sfMaker.getElectronSF(elec);
-    (*weight) *= sfMaker.getMuonSF(muon);
+    (*weight) *= elec.getScaleFactor();
+    (*weight) *= muon.getScaleFactor();
+    (*weight) *= rTop.getScaleFactor();
 }
 
 void ThreeTop::setOtherGoodParticles(size_t syst)

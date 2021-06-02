@@ -43,12 +43,12 @@ void BaseSelector::Init(TTree* tree)
         systMaker = new SystematicMaker(this, year_);
     }
 
-    Particle::nSyst = numSystematics();
     o_weight.resize(numSystematics());
 
-    muon.setup(fReader, year_);
-    elec.setup(fReader, year_);
-    jet.setup(fReader, year_);
+    setupParticleInfo();
+    muon.setup(fReader);
+    elec.setup(fReader);
+    jet.setup(fReader);
 }
 
 Bool_t BaseSelector::Process(Long64_t entry)
@@ -117,4 +117,20 @@ void BaseSelector::clearValues()
     cuts.clear();
 
     std::fill(o_weight.begin(), o_weight.end(), 1.);
+}
+
+void BaseSelector::setupParticleInfo()
+{
+    Particle::nSyst = numSystematics();
+    Particle::year_ = year_;
+    std::string scaleDir = getenv("CMSSW_BASE");
+    scaleDir += "/src/analysis_suite/data/scale_factors/";
+    Particle::f_scale_factors = new TFile((scaleDir + "event_scalefactors.root").c_str());
+    if (year_ == Year::yr2016) {
+        Particle::yearStr_ = "2016";
+    } else if (year_ == Year::yr2017) {
+        Particle::yearStr_ = "2017";
+    } else {
+        Particle::yearStr_ = "2018";
+    }
 }
