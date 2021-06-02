@@ -100,8 +100,8 @@
         <span class="k">if</span> <span class="p">(</span><span class="n">basePath</span> <span class="o">/</span> <span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">continue</span>
         <span class="n">needWrite</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">resource_string</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">"../html/</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">resource_string</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'../html/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">needWrite</span><span class="p">:</span>
         <span class="k">return</span>
@@ -110,7 +110,7 @@
     <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">:</span>
         <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">"Channel"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">chan</span>
     <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
-    <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="si">{}</span><span class="s1">/extraInfo.xml'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span></div>
+    <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">/extraInfo.xml'</span><span class="p">)</span></div>
 
 
 
@@ -124,7 +124,7 @@
  
 </code></pre>
 </main>
-<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.0.1</a></footer>
+<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.0.2</a></footer>
 </div>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">
 <div class="flex justify-center items-center">

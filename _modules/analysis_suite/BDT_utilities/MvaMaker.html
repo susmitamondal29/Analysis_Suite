@@ -157,8 +157,8 @@
         <span class="n">auc_train</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr_train</span><span class="p">,</span> <span class="n">tpr_train</span><span class="p">)</span>
         <span class="n">auc_test</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr_test</span><span class="p">,</span> <span class="n">tpr_test</span><span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"AUC for train: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">auc_train</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"AUC for test: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">auc_train</span><span class="p">))</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'AUC for train: </span><span class="si">{</span><span class="n">auc_train</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'AUC for test: </span><span class="si">{</span><span class="n">auc_train</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="XGBoostMaker.train"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">):</span>
         <span class="sd">"""**Train for multiclass BDT**</span>
@@ -201,10 +201,10 @@
         <span class="n">auc_train</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr_train</span><span class="p">,</span> <span class="n">tpr_train</span><span class="p">)</span>
         <span class="n">auc_test</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr_test</span><span class="p">,</span> <span class="n">tpr_test</span><span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"AUC for train: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">auc_train</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"AUC for test: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">auc_train</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'AUC for train: </span><span class="si">{</span><span class="n">auc_train</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'AUC for test: </span><span class="si">{</span><span class="n">auc_train</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
-        <span class="n">fit_model</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">/model.bin"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outdir</span><span class="p">))</span></div>
+        <span class="n">fit_model</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">outdir</span><span class="si">}</span><span class="s1">/model.bin'</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="XGBoostMaker.apply_model"><a class="viewcode-back" href="../../../analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MvaMaker.XGBoostMaker.apply_model">[docs]</a>    <span class="k">def</span> <span class="nf">apply_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
@@ -218,7 +218,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drop_vars</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div></div>
 </code></pre>
 </main>
-<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.0.1</a></footer>
+<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.0.2</a></footer>
 </div>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">
 <div class="flex justify-center items-center">

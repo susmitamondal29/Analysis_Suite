@@ -86,7 +86,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">hist</span> <span class="o">=</span> <span class="n">bh</span><span class="o">.</span><span class="n">Histogram</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sumw2</span> <span class="o">=</span> <span class="n">bh</span><span class="o">.</span><span class="n">Histogram</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">breakdown</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">'$</span><span class="si">{}</span><span class="s1">$'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="s1">'</span><span class="se">\\</span><span class="s1">'</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">else</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'$</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">$'</span> <span class="k">if</span> <span class="s1">'</span><span class="se">\\</span><span class="s1">'</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">else</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_sc</span> <span class="o">=</span> <span class="mf">1.</span>
 
@@ -191,7 +191,7 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">err</span><span class="p">],</span> <span class="n">roundDigit</span><span class="p">)</span></div></div>
 </code></pre>
 </main>
-<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.0.1</a></footer>
+<footer class="mt-20 px-5 md:ml-fluid mb-4 flex-shrink-0 text-sm text-gray-700" role="contentinfo">© Copyright 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.0.2</a></footer>
 </div>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">
 <div class="flex justify-center items-center">
