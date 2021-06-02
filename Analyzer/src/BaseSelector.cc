@@ -1,63 +1,61 @@
 #include "analysis_suite/Analyzer/interface/BaseSelector.h"
-#include "TParameter.h"
 
-void BaseSelector::Begin(TTree* /*tree*/) { TString option = GetOption(); }
+#include "analysis_suite/Analyzer/interface/SystematicMaker.h"
 
-void BaseSelector::SlaveBegin(TTree* /*tree*/)
+size_t BaseSelector::numSystematics()
 {
-    if (GetInputList() != nullptr) {
-        TParameter<bool>* applyScaleFactors = (TParameter<bool>*)GetInputList()->FindObject("applyScaleFacs");
-        if (applyScaleFactors != nullptr && applyScaleFactors->GetVal()) {
-            SetScaleFactors();
-        }
+    size_t total = 0;
+    for (auto syst : systematics_) {
+        total += var_by_syst.at(syst).size();
     }
-}
+    return total;
+};
 
 void BaseSelector::Init(TTree* tree)
 {
     if (!tree)
         return;
-    fChain = tree;
-    fReader.SetTree(fChain);
+
     for (auto item : *fInput) {
         fOutput->Add(item);
         if (strcmp(item->GetName(), "Year") == 0) {
-            year_ = yearMap[item->GetTitle()];
-        } else if (strcmp(item->GetName(), "xsec") == 0) {
-            xsec_ = std::stof(item->GetTitle());
+            year_ = yearMap.at(item->GetTitle());
+        } else if (strcmp(item->GetName(), "isData") == 0) {
+            isMC_ = true;
+        } else if (strcmp(item->GetName(), "Systematics") == 0) {
+            for (auto systName : *static_cast<TList*>(item)) {
+                systematics_.push_back(syst_by_name.at(systName->GetName()));
+            }
         }
     }
 
     sfMaker = ScaleFactors(year_);
-    isMC_ = true;
-    outTree = new TTree("Analyzed", "Analyzed");
+
+    createObject(outTree, "Analyzed");
     outTree->Branch("weight", &o_weight);
     outTree->Branch("PassEvent", &o_pass_event);
-
     SetupOutTree();
-    fOutput->Add(outTree);
 
+    fReader.SetTree(tree);
     if (isMC_) {
         genWeight = new TTreeReaderValue<Float_t>(fReader, "genWeight");
+        LHEScaleWeight = new TTRArray<Float_t>(fReader, "LHEScaleWeight");
+        systMaker = new SystematicMaker(this, year_);
     }
 
-    variations_.push_back("Nominal");
-    // variations_.push_back("Other");
-    Particle::nSyst = variations_.size();
-    o_weight.resize(variations_.size());
+    Particle::nSyst = numSystematics();
+    o_weight.resize(numSystematics());
 
     muon.setup(fReader, year_);
     elec.setup(fReader, year_);
     jet.setup(fReader, year_);
 }
 
-void BaseSelector::SetScaleFactors()
-{
-    std::invalid_argument("No scale factors defined for selector!");
-}
-
 Bool_t BaseSelector::Process(Long64_t entry)
 {
+    if (entry > 1000)
+        return true;
+
     if (entry % 10000 == 0)
         std::cout << "At entry: " << entry << std::endl;
 
@@ -65,13 +63,17 @@ Bool_t BaseSelector::Process(Long64_t entry)
     fReader.SetLocalEntry(entry);
     std::vector<bool> systPassSelection;
     bool passAny = false;
-    for (size_t syst = 0; syst < variations_.size(); ++syst) {
-        SetupEvent(syst);
-        systPassSelection.push_back(passSelection());
-        if (syst == 0) {
-            fillCutFlow();
+    size_t systNum = 0;
+    for (auto syst : systematics_) {
+        for (auto var : var_by_syst.at(syst)) {
+            SetupEvent(syst, var, systNum);
+            systPassSelection.push_back(passSelection());
+            if (syst == Systematic::Nominal) {
+                fillCutFlow();
+            }
+            passAny |= systPassSelection.back();
+            systNum++;
         }
-        passAny |= systPassSelection.back();
     }
     if (passAny) {
         o_pass_event = systPassSelection;
@@ -82,39 +84,26 @@ Bool_t BaseSelector::Process(Long64_t entry)
     return kTRUE;
 }
 
-Bool_t BaseSelector::Notify() { return kTRUE; }
-
-float BaseSelector::GetPrefiringEfficiencyWeight(std::vector<float>* jetPt,
-    std::vector<float>* jetEta)
-{
-    float prefire_weight = 1;
-    for (size_t i = 0; i < jetPt->size(); i++) {
-        float jPt = jetPt->at(i);
-        float jEta = fabs(jetEta->at(i));
-        prefire_weight *= (1 - prefireEff_->GetEfficiency(prefireEff_->FindFixBin(jEta, jPt)));
-    }
-    return prefire_weight;
-}
-
-void BaseSelector::Terminate() {}
-
 void BaseSelector::SlaveTerminate()
 {
     std::cout << passed_events << " events passed selection" << std::endl;
 }
 
-void BaseSelector::SetupEvent(size_t syst)
+void BaseSelector::SetupEvent(Systematic syst, Variation var, size_t systNum)
 {
-    weight = &o_weight[syst];
-    muon.setGoodParticles(jet, syst);
-    elec.setGoodParticles(jet, syst);
-    jet.setGoodParticles(syst);
-    setOtherGoodParticles(syst);
+    weight = &o_weight[systNum];
+    (*weight) = isMC_ ? **genWeight : 1.0;
+
+    muon.setGoodParticles(jet, systNum);
+    elec.setGoodParticles(jet, systNum);
+    jet.setGoodParticles(systNum);
+    setOtherGoodParticles(systNum);
+
+    systMaker->applySystematic(syst, var);
 
     setupChannel();
 
     if (isMC_) {
-        (*weight) = **genWeight;
         ApplyScaleFactors();
     }
 }

@@ -1,15 +1,10 @@
 #ifndef BASESELECTOR_H
 #define BASESELECTOR_H
 
-#include <TChain.h>
-#include <TEfficiency.h>
-#include <TFile.h>
-#include <TROOT.h>
 #include <TSelector.h>
 #include <TTree.h>
 #include <TTreeReader.h>
 #include <TTreeReaderValue.h>
-#include <string.h>
 
 #include <exception>
 #include <iostream>
@@ -23,70 +18,72 @@
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
 
 enum class Channel;
+class SystematicMaker;
 
 class BaseSelector : public TSelector {
+    friend SystematicMaker;
+
 public:
-    TTree* fChain = 0; //! pointer to the analyzed TTree or TChain
-    // Readers to access the data (delete the ones you do not need).
     BaseSelector(TTree* /*tree*/ = 0) {}
     virtual ~BaseSelector() {}
-    virtual void SetScaleFactors();
     virtual Int_t Version() const { return 2; }
-    virtual void Begin(TTree* tree);
-    virtual void SlaveBegin(TTree* tree);
-    virtual void Init(TTree* tree);
-    virtual Bool_t Notify();
-    virtual Bool_t Process(Long64_t entry);
-    virtual Int_t GetEntry(Long64_t entry, Int_t getall = 0)
-    {
-        return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0;
-    }
-    virtual void SetOption(const char* option) { fOption = option; }
-    virtual void SetObject(TObject* obj) { fObject = obj; }
-    virtual void SetInputList(TList* input) { fInput = input; }
-    virtual TList* GetOutputList() const { return fOutput; }
-    virtual void SlaveTerminate();
-    virtual void Terminate();
 
-    virtual void SetupOutTree() {}
-    void SetupEvent(size_t syst);
-    virtual bool passSelection() { return true; }
-    virtual void FillValues(const std::vector<bool>& passVec) {}
-    virtual void setupChannel(){};
-    virtual void setOtherGoodParticles(size_t syst){};
-    virtual void ApplyScaleFactors(){};
-    virtual void clearValues();
-    virtual void fillCutFlow(){};
+    virtual void Init(TTree* tree);
+    virtual Bool_t Process(Long64_t entry);
+    virtual void SlaveTerminate();
+
     ClassDef(BaseSelector, 0);
 
 protected:
-    float GetPrefiringEfficiencyWeight(std::vector<float>* jetPt, std::vector<float>* jetEta);
-    std::vector<std::string> variations_;
-    TEfficiency* prefireEff_;
-    size_t passed_events = 0;
+    size_t numSystematics();
+    virtual void clearValues();
+
+    template <class T, class... Args>
+    void createObject(T*& obj, std::string name, Args... args)
+    {
+        obj = new T(name.c_str(), name.c_str(), args...);
+        fOutput->Add(obj);
+    }
+
+    // To be filled by Child class
+    virtual void fillCutFlow(){};
+    virtual void ApplyScaleFactors(){};
+    virtual void FillValues(const std::vector<bool>& passVec) {}
+    virtual void setupChannel(){};
+    virtual void setOtherGoodParticles(size_t syst){};
+    virtual bool passSelection() { return true; }
+    virtual void SetupOutTree() {}
+
+    // Protected Variables
     TTreeReader fReader;
-    std::unordered_map<std::string, Year> yearMap = {
-        { "2016", Year::yr2016 },
-        { "2017", Year::yr2017 },
-        { "2018", Year::yr2018 }
-    };
-    Year year_;
-    float xsec_;
     TTree* outTree;
+
     TTreeReaderValue<Float_t>* genWeight;
+    TTreeReaderArray<Float_t>* LHEScaleWeight;
+
+    float* weight;
+    Year year_;
+    bool passTrigger;
+    bool isMC_ = true;
+    Channel channel_, currentChannel_;
+
     std::vector<Float_t> o_weight;
     std::vector<Bool_t> o_pass_event;
     std::vector<std::pair<std::string, bool>> cuts;
-    bool passTrigger;
-    float* weight;
-
-    bool isMC_;
-    Channel channel_, currentChannel_;
 
     ScaleFactors sfMaker;
+    SystematicMaker* systMaker;
     Muon muon;
     Electron elec;
     Jet jet;
+
+private:
+    void SetupEvent(Systematic syst, Variation var, size_t systNum);
+
+    std::vector<Systematic> systematics_ = { Systematic::Nominal };
+    size_t passed_events = 0;
+
+    float xsec_;
 };
 
 #endif

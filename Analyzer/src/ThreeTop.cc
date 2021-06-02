@@ -8,14 +8,10 @@ void ThreeTop::Init(TTree* tree)
     channel_ = Channel::SS;
     BaseSelector::Init(tree);
 
-    passTrigger_leadPt = new TH2F("passTrigger", "passTrigger", 4, 0, 4, 100, 0, 100);
-    fOutput->Add(passTrigger_leadPt);
-    failTrigger_leadPt = new TH2F("failTrigger", "failTrigger", 4, 0, 4, 100, 0, 100);
-    fOutput->Add(failTrigger_leadPt);
-    cutFlow = new TH1F("cutFlow", "cutFlow", 15, 0, 15);
-    fOutput->Add(cutFlow);
-    cutFlow_individual = new TH1F("cutFlow_individual", "cutFlow_individual", 15, 0, 15);
-    fOutput->Add(cutFlow_individual);
+    createObject(passTrigger_leadPt, "passTrigger", 4, 0, 4, 100, 0, 100);
+    createObject(failTrigger_leadPt, "failTrigger", 4, 0, 4, 100, 0, 100);
+    createObject(cutFlow, "cutFlow", 15, 0, 15);
+    createObject(cutFlow_individual, "cutFlow_individual", 15, 0, 15);
 
     rTop.setup(fReader, year_);
     rGen.setup(fReader, year_, isMC_);
@@ -125,19 +121,19 @@ bool ThreeTop::passSelection()
     cuts.push_back(std::make_pair("passJetNumber", jet.size(Level::Tight) >= 2));
     cuts.push_back(std::make_pair("passBJetNumber", jet.size(Level::Bottom) >= 1));
     cuts.push_back(std::make_pair("passMetCut", **Met_pt > 25));
-    cuts.push_back(std::make_pair("passHTCut", jet.getHT(Level::Tight) > 250));
+    cuts.push_back(std::make_pair("passHTCut", jet.getHT(Level::Tight) > 300));
 
     // Trigger stuff
     passTrigger = true;
-    // passLeadPt stuff
-    if (subChannel_ == Subchannel::MM)
-        passTrigger &= **HLT_MuMu;
-    else if (subChannel_ == Subchannel::EM)
-        passTrigger &= **HLT_EleMu;
-    else if (subChannel_ == Subchannel::ME)
-        passTrigger &= **HLT_MuEle;
-    else if (subChannel_ == Subchannel::EE)
-        passTrigger &= **HLT_EleEle;
+    // // passLeadPt stuff
+    // if (subChannel_ == Subchannel::MM)
+    //     passTrigger &= **HLT_MuMu;
+    // else if (subChannel_ == Subchannel::EM)
+    //     passTrigger &= **HLT_EleMu;
+    // else if (subChannel_ == Subchannel::ME)
+    //     passTrigger &= **HLT_MuEle;
+    // else if (subChannel_ == Subchannel::EE)
+    //     passTrigger &= **HLT_EleEle;
 
     for (auto& cut : cuts) {
         if (!cut.second)
@@ -192,7 +188,7 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
     fillTop(rTop, Level::Loose, *o_resolvedTop, pass_bitmap);
     fillLeptons(muon, elec, *o_tightLeptons, pass_bitmap);
 
-    for (size_t syst = 0; syst < variations_.size(); ++syst) {
+    for (size_t syst = 0; syst < numSystematics(); ++syst) {
         o_ht.push_back(jet.getHT(Level::Tight, syst));
         o_htb.push_back(jet.getHT(Level::Bottom, syst));
         o_met.push_back(**Met_pt);
