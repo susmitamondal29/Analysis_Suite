@@ -17,15 +17,28 @@ void BaseSelector::Init(TTree* tree)
         return;
 
     for (auto item : *fInput) {
-        fOutput->Add(item);
-        if (strcmp(item->GetName(), "Year") == 0) {
-            year_ = yearMap.at(item->GetTitle());
-        } else if (strcmp(item->GetName(), "isData") == 0) {
-            isMC_ = true;
-        } else if (strcmp(item->GetName(), "Systematics") == 0) {
-            for (auto systName : *static_cast<TList*>(item)) {
-                systematics_.push_back(syst_by_name.at(systName->GetName()));
+        std::string itemName = item->GetName();
+        if (itemName == "MetaData") {
+            fOutput->Add(item);
+            for (auto data : *static_cast<TList*>(item)) {
+                std::string dataName = data->GetName();
+                if (dataName == "Year") {
+                    year_ = yearMap.at(data->GetTitle());
+                } else if (dataName == "isData") {
+                    isMC_ = true;
+                }
             }
+        } else if (itemName == "Systematics") {
+            TList* rootSystList = new TList();
+            rootSystList->SetName("Systematics");
+            rootSystList->Add(new TNamed("Nominal", "Nominal"));
+            for (auto systNamed : *static_cast<TList*>(item)) {
+                std::string systName = systNamed->GetName();
+                systematics_.push_back(syst_by_name.at(systName));
+                rootSystList->Add(new TNamed((systName + "_up").c_str(), systName.c_str()));
+                rootSystList->Add(new TNamed((systName + "_down").c_str(), systName.c_str()));
+            }
+            fOutput->Add(rootSystList);
         }
     }
 

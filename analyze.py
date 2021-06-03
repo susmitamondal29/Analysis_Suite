@@ -8,16 +8,16 @@ ROOT.gROOT.ProcessLine( "gErrorIgnoreLevel = 1001;")
 
 def setInputs(inputs):
     root_inputs = ROOT.TList()
-    for key, value in inputs.items():
-        item = None
-        if isinstance(value, list):
-            item = ROOT.TList()
-            item.SetName(key)
-            for subitem in value:
-                item.Add(ROOT.TNamed(subitem, subitem))
-        else:
-            item = ROOT.TNamed(key, str(value))
-        root_inputs.Add(item)
+    for key, data in inputs.items():
+        subList = ROOT.TList()
+        subList.SetName(key)
+        if isinstance(data, dict):
+            for dataName, dataVal in data.items():
+                subList.Add(ROOT.TNamed(dataName, str(dataVal)))
+        elif isinstance(data, list):
+            for subitem in data:
+                subList.Add(ROOT.TNamed(subitem, subitem))
+        root_inputs.Add(subList)
     return root_inputs
 
 
@@ -45,18 +45,20 @@ if __name__ == "__main__":
 
     analysis, year, selection = analysisName.split("_")
     info = FileInfo(analysis=analysis, year=year, selection=selection)
+    groupName = info.get_group(sampleName)
 
     # Setup inputs
     inputs = dict()
-    groupName = info.get_group(sampleName)
-    inputs["DAS_Name"] = sampleName
-    inputs["Group"] = groupName
-    inputs['Analysis'] = analysis
-    inputs['Selection'] = selection
-    inputs["Xsec"] = info.get_xsec(groupName)
-    inputs["Year"] = year
-    inputs["Systematics"] = ["LHE_muF", "LHE_muF", "BTagging"]
-    inputs["isData"] = False
+    inputs["MetaData"] = {
+        "DAS_Name": ''.join(sampleName),
+        "Group": groupName,
+        'Analysis': analysis,
+        'Selection': selection,
+        'Xsec': info.get_xsec(groupName),
+        'Year': year,
+        'isData': False,
+    }
+    inputs["Systematics"] = ["LHE_muF", "LHE_muR", "BTagging"]
     rInputs = setInputs(inputs)
 
     # Run Selection

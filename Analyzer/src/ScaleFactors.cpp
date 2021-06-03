@@ -18,7 +18,6 @@ ScaleFactors::ScaleFactors(Year year)
         strYear = "2018";
     }
 
-    std::cout << scaleDir + "event_scalefactors.root" << std::endl;
     TFile* f_scale_factors = new TFile((scaleDir + "event_scalefactors.root").c_str());
     f_scale_factors->cd(strYear.c_str());
     pileupSF = (TH1D*)gDirectory->Get("pileupSF");
