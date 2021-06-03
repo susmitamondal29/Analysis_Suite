@@ -53,9 +53,6 @@ void BaseSelector::Init(TTree* tree)
 
 Bool_t BaseSelector::Process(Long64_t entry)
 {
-    if (entry > 1000)
-        return true;
-
     if (entry % 10000 == 0)
         std::cout << "At entry: " << entry << std::endl;
 

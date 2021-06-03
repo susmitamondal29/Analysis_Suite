@@ -55,7 +55,7 @@ if __name__ == "__main__":
     inputs['Selection'] = selection
     inputs["Xsec"] = info.get_xsec(groupName)
     inputs["Year"] = year
-    inputs["Systematics"] = ["LHEReweight"]
+    inputs["Systematics"] = ["LHE_muF", "LHE_muF", "BTagging"]
     inputs["isData"] = False
     rInputs = setInputs(inputs)
 

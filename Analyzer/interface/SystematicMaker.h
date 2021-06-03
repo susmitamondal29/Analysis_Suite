@@ -15,8 +15,6 @@ public:
 private:
     BaseSelector* analysis_;
     Year year_;
-
-    void LHEReweight(Variation var);
 };
 
 #endif // SYSTEMATICS_H_

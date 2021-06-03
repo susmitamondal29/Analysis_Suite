@@ -36,7 +36,9 @@ enum class Level {
 
 enum class Systematic {
     Nominal,
-    LHEReweight,
+    LHE_muF,
+    LHE_muR,
+    BTagging,
 };
 
 enum class Variation {
@@ -46,12 +48,16 @@ enum class Variation {
 };
 
 static const std::unordered_map<std::string, Systematic> syst_by_name = {
-    { "LHEReweight", Systematic::LHEReweight },
+    { "LHE_muF", Systematic::LHE_muF },
+    { "LHE_muR", Systematic::LHE_muR },
+    { "BTagging", Systematic::BTagging },
 };
 
 static const std::unordered_map<Systematic, std::vector<Variation>> var_by_syst = {
     { Systematic::Nominal, { Variation::Nominal } },
-    { Systematic::LHEReweight, { Variation::Up, Variation::Down } },
+    { Systematic::LHE_muF, { Variation::Up, Variation::Down } },
+    { Systematic::LHE_muR, { Variation::Up, Variation::Down } },
+    { Systematic::BTagging, { Variation::Up, Variation::Down } },
 };
 
 #endif // __COMMONENUMS_H_

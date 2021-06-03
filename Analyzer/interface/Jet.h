@@ -22,6 +22,7 @@ public:
 
     virtual void setGoodParticles(size_t syst) override
     {
+        currentVar = Variation::Nominal;
         Particle::setGoodParticles(syst);
         n_loose_bjet.push_back(0);
         n_medium_bjet.push_back(0);
@@ -43,6 +44,8 @@ public:
         n_tight_bjet.clear();
     }
 
+    Variation currentVar = Variation::Nominal;
+
     std::unordered_map<size_t, size_t> closeJetDr_by_index;
 
     std::vector<Int_t> n_loose_bjet, n_medium_bjet, n_tight_bjet;
@@ -61,8 +64,6 @@ private:
 
     float getHT(const std::vector<size_t>& jet_list);
     float getCentrality(const std::vector<size_t>& jet_list);
-
-    Variation currentVar = Variation::Nominal;
 
     TH2D *btagEff_b, *btagEff_c, *btagEff_udsg;
     BTagCalibration calib;
