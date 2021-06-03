@@ -1,5 +1,10 @@
 /*
 
+!analyze.py
+!.clang-format
+!hyperopt.py
+!farmoutJob.sh
+
 !BuildFile.xml
 !Analyzer/
 !BDT_utilities/
