@@ -69,8 +69,9 @@ void ThreeTop::clearValues()
 
 void ThreeTop::ApplyScaleFactors()
 {
-    (*weight) *= sfMaker.getBJetSF(jet);
     (*weight) *= sfMaker.getPileupSF(**Pileup_nTrueInt);
+
+    (*weight) *= jet.getScaleFactor();
     (*weight) *= elec.getScaleFactor();
     (*weight) *= muon.getScaleFactor();
     (*weight) *= rTop.getScaleFactor();

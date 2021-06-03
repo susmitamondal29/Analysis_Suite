@@ -51,6 +51,7 @@ public:
     static TFile* f_scale_factors;
     static Year year_;
     static std::string yearStr_;
+    static std::string scaleDir_;
 
 protected:
     TTRArray<Float_t>* m_pt;

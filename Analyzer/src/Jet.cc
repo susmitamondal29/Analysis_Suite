@@ -15,6 +15,7 @@ void Jet::setup(TTreeReader& fReader)
         loose_bjet_cut = 0.2219;
         medium_bjet_cut = 0.6324;
         tight_bjet_cut = 0.8958;
+
     } else if (year_ == Year::yr2017) {
         loose_bjet_cut = 0.1522;
         medium_bjet_cut = 0.4941;
@@ -24,6 +25,15 @@ void Jet::setup(TTreeReader& fReader)
         medium_bjet_cut = 0.4184;
         tight_bjet_cut = 0.7527;
     }
+
+    calib = BTagCalibration("deepcsv", scaleDir_ + "btag_" + yearStr_ + ".csv");
+    setSF(btagEff_b, "btagEff_b");
+    setSF(btagEff_c, "btagEff_c");
+    setSF(btagEff_udsg, "btagEff_udsg");
+
+    createBtagReader(Variation::Nominal);
+    createBtagReader(Variation::Down);
+    createBtagReader(Variation::Up);
 }
 
 void Jet::createLooseList()
@@ -73,4 +83,46 @@ float Jet::getCentrality(const std::vector<size_t>& jet_list)
         etot += jet.E();
     }
     return getHT(jet_list) / etot;
+}
+
+float Jet::getScaleFactor()
+{
+
+    float weight = 1.;
+    const auto& goodBJets = list(Level::Bottom);
+    BTagEntry::JetFlavor flav;
+
+    for (auto bidx : goodBJets) {
+        int pdgId = std::abs(hadronFlavour->At(bidx));
+        if (pdgId == static_cast<Int_t>(PID::Bottom))
+            flav = BTagEntry::FLAV_B;
+        else if (pdgId == static_cast<Int_t>(PID::Charm))
+            flav = BTagEntry::FLAV_C;
+        else
+            flav = BTagEntry::FLAV_UDSG;
+        weight *= getBWeight(flav, bidx);
+    }
+
+    for (auto jidx : list(Level::Tight)) {
+        if (std::find(goodBJets.begin(), goodBJets.end(), jidx) != goodBJets.end()) {
+            continue; // is a bjet, weighting already taken care of
+        }
+
+        int pdgId = std::abs(hadronFlavour->At(jidx));
+        float eff = 1;
+        if (pdgId == static_cast<Int_t>(PID::Bottom)) {
+            flav = BTagEntry::FLAV_B;
+            eff = getWeight(btagEff_b, pt(jidx), fabs(eta(jidx)));
+        } else if (pdgId == static_cast<Int_t>(PID::Charm)) {
+            flav = BTagEntry::FLAV_C;
+            eff = getWeight(btagEff_c, pt(jidx), fabs(eta(jidx)));
+        } else {
+            flav = BTagEntry::FLAV_UDSG;
+            eff = getWeight(btagEff_udsg, pt(jidx), fabs(eta(jidx)));
+        }
+        double bSF = getBWeight(flav, jidx);
+        weight *= (1 - bSF * eff) / (1 - eff);
+    }
+
+    return weight;
 }

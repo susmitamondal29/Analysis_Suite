@@ -125,6 +125,7 @@ void BaseSelector::setupParticleInfo()
     Particle::year_ = year_;
     std::string scaleDir = getenv("CMSSW_BASE");
     scaleDir += "/src/analysis_suite/data/scale_factors/";
+    Particle::scaleDir_ = scaleDir;
     Particle::f_scale_factors = new TFile((scaleDir + "event_scalefactors.root").c_str());
     if (year_ == Year::yr2016) {
         Particle::yearStr_ = "2016";

@@ -5,9 +5,14 @@
 
 #include "analysis_suite/Analyzer/interface/Particle.h"
 
+#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
+#include "CondTools/BTau/interface/BTagCalibrationReader.h"
+
 class Jet : public Particle {
 public:
     void setup(TTreeReader& fReader);
+
+    virtual float getScaleFactor() override;
 
     float getHT(Level level, size_t syst) { return getHT(list(level, syst)); };
     float getHT(Level level) { return getHT(list(level)); };
@@ -56,6 +61,31 @@ private:
 
     float getHT(const std::vector<size_t>& jet_list);
     float getCentrality(const std::vector<size_t>& jet_list);
+
+    Variation currentVar = Variation::Nominal;
+
+    TH2D *btagEff_b, *btagEff_c, *btagEff_udsg;
+    BTagCalibration calib;
+    std::unordered_map<Variation, BTagCalibrationReader*> bReader_by_var;
+    const std::unordered_map<Variation, std::string> varName_by_var = {
+        { Variation::Nominal, "central" },
+        { Variation::Up, "up" },
+        { Variation::Down, "down" },
+    };
+
+    void createBtagReader(Variation var)
+    {
+        BTagCalibrationReader* btag_reader = new BTagCalibrationReader(BTagEntry::OP_MEDIUM, varName_by_var.at(var));
+        btag_reader->load(calib, BTagEntry::FLAV_B, "comb");
+        btag_reader->load(calib, BTagEntry::FLAV_C, "comb");
+        btag_reader->load(calib, BTagEntry::FLAV_UDSG, "incl");
+        bReader_by_var[var] = btag_reader;
+    }
+
+    double getBWeight(BTagEntry::JetFlavor flav, size_t idx)
+    {
+        return bReader_by_var.at(currentVar)->eval_auto_bounds(varName_by_var.at(currentVar), flav, eta(idx), pt(idx));
+    }
 };
 
 #endif // __JET_H_

@@ -3,6 +3,7 @@
 size_t Particle::nSyst = 0;
 Year Particle::year_ = Year::yrDefault;
 std::string Particle::yearStr_ = "";
+std::string Particle::scaleDir_ = "";
 TFile* Particle::f_scale_factors = nullptr;
 
 void Particle::setup(std::string name, TTreeReader& fReader)
