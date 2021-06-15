@@ -16,6 +16,10 @@ void BaseSelector::Init(TTree* tree)
     if (!tree)
         return;
 
+    TList* rootSystList = new TList();
+    rootSystList->SetName("Systematics");
+    rootSystList->Add(new TNamed("Nominal", "Nominal"));
+
     for (auto item : *fInput) {
         std::string itemName = item->GetName();
         if (itemName == "MetaData") {
@@ -29,18 +33,15 @@ void BaseSelector::Init(TTree* tree)
                 }
             }
         } else if (itemName == "Systematics") {
-            TList* rootSystList = new TList();
-            rootSystList->SetName("Systematics");
-            rootSystList->Add(new TNamed("Nominal", "Nominal"));
             for (auto systNamed : *static_cast<TList*>(item)) {
                 std::string systName = systNamed->GetName();
                 systematics_.push_back(syst_by_name.at(systName));
                 rootSystList->Add(new TNamed((systName + "_up").c_str(), systName.c_str()));
                 rootSystList->Add(new TNamed((systName + "_down").c_str(), systName.c_str()));
             }
-            fOutput->Add(rootSystList);
         }
     }
+    fOutput->Add(rootSystList);
 
     sfMaker = ScaleFactors(year_);
 

@@ -22,6 +22,4 @@ for year in 2016 2017 2018; do
         --input-basenames-not-unique \
         --output-dir="/store/user/$USER/${analysis}_${year}_blah" \
         --extra-usercode-files="src/analysis_suite/data/scale_factors"
-
-    exit 0
 done

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import os
+import argparse
 from analysis_suite.commons import FileInfo
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine( "gErrorIgnoreLevel = 1001;")
-
 
 def setInputs(inputs):
     root_inputs = ROOT.TList()
@@ -31,8 +31,12 @@ def getSumW(infiles):
 
 
 if __name__ == "__main__":
-    inputfile = "blah.in" if (env := os.getenv("INPUT")) is None else env
-    outputfile = "output.root" if (env := os.getenv("OUTPUT")) is None else env
+    parser = argparse.ArgumentParser(prog="main")
+    parser.add_argument("-i", "--infile", default = "blah.in")
+    parser.add_argument("-o", "--outfile", default="output.root")
+    args = parser.parse_args()
+    inputfile = args.infile if (env := os.getenv("INPUT")) is None else env
+    outputfile = args.outfile if (env := os.getenv("OUTPUT")) is None else env
 
     files = list()
     with open(inputfile) as f:
@@ -58,7 +62,7 @@ if __name__ == "__main__":
         'Year': year,
         'isData': False,
     }
-    inputs["Systematics"] = ["LHE_muF", "LHE_muR", "BTagging"]
+    #inputs["Systematics"] = ["LHE_muF", "LHE_muR", "BTagging"]
     rInputs = setInputs(inputs)
 
     # Run Selection
