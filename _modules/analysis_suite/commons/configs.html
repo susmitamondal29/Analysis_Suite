@@ -87,6 +87,7 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">pkgutil</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">analysis_suite.data.PlotGroups</span> <span class="k">as</span> <span class="nn">PlotGroups</span>
 <span class="kn">import</span> <span class="nn">analysis_suite.data.inputs</span> <span class="k">as</span> <span class="nn">inputs</span>
 
@@ -110,14 +111,18 @@
                         <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="p">[</span><span class="s2">"2016"</span><span class="p">,</span> <span class="s2">"2017"</span><span class="p">,</span> <span class="s2">"2018"</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">"all"</span> \
                                    <span class="k">else</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">','</span><span class="p">)],</span>
                         <span class="n">help</span><span class="o">=</span><span class="s2">"Year to use"</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-s"</span><span class="p">,</span> <span class="s2">"--syst"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"Nominal"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Systematics to be used"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-s"</span><span class="p">,</span> <span class="s2">"--systs"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"Nominal"</span><span class="p">,</span>
+                        <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">','</span><span class="p">)],</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">"Systematics to be used"</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"analyze"</span><span class="p">:</span>
         <span class="k">pass</span>
     <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"mva"</span><span class="p">:</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'-t'</span><span class="p">,</span> <span class="s1">'--train'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"None"</span><span class="p">,</span>
                             <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">'None'</span><span class="p">,</span> <span class="s1">'DNN'</span><span class="p">,</span> <span class="s1">'TMVA'</span><span class="p">,</span> <span class="s1">'XGB'</span><span class="p">],</span>
                             <span class="n">help</span><span class="o">=</span><span class="s2">"Run the training"</span><span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-m"</span><span class="p">,</span> <span class="s1">'--model'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">''</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-m"</span><span class="p">,</span> <span class="s1">'--apply_model'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"plot"</span><span class="p">:</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--drawStyle"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">'stack'</span><span class="p">,</span>
                             <span class="n">help</span><span class="o">=</span><span class="s1">'Way to draw graph'</span><span class="p">,</span>
@@ -243,6 +248,18 @@
     <span class="c1"># Any error saying that the directory doesn't exist</span>
     <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">'Directory not copied. Error: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="getGroupDict"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.getGroupDict">[docs]</a><span class="k">def</span> <span class="nf">getGroupDict</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">group_info</span><span class="p">):</span>
+    <span class="n">groupDict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">groupName</span><span class="p">,</span> <span class="n">samples</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+        <span class="n">new_samples</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">samp</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">samp</span> <span class="ow">in</span> <span class="n">group_info</span><span class="o">.</span><span class="n">group2MemberMap</span><span class="p">:</span>
+                <span class="n">new_samples</span> <span class="o">+=</span> <span class="n">group_info</span><span class="o">.</span><span class="n">group2MemberMap</span><span class="p">[</span><span class="n">samp</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">samp</span><span class="p">)</span>
+        <span class="n">groupDict</span><span class="p">[</span><span class="n">groupName</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_samples</span>
+    <span class="k">return</span> <span class="n">groupDict</span></div>
 </code></pre>
 </article>
 <footer>
