@@ -129,8 +129,7 @@ def cleanup(cli_args):
                                cli_args.workdir, cli_args.years)
     writeHTML(basePath, cli_args.analysis, plot_params.all_years)
     for year in cli_args.years:
-        writeHTML(f'{basePath}/{year}'
-                  f'{cli_args.analysis}/{year}')
+        writeHTML(f'{basePath}/{year}', f'{cli_args.analysis}/{year}')
 
     userName = os.environ['USER']
     htmlPath = basePath.split(userName)[1]
