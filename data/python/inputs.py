@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from collections import OrderedDict
-from analysis_suite.commons.awkward_commons import VarGetter as vg
+from analysis_suite.Variable_Creator.vargetter import VarGetter as vg
 
 # Variables used in Training
 usevar = {
