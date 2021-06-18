@@ -5,6 +5,7 @@ import os
 import sys
 import shutil
 import pkgutil
+from collections import OrderedDict
 import analysis_suite.data.PlotGroups as PlotGroups
 import analysis_suite.data.inputs as inputs
 
@@ -39,7 +40,7 @@ def get_cli():
         parser.add_argument('-t', '--train', default="None",
                             choices=['None', 'DNN', 'TMVA', 'XGB'],
                             help="Run the training")
-        parser.add_argument("-m", '--model', default='')
+        parser.add_argument("-m", '--apply_model', action='store_true')
     elif sys.argv[1] == "plot":
         parser.add_argument("--drawStyle", type=str, default='stack',
                             help='Way to draw graph',
@@ -165,3 +166,15 @@ def copyDirectory(src, dest):
     # Any error saying that the directory doesn't exist
     except OSError as e:
         print('Directory not copied. Error: %s' % e)
+
+def getGroupDict(groups, group_info):
+    groupDict = OrderedDict()
+    for groupName, samples in groups:
+        new_samples = list()
+        for samp in samples:
+            if samp in group_info.group2MemberMap:
+                new_samples += group_info.group2MemberMap[samp]
+            else:
+                new_samples.append(samp)
+        groupDict[groupName] = new_samples
+    return groupDict

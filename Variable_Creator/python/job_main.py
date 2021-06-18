@@ -1,24 +1,15 @@
 #!/usr/bin/env python3
 import numpy as np
-from collections import OrderedDict
 import subprocess
 
 from analysis_suite.commons import GroupInfo
-from analysis_suite.commons.configs import checkOrCreateDir
+from analysis_suite.commons.configs import checkOrCreateDir, getGroupDict
 from .data_processor import DataProcessor
 import analysis_suite.data.inputs as mva_params
 
 def setup(cli_args):
     group_info = GroupInfo(**vars(cli_args))
-    groupDict = OrderedDict()
-    for groupName, samples in mva_params.groups:
-        new_samples = list()
-        for samp in samples:
-            if samp in group_info.group2MemberMap:
-                new_samples += group_info.group2MemberMap[samp]
-            else:
-                new_samples.append(samp)
-        groupDict[groupName] = new_samples
+    groupDict = getGroupDict(mva_params.groups, group_info)
 
     argList = list()
     for year in cli_args.years:

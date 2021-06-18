@@ -184,16 +184,14 @@ class KerasMaker(MLHolder):
         if outdir:
             fit_model.save(f'{outdir}/model.h5')
 
+    def apply_model(self, directory, fit_test_vs_train=True):
+        fit_model = keras.models.load_model(f'{directory}/model.h5')
 
-    def apply_model(self, model_file):
-        fit_model = keras.models.load_model(model_file)
-        for i, grp in enumerate(self.group_names):
-            self.pred_test[grp] = fit_model.predict(
-                self.test_set.drop(self._drop_vars, axis=1)
-            ).T[i]
-            self.pred_train[grp] = fit_model.predict(
-                self.train_set.drop(self._drop_vars, axis=1)
-            ).T[i]
-        return fit_model
-
-
+        use_set = self.test_set if fit_test_vs_train else self.train_set
+        pred = fit_model.predict(use_set.drop(self._drop_vars, axis=1))
+        split_pred = {grp: (pred.T[i] if pred.shape[1] < i else 1 - pred.T[0])
+                      for i, grp in enumerate(self.group_names)}
+        if fit_test_vs_train:
+            self.pred_test = split_pred
+        else:
+            self.pred_train = split_pred

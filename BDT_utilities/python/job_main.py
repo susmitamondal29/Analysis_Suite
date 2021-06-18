@@ -1,35 +1,26 @@
 #!/usr/bin/env python3
 import numpy as np
-from collections import OrderedDict
 
 from analysis_suite.commons import GroupInfo
-from analysis_suite.commons.configs import checkOrCreateDir
+from analysis_suite.commons.configs import checkOrCreateDir, getGroupDict
 from .MVAPlotter import MVAPlotter
-from .data_processor import DataProcessor
 import analysis_suite.data.inputs as mva_params
 
 def setup(cli_args):
     group_info = GroupInfo(**vars(cli_args))
-    groupDict = OrderedDict()
-    for groupName, samples in mva_params.groups:
-        new_samples = list()
-        for samp in samples:
-            if samp in group_info.group2MemberMap:
-                new_samples += group_info.group2MemberMap[samp]
-            else:
-                new_samples.append(samp)
-        groupDict[groupName] = new_samples
-        
-    data = DataProcessor(mva_params.usevar, groupDict, cli_args.syst)
-    for year in cli_args.years:
-        checkOrCreateDir(f'{cli_args.workdir}/{year}')
-        print(f'Processing year {year} MC')
-        data.process_year(year, cli_args.workdir)
-    data.write_train(cli_args.workdir)
-    # exit()
+    groupDict = getGroupDict(mva_params.groups, group_info)
+
     argList = list()
     for year in cli_args.years:
-        argList.append((groupDict, cli_args.workdir, cli_args.train, cli_args.model, year, cli_args.syst))
+        for syst in cli_args.systs:
+            if syst == "Nominal":
+                argList.append((groupDict, cli_args.workdir, cli_args.train,
+                                cli_args.apply_model, year, syst))
+            else:
+                argList.append((groupDict, cli_args.workdir, cli_args.train,
+                                cli_args.apply_model, year, f'{syst}_up'))
+                argList.append((groupDict, cli_args.workdir, cli_args.train,
+                                cli_args.apply_model, year, f'{syst}_down'))
     return argList
         
 
@@ -46,19 +37,23 @@ def run(groupDict, workdir, trainType, applyModel, year, systName):
     else:
         from .MvaMaker import XGBoostMaker
         mvaRunner = XGBoostMaker(mva_params.usevar, groupDict)
-
     # mvaRunner.add_cut(mva_params.cuts)
-    mvaRunner.setup_files(workdir)
-
 
     if applyModel:
-        mvaRunner.apply_model(applyModel)
-    elif trainType != "None":
-        fitModel = mvaRunner.train(workdir)
+        mvaRunner.setup_files(workdir, year)
+        mvaRunner.apply_model(workdir)
+        mvaRunner.apply_model(workdir, False)
 
-    # print("Starting to write out for year {}".format(year))
-    # mvaRunner.output(workdir)
-    # print("Finished writing out for year {}".format(year))
+        print(f"Starting to write out for year {year} and syst {systName}")
+        mvaRunner.output(workdir, year, systName)
+        print(f"Finished writing out for year {year} and syst {systName}")
+    elif trainType != "None":
+        mvaRunner.setup_files(workdir, train=True)
+        fitModel = mvaRunner.train(workdir)
+        print("Training finished. To apply training model to code, run code again while applying the model")
+        return
+    else:
+        return
     # sorted_import = {k: v for k, v in sorted(impor.items(), key=lambda item: item[1])}
     # import matplotlib.pyplot as plt
     # plt.barh(range(len(sorted_import)), list(sorted_import.values()),

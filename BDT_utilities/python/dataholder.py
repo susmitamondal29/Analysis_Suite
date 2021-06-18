@@ -61,7 +61,7 @@ class MLHolder:
         self.auc_test = 0.
 
 
-    def setup_files(self, directory, year="2018"):
+    def setup_files(self, directory, year="2018", train=False):
         """**Fill the dataframes with all info in the input files**
 
         This grabs all the variable information about each sample,
@@ -71,8 +71,12 @@ class MLHolder:
         Args:
             directory(string): Path to directory where root files are kept
         """
-        train_file = f'{directory}/train_{self.systName}.root'
-        test_file = f'{directory}/{year}/train_{self.systName}.root'
+        if train:
+            train_file = f'{directory}/train_{self.systName}.root'
+            test_file = f'{directory}/train_{self.systName}.root'
+        else:
+            train_file = f'{directory}/{year}/train_{self.systName}.root'
+            test_file = f'{directory}/{year}/test_{self.systName}.root'
         classID = {"Signal": 1, "NotTrained": -1, "Background": 0}
         train_groups = sum(self.group_dict.values(), [])
         with uproot4.open(train_file) as f:
@@ -111,16 +115,16 @@ class MLHolder:
     def apply_model(self, model_file):
         pass
 
-    def output(self, outdir):
+    def output(self, outdir, year, syst):
         """Wrapper for write out commands
 
         Args:
           outname: Directory where files will be written
 
         """
-        self._write_uproot(f'{outdir}/test.root', self.test_set,
+        self._write_uproot(f'{outdir}/{year}/test_{syst}.root', self.test_set,
                            self.pred_test)
-        self._write_uproot(f'{outdir}/train.root', self.train_set,
+        self._write_uproot(f'{outdir}/{year}/train_{syst}.root', self.train_set,
                            self.pred_train)
 
     # Private Functions
@@ -161,8 +165,13 @@ class MLHolder:
 
         keepList = [key for key in workSet.columns if is_numeric_dtype(workSet[key])]
         branches = {key: workSet[key].dtype for key in keepList}
-        with upwrite.recreate(outfile) as f:
-            for group in np.unique(workSet.groupName):
-                groupSet = workSet[workSet.groupName == group][keepList]
+        with upwrite.recreate(f'{outfile}.tmp') as f:
+            f["sample_map"] = json.dumps(self.sample_map)
+            for group, value in self.sample_map.items():
+                if value not in np.unique(workSet.groupName):
+                    continue
                 f[group] = upwrite.newtree(branches)
-                f[group].extend(groupSet.to_dict('list'))
+                f[group].extend(workSet[workSet.groupName == group][keepList].to_dict('list'))
+
+        # rename to avoid losing file if root writing fails
+        Path(f'{outfile}.tmp').rename(outfile)
