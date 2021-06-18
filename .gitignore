@@ -22,3 +22,5 @@ poetry.lock
 !ScaleFactors/*
 !commons/*
 !scripts/*
+!Variable_Creator/*
+!data/*
