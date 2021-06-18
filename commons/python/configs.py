@@ -28,7 +28,7 @@ def get_cli():
                         type=lambda x : ["2016", "2017", "2018"] if x == "all" \
                                    else [i.strip() for i in x.split(',')],
                         help="Year to use")
-
+    parser.add_argument("-s", "--syst", default="Nominal", help="Systematics to be used")
     if len(sys.argv) == 1:
         pass
     elif sys.argv[1] == "mva":

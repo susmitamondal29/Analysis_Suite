@@ -15,7 +15,7 @@ import re
 from sklearn.model_selection import train_test_split
 
 class DataProcessor:
-    def __init__(self, use_vars, groupDict):
+    def __init__(self, use_vars, groupDict, systName="Nominal"):
         """Constructor method
         """
         self.split_ratio = 1/3.
@@ -25,6 +25,7 @@ class DataProcessor:
 
         self.group_dict = groupDict
         self.train_groups = set(sum(self.group_dict.values(), []))
+        self.systName = systName
 
         self.use_vars = use_vars
         self._include_vars = list(use_vars.keys())
@@ -42,13 +43,18 @@ class DataProcessor:
         root_files = path.rglob("*.root") if path.is_dir() else [path]
         for root_file in root_files:
             groups = list()
+            syst = 0
             with uproot4.open(root_file) as f:
                 groups = [key.strip(";1") for key in f.keys() if "/" not in key]
+                for i, syst_tnamed in enumerate(f[groups[0]]["Systematics"]):
+                    if syst_tnamed.member("fName") == self.systName:
+                        syst = i
+                        break
             for group in groups:
                 if group not in arr_dict:
-                    arr_dict[group] = VarGetter(root_file, group)
+                    arr_dict[group] = VarGetter(root_file, group, syst)
                 else:
-                    arr_dict[group] += VarGetter(root_file, group)
+                    arr_dict[group] += VarGetter(root_file, group, syst)
         return arr_dict
 
     def setup_test_train(self, arr, group, sample, class_id, noTrain):
@@ -131,11 +137,11 @@ class DataProcessor:
                 train_set = pd.concat([train.reset_index(drop=True), train_set], sort=True)
 
         self.train_all = pd.concat([train_set.reset_index(drop=True), self.train_all], sort=True)
-        self._write_out(f'{outdir}/{year}/test.root', test_set)
-        self._write_out(f'{outdir}/{year}/train.root', train_set)
+        self._write_out(f'{outdir}/{year}/test_{self.systName}.root', test_set)
+        self._write_out(f'{outdir}/{year}/train_{self.systName}.root', train_set)
 
     def write_train(self, outdir):
-        self._write_out(f'{outdir}/train.root', self.train_all)
+        self._write_out(f'{outdir}/train_{self.systName}.root', self.train_all)
 
 
     def _write_out(self, outfile, workSet):

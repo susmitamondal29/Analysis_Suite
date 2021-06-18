@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
 import xgboost as xgb
-from analysis_suite.commons import VarGetter
 import awkward1 as ak
 from pathlib import Path
 import uproot4
@@ -35,7 +34,7 @@ class MLHolder:
       param(dict): Variables used in the training
 
     """
-    def __init__(self, use_vars, groupDict):
+    def __init__(self, use_vars, groupDict, systName="Nominal"):
         """Constructor method
         """
         self.group_names = list(groupDict.keys())
@@ -43,7 +42,8 @@ class MLHolder:
         self.pred_train = dict()
         self.pred_test = dict()
         self.sample_map = dict()
-        
+        self.systName = systName
+
         self.use_vars = use_vars
         self._include_vars = list(use_vars.keys())
         self._drop_vars = ["classID", "groupName", "finalWeight", "scale_factor"]
@@ -71,8 +71,8 @@ class MLHolder:
         Args:
             directory(string): Path to directory where root files are kept
         """
-        train_file = f'{directory}/train.root'
-        test_file = f'{directory}/{year}/train.root'
+        train_file = f'{directory}/train_{self.systName}.root'
+        test_file = f'{directory}/{year}/train_{self.systName}.root'
         classID = {"Signal": 1, "NotTrained": -1, "Background": 0}
         train_groups = sum(self.group_dict.values(), [])
         with uproot4.open(train_file) as f:

@@ -8,12 +8,13 @@ from .info import FileInfo
 class VarGetter:
     def __init__(self, path, group, syst=0):
         self.syst = syst
-        self.syst_bit = 2**syst
+        self.syst_bit = 2**self.syst
         with uproot.open(path) as f:
             branches = [key for key, array in f[group]["Analyzed"].items()
                         if len(array.keys()) == 0]
-            analysis = f[group]["Analysis"].member("fTitle")
-            year = f[group]["Year"].member("fTitle")
+            analysis = self.get_tlist_var(f[group]["MetaData"], "Analysis")
+            year = self.get_tlist_var(f[group]["MetaData"], "Year")
+
             info = FileInfo(analysis=analysis, year=year)
             self.xsec = info.get_xsec(group)
             self.sumw = sum(f[group]["sumweight"].values())
@@ -39,7 +40,11 @@ class VarGetter:
     def setup_scale(self):
         self.scale *= self.xsec/self.sumw
 
-    
+    def get_tlist_var(self, tlist, varName):
+        for item in tlist:
+            if item.member('fName') == varName:
+                return item.member('fTitle')
+        return None
 
     def return_scale(func):
         def helper(self, with_scale=False, *args, **kwargs):

@@ -20,7 +20,7 @@ def setup(cli_args):
                 new_samples.append(samp)
         groupDict[groupName] = new_samples
         
-    data = DataProcessor(mva_params.usevar, groupDict)
+    data = DataProcessor(mva_params.usevar, groupDict, cli_args.syst)
     for year in cli_args.years:
         checkOrCreateDir(f'{cli_args.workdir}/{year}')
         print(f'Processing year {year} MC')
@@ -29,11 +29,11 @@ def setup(cli_args):
     # exit()
     argList = list()
     for year in cli_args.years:
-        argList.append((groupDict, cli_args.workdir, cli_args.train, cli_args.model, year))
+        argList.append((groupDict, cli_args.workdir, cli_args.train, cli_args.model, year, cli_args.syst))
     return argList
         
 
-def run(groupDict, workdir, trainType, applyModel, year):
+def run(groupDict, workdir, trainType, applyModel, year, systName):
     if trainType == "None":
         from .dataholder import MLHolder
         mvaRunner = MLHolder(mva_params.usevar, groupDict)
