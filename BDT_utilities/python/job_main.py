@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import numpy as np
+from pathlib import Path
 
 from analysis_suite.commons import GroupInfo
-from analysis_suite.commons.configs import checkOrCreateDir, getGroupDict
+from analysis_suite.commons.configs import checkOrCreateDir, getGroupDict, get_list_systs
 from .MVAPlotter import MVAPlotter
 import analysis_suite.data.inputs as mva_params
 
@@ -12,15 +13,12 @@ def setup(cli_args):
 
     argList = list()
     for year in cli_args.years:
-        for syst in cli_args.systs:
-            if syst == "Nominal":
-                argList.append((groupDict, cli_args.workdir, cli_args.train,
+        path = Path(f"{cli_args.workdir}/{year}")
+        allSysts = get_list_systs(path, cli_args.systs)
+        for syst in allSysts:
+            argList.append((groupDict, cli_args.workdir, cli_args.train,
                                 cli_args.apply_model, year, syst))
-            else:
-                argList.append((groupDict, cli_args.workdir, cli_args.train,
-                                cli_args.apply_model, year, f'{syst}_up'))
-                argList.append((groupDict, cli_args.workdir, cli_args.train,
-                                cli_args.apply_model, year, f'{syst}_down'))
+
     return argList
         
 

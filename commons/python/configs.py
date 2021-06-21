@@ -180,17 +180,23 @@ def getGroupDict(groups, group_info):
     return groupDict
 
 def get_list_systs(filename, cli_systs=["all"]):
-    import numpy as np
-    import uproot4 as uproot
     allSysts = list()
-    with uproot.open(filename) as f:
-        for d in f:
-            if "Systematics" not in d:
-                continue
-            allSysts = np.unique([syst.member("fName") for syst in f[d]])
-            break
+
+    if filename.is_file():
+        import numpy as np
+        import uproot4 as uproot
+        with uproot.open(filename) as f:
+            for d in f:
+                if "Systematics" not in d:
+                    continue
+                allSysts = np.unique([syst.member("fName") for syst in f[d]])
+                break
+    else:
+        allSysts = [syst.name.replace("test_", "").replace(".root", "")
+                    for syst in filename.glob("test*.root")]
+
     if cli_systs == ["all"]:
         return allSysts
-
-    return [syst for syst in allSysts
-            if syst.replace("_down","").replace("_up","") in cli_systs]
+    else:
+        return [syst for syst in allSysts
+                if syst.replace("_down","").replace("_up","") in cli_systs]

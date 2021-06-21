@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 import subprocess
+from pathlib import Path
 
 from analysis_suite.commons import GroupInfo
 from analysis_suite.commons.configs import checkOrCreateDir, getGroupDict, get_list_systs
@@ -13,7 +14,7 @@ def setup(cli_args):
 
     argList = list()
     for year in cli_args.years:
-        infile = f'result_{year}.root'
+        infile = Path(f'result_{year}.root')
         allSysts = get_list_systs(infile, cli_args.systs)
         for syst in allSysts:
             argList.append((groupDict, infile, cli_args.workdir, year, syst))
