@@ -3,7 +3,7 @@ import numpy as np
 import subprocess
 
 from analysis_suite.commons import GroupInfo
-from analysis_suite.commons.configs import checkOrCreateDir, getGroupDict
+from analysis_suite.commons.configs import checkOrCreateDir, getGroupDict, get_list_systs
 from .data_processor import DataProcessor
 import analysis_suite.data.inputs as mva_params
 
@@ -13,20 +13,20 @@ def setup(cli_args):
 
     argList = list()
     for year in cli_args.years:
-        for syst in cli_args.systs:
-            if syst == "Nominal":
-                argList.append((groupDict, cli_args.workdir, year, syst))
-            else:
-                argList.append((groupDict, cli_args.workdir, year, f'{syst}_up'))
-                argList.append((groupDict, cli_args.workdir, year, f'{syst}_down'))
+        infile = f'result_{year}.root'
+        allSysts = get_list_systs(infile, cli_args.systs)
+        for syst in allSysts:
+            argList.append((groupDict, infile, cli_args.workdir, year, syst))
+
     return argList
         
 
-def run(groupDict, workdir, year, syst):
+def run(groupDict, infile, workdir, year, syst):
+    outdir = f'{workdir}/{year}'
     data = DataProcessor(mva_params.usevar, groupDict, syst)
-    checkOrCreateDir(f'{workdir}/{year}')
+    checkOrCreateDir(outdir)
     print(f'Processing year {year} MC')
-    data.process_year(year, workdir)
+    data.process_year(infile, outdir)
 
 
 def cleanup(cli_args):

@@ -51,7 +51,7 @@ class DataProcessor:
                     arr_dict[group] += VarGetter(root_file, group, syst)
         return arr_dict
 
-    def process_year(self, year, outdir):
+    def process_year(self, infile, outdir):
         # Setup dataframes to be used
         pattern = re.compile('(\w+)\(')
         train_set = pd.DataFrame(columns=self._all_vars)
@@ -62,7 +62,7 @@ class DataProcessor:
             test_set[key] = test_set[key].astype(dtype)
 
         # Process input file
-        arr_dict = self.get_final_dict(f'result_{year}.root')
+        arr_dict = self.get_final_dict(infile)
         allGroups = set(arr_dict.keys())
         self.group_dict["NotTrained"] = list(allGroups-self.train_groups)
         classID_dict = {"Signal": 1, "NotTrained": 0, "Background": 0}
@@ -112,8 +112,8 @@ class DataProcessor:
                 test_set = pd.concat([test.reset_index(drop=True), test_set], sort=True)
                 train_set = pd.concat([train.reset_index(drop=True), train_set], sort=True)
 
-        self._write_out(f'{outdir}/{year}/test_{self.systName}.root', test_set)
-        self._write_out(f'{outdir}/{year}/train_{self.systName}.root', train_set)
+        self._write_out(f'{outdir}/test_{self.systName}.root', test_set)
+        self._write_out(f'{outdir}/train_{self.systName}.root', train_set)
 
     def _write_out(self, outfile, workSet):
         """**Write out pandas file as a compressed pickle file
