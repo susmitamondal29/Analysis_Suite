@@ -5,6 +5,8 @@ import os
 import sys
 import shutil
 import pkgutil
+import time
+from pathlib import Path
 from collections import OrderedDict
 import analysis_suite.data.PlotGroups as PlotGroups
 import analysis_suite.data.inputs as inputs
@@ -141,19 +143,6 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
     print("Figure of merit: ", s/math.sqrt(s+b+1e-9))
     return groupHists
 
-def getYearNormedHistos(yearFilename, file_info, plot_info, histName, year):
-    if year == "all":
-        yearHists = [getNormedHistos(yearFilename.format(yr),
-                                            file_info, plot_info, histName, yr)
-                     for yr in inputs.all_years]
-        groupHists = yearHists.pop()
-        for yrHist in yearHists:
-            for group, hist in yrHist.items():
-                groupHists[group] += hist
-    else:
-        groupHists = getNormedHistos(yearFilename.format(year),
-                                     file_info, plot_info, histName, year)
-    return groupHists
 
 def copyDirectory(src, dest):
     if os.path.exists(dest):
@@ -200,3 +189,21 @@ def get_list_systs(filename, cli_systs=["all"]):
     else:
         return [syst for syst in allSysts
                 if syst.replace("_down","").replace("_up","") in cli_systs]
+
+def get_plot_area(analysis, drawStyle, path):
+    extraPath = time.strftime("%Y_%m_%d")
+    if path:
+        extraPath = path + '/' + extraPath
+
+    if 'hep.wisc.edu' in os.environ['HOSTNAME']:
+        basePath = Path(f'{os.environ["HOME"]}/public_html')
+    elif 'uwlogin' in os.environ['HOSTNAME'] or 'lxplus' in os.environ['HOSTNAME']:
+        basePath = Path('/eos/home-{0:1.1s}/{0}/www'.format(os.environ['USER']))
+    basePath /= f'PlottingResults/{analysis}/{extraPath}_{drawStyle}'
+
+    return basePath
+
+def make_plot_paths(path):
+    checkOrCreateDir(path)
+    checkOrCreateDir(f'{path}/plots')
+    checkOrCreateDir(f'{path}/logs')

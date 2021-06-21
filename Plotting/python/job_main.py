@@ -3,6 +3,7 @@
 import os
 import sys
 import datetime
+from pathlib import Path
 import subprocess
 import matplotlib
 matplotlib.use('Agg')
@@ -19,7 +20,6 @@ import analysis_suite.data.inputs as plot_params
 from .stack import Stack
 from .pyPad import pyPad
 from .LogFile import LogFile
-from .configHelper import setupPathAndDir
 
 def setup(cli_args):
     callTime = str(datetime.datetime.now())
@@ -34,26 +34,34 @@ def setup(cli_args):
 
     plot_info = PlotInfo(cli_args.info)
     group_info = GroupInfo(plot_params.color_by_group, **vars(cli_args))
-
-    basePath = setupPathAndDir(cli_args.analysis, cli_args.drawStyle,
-                               cli_args.workdir, cli_args.years)
+    basePath = config.get_plot_area(cli_args.analysis, cli_args.drawStyle,
+                                    cli_args.workdir)
+    config.make_plot_paths(basePath)
 
     argList = list()
-    for year in ["all"] + cli_args.years:
-        for histName in plot_info.get_hists():
-
-            argList.append((histName, group_info, plot_info,basePath,
-                            cli_args.workdir, signalNames, year))
+    # need to deal with combined
+    for year in cli_args.years:
+        path = Path(f"{cli_args.workdir}/{year}")
+        allSysts = config.get_list_systs(path, cli_args.systs)
+        baseYear = basePath if year == "all" else basePath / year
+        config.make_plot_paths(baseYear)
+        for syst in allSysts:
+            filename = path / f'test_{syst}.root'
+            outpath = baseYear
+            if syst != "Nominal":
+                config.make_plot_paths(outpath)
+                outpath = outpath / syst
+            for histName in plot_info.get_hists():
+                argList.append((histName, group_info, plot_info, outpath,
+                                filename, signalNames, year, syst))
 
     return argList
 
 
-def run(histName, file_info, plot_info, basePath, indir, signalNames, year):
-    print(f'Processing {histName} for year {year}')
+def run(histName, file_info, plot_info, outpath, filename, signalNames, year, syst):
+    print(f'Processing {histName} for year {year} and systematic {syst}')
 
-    baseYear = basePath if year == "all" else f'{basePath}/{year}'
-    logger = LogFile(histName, plot_info.at(histName), plot_info.get_lumi(year),
-                     f'{baseYear}/logs')
+    logger = LogFile(histName, plot_info.at(histName), plot_info.get_lumi(year))
     binning = plot_info.get_binning(histName)
     # Setup histograms
     ratio = Histogram("Ratio", "black", binning)
@@ -61,8 +69,8 @@ def run(histName, file_info, plot_info, basePath, indir, signalNames, year):
     error = Histogram("Stat Errors", "plum", binning)
     data = Histogram("Data", "black", binning)
     stacker = Stack(binning)
-    groupHists = config.getYearNormedHistos(f'{indir}/{{}}/test.root',
-                                            file_info, plot_info, histName, year)
+    groupHists = config.getNormedHistos(filename, file_info, plot_info,
+                                        histName, year)
     exclude = ['data'] + signalNames
     signal = groupHists[signalNames[0]] if signalNames[0] in groupHists else None
     # signals = {sig: groupHists[sig] for sig in (sig for sig in signalNames
@@ -108,7 +116,7 @@ def run(histName, file_info, plot_info, basePath, indir, signalNames, year):
     fig = plt.gcf()
 
 
-    plotBase = f'{baseYear}/plots/{histName}'
+    plotBase = outpath / f'plots/{histName}'
     plt.savefig(f'{plotBase}.png', format="png", bbox_inches='tight')
     subprocess.call('convert {0}.png -quality 0 {0}.pdf'.format(plotBase),
                     shell=True)
@@ -120,20 +128,20 @@ def run(histName, file_info, plot_info, basePath, indir, signalNames, year):
     logger.add_mc(stacker)
     if signal:
         logger.add_signal(signal)
-    logger.write_out()
+    logger.write_out(outpath / 'logs')
 
 
 
 def cleanup(cli_args):
-    basePath = setupPathAndDir(cli_args.analysis, cli_args.drawStyle,
-                               cli_args.workdir, cli_args.years)
+    basePath = config.get_plot_area(cli_args.analysis, cli_args.drawStyle,
+                                    cli_args.workdir)
     writeHTML(basePath, cli_args.analysis, plot_params.all_years)
     for year in cli_args.years:
         writeHTML(f'{basePath}/{year}', f'{cli_args.analysis}/{year}')
 
     userName = os.environ['USER']
-    htmlPath = basePath.split(userName)[1]
+    htmlPath = str(basePath).split(userName)[1]
     if 'hep.wisc.edu' in os.environ['HOSTNAME']:
         print(f'https://www.hep.wisc.edu/~{userName}/{htmlPath[13:]}')
     else:
-        print(f'https://{0}.web.cern.ch/{userName}/{htmlPath[4:]}')
+        print(f'https://{userName}.web.cern.ch/{userName}/{htmlPath[4:]}')

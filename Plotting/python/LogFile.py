@@ -37,10 +37,9 @@ class LogFile:
     """
     callTime = ""
     command = ""
-    def __init__(self, name, info, lumi, path='.'):
+    def __init__(self, name, info, lumi):
         self.plotTable = PrettyTable(["Plot Group", "Weighted Events", "Error"])
         self.breakTable = PrettyTable(["Plot Group", "Sample", "Weighted Events", "Error"])
-        self.path = path
         self.output_name = f'{name}_info.log'
         self.analysis, self.selection = "", ""#info.getAnalysis()
         self.lumi = lumi
@@ -104,7 +103,7 @@ class LogFile:
         hist[1] = np.sqrt(hist[1])
         return hist
 
-    def write_out(self, isLatex=False):
+    def write_out(self, path, isLatex=False):
         """Write out all current information to the objects output file
 
         Parameters
@@ -112,7 +111,7 @@ class LogFile:
         isLatex : bool, optional
             Whether table should be written out in latex or org style table
         """
-        with open(f'{self.path}/{self.output_name}', 'w') as out:
+        with open(f'{path}/{self.output_name}', 'w') as out:
             out.write("<html><pre><code>\n")
             out.write('-' * 80 + '\n')
             out.write(f'Script called at {LogFile.callTime} \n')

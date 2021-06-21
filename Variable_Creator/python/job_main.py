@@ -31,5 +31,6 @@ def run(groupDict, infile, workdir, year, syst):
 
 
 def cleanup(cli_args):
-    infiles = [f'{cli_args.workdir}/{year}/train_Nominal.root' for year in cli_args.years ]
-    subprocess.run(["hadd", "-f", f"{cli_args.workdir}/train_Nominal.root"] + infiles)
+    for type_name in ["train", "test"]:
+        infiles = [f'{cli_args.workdir}/{year}/{type_name}_Nominal.root' for year in cli_args.years ]
+        subprocess.run(["hadd", "-f", f"{cli_args.workdir}/{type_name}_Nominal.root"] + infiles)
