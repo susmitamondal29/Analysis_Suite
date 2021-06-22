@@ -26,7 +26,7 @@ def run(groupDict, infile, workdir, year, syst):
     outdir = f'{workdir}/{year}'
     data = DataProcessor(mva_params.usevar, groupDict, syst)
     checkOrCreateDir(outdir)
-    print(f'Processing year {year} MC')
+    print(f'Processing year {year} with syst {syst} MC')
     data.process_year(infile, outdir)
 
 
