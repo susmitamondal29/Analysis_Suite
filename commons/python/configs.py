@@ -144,18 +144,6 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
     return groupHists
 
 
-def copyDirectory(src, dest):
-    if os.path.exists(dest):
-        shutil.rmtree(dest)
-    try:
-        shutil.copytree(src, dest)
-    # Directories are the same
-    except shutil.Error as e:
-        print('Directory not copied. Error: %s' % e)
-    # Any error saying that the directory doesn't exist
-    except OSError as e:
-        print('Directory not copied. Error: %s' % e)
-
 def getGroupDict(groups, group_info):
     groupDict = OrderedDict()
     for groupName, samples in groups:

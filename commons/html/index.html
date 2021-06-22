@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<meta charset="UTF-8">
 <html>
   <head>
     <style type="text/css">
@@ -14,6 +15,9 @@
           text-align: center;
           margin: 0;
       }
+      tr {
+          text-align: center;
+      }
       .autoResizeImage {
           max-width: 100%;
           height: auto;
@@ -24,13 +28,20 @@
     <script type="text/javascript" src="resize.js"></script>
   </head>
 
-  <div id="title" class="top" style="text-align: center;"><script>getTitle();</script>
+  <div id="header" class="top" style="text-align:center;">
+    <h1 id="page-title"> </h1>
     <a href="..">[back]</a>
+    <br>
+    <div id="channels" class="top" style="text-align: center;"></div>
   </div>
-  <br>
-  <div id="channels" class="top" style="text-align: center;"><script>getChannels();</script></div>
 
-  <body onresize="dynamicSizing()">
-    <table><tbody id="picTable"><script>dynamicSizing();</script></tbody></table>
+  <body onresize="setupImages()">
+    <table><tbody id="picTable"></tbody></table>
   </body>
+
+
+  <script>
+    setupHeader();
+    setupImages();
+  </script>
 </html>

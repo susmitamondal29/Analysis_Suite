@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import argparse
 import pkg_resources as pkg
-import xml.etree.ElementTree as ET
+import json
 from pathlib import Path
 
-def writeHTML(path, name, channels=[]):
+def writeHTML(path, name, subdir=[]):
     """**Creates a useable HTML page of plots**
     
     Copies the necessary files (located in the html directory)
@@ -19,23 +19,19 @@ def writeHTML(path, name, channels=[]):
         List of channels to create the differnt sub-webpages
     """
     needWrite = False
-    basePath = Path(path)
     for filename in pkg.resource_listdir(__name__, "../html"):
-        if (basePath / filename).exists():
-            continue
+        # if (path / filename).exists():
+        #     continue
         needWrite = True
         data = pkg.resource_string(__name__, f'../html/{filename}').decode()
         with open(f'{path}/{filename}', 'w') as f:
             f.write(data)
     if not needWrite:
         return
-    info = ET.Element("Info")
-    ET.SubElement(info, "Title").text = name
-    for chan in channels:
-        ET.SubElement(info, "Channel").text = chan
-    tree = ET.ElementTree(info)
-    tree.write(f'{path}/extraInfo.xml')
-
+    info = { "Title" : name,
+             "Subdirectory" : subdir}
+    with open(f'{path}/extraInfo.json', 'w') as outjson:
+        outjson.write(json.dumps(info))
 
 
 if __name__ == "__main__":
