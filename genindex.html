@@ -59,7 +59,7 @@
 </li>
 <li class="toctree-l2"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="analysis_suite.Plotting.html"><code class="docutils literal notranslate">Plotting</code></a></div><ul>
 <li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="analysis_suite.Plotting.html#plotting-logfile"><code class="docutils literal notranslate">Plotting.LogFile</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="analysis_suite.Plotting.html#module-analysis_suite.Plotting.configHelper"><code class="docutils literal notranslate">Plotting.configHelper</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="analysis_suite.Plotting.html#plotting-confighelper"><code class="docutils literal notranslate">Plotting.configHelper</code></a></div></li>
 <li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="analysis_suite.Plotting.html#plotting-pypad"><code class="docutils literal notranslate">Plotting.pyPad</code></a></div></li>
 <li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="analysis_suite.Plotting.html#plotting-stack"><code class="docutils literal notranslate">Plotting.stack</code></a></div></li>
 </ul>
@@ -135,13 +135,6 @@
 <li><a href="analysis_suite.commons.html#module-analysis_suite.commons.makeSimpleHtml">module</a>
 </li>
 </ul></li>
-<li>
-    analysis_suite.Plotting.configHelper
-
-      <ul>
-<li><a href="analysis_suite.Plotting.html#module-analysis_suite.Plotting.configHelper">module</a>
-</li>
-</ul></li>
 <li><a href="analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter.apply_cut">apply_cut() (analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter method)</a>
 </li>
 <li><a href="analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter.apply_cut_max_bdt">apply_cut_max_bdt() (analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter method)</a>
@@ -170,13 +163,11 @@
 <td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="analysis_suite.Plotting.html#analysis_suite.Plotting.LogFile.LogFile.callTime">callTime (analysis_suite.Plotting.LogFile.LogFile attribute)</a>, <a href="analysis_suite.Plotting.html#id0">[1]</a>
 </li>
-<li><a href="analysis_suite.commons.html#analysis_suite.commons.configs.checkOrCreateDir">checkOrCreateDir() (in module analysis_suite.commons.configs)</a>
-</li>
 </ul></td>
 <td style="width: 33%; vertical-align: top;"><ul>
-<li><a href="analysis_suite.Plotting.html#analysis_suite.Plotting.LogFile.LogFile.command">command (analysis_suite.Plotting.LogFile.LogFile attribute)</a>, <a href="analysis_suite.Plotting.html#id1">[1]</a>
+<li><a href="analysis_suite.commons.html#analysis_suite.commons.configs.checkOrCreateDir">checkOrCreateDir() (in module analysis_suite.commons.configs)</a>
 </li>
-<li><a href="analysis_suite.commons.html#analysis_suite.commons.configs.copyDirectory">copyDirectory() (in module analysis_suite.commons.configs)</a>
+<li><a href="analysis_suite.Plotting.html#analysis_suite.Plotting.LogFile.LogFile.command">command (analysis_suite.Plotting.LogFile.LogFile attribute)</a>, <a href="analysis_suite.Plotting.html#id1">[1]</a>
 </li>
 </ul></td>
 </tr></table>
@@ -222,11 +213,15 @@
 </li>
 <li><a href="analysis_suite.Plotting.html#analysis_suite.Plotting.LogFile.LogFile.get_likelihood">get_likelihood() (analysis_suite.Plotting.LogFile.LogFile method)</a>
 </li>
+<li><a href="analysis_suite.commons.html#analysis_suite.commons.configs.get_list_systs">get_list_systs() (in module analysis_suite.commons.configs)</a>
+</li>
 <li><a href="analysis_suite.commons.html#analysis_suite.commons.info.PlotInfo.get_lumi">get_lumi() (analysis_suite.commons.info.PlotInfo method)</a>
 </li>
 </ul></td>
 <td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="analysis_suite.commons.html#analysis_suite.commons.info.GroupInfo.get_memberMap">get_memberMap() (analysis_suite.commons.info.GroupInfo method)</a>
+</li>
+<li><a href="analysis_suite.commons.html#analysis_suite.commons.configs.get_plot_area">get_plot_area() (in module analysis_suite.commons.configs)</a>
 </li>
 <li><a href="analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter.get_sample">get_sample() (analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter method)</a>
 </li>
@@ -254,8 +249,6 @@
 <li><a href="analysis_suite.commons.html#analysis_suite.commons.configs.getNormedHistos">getNormedHistos() (in module analysis_suite.commons.configs)</a>
 </li>
 <li><a href="analysis_suite.Plotting.html#analysis_suite.Plotting.pyPad.pyPad.getXaxis">getXaxis() (analysis_suite.Plotting.pyPad.pyPad method)</a>
-</li>
-<li><a href="analysis_suite.commons.html#analysis_suite.commons.configs.getYearNormedHistos">getYearNormedHistos() (in module analysis_suite.commons.configs)</a>
 </li>
 <li><a href="analysis_suite.commons.html#analysis_suite.commons.info.GroupInfo">GroupInfo (class in analysis_suite.commons.info)</a>
 </li>
@@ -293,6 +286,8 @@
 <h2 id="M">M</h2>
 <table class="indextable genindextable" style="width: 100%"><tr>
 <td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="analysis_suite.commons.html#analysis_suite.commons.configs.make_plot_paths">make_plot_paths() (in module analysis_suite.commons.configs)</a>
+</li>
 <li><a href="analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter.make_roc">make_roc() (analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter method)</a>
 </li>
 <li>
@@ -304,8 +299,6 @@
 <li><a href="analysis_suite.commons.html#module-analysis_suite.commons.info">analysis_suite.commons.info</a>
 </li>
 <li><a href="analysis_suite.commons.html#module-analysis_suite.commons.makeSimpleHtml">analysis_suite.commons.makeSimpleHtml</a>
-</li>
-<li><a href="analysis_suite.Plotting.html#module-analysis_suite.Plotting.configHelper">analysis_suite.Plotting.configHelper</a>
 </li>
 </ul></li>
 </ul></td>
@@ -362,13 +355,11 @@
 </li>
 <li><a href="analysis_suite.Plotting.html#analysis_suite.Plotting.LogFile.LogFile.selection">selection (analysis_suite.Plotting.LogFile.LogFile attribute)</a>
 </li>
-<li><a href="analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter.set_show">set_show() (analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter method)</a>
-</li>
 </ul></td>
 <td style="width: 33%; vertical-align: top;"><ul>
-<li><a href="analysis_suite.Plotting.html#analysis_suite.Plotting.pyPad.pyPad.setLegend">setLegend() (analysis_suite.Plotting.pyPad.pyPad method)</a>
+<li><a href="analysis_suite.BDT_utilities.html#analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter.set_show">set_show() (analysis_suite.BDT_utilities.MVAPlotter.MVAPlotter method)</a>
 </li>
-<li><a href="analysis_suite.Plotting.html#analysis_suite.Plotting.configHelper.setupPathAndDir">setupPathAndDir() (in module analysis_suite.Plotting.configHelper)</a>
+<li><a href="analysis_suite.Plotting.html#analysis_suite.Plotting.pyPad.pyPad.setLegend">setLegend() (analysis_suite.Plotting.pyPad.pyPad method)</a>
 </li>
 <li><a href="analysis_suite.Plotting.html#analysis_suite.Plotting.stack.Stack">Stack (class in analysis_suite.Plotting.stack)</a>
 </li>

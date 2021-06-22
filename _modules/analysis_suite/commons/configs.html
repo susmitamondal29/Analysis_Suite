@@ -59,7 +59,7 @@
 </li>
 <li class="toctree-l2"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="../../../analysis_suite.Plotting.html"><code class="docutils literal notranslate">Plotting</code></a></div><ul>
 <li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.Plotting.html#plotting-logfile"><code class="docutils literal notranslate">Plotting.LogFile</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.Plotting.html#module-analysis_suite.Plotting.configHelper"><code class="docutils literal notranslate">Plotting.configHelper</code></a></div></li>
+<li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.Plotting.html#plotting-confighelper"><code class="docutils literal notranslate">Plotting.configHelper</code></a></div></li>
 <li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.Plotting.html#plotting-pypad"><code class="docutils literal notranslate">Plotting.pyPad</code></a></div></li>
 <li class="toctree-l3"><div class="nav-link"><a class="reference internal" href="../../../analysis_suite.Plotting.html#plotting-stack"><code class="docutils literal notranslate">Plotting.stack</code></a></div></li>
 </ul>
@@ -87,6 +87,8 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">pkgutil</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">analysis_suite.data.PlotGroups</span> <span class="k">as</span> <span class="nn">PlotGroups</span>
 <span class="kn">import</span> <span class="nn">analysis_suite.data.inputs</span> <span class="k">as</span> <span class="nn">inputs</span>
@@ -223,31 +225,6 @@
     <span class="nb">print</span><span class="p">(</span><span class="s2">"Figure of merit: "</span><span class="p">,</span> <span class="n">s</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s</span><span class="o">+</span><span class="n">b</span><span class="o">+</span><span class="mf">1e-9</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">groupHists</span></div>
 
-<div class="viewcode-block" id="getYearNormedHistos"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.getYearNormedHistos">[docs]</a><span class="k">def</span> <span class="nf">getYearNormedHistos</span><span class="p">(</span><span class="n">yearFilename</span><span class="p">,</span> <span class="n">file_info</span><span class="p">,</span> <span class="n">plot_info</span><span class="p">,</span> <span class="n">histName</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">year</span> <span class="o">==</span> <span class="s2">"all"</span><span class="p">:</span>
-        <span class="n">yearHists</span> <span class="o">=</span> <span class="p">[</span><span class="n">getNormedHistos</span><span class="p">(</span><span class="n">yearFilename</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">yr</span><span class="p">),</span>
-                                            <span class="n">file_info</span><span class="p">,</span> <span class="n">plot_info</span><span class="p">,</span> <span class="n">histName</span><span class="p">,</span> <span class="n">yr</span><span class="p">)</span>
-                     <span class="k">for</span> <span class="n">yr</span> <span class="ow">in</span> <span class="n">inputs</span><span class="o">.</span><span class="n">all_years</span><span class="p">]</span>
-        <span class="n">groupHists</span> <span class="o">=</span> <span class="n">yearHists</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">yrHist</span> <span class="ow">in</span> <span class="n">yearHists</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">hist</span> <span class="ow">in</span> <span class="n">yrHist</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">groupHists</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">+=</span> <span class="n">hist</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">groupHists</span> <span class="o">=</span> <span class="n">getNormedHistos</span><span class="p">(</span><span class="n">yearFilename</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">),</span>
-                                     <span class="n">file_info</span><span class="p">,</span> <span class="n">plot_info</span><span class="p">,</span> <span class="n">histName</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">groupHists</span></div>
-
-<div class="viewcode-block" id="copyDirectory"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.copyDirectory">[docs]</a><span class="k">def</span> <span class="nf">copyDirectory</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
-    <span class="c1"># Directories are the same</span>
-    <span class="k">except</span> <span class="n">shutil</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">'Directory not copied. Error: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
-    <span class="c1"># Any error saying that the directory doesn't exist</span>
-    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">'Directory not copied. Error: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="getGroupDict"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.getGroupDict">[docs]</a><span class="k">def</span> <span class="nf">getGroupDict</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">group_info</span><span class="p">):</span>
     <span class="n">groupDict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
@@ -260,6 +237,46 @@
                 <span class="n">new_samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">samp</span><span class="p">)</span>
         <span class="n">groupDict</span><span class="p">[</span><span class="n">groupName</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_samples</span>
     <span class="k">return</span> <span class="n">groupDict</span></div>
+
+<div class="viewcode-block" id="get_list_systs"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.get_list_systs">[docs]</a><span class="k">def</span> <span class="nf">get_list_systs</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">cli_systs</span><span class="o">=</span><span class="p">[</span><span class="s2">"all"</span><span class="p">]):</span>
+    <span class="n">allSysts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+        <span class="kn">import</span> <span class="nn">uproot4</span> <span class="k">as</span> <span class="nn">uproot</span>
+        <span class="k">with</span> <span class="n">uproot</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">"Systematics"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">allSysts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">([</span><span class="n">syst</span><span class="o">.</span><span class="n">member</span><span class="p">(</span><span class="s2">"fName"</span><span class="p">)</span> <span class="k">for</span> <span class="n">syst</span> <span class="ow">in</span> <span class="n">f</span><span class="p">[</span><span class="n">d</span><span class="p">]])</span>
+                <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">allSysts</span> <span class="o">=</span> <span class="p">[</span><span class="n">syst</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"test_"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">".root"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">syst</span> <span class="ow">in</span> <span class="n">filename</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"test*.root"</span><span class="p">)]</span>
+
+    <span class="k">if</span> <span class="n">cli_systs</span> <span class="o">==</span> <span class="p">[</span><span class="s2">"all"</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">allSysts</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">syst</span> <span class="k">for</span> <span class="n">syst</span> <span class="ow">in</span> <span class="n">allSysts</span>
+                <span class="k">if</span> <span class="n">syst</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_down"</span><span class="p">,</span><span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_up"</span><span class="p">,</span><span class="s2">""</span><span class="p">)</span> <span class="ow">in</span> <span class="n">cli_systs</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="get_plot_area"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.get_plot_area">[docs]</a><span class="k">def</span> <span class="nf">get_plot_area</span><span class="p">(</span><span class="n">analysis</span><span class="p">,</span> <span class="n">drawStyle</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="n">extraPath</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y_%m_</span><span class="si">%d</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+        <span class="n">extraPath</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s1">'/'</span> <span class="o">+</span> <span class="n">extraPath</span>
+
+    <span class="k">if</span> <span class="s1">'hep.wisc.edu'</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'HOSTNAME'</span><span class="p">]:</span>
+        <span class="n">basePath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"HOME"</span><span class="p">]</span><span class="si">}</span><span class="s1">/public_html'</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s1">'uwlogin'</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'HOSTNAME'</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">'lxplus'</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'HOSTNAME'</span><span class="p">]:</span>
+        <span class="n">basePath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'/eos/home-</span><span class="si">{0:1.1s}</span><span class="s1">/</span><span class="si">{0}</span><span class="s1">/www'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'USER'</span><span class="p">]))</span>
+    <span class="n">basePath</span> <span class="o">/=</span> <span class="sa">f</span><span class="s1">'PlottingResults/</span><span class="si">{</span><span class="n">analysis</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">extraPath</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">drawStyle</span><span class="si">}</span><span class="s1">'</span>
+
+    <span class="k">return</span> <span class="n">basePath</span></div>
+
+<div class="viewcode-block" id="make_plot_paths"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.make_plot_paths">[docs]</a><span class="k">def</span> <span class="nf">make_plot_paths</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">checkOrCreateDir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">checkOrCreateDir</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">/plots'</span><span class="p">)</span>
+    <span class="n">checkOrCreateDir</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">/logs'</span><span class="p">)</span></div>
 </code></pre>
 </article>
 <footer>
