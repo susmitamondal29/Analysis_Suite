@@ -31,8 +31,11 @@ class PlotInfo(BasicInfo):
     def __getitem__(self, key):
         return self.plotSpecs[key]
 
-    def get_hists(self):
-        return self.plotSpecs.keys()
+    def get_hists(self, sublist=[]):
+        if sublist == ["all"]:
+            return self.plotSpecs.keys()
+        else:
+            return list(set(self.plotSpecs.keys()) & set(sublist))
 
     def get_binning(self, histname):
         import boost_histogram as bh

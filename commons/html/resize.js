@@ -1,3 +1,5 @@
+var w = $(window).width()
+
 function setupHeader() {
     $.getJSON(window.location.href+"/extraInfo.json")
         .done(function(data) {
@@ -18,8 +20,8 @@ function setupHeader() {
 }
 
 function setupImages() {
-    w = window.outerWidth;
-    minSize = 450;
+    console.log(w)
+    minSize = 500;
     el_per_line = (Math.floor(w/minSize) == 0) ? 1 : Math.floor(w/minSize);
     el_in_row = 0;
 
@@ -29,7 +31,6 @@ function setupImages() {
         success: function(data) {
             row = $("<tr>").appendTo($("#picTable"));
             $(data).find('a[href*=".png"]').each(function() {
-                console.log(el_in_row, el_per_line, this.innerHTML)
                 if (el_in_row+1 >  el_per_line) {
                     row = $("<tr>").appendTo($("#picTable"));
                 }
@@ -54,6 +55,17 @@ function setupImages() {
             })
         }
     });
+}
 
 
+
+function resizeImages() {
+    var newWidth = $(window).width()
+    console.log(w, newWidth)
+    if (w != newWidth) {
+        w = newWidth;
+        setupImages();
+    } else {
+        return;
+    }
 }
