@@ -39,7 +39,6 @@ def setup(cli_args):
     config.make_plot_paths(basePath)
 
     argList = list()
-    # need to deal with combined
     for year in cli_args.years:
         path = Path(f"{cli_args.workdir}/{year}")
         allSysts = config.get_list_systs(path, cli_args.systs)
@@ -51,14 +50,15 @@ def setup(cli_args):
             if syst != "Nominal":
                 outpath = outpath / syst
                 config.make_plot_paths(outpath)
-            for histName in plot_info.get_hists():
+            for histName in plot_info.get_hists(cli_args.hists):
                 argList.append((histName, group_info, plot_info, outpath,
                                 filename, signalNames, year, syst))
 
-    for histName in plot_info.get_hists():
+    for histName in plot_info.get_hists(cli_args.hists):
         argList.append((histName, group_info, plot_info, basePath,
                         Path(f'{cli_args.workdir}/test_Nominal.root'),
                         signalNames, "all", "Nominal"))
+
     return argList
 
 

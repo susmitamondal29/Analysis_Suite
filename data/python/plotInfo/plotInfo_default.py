@@ -1,66 +1,60 @@
 # -*- coding: utf-8 -*-
 
 info = {
+    "BDT.Background" : {
+        "Column": "Background",
+        "set_xlabel": "$BDT_{Background}$",
+        "Binning"     :  [20, 0, 1.],
+        "Modify": "1-{}"
+    },
     "HT" : {
-        "Column": "Event_variables/Event_HT",
+        "Column": "HT",
         "set_xlabel": "$H_{T}$ (GeV)",
         "Binning"     :  [15, 0, 1200],
     },
-    # "Met" : {
-    #     "Column": "Event_MET/MET_pt",
-    #     "set_xlabel": "$p_{T}^{miss}$ (GeV)",
-    #     "Binning"     :  [14, 0, 350],
-    # },
-    # "NJets" : {
-    #     "Column": "Jets/Jet_pt",
-    #     "Modify" : "ak.count({}, axis=-1)",
-    #     "set_xlabel": "$N_{j}$",
-    #     "Binning"     :  [10, 0, 10],
-    #     "Discrete": True,
-    # },
-    # "NBJets" : {
-    #     "Column": "BJets/Jet_pt",
-    #     "Modify" : "ak.count({}, axis=-1)",
-    #     "set_xlabel": "$N_{b}$",
-    #     "Binning"     :  [10, 0, 10],
-    #     "Discrete": True,
-    # },
-    # "NMuons" : {
-    #     "Column": "tightMuon/Muon_pt",
-    #     "Modify" : "ak.count({}, axis=-1)",
-    #     "set_xlabel": "$N_{\mu}$",
-    #     "Binning"     :  [10, 0, 10],
-    #     "Discrete": True,
-    # },
-    # "NElectron" : {
-    #     "Column": "tightElectron/Electron_pt",
-    #     "Modify" : "ak.count({}, axis=-1)",
-    #     "set_xlabel": "$N_{e}$",
-    #     "Binning"     :  [10, 0, 10],
-    #     "Discrete": True,
-    # },
-    # "Jet_pt" : {
-    #     "Column": "Jets/Jet_pt",
-    #     "Modify" : "ak.flatten({}, axis=1)",
-    #     "set_xlabel": "$p_{T}(j)$",
-    #     "Binning"     :  [30, 0, 500],
-    # },
-    # "BJet_pt" : {
-    #     "Column": "BJets/Jet_pt",
-    #     "Modify" : "ak.flatten({}, axis=1)",
-    #     "set_xlabel": "$p_{T}(b)$",
-    #     "Binning"     :  [30, 0, 500],
-    # },
-    # "Muon_pt" : {
-    #     "Column": "tightMuon/Muon_pt",
-    #     "Modify" : "ak.flatten({}, axis=1)",
-    #     "set_xlabel": "$p_{T}(\mu)$",
-    #     "Binning"     :  [30, 0, 500],
-    # },
-    # "Electron_pt" : {
-    #     "Column": "tightElectron/Electron_pt",
-    #     "Modify" : "ak.flatten({}, axis=1)",
-    #     "set_xlabel": "$p_{T}(e)$",
-    #     "Binning"     :  [30, 0, 500],
-    # },
+    "Met" : {
+        "Column": "Met",
+        "set_xlabel": "$p_{T}^{miss}$ (GeV)",
+        "Binning"     :  [20, 0, 500],
+    },
+    "NJets" : {
+        "Column": "NJets",
+        "set_xlabel": "$N_{j}$",
+        "Binning"     :  [10, 0, 10],
+        "Discrete": True,
+    },
+    "NBJets" : {
+        "Column": "NBJets",
+        "set_xlabel": "$N_{b}$",
+        "Binning"     :  [10, 0, 10],
+        "Discrete": True,
+    },
+    "NlooseBJets" : {
+        "Column": "NlooseBJets",
+        "set_xlabel": "$N_{looseb}$",
+        "Binning"     :  [10, 0, 10],
+        "Discrete": True,
+    },
+    "NtightBJets" : {
+        "Column": "NtightBJets",
+        "set_xlabel": "$N_{tightb}$",
+        "Binning"     :  [10, 0, 10],
+        "Discrete": True,
+    },
+    "NTops" : {
+        "Column": "NResolvedTops",
+        "set_xlabel": "$N_{t}$",
+        "Binning"     :  [5, 0, 5],
+        "Discrete": True,
+    },
+    "lep1_pt" : {
+        "Column": "l1Pt",
+        "set_xlabel": "$p_{T}(j_{1})$",
+        "Binning"     :  [30, 0, 500],
+    },
+    "lep2_pt" : {
+        "Column": "l2Pt",
+        "set_xlabel": "$p_{T}(j_{2})$",
+        "Binning"     :  [30, 0, 500],
+    },
 }
