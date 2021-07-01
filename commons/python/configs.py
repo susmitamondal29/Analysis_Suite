@@ -9,7 +9,15 @@ import time
 from pathlib import Path
 from collections import OrderedDict
 import analysis_suite.data.PlotGroups as PlotGroups
-import analysis_suite.data.inputs as inputs
+
+def first_time_actions():
+    inputs_file = Path("data/python/inputs.py")
+    if not inputs_file.exists():
+        shutil.copy("data/python/inputs_default.py", inputs_file)
+        print("Please run \n\n  scram b\n\nto initialize inputs file")
+        exit()
+
+
 
 def get_cli():
     parser = argparse.ArgumentParser(prog="main", description="Central script for running tools in the Analysis suite")

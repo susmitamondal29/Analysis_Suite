@@ -5,10 +5,12 @@ import sys
 import datetime
 import logging
 
-from analysis_suite.commons.configs import get_cli, checkOrCreateDir
+from analysis_suite.commons.configs import get_cli, checkOrCreateDir, first_time_actions
 warnings.filterwarnings('ignore')
 
 if __name__ == "__main__":
+    first_time_actions()
+
     cli_args = get_cli()
     logging.basicConfig(level=getattr(logging, cli_args.log, None))
     callTime = str(datetime.datetime.now())
