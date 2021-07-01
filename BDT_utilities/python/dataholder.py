@@ -34,7 +34,7 @@ class MLHolder:
       param(dict): Variables used in the training
 
     """
-    def __init__(self, use_vars, groupDict, systName="Nominal"):
+    def __init__(self, use_vars, groupDict, systName="Nominal", **kwargs):
         """Constructor method
         """
         self.group_names = list(groupDict.keys())
@@ -45,11 +45,15 @@ class MLHolder:
         self.systName = systName
 
         self.use_vars = use_vars
-        self._include_vars = list(use_vars.keys())
-        self._drop_vars = ["classID", "groupName", "finalWeight", "scale_factor"]
-        self._all_vars = self._include_vars + self._drop_vars
-        self.train_set = pd.DataFrame(columns=self._all_vars)
-        self.test_set = pd.DataFrame(columns=self._all_vars)
+
+        nonTrain_vars = ["classID", "groupName", "scale_factor"]
+        derived_vars = ["finalWeight"]
+        self._file_vars = list(use_vars.keys()) + nonTrain_vars
+        self._drop_vars = nonTrain_vars + derived_vars
+
+        all_vars = self._file_vars + derived_vars
+        self.train_set = pd.DataFrame(columns=all_vars)
+        self.test_set = pd.DataFrame(columns=all_vars)
 
         for key, func in self.use_vars.items():
             dtype = "int" if "num" in func else 'float'
@@ -84,14 +88,14 @@ class MLHolder:
             for group in train_groups:
                 if group not in f:
                     continue
-                self.train_set = pd.concat([f[group].arrays(library="pd"), self.train_set], sort=True)
+                self.train_set = pd.concat([f[group].arrays(self._file_vars, library="pd"), self.train_set], sort=True)
         with uproot4.open(test_file) as f:
             self.sample_map = json.loads(f["sample_map"])
             groups = json.loads(f["sample_map"]).keys()
             for group in groups:
                 if group not in f:
                     continue
-                self.test_set = pd.concat([f[group].arrays(library="pd"), self.train_set], sort=True)
+                self.test_set = pd.concat([f[group].arrays(self._file_vars, library="pd"), self.train_set], sort=True)
 
         self.train_set["finalWeight"] = 1.
         for group, samples in self.group_dict.items():

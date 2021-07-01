@@ -14,65 +14,54 @@ from sklearn.model_selection import ShuffleSplit
 from sklearn.utils import shuffle as shuffle_data
 from sklearn.model_selection import cross_val_score
 
+from dataclasses import dataclass, InitVar
 import numpy as np
 
-# The parameters to apply to the cut.
-SAVE_FPR_TPR_POINTS = 20
-
-
+@dataclass
 class Params:
-    def __init__(self, indict):
-        super(Params, self).__setattr__("dictionary", indict)
+    shuffle: bool = True
+    initial_nodes: int = 10
+    hidden_layers: int = 2
+    node_pattern: str = "static"
+    learning_rate: float = 0.01
+    regulator: str = "dropout"
+    activation: str = "elu"
+    monitor: str = "loss"
+    patience: int = 5
+    mode: str = "auto"
+    period: int = 1
+    save_best_only: bool = True
+    save_weights_only: bool = False
+    epochs: int = 20
+    batch_power: int = 9
+    batch_size: int = 2**9
+    validation_split: float = 0.25
+    verbose: bool = False
 
-    def __getitem__(self, *args):
-        if len(args) == 1:
-            keys = [args[0]]  # args is a string
+    params: InitVar = None
+
+    def __post_init__(self, params):
+        if params is not None:
+            for key, val in params.items():
+                self.__setattr__(key, val)
+            if "batch_power" in params:
+                self.__setattr__("batch_size", params["batch_power"])
+
+    def __getitem__(self, args):
+        if isinstance(args, str):
+            return {args: self.__getattribute__(args)}
         else:
-            keys = list(*args)  # args is a tuple
-        return {key: self.dictionary[key] for key in keys if key in self.dictionary}
+            return {attr: self.__getattribute__(attr) for attr in args}
 
-    def __getattr__(self, item):
-        return self.dictionary[item]
-
-    def __setattr__(self, name, value):
-        self.dictionary[name] = value
-
-    def update(self, new):
-        self.dictionary.update(new)
 
 class KerasMaker(MLHolder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.build = Params(
-            {
-                #"shuffle": True,
-                "initial_nodes": 10,
-                "hidden_layers": 2,
-                "node_pattern": "static",
-                "learning_rate": 0.01,
-                "regulator": "dropout",
-                "activation": "elu",
-                "monitor": "val_loss",
-                "patience": 5,
-                "mode": "auto",
-                "period": 1,
-                "save_best_only": True,
-                "save_weights_only": False,
-                "epochs": 20,
-                "batch_power": 9,
-                "validation_split": 0.25,
-                "verbose": False,
-            }
-        )
-        if "params" in kwargs:
-            self.build.update(kwargs["params"])
-        self.build.batch_size = 2**self.build.batch_power
-        
+        self.build = Params(params=kwargs.get("params"))
+
         self.params = self.build["epochs", "batch_size", "shuffle", "validation_split"]
         self.early_stop = self.build["monitor", "patience"]
-        self.checkpoint = self.build[
-            "save_best_only", "save_weights_only", "mode", "period"
-        ]
+        self.checkpoint = self.build["save_best_only", "save_weights_only", "mode", "period"]
 
     def build_model(self, input_size="auto"):
         node_lengths = self.build.initial_nodes * np.ones(
@@ -141,17 +130,14 @@ class KerasMaker(MLHolder):
         _, group_tot = np.unique(y_train, return_counts=True)
         w_train[shuf_train["classID"] == 0] *= max(group_tot) / group_tot[0]
         w_train[shuf_train["classID"] == 1] *= max(group_tot) / group_tot[1]
-        print(group_tot)
-
 
         classW = {i: max(group_tot)/tot for i, tot in enumerate(group_tot)}
         callback = [
             keras.callbacks.EarlyStopping(**self.early_stop),
             # keras.callbacks.ModelCheckpoint("test.h5", verbose=0, **self.checkpoint),
         ]
-        print(classW)
         # Train
-        print(">> Training.")
+        print("\n>> Training.")
         fit_model = self.build_model()
         history = fit_model.fit(
             x_train, y_train.astype(bool),
@@ -163,7 +149,7 @@ class KerasMaker(MLHolder):
         )
 
         # Test
-        print(">> Testing.")
+        print("\n>> Testing.")
         groupName = "Background"
 
         self.pred_test[groupName] = fit_model.predict(x_test).flatten()
