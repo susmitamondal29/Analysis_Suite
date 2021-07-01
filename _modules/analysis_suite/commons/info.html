@@ -113,8 +113,11 @@
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
-<div class="viewcode-block" id="PlotInfo.get_hists"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.PlotInfo.get_hists">[docs]</a>    <span class="k">def</span> <span class="nf">get_hists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
+<div class="viewcode-block" id="PlotInfo.get_hists"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.PlotInfo.get_hists">[docs]</a>    <span class="k">def</span> <span class="nf">get_hists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sublist</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="k">if</span> <span class="n">sublist</span> <span class="o">==</span> <span class="p">[</span><span class="s2">"all"</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">sublist</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="PlotInfo.get_binning"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.PlotInfo.get_binning">[docs]</a>    <span class="k">def</span> <span class="nf">get_binning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">histname</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">boost_histogram</span> <span class="k">as</span> <span class="nn">bh</span>
