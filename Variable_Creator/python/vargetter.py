@@ -4,6 +4,22 @@ import awkward1 as ak
 import uproot4 as uproot
 import numpy as np
 from analysis_suite.commons.info import FileInfo
+from dataclasses import dataclass
+from typing import Callable
+
+@dataclass
+class Variable:
+    func: Callable[..., dict]
+    inputs: tuple
+
+    def apply(self, arr):
+        if isinstance(self.inputs, str):
+            return self.func(arr, self.inputs)
+        else:
+            return self.func(arr, *self.inputs)
+
+    def getType(self):
+        return "int" if "num" in repr(self.func) else "float"
 
 class VarGetter:
     def __init__(self, path, group, syst=0):

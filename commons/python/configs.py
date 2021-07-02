@@ -17,8 +17,6 @@ def first_time_actions():
         print("Please run \n\n  scram b\n\nto initialize inputs file")
         exit()
 
-
-
 def get_cli():
     parser = argparse.ArgumentParser(prog="main", description="Central script for running tools in the Analysis suite")
     parser.add_argument('tool', type=str, help="Tool to run",

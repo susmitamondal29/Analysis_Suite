@@ -14,18 +14,18 @@ def setup(cli_args):
 
     argList = list()
     for year in cli_args.years:
+        outdir = f'{cli_args.workdir}/{year}'
+        checkOrCreateDir(outdir)
         infile = Path(f'result_{year}.root')
         allSysts = get_list_systs(infile, cli_args.systs)
         for syst in allSysts:
-            argList.append((groupDict, infile, cli_args.workdir, year, syst))
+            argList.append((groupDict, infile, outdir, year, syst))
 
     return argList
         
 
-def run(groupDict, infile, workdir, year, syst):
-    outdir = f'{workdir}/{year}'
+def run(groupDict, infile, outdir, year, syst):
     data = DataProcessor(mva_params.usevar, groupDict, syst)
-    checkOrCreateDir(outdir)
     print(f'Processing year {year} with syst {syst} MC')
     data.process_year(infile, outdir)
 

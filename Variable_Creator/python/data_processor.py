@@ -22,7 +22,7 @@ class DataProcessor:
         self.max_events_scaled = self.max_events/self.split_ratio
         self.sample_name_map = dict()
 
-        self.group_dict = groupDict
+        self.group_dict = groupDict.copy()
         self.train_groups = set(sum(self.group_dict.values(), []))
         self.systName = systName
 
@@ -53,24 +53,21 @@ class DataProcessor:
 
     def process_year(self, infile, outdir):
         # Setup dataframes to be used
-        pattern = re.compile('(\w+)\(')
         train_set = pd.DataFrame(columns=self._all_vars)
         test_set = pd.DataFrame(columns=self._all_vars)
         for key, func in self.use_vars.items():
-            dtype = "int" if "num" in func else 'float'
-            train_set[key] = train_set[key].astype(dtype)
-            test_set[key] = test_set[key].astype(dtype)
+            train_set[key] = train_set[key].astype(func.getType())
+            test_set[key] = test_set[key].astype(func.getType())
 
         # Process input file
         arr_dict = self.get_final_dict(infile)
         allGroups = set(arr_dict.keys())
         self.group_dict["NotTrained"] = list(allGroups-self.train_groups)
         classID_dict = {"Signal": 1, "NotTrained": 0, "Background": 0}
-        
+
         for group, samples in self.group_dict.items():
             class_id = classID_dict[group]
             for sample in samples:
-                noTrain = False
                 if sample not in arr_dict:
                     print(f'Could not found sample {sample}')
                     continue
@@ -78,27 +75,18 @@ class DataProcessor:
                     print(f'Sample {sample} has no events in it!')
                     continue
 
-                noTrain = group == "NotTrained" or len(arr_dict[sample]) < 10
-
-                df_dict = dict()
-                arr = arr_dict[sample]
-                for varname, func_set in self.use_vars.items():
-                    func, args = func_set[0], func_set[1]
-                    if not isinstance(args, tuple):
-                        args = (args,)
-                    df_dict[varname] = func(arr, *args)
-                df_dict["scale_factor"] = ak.to_numpy(arr.scale)
-
-                df = pd.DataFrame.from_dict(df_dict)
-                # df = self._cut_frame(df)
-                df["classID"] = class_id
                 if sample not in self.sample_name_map:
                     self.sample_name_map[sample] = len(self.sample_name_map)
+
+                arr = arr_dict[sample]
+
+                df_dict = {varname: func.apply(arr) for varname, func in self.use_vars.items()}
+                df_dict["scale_factor"] = ak.to_numpy(arr.scale)
+                df = pd.DataFrame.from_dict(df_dict)
+                df["classID"] = class_id
                 df["groupName"] = self.sample_name_map[sample]
 
-
-
-                if noTrain:
+                if group == "NotTrained" or len(arr) < 10:
                     test_set = pd.concat([df.reset_index(drop=True), test_set], sort=True)
                     continue
                 
