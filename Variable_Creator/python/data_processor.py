@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
 from .vargetter import VarGetter
+from analysis_suite.commons.configs import setup_pandas
 import awkward1 as ak
 from pathlib import Path
 import uproot4
@@ -52,12 +53,7 @@ class DataProcessor:
         return arr_dict
 
     def process_year(self, infile, outdir):
-        # Setup dataframes to be used
-        train_set = pd.DataFrame(columns=self._all_vars)
-        test_set = pd.DataFrame(columns=self._all_vars)
-        for key, func in self.use_vars.items():
-            train_set[key] = train_set[key].astype(func.getType())
-            test_set[key] = test_set[key].astype(func.getType())
+        train_set, test_set = setup_pandas(self.use_vars, self._all_vars)
 
         # Process input file
         arr_dict = self.get_final_dict(infile)

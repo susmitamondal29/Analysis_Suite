@@ -14,6 +14,7 @@ from pathlib import Path
 import uproot4
 import uproot as upwrite
 import json
+from analysis_suite.commons.configs import setup_pandas
 
 from sklearn.model_selection import train_test_split
 
@@ -52,13 +53,7 @@ class MLHolder:
         self._drop_vars = nonTrain_vars + derived_vars
 
         all_vars = self._file_vars + derived_vars
-        self.train_set = pd.DataFrame(columns=all_vars)
-        self.test_set = pd.DataFrame(columns=all_vars)
-
-        for key, func in self.use_vars.items():
-            dtype = "int" if "num" in func else 'float'
-            self.train_set[key] = self.train_set[key].astype(dtype)
-            self.test_set[key] = self.test_set[key].astype(dtype)
+        self.train_set, self.test_set = setup_pandas(self.use_vars, all_vars)
 
         self.param = dict()
         self.auc_train = 0.
@@ -82,22 +77,13 @@ class MLHolder:
             train_file = f'{directory}/{year}/train_{self.systName}.root'
             test_file = f'{directory}/{year}/test_{self.systName}.root'
         classID = {"Signal": 1, "NotTrained": -1, "Background": 0}
-        train_groups = sum(self.group_dict.values(), [])
-        with uproot4.open(train_file) as f:
-            groups = json.loads(f["sample_map"]).keys()
-            for group in train_groups:
-                if group not in f:
-                    continue
-                self.train_set = pd.concat([f[group].arrays(self._file_vars, library="pd"), self.train_set], sort=True)
+
         with uproot4.open(test_file) as f:
             self.sample_map = json.loads(f["sample_map"])
-            groups = json.loads(f["sample_map"]).keys()
-            for group in groups:
-                if group not in f:
-                    continue
-                self.test_set = pd.concat([f[group].arrays(self._file_vars, library="pd"), self.train_set], sort=True)
 
-        self.train_set["finalWeight"] = 1.
+        self.train_set = self.get_samples(train_file, self.train_set, train=True)
+        self.test_set = self.get_samples(test_file, self.test_set)
+
         for group, samples in self.group_dict.items():
             clsID =  classID[group]
             if group == "NotTrained":
@@ -118,6 +104,16 @@ class MLHolder:
 
     def apply_model(self, model_file):
         pass
+
+    def get_samples(self, filename, inset, train=False):
+        train_groups = sum(self.group_dict.values(), [])
+        with uproot4.open(filename) as f:
+            groups = [group for group in self.sample_map.keys()
+                      if group in f and (not train or group in train_groups)]
+            for group in groups:
+                inset = pd.concat([f[group].arrays(self._file_vars, library="pd"), inset], sort=True)
+        inset["finalWeight"] = 1.
+        return inset
 
     def output(self, outdir, year, syst):
         """Wrapper for write out commands
@@ -175,7 +171,7 @@ class MLHolder:
                 if value not in np.unique(workSet.groupName):
                     continue
                 f[group] = upwrite.newtree(branches)
-                f[group].extend(workSet[workSet.groupName == group][keepList].to_dict('list'))
+                f[group].extend(workSet[workSet.groupName == value][keepList].to_dict('list'))
 
         # rename to avoid losing file if root writing fails
         Path(f'{outfile}.tmp').rename(outfile)

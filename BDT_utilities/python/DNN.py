@@ -172,7 +172,6 @@ class KerasMaker(MLHolder):
 
     def apply_model(self, directory, fit_test_vs_train=True):
         fit_model = keras.models.load_model(f'{directory}/model.h5')
-
         use_set = self.test_set if fit_test_vs_train else self.train_set
         pred = fit_model.predict(use_set.drop(self._drop_vars, axis=1))
         split_pred = {grp: (pred.T[i] if pred.shape[1] < i else 1 - pred.T[0])

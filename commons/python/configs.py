@@ -6,6 +6,7 @@ import sys
 import shutil
 import pkgutil
 import time
+import pandas as pd
 from pathlib import Path
 from collections import OrderedDict
 import analysis_suite.data.PlotGroups as PlotGroups
@@ -205,3 +206,11 @@ def make_plot_paths(path):
     checkOrCreateDir(path)
     checkOrCreateDir(f'{path}/plots')
     checkOrCreateDir(f'{path}/logs')
+
+def setup_pandas(use_vars, all_vars):
+    train_set = pd.DataFrame(columns = all_vars)
+    test_set = pd.DataFrame(columns = all_vars)
+    for key, func in use_vars.items():
+        train_set[key] = train_set[key].astype(func.getType())
+        test_set[key] = test_set[key].astype(func.getType())
+    return train_set, test_set
