@@ -88,6 +88,7 @@
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">pkgutil</span>
 <span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">analysis_suite.data.PlotGroups</span> <span class="k">as</span> <span class="nn">PlotGroups</span>
@@ -98,8 +99,6 @@
         <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s2">"data/python/inputs_default.py"</span><span class="p">,</span> <span class="n">inputs_file</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">"Please run </span><span class="se">\n\n</span><span class="s2">  scram b</span><span class="se">\n\n</span><span class="s2">to initialize inputs file"</span><span class="p">)</span>
         <span class="n">exit</span><span class="p">()</span></div>
-
-
 
 <div class="viewcode-block" id="get_cli"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.get_cli">[docs]</a><span class="k">def</span> <span class="nf">get_cli</span><span class="p">():</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s2">"main"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Central script for running tools in the Analysis suite"</span><span class="p">)</span>
@@ -289,6 +288,14 @@
     <span class="n">checkOrCreateDir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">checkOrCreateDir</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">/plots'</span><span class="p">)</span>
     <span class="n">checkOrCreateDir</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">/logs'</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="setup_pandas"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.setup_pandas">[docs]</a><span class="k">def</span> <span class="nf">setup_pandas</span><span class="p">(</span><span class="n">use_vars</span><span class="p">,</span> <span class="n">all_vars</span><span class="p">):</span>
+    <span class="n">train_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="n">all_vars</span><span class="p">)</span>
+    <span class="n">test_set</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="n">all_vars</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">use_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">train_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">getType</span><span class="p">())</span>
+        <span class="n">test_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">getType</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">train_set</span><span class="p">,</span> <span class="n">test_set</span></div>
 </code></pre>
 </article>
 <footer>
