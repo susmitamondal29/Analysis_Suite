@@ -172,7 +172,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dasNames</span> <span class="o">=</span> <span class="p">{</span><span class="n">info</span><span class="p">[</span><span class="s2">"DAS"</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">]:</span> <span class="n">key</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileInfo</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
 <div class="viewcode-block" id="FileInfo.get_group"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.FileInfo.get_group">[docs]</a>    <span class="k">def</span> <span class="nf">get_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splitname</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">splitname</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">splitname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dasNames</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_data</span><span class="p">():</span>
+            <span class="k">return</span> <span class="s2">"data"</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">splitname</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">splitname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dasNames</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dasNames</span><span class="p">[</span><span class="n">splitname</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">splitname</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dasNames</span><span class="p">:</span>
@@ -183,15 +185,20 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileInfo</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="FileInfo.get_xsec"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.FileInfo.get_xsec">[docs]</a>    <span class="k">def</span> <span class="nf">get_xsec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_data</span><span class="p">():</span>
+            <span class="k">return</span> <span class="mf">1.</span>
         <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_info</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
         <span class="n">scale</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">'cross_section'</span><span class="p">]</span>
         <span class="k">if</span> <span class="s2">"kfactor"</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
             <span class="n">scale</span> <span class="o">*=</span> <span class="n">info</span><span class="p">[</span><span class="s2">"kfactor"</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">scale</span></div></div>
+        <span class="k">return</span> <span class="n">scale</span></div>
+
+<div class="viewcode-block" id="FileInfo.is_data"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.FileInfo.is_data">[docs]</a>    <span class="k">def</span> <span class="nf">is_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"data"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">selection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div></div>
 </code></pre>
 </article>
 <footer>
-<div class="mt-20 mb-4 text-sm text-gray-700">© 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.0.2</a></div>
+<div class="mt-20 mb-4 text-sm text-gray-700">© 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.0.3</a></div>
 </footer>
 </main>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">
