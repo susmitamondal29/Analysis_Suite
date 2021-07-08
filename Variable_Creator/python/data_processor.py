@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+import logging
 from pandas.api.types import is_numeric_dtype
 from .vargetter import VarGetter
 from analysis_suite.commons.configs import setup_pandas
@@ -65,10 +66,10 @@ class DataProcessor:
             class_id = classID_dict[group]
             for sample in samples:
                 if sample not in arr_dict:
-                    print(f'Could not found sample {sample}')
+                    logging.warning(f'Could not found sample {sample}')
                     continue
                 if not len(arr_dict[sample]):
-                    print(f'Sample {sample} has no events in it!')
+                    logging.warning(f'Sample {sample} has no events in it!')
                     continue
 
                 if sample not in self.sample_name_map:
@@ -96,8 +97,8 @@ class DataProcessor:
                 test_set = pd.concat([test.reset_index(drop=True), test_set], sort=True)
                 train_set = pd.concat([train.reset_index(drop=True), train_set], sort=True)
 
-        self._write_out(f'{outdir}/test_{self.systName}.root', test_set)
-        self._write_out(f'{outdir}/train_{self.systName}.root', train_set)
+        self._write_out(outdir / f'test_{self.systName}.root', test_set)
+        self._write_out(outdir / f'train_{self.systName}.root', train_set)
 
     def _write_out(self, outfile, workSet):
         """**Write out pandas file as a compressed pickle file

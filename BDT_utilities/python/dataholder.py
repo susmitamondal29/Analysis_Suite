@@ -71,11 +71,11 @@ class MLHolder:
             directory(string): Path to directory where root files are kept
         """
         if train:
-            train_file = f'{directory}/train_{self.systName}.root'
-            test_file = f'{directory}/train_{self.systName}.root'
+            train_file = directory / f'train_{self.systName}.root'
+            test_file = directory / f'train_{self.systName}.root'
         else:
-            train_file = f'{directory}/{year}/train_{self.systName}.root'
-            test_file = f'{directory}/{year}/test_{self.systName}.root'
+            train_file = directory / year / f'train_{self.systName}.root'
+            test_file = directory / year / f'test_{self.systName}.root'
         classID = {"Signal": 1, "NotTrained": -1, "Background": 0}
 
         with uproot4.open(test_file) as f:
@@ -122,9 +122,9 @@ class MLHolder:
           outname: Directory where files will be written
 
         """
-        self._write_uproot(f'{outdir}/{year}/test_{syst}.root', self.test_set,
+        self._write_uproot(outdir / year / f'test_{syst}.root', self.test_set,
                            self.pred_test)
-        self._write_uproot(f'{outdir}/{year}/train_{syst}.root', self.train_set,
+        self._write_uproot(outdir / year / f'train_{syst}.root', self.train_set,
                            self.pred_train)
 
     # Private Functions

@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 import multiprocessing as mp
 import warnings
-import sys
-import datetime
 import logging
 
-from analysis_suite.commons.configs import get_cli, checkOrCreateDir, first_time_actions
+from analysis_suite.commons.configs import get_cli, first_time_actions
 warnings.filterwarnings('ignore')
 
 if __name__ == "__main__":
@@ -13,10 +11,6 @@ if __name__ == "__main__":
 
     cli_args = get_cli()
     logging.basicConfig(level=getattr(logging, cli_args.log, None))
-    callTime = str(datetime.datetime.now())
-    command = ' '.join(sys.argv)
-    argList = list()
-    func = None
 
     ##############
     # Setup jobs #

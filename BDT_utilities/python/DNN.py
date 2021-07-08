@@ -1,21 +1,16 @@
 #!/usr/bin/env python3
 
 import os
+import logging
+import numpy as np
+from dataclasses import dataclass, InitVar
+from sklearn.metrics import roc_auc_score, roc_curve, auc
+from sklearn.model_selection import ShuffleSplit, cross_val_score
 
 os.environ["KERAS_BACKEND"] = "tensorflow"
-
 import keras
-from keras.backend import clear_session
 
 from .dataholder import MLHolder
-
-from sklearn.metrics import roc_auc_score, roc_curve, auc
-from sklearn.model_selection import ShuffleSplit
-from sklearn.utils import shuffle as shuffle_data
-from sklearn.model_selection import cross_val_score
-
-from dataclasses import dataclass, InitVar
-import numpy as np
 
 @dataclass
 class Params:
@@ -106,19 +101,11 @@ class KerasMaker(MLHolder):
             model.summary()
         return model
 
-    def train(self, outdir=""):
+    def train(self, outdir):
         shuf_train = self.train_set.sample(frac=1, random_state=0).reset_index(drop=True)
 
         signal = shuf_train[shuf_train["classID"] == 1]
         bkg = shuf_train[shuf_train["classID"] == 0]
-
-        # print("BJETS")
-        # print(np.histogram(signal["NBJets"], bins=np.arange(10)))
-        # print(np.histogram(bkg["NBJets"], bins=np.arange(10)))
-        # print()
-        # print("JETS")
-        # print(np.histogram(signal["NJets"], bins=np.arange(10)))
-        # print(np.histogram(bkg["NJets"], bins=np.arange(10)))
 
         x_train = shuf_train.drop(self._drop_vars, axis=1)
         w_train = shuf_train["finalWeight"].to_numpy()
@@ -137,7 +124,7 @@ class KerasMaker(MLHolder):
             # keras.callbacks.ModelCheckpoint("test.h5", verbose=0, **self.checkpoint),
         ]
         # Train
-        print("\n>> Training.")
+        logging.info("\n>> Training.")
         fit_model = self.build_model()
         history = fit_model.fit(
             x_train, y_train.astype(bool),
@@ -149,14 +136,14 @@ class KerasMaker(MLHolder):
         )
 
         # Test
-        print("\n>> Testing.")
+        logging.info("\n>> Testing.")
         groupName = "Background"
 
         self.pred_test[groupName] = fit_model.predict(x_test).flatten()
         self.pred_train[groupName] = fit_model.predict(x_train).flatten()
         loss, accuracy = fit_model.evaluate(x_test, y_test, verbose=1)
-        print(f'loss: {loss}')
-        print(f'accuracy: {accuracy}')
+        logging.debug(f'loss: {loss}')
+        logging.debug(f'accuracy: {accuracy}')
 
         fpr_train, tpr_train, _ = roc_curve(y_train.astype(int), self.pred_train[groupName])
         fpr_test, tpr_test, _ = roc_curve(y_test.astype(int), self.pred_test[groupName])
@@ -164,14 +151,13 @@ class KerasMaker(MLHolder):
         self.auc_train = auc(fpr_train, tpr_train)
         self.auc_test = auc(fpr_test, tpr_test)
         
-        print(f'AUC for train: {self.auc_train}')
-        print(f'AUC for test: {self.auc_test}')
+        logging.info(f'AUC for train: {self.auc_train}')
+        logging.info(f'AUC for test: {self.auc_test}')
 
-        if outdir:
-            fit_model.save(f'{outdir}/model.h5')
+        fit_model.save(outdir / 'model.h5')
 
     def apply_model(self, directory, fit_test_vs_train=True):
-        fit_model = keras.models.load_model(f'{directory}/model.h5')
+        fit_model = keras.models.load_model(directory / 'model.h5')
         use_set = self.test_set if fit_test_vs_train else self.train_set
         pred = fit_model.predict(use_set.drop(self._drop_vars, axis=1))
         split_pred = {grp: (pred.T[i] if pred.shape[1] < i else 1 - pred.T[0])

@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 import math
 import argparse
-import os
+import socket
 import sys
 import shutil
 import pkgutil
 import time
 import pandas as pd
+import logging
 from pathlib import Path
 from collections import OrderedDict
 import analysis_suite.data.PlotGroups as PlotGroups
+import analysis_suite.data.plotInfo as plotInfo
 
 def first_time_actions():
-    inputs_file = Path("data/python/inputs.py")
-    if not inputs_file.exists():
-        shutil.copy("data/python/inputs_default.py", inputs_file)
-        print("Please run \n\n  scram b\n\nto initialize inputs file")
+    data_dir = Path("data/python")
+    if not (data_dir / "inputs.py").exists():
+        shutil.copy(data_dir / "inputs_default.py", data_dir / "inputs.py")
+        logging.error("Please run \n\n  scram b\n\nto initialize inputs file")
         exit()
 
 def get_cli():
@@ -25,8 +27,8 @@ def get_cli():
     ##################
     # Common options #
     ##################
-    parser.add_argument("-d", "--workdir", required=True,
-                            help="Working Directory")
+    parser.add_argument("-d", "--workdir", required=True, type=lambda x : Path(x),
+                        help="Working Directory")
     analyses = [ f.name for f in pkgutil.iter_modules(PlotGroups.__path__) if not f.ispkg]
     parser.add_argument("-a", "--analysis", type=str, required=True,
                         choices=analyses, help="Specificy analysis used")
@@ -68,25 +70,10 @@ def get_cli():
                             help="Ratio min ratio max (default 0.5 1.5)")
         parser.add_argument("--no_ratio", action="store_true",
                             help="Do not add ratio comparison")
+        histInfo = [ f.name for f in pkgutil.iter_modules(plotInfo.__path__) if not f.ispkg]
         parser.add_argument("-i", "--info", type=str, default="plotInfo_default",
-                        help="Name of file containing histogram Info")
-    elif sys.argv[1] == "analyze":
-        args, _ = parser.parse_known_args()
-        selection = None
-        if os.path.exists("data/FileInfo/"):
-            selection = [f.name.strip(".py") for f in os.scandir(f'data/FileInfo/{args.analysis}')
-                      if f.name.endswith("py") ] + ["CONDOR"]
-        else:
-             selection = ["CONDOR"]
-        parser.add_argument("-s", "--selection", type=str, required=True,
-                            choices = selection, help="Specificy selection used")
-        parser.add_argument("-f", "--filenames", required=False,
-                            type=lambda x : [i.strip() for i in x.split(',')],
-                            default="", help="List of input file names, "
-                            "as defined in AnalysisDatasetManager, separated "
-                            "by commas")
-        parser.add_argument("-r", "--rerun", type=str, help="Redo a function")
-
+                            choices=histInfo,
+                            help="Name of file containing histogram Info")
     elif sys.argv[1] == "combine":
         pass
     else:
@@ -104,8 +91,8 @@ def findScale(ratio):
 
 
 def checkOrCreateDir(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
+    if not path.is_dir():
+        path.mkdir(parents=True)
 
 
 def getNormedHistos(infilename, file_info, plot_info, histName, year):
@@ -122,8 +109,11 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
         with uproot.open(infilename) as f:
             for mem in members:
                 if mem not in f:
-                    print(f'problem with {mem} getting histogram {ak_col}')
+                    logging.warning(f'Could not find sample {mem} in file for year {year}')
                     continue
+                if ak_col not in f[mem]:
+                    loggging.error(f"Could not find variable {histName} in file for year {year}")
+                    raise ValueError()
                 array = f[mem].arrays([ak_col, "scale_factor"],)
                 narray = {"name": mem}
                 sf = array["scale_factor"]
@@ -151,7 +141,7 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
         else:
             b += hist.integral()
 
-    print("Figure of merit: ", s/math.sqrt(s+b+1e-9))
+    logging.debug("Figure of merit: ", s/math.sqrt(s+b+1e-9))
     return groupHists
 
 
@@ -194,18 +184,17 @@ def get_plot_area(analysis, drawStyle, path):
     if path:
         extraPath = path + '/' + extraPath
 
-    if 'hep.wisc.edu' in os.environ['HOSTNAME']:
-        basePath = Path(f'{os.environ["HOME"]}/public_html')
-    elif 'uwlogin' in os.environ['HOSTNAME'] or 'lxplus' in os.environ['HOSTNAME']:
-        basePath = Path('/eos/home-{0:1.1s}/{0}/www'.format(os.environ['USER']))
+    if 'hep.wisc.edu' in socket.gethostname():
+        basePath = Path(f'{Path.home()}/public_html')
+    elif 'uwlogin' in socket.gethostname() or 'lxplus' in socket.gethostname():
+        basePath = Path('/eos/home-{0:1.1s}/{0}/www'.format(Path.home().owner()))
     basePath /= f'PlottingResults/{analysis}/{extraPath}_{drawStyle}'
 
     return basePath
 
 def make_plot_paths(path):
-    checkOrCreateDir(path)
-    checkOrCreateDir(f'{path}/plots')
-    checkOrCreateDir(f'{path}/logs')
+    checkOrCreateDir(path / "plots")
+    checkOrCreateDir(path / "logs")
 
 def setup_pandas(use_vars, all_vars):
     train_set = pd.DataFrame(columns = all_vars)

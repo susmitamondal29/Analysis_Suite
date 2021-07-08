@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-import numpy as np
 import subprocess
 from pathlib import Path
+import logging
 
 from analysis_suite.commons import GroupInfo
 from analysis_suite.commons.configs import checkOrCreateDir, getGroupDict, get_list_systs
@@ -14,7 +14,7 @@ def setup(cli_args):
 
     argList = list()
     for year in cli_args.years:
-        outdir = f'{cli_args.workdir}/{year}'
+        outdir = cli_args.workdir / year
         checkOrCreateDir(outdir)
         infile = Path(f'result_{year}.root')
         allSysts = get_list_systs(infile, cli_args.systs)
@@ -26,11 +26,11 @@ def setup(cli_args):
 
 def run(groupDict, infile, outdir, year, syst):
     data = DataProcessor(mva_params.usevar, groupDict, syst)
-    print(f'Processing year {year} with syst {syst} MC')
+    logging.info(f'Processing year {year} with syst {syst} MC')
     data.process_year(infile, outdir)
 
 
 def cleanup(cli_args):
     for type_name in ["train", "test"]:
-        infiles = [f'{cli_args.workdir}/{year}/{type_name}_Nominal.root' for year in cli_args.years ]
-        subprocess.run(["hadd", "-f", f"{cli_args.workdir}/{type_name}_Nominal.root"] + infiles)
+        infiles = [cli_args.workdir / year / f'{type_name}_Nominal.root' for year in cli_args.years ]
+        subprocess.run(["hadd", "-f", cli_args.workdir / f"{type_name}_Nominal.root"] + infiles)

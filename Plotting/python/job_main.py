@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import os
 import sys
 import datetime
 from pathlib import Path
+import socket
 import subprocess
 import matplotlib
 matplotlib.use('Agg')
@@ -28,8 +28,8 @@ def setup(cli_args):
     
     signalNames = cli_args.signal.split(',')
     if not set(signalNames) & set(plot_params.color_by_group.keys()):
-        print("signal not in list of groups!")
-        print(plot_params.color_by_group.keys())
+        logging.error("signal not in list of groups!")
+        logging.error(plot_params.color_by_group.keys())
         exit(1)
 
     plot_info = PlotInfo(cli_args.info)
@@ -40,7 +40,7 @@ def setup(cli_args):
 
     argList = list()
     for year in cli_args.years:
-        path = Path(f"{cli_args.workdir}/{year}")
+        path = cli_args.workdir / year
         allSysts = config.get_list_systs(path, cli_args.systs)
         baseYear = basePath / year
         config.make_plot_paths(baseYear)
@@ -56,14 +56,14 @@ def setup(cli_args):
 
     for histName in plot_info.get_hists(cli_args.hists):
         argList.append((histName, group_info, plot_info, basePath,
-                        Path(f'{cli_args.workdir}/test_Nominal.root'),
+                        cli_args.workdir / "test_Nominal.root",
                         signalNames, "all", "Nominal"))
 
     return argList
 
 
 def run(histName, file_info, plot_info, outpath, filename, signalNames, year, syst):
-    print(f'Processing {histName} for year {year} and systematic {syst}')
+    logging.info(f'Processing {histName} for year {year} and systematic {syst}')
 
     logger = LogFile(histName, plot_info.at(histName), plot_info.get_lumi(year))
     binning = plot_info.get_binning(histName)
@@ -73,8 +73,11 @@ def run(histName, file_info, plot_info, outpath, filename, signalNames, year, sy
     error = Histogram("Stat Errors", "plum", binning)
     data = Histogram("Data", "black", binning)
     stacker = Stack(binning)
-    groupHists = config.getNormedHistos(filename, file_info, plot_info,
+    try:
+        groupHists = config.getNormedHistos(filename, file_info, plot_info,
                                         histName, year)
+    except:
+        return
     exclude = ['data'] + signalNames
     signal = groupHists[signalNames[0]] if signalNames[0] in groupHists else None
     # signals = {sig: groupHists[sig] for sig in (sig for sig in signalNames
@@ -144,7 +147,7 @@ def cleanup(cli_args):
     # combined page
     writeHTML(basePath, analysis, plot_params.all_years)
     for year in cli_args.years:
-        path = Path(f"{cli_args.workdir}/{year}")
+        path = cli_args.workdir / year
         yearPath = basePath / year
         yearAnalysis = f'{analysis}/{year}'
         allSysts = config.get_list_systs(path, cli_args.systs)
@@ -153,9 +156,9 @@ def cleanup(cli_args):
         for syst in allSysts:
             writeHTML(yearPath/syst, f'{yearAnalysis}/{syst}')
 
-    userName = os.environ['USER']
+    userName = Path.home().owner()
     htmlPath = str(basePath).split(userName)[1]
-    if 'hep.wisc.edu' in os.environ['HOSTNAME']:
-        print(f'https://www.hep.wisc.edu/~{userName}/{htmlPath[13:]}')
+    if 'hep.wisc.edu' in socket.gethostname():
+        logging.critical(f'https://www.hep.wisc.edu/~{userName}/{htmlPath[13:]}')
     else:
-        print(f'https://{userName}.web.cern.ch/{userName}/{htmlPath[4:]}')
+        logging.critical(f'https://{userName}.web.cern.ch/{userName}/{htmlPath[4:]}')

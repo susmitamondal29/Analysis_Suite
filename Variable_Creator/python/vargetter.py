@@ -62,15 +62,6 @@ class VarGetter:
                 return item.member('fTitle')
         return None
 
-    def return_scale(func):
-        def helper(self, with_scale=False, *args, **kwargs):
-            print(args, kwargs, with_scale)
-            if with_scale:
-                return func(self, *args, **kwargs), self.scale
-            else:
-                return func(self, *args, **kwargs)
-        return helper
-
     def get_part_mask(self, part):
         return np.bitwise_and(self.arr["{}/syst_bitMap".format(part)], self.syst_bit) != 0
 

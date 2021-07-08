@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-import numpy as np
-from pathlib import Path
+import logging
 
 from analysis_suite.commons import GroupInfo
-from analysis_suite.commons.configs import checkOrCreateDir, getGroupDict, get_list_systs
-from .MVAPlotter import MVAPlotter
+from analysis_suite.commons.configs import getGroupDict, get_list_systs
+
 import analysis_suite.data.inputs as mva_params
 
 def setup(cli_args):
@@ -13,7 +12,7 @@ def setup(cli_args):
 
     argList = list()
     for year in cli_args.years:
-        path = Path(f"{cli_args.workdir}/{year}")
+        path = cli_args.workdir / year
         allSysts = get_list_systs(path, cli_args.systs)
         for syst in allSysts:
             argList.append((groupDict, cli_args.workdir, cli_args.train,
@@ -42,13 +41,13 @@ def run(groupDict, workdir, trainType, applyModel, year, systName):
         mvaRunner.apply_model(workdir)
         mvaRunner.apply_model(workdir, False)
 
-        print(f"Starting to write out for year {year} and syst {systName}")
+        logging.info(f"Starting to write out for year {year} and syst {systName}")
         mvaRunner.output(workdir, year, systName)
-        print(f"Finished writing out for year {year} and syst {systName}")
+        logging.info(f"Finished writing out for year {year} and syst {systName}")
     elif trainType != "None":
         mvaRunner.setup_files(workdir, train=True)
         fitModel = mvaRunner.train(workdir)
-        print("Training finished. To apply training model to code, run code again while applying the model")
+        logging.info("Training finished. To apply training model to code, run code again while applying the model")
         return
     else:
         return
