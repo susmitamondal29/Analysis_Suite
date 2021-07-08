@@ -1,11 +1,13 @@
 #include "analysis_suite/Analyzer/interface/Jet.h"
 
-void Jet::setup(TTreeReader& fReader)
+void Jet::setup(TTreeReader& fReader, bool isMC)
 {
     Particle::setup("Jet", fReader);
     jetId = new TTRArray<Int_t>(fReader, "Jet_jetId");
-    hadronFlavour = new TTRArray<Int_t>(fReader, "Jet_hadronFlavour");
     btag = new TTRArray<Float_t>(fReader, "Jet_btagDeepB");
+    if (isMC) {
+        hadronFlavour = new TTRArray<Int_t>(fReader, "Jet_hadronFlavour");
+    }
 
     setup_map(Level::Loose);
     setup_map(Level::Bottom);
@@ -87,20 +89,18 @@ float Jet::getCentrality(const std::vector<size_t>& jet_list)
 
 float Jet::getScaleFactor()
 {
-
     float weight = 1.;
     const auto& goodBJets = list(Level::Bottom);
-    BTagEntry::JetFlavor flav;
 
     for (auto bidx : goodBJets) {
-        int pdgId = std::abs(hadronFlavour->At(bidx));
-        if (pdgId == static_cast<Int_t>(PID::Bottom))
-            flav = BTagEntry::FLAV_B;
-        else if (pdgId == static_cast<Int_t>(PID::Charm))
-            flav = BTagEntry::FLAV_C;
-        else
-            flav = BTagEntry::FLAV_UDSG;
-        weight *= getBWeight(flav, bidx);
+        switch(std::abs(hadronFlavour->At(bidx))) {
+        case static_cast<Int_t>(PID::Bottom):
+            weight *= getBWeight(BTagEntry::FLAV_B, bidx);
+        case static_cast<Int_t>(PID::Charm):
+            weight *= getBWeight(BTagEntry::FLAV_C, bidx);
+        default:
+            weight *= getBWeight(BTagEntry::FLAV_UDSG, bidx);
+        }
     }
 
     for (auto jidx : list(Level::Tight)) {
@@ -108,19 +108,18 @@ float Jet::getScaleFactor()
             continue; // is a bjet, weighting already taken care of
         }
 
-        int pdgId = std::abs(hadronFlavour->At(jidx));
-        float eff = 1;
-        if (pdgId == static_cast<Int_t>(PID::Bottom)) {
-            flav = BTagEntry::FLAV_B;
+        float eff, bSF;
+        switch(std::abs(hadronFlavour->At(jidx))) {
+        case static_cast<Int_t>(PID::Bottom):
+            bSF = getBWeight(BTagEntry::FLAV_B, jidx);
             eff = getWeight(btagEff_b, pt(jidx), fabs(eta(jidx)));
-        } else if (pdgId == static_cast<Int_t>(PID::Charm)) {
-            flav = BTagEntry::FLAV_C;
+        case static_cast<Int_t>(PID::Charm):
+            bSF = getBWeight(BTagEntry::FLAV_C, jidx);
             eff = getWeight(btagEff_c, pt(jidx), fabs(eta(jidx)));
-        } else {
-            flav = BTagEntry::FLAV_UDSG;
+        default:
+            bSF = getBWeight(BTagEntry::FLAV_UDSG, jidx);
             eff = getWeight(btagEff_udsg, pt(jidx), fabs(eta(jidx)));
         }
-        double bSF = getBWeight(flav, jidx);
         weight *= (1 - bSF * eff) / (1 - eff);
     }
 

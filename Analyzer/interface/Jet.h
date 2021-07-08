@@ -10,7 +10,7 @@
 
 class Jet : public Particle {
 public:
-    void setup(TTreeReader& fReader);
+    void setup(TTreeReader& fReader, bool isMC);
 
     virtual float getScaleFactor() override;
 

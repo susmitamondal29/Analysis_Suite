@@ -21,12 +21,15 @@ def setInputs(inputs):
     return root_inputs
 
 
-def getSumW(infiles):
+def getSumW(infiles, isData):
     runChain = ROOT.TChain()
     sumweight = ROOT.TH1F("sumweight", "sumweight", 1, 0, 1)
-    for fname in infiles:
-        runChain.Add(f"{fname}/Runs")
-    runChain.Draw("0>>sumweight",  "genEventSumw")
+    if isData:
+        sumweight.SetBinContent(1, -1);
+    else:
+        for fname in infiles:
+            runChain.Add(f"{fname}/Runs")
+        runChain.Draw("0>>sumweight",  "genEventSumw")
     return sumweight
 
 
@@ -60,9 +63,9 @@ if __name__ == "__main__":
         'Selection': selection,
         'Xsec': info.get_xsec(groupName),
         'Year': year,
-        'isData': False,
+        'isData': info.is_data(),
     }
-    #inputs["Systematics"] = ["LHE_muF", "LHE_muR", "BTagging"]
+    inputs["Systematics"] = ["LHE_muF", "LHE_muR", "BTagging"]
     rInputs = setInputs(inputs)
 
     # Run Selection
@@ -73,7 +76,7 @@ if __name__ == "__main__":
     selector = getattr(ROOT, "ThreeTop")()
     selector.SetInputList(rInputs)
     fChain.Process(selector, "")
-    sumweight = getSumW(files)
+    sumweight = getSumW(files, info.is_data())
 
     ## Output
     rOutput = ROOT.TFile(outputfile, "RECREATE")

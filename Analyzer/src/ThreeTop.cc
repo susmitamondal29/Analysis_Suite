@@ -26,7 +26,9 @@ void ThreeTop::Init(TTree* tree)
     Flag_ecalBadCalibFilter = new TTRValue<Bool_t>(fReader, "Flag_ecalBadCalibFilter");
     Met_pt = new TTRValue<Float_t>(fReader, "MET_pt");
     Met_phi = new TTRValue<Float_t>(fReader, "MET_phi");
-    Pileup_nTrueInt = new TTRValue<Float_t>(fReader, "Pileup_nTrueInt");
+    if (isMC_) {
+        Pileup_nTrueInt = new TTRValue<Float_t>(fReader, "Pileup_nTrueInt");
+    }
 
     //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8
     HLT_MuMu = new TTRValue<Bool_t>(fReader, "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ");

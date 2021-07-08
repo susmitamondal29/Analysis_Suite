@@ -33,7 +33,7 @@ def get_cli():
     parser.add_argument("-a", "--analysis", type=str, required=True,
                         choices=analyses, help="Specificy analysis used")
     parser.add_argument("-j", type=int, default=1, help="Number of cores")
-    parser.add_argument("--log", type=str, default="WARNING",
+    parser.add_argument("--log", type=str, default="ERROR",
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
                         help="Set debug status (currently not used)")
     parser.add_argument("-y", "--years", required=True,

@@ -90,7 +90,9 @@ class FileInfo(BasicInfo):
         self.dasNames = {info["DAS"][self.year]: key for key, info in self.fileInfo.items()}
 
     def get_group(self, splitname):
-        if isinstance(splitname, str) and splitname in self.dasNames:
+        if self.is_data():
+            return "data"
+        elif isinstance(splitname, str) and splitname in self.dasNames:
             return self.dasNames[splitname]
         for name in splitname:
             if name in self.dasNames:
@@ -101,8 +103,13 @@ class FileInfo(BasicInfo):
         return self.fileInfo[alias]
 
     def get_xsec(self, group):
+        if self.is_data():
+            return 1.
         info = self.get_info(group)
         scale = info['cross_section']
         if "kfactor" in info:
             scale *= info["kfactor"]
         return scale
+
+    def is_data(self):
+        return "data" in self.selection.lower()

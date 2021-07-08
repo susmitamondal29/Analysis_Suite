@@ -29,7 +29,8 @@ void BaseSelector::Init(TTree* tree)
                 if (dataName == "Year") {
                     year_ = yearMap.at(data->GetTitle());
                 } else if (dataName == "isData") {
-                    isMC_ = true;
+                    std::cout << data->GetTitle() << std::endl;
+                    isMC_ = static_cast<std::string>(data->GetTitle()) == "False";
                 }
             }
         } else if (itemName == "Systematics") {
@@ -44,6 +45,7 @@ void BaseSelector::Init(TTree* tree)
     fOutput->Add(rootSystList);
 
     sfMaker = ScaleFactors(year_);
+    systMaker = new SystematicMaker(this, year_);
 
     createObject(outTree, "Analyzed");
     outTree->Branch("weight", &o_weight);
@@ -52,9 +54,9 @@ void BaseSelector::Init(TTree* tree)
 
     fReader.SetTree(tree);
     if (isMC_) {
+        std::cout << "here" << std::endl;
         genWeight = new TTreeReaderValue<Float_t>(fReader, "genWeight");
         LHEScaleWeight = new TTRArray<Float_t>(fReader, "LHEScaleWeight");
-        systMaker = new SystematicMaker(this, year_);
     }
 
     o_weight.resize(numSystematics());
@@ -62,7 +64,7 @@ void BaseSelector::Init(TTree* tree)
     setupParticleInfo();
     muon.setup(fReader);
     elec.setup(fReader);
-    jet.setup(fReader);
+    jet.setup(fReader, isMC_);
 }
 
 Bool_t BaseSelector::Process(Long64_t entry)

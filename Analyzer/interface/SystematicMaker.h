@@ -15,6 +15,7 @@ public:
 private:
     BaseSelector* analysis_;
     Year year_;
+    bool isMC;
 };
 
 #endif // SYSTEMATICS_H_
