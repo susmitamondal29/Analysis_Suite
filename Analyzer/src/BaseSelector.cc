@@ -11,6 +11,12 @@ size_t BaseSelector::numSystematics()
     return total;
 };
 
+void BaseSelector::SetupOutTreeBranches(TTree* tree)
+{
+    tree->Branch("weight", &o_weight);
+    tree->Branch("PassEvent", &o_pass_event);
+}
+
 void BaseSelector::Init(TTree* tree)
 {
     if (!tree)
@@ -29,8 +35,9 @@ void BaseSelector::Init(TTree* tree)
                 if (dataName == "Year") {
                     year_ = yearMap.at(data->GetTitle());
                 } else if (dataName == "isData") {
-                    std::cout << data->GetTitle() << std::endl;
                     isMC_ = static_cast<std::string>(data->GetTitle()) == "False";
+                } else if (dataName == "Group") {
+                    groupName_ = data->GetTitle();
                 }
             }
         } else if (itemName == "Systematics") {
@@ -43,14 +50,9 @@ void BaseSelector::Init(TTree* tree)
         }
     }
     fOutput->Add(rootSystList);
-
     sfMaker = ScaleFactors(year_);
     systMaker = new SystematicMaker(this, year_);
-
-    createObject(outTree, "Analyzed");
-    outTree->Branch("weight", &o_weight);
-    outTree->Branch("PassEvent", &o_pass_event);
-    SetupOutTree();
+    createTree(groupName_);
 
     fReader.SetTree(tree);
     if (isMC_) {
@@ -91,7 +93,9 @@ Bool_t BaseSelector::Process(Long64_t entry)
     if (passAny) {
         o_pass_event = systPassSelection;
         FillValues(systPassSelection);
-        outTree->Fill();
+        for (auto outTree: treeHolder) {
+            outTree->Fill();
+        }
     }
     passed_events += systPassSelection.at(0);
     return kTRUE;

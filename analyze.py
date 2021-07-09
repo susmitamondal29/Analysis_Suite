@@ -80,10 +80,12 @@ if __name__ == "__main__":
 
     ## Output
     rOutput = ROOT.TFile(outputfile, "RECREATE")
-    anaFolder = rOutput.mkdir(groupName)
-
-    anaFolder.WriteObject(sumweight, "sumweight")
-    for i in selector.GetOutputList():
-        anaFolder.WriteObject(i, i.GetName())
+    for tree in selector.getTrees():
+        groupName = tree.GetName()
+        anaFolder = rOutput.mkdir(groupName)
+        anaFolder.WriteObject(sumweight, "sumweight")
+        anaFolder.WriteObject(tree, "Analyzed")
+        for i in selector.GetOutputList():
+            anaFolder.WriteObject(i, i.GetName())
 
     rOutput.Close()

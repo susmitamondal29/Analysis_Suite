@@ -32,6 +32,8 @@ public:
     virtual Bool_t Process(Long64_t entry);
     virtual void SlaveTerminate();
 
+    std::vector<TTree*> getTrees() { return treeHolder; }
+
     ClassDef(BaseSelector, 0);
 
 protected:
@@ -45,6 +47,13 @@ protected:
         fOutput->Add(obj);
     }
 
+    void createTree(std::string name)
+    {
+        treeHolder.push_back(new TTree(name.c_str(), name.c_str()));
+        SetupOutTreeBranches(treeHolder.back());
+    }
+
+
     // To be filled by Child class
     virtual void fillCutFlow(){};
     virtual void ApplyScaleFactors(){};
@@ -52,11 +61,12 @@ protected:
     virtual void setupChannel(){};
     virtual void setOtherGoodParticles(size_t syst){};
     virtual bool passSelection() { return true; }
-    virtual void SetupOutTree() {}
+    virtual void SetupOutTreeBranches(TTree* tree);
 
     // Protected Variables
     TTreeReader fReader;
-    TTree* outTree;
+    std::string groupName_;
+    std::vector<TTree*> treeHolder;
 
     TTreeReaderValue<Float_t>* genWeight;
     TTreeReaderArray<Float_t>* LHEScaleWeight;

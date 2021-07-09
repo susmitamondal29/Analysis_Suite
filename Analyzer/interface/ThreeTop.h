@@ -29,7 +29,7 @@ public:
     virtual void Init(TTree* tree) override;
     virtual bool passSelection() override;
     virtual void FillValues(const std::vector<bool>& passVec) override;
-    virtual void SetupOutTree() override;
+    virtual void SetupOutTreeBranches(TTree* tree) override;
     virtual void setupChannel() override;
     virtual void ApplyScaleFactors() override;
     virtual void clearValues() override;
@@ -41,6 +41,8 @@ private:
     void printStuff();
     float getLeadPt();
     Subchannel subChannel_;
+
+    TTree* treeFakeRate_;
 
     ResolvedTop rTop;
     GenParticle rGen;

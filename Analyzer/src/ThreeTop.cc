@@ -37,22 +37,23 @@ void ThreeTop::Init(TTree* tree)
     HLT_EleEle = new TTRValue<Bool_t>(fReader, "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL");
 }
 
-void ThreeTop::SetupOutTree()
+void ThreeTop::SetupOutTreeBranches(TTree* tree)
 {
-    outTree->Branch("LooseMuon", "ParticleOut", &o_looseMuons);
-    outTree->Branch("TightMuon", "ParticleOut", &o_tightMuons);
-    outTree->Branch("LooseElectron", "ParticleOut", &o_looseElectrons);
-    outTree->Branch("TightElectron", "ParticleOut", &o_tightElectrons);
-    outTree->Branch("TightLeptons", "ParticleOut", &o_tightLeptons);
-    outTree->Branch("Jets", "ParticleOut", &o_jets);
-    outTree->Branch("BJets", "BJetOut", &o_bJets);
-    outTree->Branch("ResolvedTops", "TopOut", &o_resolvedTop);
+    BaseSelector::SetupOutTreeBranches(tree);
+    tree->Branch("LooseMuon", "ParticleOut", &o_looseMuons);
+    tree->Branch("TightMuon", "ParticleOut", &o_tightMuons);
+    tree->Branch("LooseElectron", "ParticleOut", &o_looseElectrons);
+    tree->Branch("TightElectron", "ParticleOut", &o_tightElectrons);
+    tree->Branch("TightLeptons", "ParticleOut", &o_tightLeptons);
+    tree->Branch("Jets", "ParticleOut", &o_jets);
+    tree->Branch("BJets", "BJetOut", &o_bJets);
+    tree->Branch("ResolvedTops", "TopOut", &o_resolvedTop);
 
-    outTree->Branch("HT", &o_ht);
-    outTree->Branch("HT_b", &o_htb);
-    outTree->Branch("Met", &o_met);
-    outTree->Branch("Met_phi", &o_metphi);
-    outTree->Branch("Centrality", &o_centrality);
+    tree->Branch("HT", &o_ht);
+    tree->Branch("HT_b", &o_htb);
+    tree->Branch("Met", &o_met);
+    tree->Branch("Met_phi", &o_metphi);
+    tree->Branch("Centrality", &o_centrality);
 }
 
 /// Make to seperate fuctionality
