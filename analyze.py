@@ -2,6 +2,8 @@
 import os
 import argparse
 from analysis_suite.commons import FileInfo
+import analysis_suite.commons.config as configs
+
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine( "gErrorIgnoreLevel = 1001;")
@@ -65,7 +67,7 @@ if __name__ == "__main__":
         'Year': year,
         'isData': info.is_data(),
     }
-    inputs["Systematics"] = ["LHE_muF", "LHE_muR", "BTagging"]
+    inputs["Systematics"] = configs.get_shape_systs()
     rInputs = setInputs(inputs)
 
     # Run Selection

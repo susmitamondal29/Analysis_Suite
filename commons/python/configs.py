@@ -75,7 +75,8 @@ def get_cli():
                             choices=histInfo,
                             help="Name of file containing histogram Info")
     elif sys.argv[1] == "combine":
-        pass
+        parser.add_argument("-sig", "--signal", type=str, default='', required=True,
+                            help="Name of the group to be made into the Signal")
     else:
         pass
     
@@ -203,3 +204,7 @@ def setup_pandas(use_vars, all_vars):
         train_set[key] = train_set[key].astype(func.getType())
         test_set[key] = test_set[key].astype(func.getType())
     return train_set, test_set
+
+def get_shape_systs():
+    from analysis_suite.data.inputs import systematics
+    return [syst.name for syst in systematics if syst.syst_type == "shape"]
