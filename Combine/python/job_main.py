@@ -32,10 +32,11 @@ def run(inpath, outpath, file_info, plot_info, histName, year):
 
     groupHists = getNormedHistos(inpath/"test_Nominal.root", file_info, plot_info,
                                  histName, year)
-    # with upwrite.recreate(outpath / f'{histName}_{year}.root') as f:
-    #     for group, hist in groupHists.items():
-    #         f[group] = hist
 
+    with upwrite.recreate(outpath / f'{histName}_{year}.root') as f:
+        for group, hist in groupHists.items():
+            f[group] = hist.hist.to_numpy()
+    print("here")
 
     
 
