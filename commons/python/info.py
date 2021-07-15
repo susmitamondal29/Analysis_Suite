@@ -31,7 +31,7 @@ class PlotInfo(BasicInfo):
     def __getitem__(self, key):
         return self.plotSpecs[key]
 
-    def get_hists(self, sublist=[]):
+    def get_hists(self, sublist):
         if sublist == ["all"]:
             return self.plotSpecs.keys()
         else:
@@ -49,17 +49,18 @@ class PlotInfo(BasicInfo):
 
 
 class GroupInfo(BasicInfo):
-    def __init__(self, group2color={}, **kwargs):
+    def __init__(self, group2color=None, **kwargs):
         super().__init__(**kwargs)
         group_path = f'{self.base_path}.PlotGroups.{self.analysis}'
         self.groupInfo = importlib.import_module(group_path).info
-        self.group2color = group2color
+        self.group2color = group2color if group2color is not None else {}
         self.group2MemberMap = self.get_memberMap()
 
     def get_legend_name(self, group):
         return self.groupInfo[group]["Name"]
 
     def get_color(self, group):
+        print(self.group2color)
         return self.group2color[group]
 
     def get_memberMap(self):

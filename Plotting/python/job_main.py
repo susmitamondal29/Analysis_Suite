@@ -76,6 +76,8 @@ def run(histName, file_info, plot_info, outpath, filename, signalNames, year, sy
     try:
         groupHists = config.getNormedHistos(filename, file_info, plot_info,
                                         histName, year)
+        for group, hist in groupHists.items():
+            hist.set_plot_details(file_info)
     except:
         return
     exclude = ['data'] + signalNames

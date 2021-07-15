@@ -4,7 +4,7 @@ import pkg_resources as pkg
 import json
 from pathlib import Path
 
-def writeHTML(path, name, subdir=[]):
+def writeHTML(path, name, subdir=None):
     """**Creates a useable HTML page of plots**
     
     Copies the necessary files (located in the html directory)
@@ -18,6 +18,9 @@ def writeHTML(path, name, subdir=[]):
     channels : list of strings, optional
         List of channels to create the differnt sub-webpages
     """
+    if subdir is None:
+        subdir = []
+
     needWrite = False
     for filename in pkg.resource_listdir(__name__, "../html"):
         # if (path / filename).exists():

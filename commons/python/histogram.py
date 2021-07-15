@@ -6,12 +6,13 @@ from scipy.stats import beta
 
 
 class Histogram:
-    def __init__(self, name, color, args):
-        self.hist = bh.Histogram(args)
-        self.sumw2 = bh.Histogram(args)
+    def __init__(self, group, *args):
+        self.hist = bh.Histogram(*args)
+        self.sumw2 = bh.Histogram(*args)
         self.breakdown = dict()
-        self.name = f'${name}$' if '\\' in name else name
-        self.color = color
+        self.group = group
+        self.color = dict()
+        self.name = ""
         self.draw_sc = 1.
 
     def __add__(self, right):
@@ -68,6 +69,11 @@ class Histogram:
             return np.sqrt(self.sumw2.view())
         else:
             raise Exception()
+
+    def set_plot_details(self, file_info):
+        name = file_info[self.group]
+        self.name = f'${name}$' if '\\' in name else name
+        self.color = file_info.get_color(self.group)
 
     def get_xrange(self):
         return [self.axis.edges[0], self.axis.edges[-1]]

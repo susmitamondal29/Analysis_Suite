@@ -45,23 +45,15 @@ def get_cli():
                         help="Systematics to be used")
     if len(sys.argv) == 1:
         pass
-    elif sys.argv[1] == "analyze":
-        pass
     elif sys.argv[1] == "mva":
         parser.add_argument('-t', '--train', default="None",
                             choices=['None', 'DNN', 'TMVA', 'XGB'],
                             help="Run the training")
         parser.add_argument("-m", '--apply_model', action='store_true')
     elif sys.argv[1] == "plot":
-        parser.add_argument("--hists", default="all",
-                             type=lambda x : ["all"] if x == "all" \
-                                        else [i.strip() for i in x.split(',')],
-                             help="Pick specific histogram to plot")
         parser.add_argument("--drawStyle", type=str, default='stack',
                             help='Way to draw graph',
                             choices=['stack', 'compare', 'sigratio'])
-        parser.add_argument("-sig", "--signal", type=str, default='',
-                            help="Name of the group to be made into the Signal")
         parser.add_argument("--logy", action='store_true',
                             help="Use logaritmic scale on Y-axis")
         parser.add_argument("--stack_signal", action='store_true',
@@ -70,15 +62,23 @@ def get_cli():
                             help="Ratio min ratio max (default 0.5 1.5)")
         parser.add_argument("--no_ratio", action="store_true",
                             help="Do not add ratio comparison")
+
+    else:
+        pass
+
+    # Combos
+    if sys.argv[1] == "plot" or sys.argv[1] == "combine":
+        parser.add_argument("-sig", "--signal", type=str, default='', required=True,
+                            help="Name of the group to be made into the Signal")
+        parser.add_argument("--hists", default="all",
+                            type=lambda x : ["all"] if x == "all" \
+                            else [i.strip() for i in x.split(',')],
+                            help="Pick specific histogram to plot")
         histInfo = [ f.name for f in pkgutil.iter_modules(plotInfo.__path__) if not f.ispkg]
         parser.add_argument("-i", "--info", type=str, default="plotInfo_default",
                             choices=histInfo,
                             help="Name of file containing histogram Info")
-    elif sys.argv[1] == "combine":
-        parser.add_argument("-sig", "--signal", type=str, default='', required=True,
-                            help="Name of the group to be made into the Signal")
-    else:
-        pass
+
     
     return parser.parse_args()
 
@@ -103,17 +103,16 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
 
     groupHists = dict()
     ak_col = plot_info.at(histName, "Column")
+
     for group, members in file_info.group2MemberMap.items():
-        groupHists[group] = Histogram(file_info.get_legend_name(group),
-                                      file_info.get_color(group),
-                                      plot_info.get_binning(histName))
+        groupHists[group] = Histogram(group, plot_info.get_binning(histName))
         with uproot.open(infilename) as f:
             for mem in members:
                 if mem not in f:
                     logging.warning(f'Could not find sample {mem} in file for year {year}')
                     continue
                 if ak_col not in f[mem]:
-                    loggging.error(f"Could not find variable {histName} in file for year {year}")
+                    logging.error(f"Could not find variable {histName} in file for year {year}")
                     raise ValueError()
                 array = f[mem].arrays([ak_col, "scale_factor"],)
                 narray = {"name": mem}
