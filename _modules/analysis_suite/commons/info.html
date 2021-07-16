@@ -33,7 +33,7 @@
 </div>
 </header><aside class="grid-area-sidebar h-full fixed md:relative inset-y-0 left-0 z-20 md:z-0 print:hidden overflow-y-auto transition-all transform transform-gpu -translate-x-full opacity-0 duration-300 md:translate-x-0 md:opacity-100" id="sidebar">
 <nav class="h-full overflow-y-auto bg-white text-gray-700 border-r pt-16 flex flex-col" role="navigation">
-<div class="nav-toc flex-1 px-5"><p class="caption"><span class="caption-text">Contents:</span></p>
+<div class="nav-toc flex-1 px-5"><p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><div class="nav-link"><a class="reference internal" href="../../../index.html">Main Page</a></div></li>
 <li class="toctree-l1"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="../../../running.html">Basic running</a></div><ul>
@@ -113,7 +113,7 @@
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
-<div class="viewcode-block" id="PlotInfo.get_hists"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.PlotInfo.get_hists">[docs]</a>    <span class="k">def</span> <span class="nf">get_hists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sublist</span><span class="o">=</span><span class="p">[]):</span>
+<div class="viewcode-block" id="PlotInfo.get_hists"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.PlotInfo.get_hists">[docs]</a>    <span class="k">def</span> <span class="nf">get_hists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sublist</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">sublist</span> <span class="o">==</span> <span class="p">[</span><span class="s2">"all"</span><span class="p">]:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotSpecs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -131,17 +131,18 @@
 
 
 <div class="viewcode-block" id="GroupInfo"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.GroupInfo">[docs]</a><span class="k">class</span> <span class="nc">GroupInfo</span><span class="p">(</span><span class="n">BasicInfo</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group2color</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group2color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">group_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="si">}</span><span class="s1">.PlotGroups.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="si">}</span><span class="s1">'</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">group_path</span><span class="p">)</span><span class="o">.</span><span class="n">info</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">group2color</span> <span class="o">=</span> <span class="n">group2color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group2color</span> <span class="o">=</span> <span class="n">group2color</span> <span class="k">if</span> <span class="n">group2color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group2MemberMap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_memberMap</span><span class="p">()</span>
 
 <div class="viewcode-block" id="GroupInfo.get_legend_name"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.GroupInfo.get_legend_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_legend_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupInfo</span><span class="p">[</span><span class="n">group</span><span class="p">][</span><span class="s2">"Name"</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="GroupInfo.get_color"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.GroupInfo.get_color">[docs]</a>    <span class="k">def</span> <span class="nf">get_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group2color</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group2color</span><span class="p">[</span><span class="n">group</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="GroupInfo.get_memberMap"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.info.GroupInfo.get_memberMap">[docs]</a>    <span class="k">def</span> <span class="nf">get_memberMap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -198,7 +199,7 @@
 </code></pre>
 </article>
 <footer>
-<div class="mt-20 mb-4 text-sm text-gray-700">© 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.0.3</a></div>
+<div class="mt-20 mb-4 text-sm text-gray-700">© 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.1.1</a></div>
 </footer>
 </main>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">

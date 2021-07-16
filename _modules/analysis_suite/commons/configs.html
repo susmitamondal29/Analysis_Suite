@@ -33,7 +33,7 @@
 </div>
 </header><aside class="grid-area-sidebar h-full fixed md:relative inset-y-0 left-0 z-20 md:z-0 print:hidden overflow-y-auto transition-all transform transform-gpu -translate-x-full opacity-0 duration-300 md:translate-x-0 md:opacity-100" id="sidebar">
 <nav class="h-full overflow-y-auto bg-white text-gray-700 border-r pt-16 flex flex-col" role="navigation">
-<div class="nav-toc flex-1 px-5"><p class="caption"><span class="caption-text">Contents:</span></p>
+<div class="nav-toc flex-1 px-5"><p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><div class="nav-link"><a class="reference internal" href="../../../index.html">Main Page</a></div></li>
 <li class="toctree-l1"><div class="nav-link"><svg aria-hidden="true" class="expand" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" href="../../../running.html">Basic running</a></div><ul>
@@ -127,8 +127,6 @@
                         <span class="n">help</span><span class="o">=</span><span class="s2">"Systematics to be used"</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">pass</span>
-    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"analyze"</span><span class="p">:</span>
-        <span class="k">pass</span>
     <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"mva"</span><span class="p">:</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'-t'</span><span class="p">,</span> <span class="s1">'--train'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"None"</span><span class="p">,</span>
                             <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">'None'</span><span class="p">,</span> <span class="s1">'DNN'</span><span class="p">,</span> <span class="s1">'TMVA'</span><span class="p">,</span> <span class="s1">'XGB'</span><span class="p">],</span>
@@ -136,14 +134,12 @@
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-m"</span><span class="p">,</span> <span class="s1">'--apply_model'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"plot"</span><span class="p">:</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--hists"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span>
-                             <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">"all"</span> \
-                                        <span class="k">else</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">','</span><span class="p">)],</span>
-                             <span class="n">help</span><span class="o">=</span><span class="s2">"Pick specific histogram to plot"</span><span class="p">)</span>
+                            <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">"all"</span> \
+                            <span class="k">else</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">','</span><span class="p">)],</span>
+                            <span class="n">help</span><span class="o">=</span><span class="s2">"Pick specific histogram to plot"</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--drawStyle"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">'stack'</span><span class="p">,</span>
                             <span class="n">help</span><span class="o">=</span><span class="s1">'Way to draw graph'</span><span class="p">,</span>
                             <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">'stack'</span><span class="p">,</span> <span class="s1">'compare'</span><span class="p">,</span> <span class="s1">'sigratio'</span><span class="p">])</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-sig"</span><span class="p">,</span> <span class="s2">"--signal"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s2">"Name of the group to be made into the Signal"</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--logy"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
                             <span class="n">help</span><span class="o">=</span><span class="s2">"Use logaritmic scale on Y-axis"</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--stack_signal"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
@@ -152,14 +148,22 @@
                             <span class="n">help</span><span class="o">=</span><span class="s2">"Ratio min ratio max (default 0.5 1.5)"</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--no_ratio"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
                             <span class="n">help</span><span class="o">=</span><span class="s2">"Do not add ratio comparison"</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"combine"</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-f"</span><span class="p">,</span> <span class="s2">"--fit_var"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">help</span><span class="o">=</span><span class="s2">"Variable used for fitting"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># Combos</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"plot"</span> <span class="ow">or</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"combine"</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-sig"</span><span class="p">,</span> <span class="s2">"--signal"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">help</span><span class="o">=</span><span class="s2">"Name of the group to be made into the Signal"</span><span class="p">)</span>
+
         <span class="n">histInfo</span> <span class="o">=</span> <span class="p">[</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">iter_modules</span><span class="p">(</span><span class="n">plotInfo</span><span class="o">.</span><span class="n">__path__</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">ispkg</span><span class="p">]</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-i"</span><span class="p">,</span> <span class="s2">"--info"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"plotInfo_default"</span><span class="p">,</span>
                             <span class="n">choices</span><span class="o">=</span><span class="n">histInfo</span><span class="p">,</span>
                             <span class="n">help</span><span class="o">=</span><span class="s2">"Name of file containing histogram Info"</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"combine"</span><span class="p">:</span>
-        <span class="k">pass</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">pass</span>
+
     
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
 
@@ -184,17 +188,16 @@
 
     <span class="n">groupHists</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">ak_col</span> <span class="o">=</span> <span class="n">plot_info</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">histName</span><span class="p">,</span> <span class="s2">"Column"</span><span class="p">)</span>
+
     <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">members</span> <span class="ow">in</span> <span class="n">file_info</span><span class="o">.</span><span class="n">group2MemberMap</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">groupHists</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="n">file_info</span><span class="o">.</span><span class="n">get_legend_name</span><span class="p">(</span><span class="n">group</span><span class="p">),</span>
-                                      <span class="n">file_info</span><span class="o">.</span><span class="n">get_color</span><span class="p">(</span><span class="n">group</span><span class="p">),</span>
-                                      <span class="n">plot_info</span><span class="o">.</span><span class="n">get_binning</span><span class="p">(</span><span class="n">histName</span><span class="p">))</span>
+        <span class="n">groupHists</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">plot_info</span><span class="o">.</span><span class="n">get_binning</span><span class="p">(</span><span class="n">histName</span><span class="p">))</span>
         <span class="k">with</span> <span class="n">uproot</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">infilename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">mem</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">mem</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Could not find sample </span><span class="si">{</span><span class="n">mem</span><span class="si">}</span><span class="s1"> in file for year </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
                     <span class="k">continue</span>
                 <span class="k">if</span> <span class="n">ak_col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span><span class="p">[</span><span class="n">mem</span><span class="p">]:</span>
-                    <span class="n">loggging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Could not find variable </span><span class="si">{</span><span class="n">histName</span><span class="si">}</span><span class="s2"> in file for year </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Could not find variable </span><span class="si">{</span><span class="n">histName</span><span class="si">}</span><span class="s2"> in file for year </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
                 <span class="n">array</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">mem</span><span class="p">]</span><span class="o">.</span><span class="n">arrays</span><span class="p">([</span><span class="n">ak_col</span><span class="p">,</span> <span class="s2">"scale_factor"</span><span class="p">],)</span>
                 <span class="n">narray</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="n">mem</span><span class="p">}</span>
@@ -285,10 +288,14 @@
         <span class="n">train_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">getType</span><span class="p">())</span>
         <span class="n">test_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_set</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">getType</span><span class="p">())</span>
     <span class="k">return</span> <span class="n">train_set</span><span class="p">,</span> <span class="n">test_set</span></div>
+
+<div class="viewcode-block" id="get_shape_systs"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.configs.get_shape_systs">[docs]</a><span class="k">def</span> <span class="nf">get_shape_systs</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">analysis_suite.data.inputs</span> <span class="kn">import</span> <span class="n">systematics</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">syst</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">syst</span> <span class="ow">in</span> <span class="n">systematics</span> <span class="k">if</span> <span class="n">syst</span><span class="o">.</span><span class="n">syst_type</span> <span class="o">==</span> <span class="s2">"shape"</span><span class="p">]</span></div>
 </code></pre>
 </article>
 <footer>
-<div class="mt-20 mb-4 text-sm text-gray-700">© 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.0.3</a></div>
+<div class="mt-20 mb-4 text-sm text-gray-700">© 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.1.1</a></div>
 </footer>
 </main>
 <div class="sticky bottom-0 md:hidden print:hidden bg-white">
