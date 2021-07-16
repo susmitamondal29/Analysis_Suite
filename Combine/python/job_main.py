@@ -2,11 +2,13 @@
 import logging
 from pathlib import Path
 import uproot as upwrite
+import numpy as np
 
 from analysis_suite.commons import GroupInfo, PlotInfo
 from analysis_suite.commons.configs import getGroupDict, get_list_systs, getNormedHistos, checkOrCreateDir
 
 from .card_maker import Card_Maker
+from .hist_writer import from_boost
 
 import analysis_suite.data.inputs as mva_params
 
@@ -17,26 +19,24 @@ def setup(cli_args):
     workdir = cli_args.workdir / "combine"
     checkOrCreateDir(workdir)
 
-    histName = "NJets"
-
     argList = list()
     for year in cli_args.years:
         inpath = cli_args.workdir/year
         allSysts = get_list_systs(inpath, cli_args.systs)
-        # for syst in allSysts:
-        argList.append((inpath, workdir, group_info, plot_info, histName, year))
+        argList.append((inpath, workdir, group_info, plot_info, cli_args.fit_var, year, allSysts))
 
     return argList
 
-def run(inpath, outpath, file_info, plot_info, histName, year):
-
-    groupHists = getNormedHistos(inpath/"test_Nominal.root", file_info, plot_info,
-                                 histName, year)
-
-    with upwrite.recreate(outpath / f'{histName}_{year}.root') as f:
-        for group, hist in groupHists.items():
-            f[group] = hist.hist.to_numpy()
-    print("here")
+def run(inpath, outpath, file_info, plot_info, histName, year, systs):
+    with upwrite.recreate(outpath / f'{histName}_yr{year}.root') as f:
+        for syst in systs:
+            groupHists = getNormedHistos(inpath/f"test_{syst}.root", file_info,
+                                         plot_info, histName, year)
+            syst = syst.replace("_up", "Up").replace("_down", "Down")
+            if syst == "Nominal":
+                groupHists["data_obs"] = np.array(list(groupHists.values())).sum()
+            for group, hist in groupHists.items():
+                f[f"{group}_{syst}"] = from_boost(hist.hist, histName)
 
     
 
@@ -47,5 +47,5 @@ def cleanup(cli_args):
     group_list.remove(cli_args.signal)
     group_list.insert(0, cli_args.signal)
 
-    with Card_Maker(cli_args.workdir, cli_args.years, group_list) as card:
+    with Card_Maker(cli_args.workdir/"combine", cli_args.years, group_list, cli_args.fit_var) as card:
         card.write_systematics(mva_params.systematics)

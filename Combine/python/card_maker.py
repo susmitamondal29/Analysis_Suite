@@ -2,15 +2,17 @@
 import numpy as np
 
 class Card_Maker:
-    def __init__(self, path, channels, plot_groups):
+    def __init__(self, path, channels, plot_groups, variable):
+        self.variable = variable
         self.path = path
-        self.channels = np.array(channels)
+        self.years = channels
+        self.channels = np.core.defchararray.add("yr", np.array(channels))
         self.plot_groups = np.array(plot_groups)
         self.nChans = len(self.channels)
         self.nGroups = len(self.plot_groups)
 
     def __enter__(self):
-        self.f = open(f"{self.path}/card.txt", 'w')
+        self.f = open(f"{self.path}/{self.variable}_card.txt", 'w')
         return self
 
     def __exit__(self, type, value, traceback):
@@ -34,7 +36,7 @@ class Card_Maker:
         self.end_section()
 
         # Specify shape locations
-        self.write(f"shapes * * {self.path}/something.root $CHANNEL/$PROCESS $CHANNEL/$PROCESS_$SYSTEMATIC")
+        self.write(f"shapes * * {self.path}/{self.variable}_$CHANNEL.root $PROCESS_Nominal $PROCESS_$SYSTEMATIC")
         self.end_section()
 
         # Specify channels and number of events
@@ -51,5 +53,5 @@ class Card_Maker:
 
         # Specify systematics
         for syst in syst_list:
-            self.write(syst.output(self.plot_groups, self.channels))
+            self.write(syst.output(self.plot_groups, self.years))
         self.write("* autoMCStats 1")

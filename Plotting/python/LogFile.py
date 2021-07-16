@@ -176,11 +176,10 @@ class LogFile:
                                                (0.5 * totErr / tot)**2)
         return (likelihood, likelihoodErr)
 
-    def add_breakdown(self, group, break_dict):
-        breakList = list()
-        break_dict = {k: v for k, v in sorted(break_dict.items(), key=lambda item: item[1][1], reverse=True)}
-        for sample, info in break_dict.items():
-            events = round(info[0], 2)
-            err = round(math.sqrt(info[1]), 2)
+    def add_breakdown(self, group, break_dict, roundDigit=2):
+        sorted_keys = sorted(break_dict.keys(), key=lambda key: break_dict[key].value, reverse=True)
+        for sample in sorted_keys:
+            events = round(break_dict[sample].value, roundDigit)
+            err = round(math.sqrt(break_dict[sample].variance), roundDigit)
             self.breakTable.add_row([group, sample, events, err])
             group = ""

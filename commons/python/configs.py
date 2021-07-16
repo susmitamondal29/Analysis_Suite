@@ -51,6 +51,10 @@ def get_cli():
                             help="Run the training")
         parser.add_argument("-m", '--apply_model', action='store_true')
     elif sys.argv[1] == "plot":
+        parser.add_argument("--hists", default="all",
+                            type=lambda x : ["all"] if x == "all" \
+                            else [i.strip() for i in x.split(',')],
+                            help="Pick specific histogram to plot")
         parser.add_argument("--drawStyle", type=str, default='stack',
                             help='Way to draw graph',
                             choices=['stack', 'compare', 'sigratio'])
@@ -62,7 +66,9 @@ def get_cli():
                             help="Ratio min ratio max (default 0.5 1.5)")
         parser.add_argument("--no_ratio", action="store_true",
                             help="Do not add ratio comparison")
-
+    elif sys.argv[1] == "combine":
+        parser.add_argument("-f", "--fit_var", required=True,
+                            help="Variable used for fitting")
     else:
         pass
 
@@ -70,10 +76,7 @@ def get_cli():
     if sys.argv[1] == "plot" or sys.argv[1] == "combine":
         parser.add_argument("-sig", "--signal", type=str, default='', required=True,
                             help="Name of the group to be made into the Signal")
-        parser.add_argument("--hists", default="all",
-                            type=lambda x : ["all"] if x == "all" \
-                            else [i.strip() for i in x.split(',')],
-                            help="Pick specific histogram to plot")
+
         histInfo = [ f.name for f in pkgutil.iter_modules(plotInfo.__path__) if not f.ispkg]
         parser.add_argument("-i", "--info", type=str, default="plotInfo_default",
                             choices=histInfo,
