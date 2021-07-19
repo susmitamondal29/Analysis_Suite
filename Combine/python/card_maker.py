@@ -36,7 +36,7 @@ class Card_Maker:
         self.end_section()
 
         # Specify shape locations
-        self.write(f"shapes * * {self.path}/{self.variable}_$CHANNEL.root $PROCESS_Nominal $PROCESS_$SYSTEMATIC")
+        self.write(f"shapes * * {self.variable}_$CHANNEL.root $PROCESS_Nominal $PROCESS_$SYSTEMATIC")
         self.end_section()
 
         # Specify channels and number of events
