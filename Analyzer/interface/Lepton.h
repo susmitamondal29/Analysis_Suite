@@ -9,7 +9,7 @@ class Lepton : public Particle {
 public:
     virtual void createLooseList(){};
     virtual void createFakeList(Particle& jets){};
-    virtual void createTightList(){};
+    virtual void createTightList(Particle& jets){};
     bool passZVeto();
     void setup(std::string name, TTreeReader& fReader);
     std::pair<size_t, float> getCloseJet(size_t lidx, const Particle& jet);
@@ -21,7 +21,7 @@ public:
         Particle::setGoodParticles(syst);
         createLooseList();
         createFakeList(jets);
-        createTightList();
+        createTightList(jets);
         fill_bitmap();
     }
 

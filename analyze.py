@@ -2,7 +2,7 @@
 import os
 import argparse
 from analysis_suite.commons import FileInfo
-import analysis_suite.commons.config as configs
+import analysis_suite.commons.configs as configs
 
 import ROOT
 ROOT.gROOT.SetBatch(True)

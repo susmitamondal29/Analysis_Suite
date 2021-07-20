@@ -8,7 +8,7 @@ public:
     void setup(TTreeReader& fReader);
     virtual void createLooseList() override;
     virtual void createFakeList(Particle& jets) override;
-    virtual void createTightList() override;
+    virtual void createTightList(Particle& jets) override;
     virtual float getScaleFactor() override;
 
     Float_t pt(size_t idx) { return m_pt->At(idx) / eCorr->At(idx); };
