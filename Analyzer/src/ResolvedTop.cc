@@ -22,27 +22,24 @@ void ResolvedTop::createLooseList()
     }
 }
 
-float ResolvedTop::getScaleFactor()
+float ResolvedTop::getScaleFactor(const Particle& genPart)
 {
     float weight = 1.;
-    // for (auto tidx : top.list(Level::Loose)) {
-    //     bool foundMatch = false;
-    //     float minDR = 0.1;
-    //     float tpt = top.pt(tidx);
-    //     float teta = top.eta(tidx);
-    //     float tphi = top.phi(tidx);
-    //     for (auto gidx : genPart.list(Level::Top)) {
-    //         float dr2 = pow(genPart.eta(gidx) - teta, 2)
-    //             + pow(genPart.phi(gidx) - tphi, 2);
-    //         if (dr2 < minDR) {
-    //             foundMatch = true;
-    //             weight *= getWeight(topSF, tpt);
-    //             break;
-    //         }
-    //     }
-    //     if (!foundMatch) {
-    //         weight *= getWeight(fakeTopSF, tpt);
-    //     }
-    // }
+    for (auto tidx : list(Level::Loose)) {
+        bool foundMatch = false;
+        float minDR = 0.1;
+        for (auto gidx : genPart.list(Level::Top)) {
+            float dr2 = pow(genPart.eta(gidx) - eta(tidx), 2)
+                + pow(genPart.phi(gidx) - phi(tidx), 2);
+            if (dr2 < minDR) {
+                foundMatch = true;
+                weight *= getWeight(topSF, pt(tidx));
+                break;
+            }
+        }
+        if (!foundMatch) {
+            weight *= getWeight(fakeTopSF, pt(tidx));
+        }
+    }
     return weight;
 }

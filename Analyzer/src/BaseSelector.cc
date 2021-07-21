@@ -72,9 +72,6 @@ void BaseSelector::Init(TTree* tree)
 
 Bool_t BaseSelector::Process(Long64_t entry)
 {
-    // if(entry > 100)
-    //     return kFALSE;
-
     if (entry % 10000 == 0)
         std::cout << "At entry: " << entry << std::endl;
 
@@ -94,24 +91,22 @@ Bool_t BaseSelector::Process(Long64_t entry)
             systNum++;
         }
     }
+    if (systPassSelection[0] && trees.at(0).contains(o_channels[0])) {
+        passed_events++;
+    }
 
     if (passAny) {
-        for (size_t tree_n=0; tree_n < treeHolder.size(); ++tree_n) {
-            TTree* outTree = treeHolder[tree_n];
+        for (auto tree: trees) {
             bool passedChannel = false;
             for (size_t syst=0; syst < numSystematics(); ++syst) {
-                o_pass_event[syst] = systPassSelection[syst] && channels_to_tree[tree_n].count(o_channels[syst]);
+                o_pass_event[syst] = systPassSelection[syst] && tree.contains(o_channels[syst]);
                 passedChannel |= o_pass_event[syst];
-            }
-
-            if (tree_n == 0 && o_pass_event.at(0)) {
-                passed_events++;
             }
 
             if (passedChannel) {
                 clearOutputs();
                 FillValues(o_pass_event);
-                outTree->Fill();
+                tree.tree->Fill();
             }
         }
     }

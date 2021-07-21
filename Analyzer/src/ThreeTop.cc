@@ -60,7 +60,6 @@ void ThreeTop::SetupOutTreeBranches(TTree* tree)
     tree->Branch("Centrality", &o_centrality);
 }
 
-/// Make to seperate fuctionality
 void ThreeTop::clearParticles()
 {
     BaseSelector::clearParticles();
@@ -84,7 +83,7 @@ void ThreeTop::ApplyScaleFactors()
     (*weight) *= jet.getScaleFactor();
     (*weight) *= elec.getScaleFactor();
     (*weight) *= muon.getScaleFactor();
-    (*weight) *= rTop.getScaleFactor();
+    (*weight) *= rTop.getScaleFactor(rGen);
 }
 
 void ThreeTop::setOtherGoodParticles(size_t syst)
@@ -174,15 +173,15 @@ bool ThreeTop::passSelection()
     // Trigger stuff
     cuts.push_back(std::make_pair("passLeadPtCut", getLeadPt() > 25));
     cuts.push_back(std::make_pair("passSubLeadPtCut", getLeadPt(1) > 15));
+
     passTrigger = true;
-    // // passLeadPt stuff
     // if (subChannel_ == Subchannel::MM)
     //     passTrigger &= **HLT_MuMu;
     // else if (subChannel_ == Subchannel::EM)
     //     passTrigger &= **HLT_EleMu;
     // else if (subChannel_ == Subchannel::ME)
-    //     passTrigger &= **HLT_MuEle;
-    // else if (subChannel_ == Subchannel::EE)
+//     passTrigger &= **HLT_MuEle;
+// else if (subChannel_ == Subchannel::EE)
     //     passTrigger &= **HLT_EleEle;
 
     for (auto& cut : cuts) {
@@ -227,7 +226,6 @@ void ThreeTop::fillCutFlow()
 
 void ThreeTop::FillValues(const std::vector<bool>& passVec)
 {
-    // printStuff();
     size_t pass_bitmap = 0;
     for (size_t i = 0; i < passVec.size(); ++i) {
         pass_bitmap += passVec.at(i) << i;

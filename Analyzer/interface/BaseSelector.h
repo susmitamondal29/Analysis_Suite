@@ -20,6 +20,15 @@
 enum class Channel;
 class SystematicMaker;
 
+struct TreeInfo {
+    TTree* tree;
+    std::set<Channel> goodChannels;
+
+    bool contains(Channel chan) {
+        return goodChannels.count(chan);
+    }
+};
+
 class BaseSelector : public TSelector {
     friend SystematicMaker;
 
@@ -32,7 +41,7 @@ public:
     virtual Bool_t Process(Long64_t entry);
     virtual void SlaveTerminate();
 
-    std::vector<TTree*> getTrees() { return treeHolder; }
+    std::vector<TreeInfo> getTrees() { return trees;}
 
     ClassDef(BaseSelector, 0);
 
@@ -50,13 +59,12 @@ protected:
 
     void createTree(std::string name, std::set<Channel> chans)
     {
-        treeHolder.push_back(new TTree(name.c_str(), name.c_str()));
-        SetupOutTreeBranches(treeHolder.back());
-        channels_to_tree.push_back(chans);
+        trees.push_back({new TTree(name.c_str(), name.c_str()), chans});
+        SetupOutTreeBranches(trees.back().tree);
     }
 
 
-    // To be filled by Child class
+// To be filled by Child class
     virtual void fillCutFlow(){};
     virtual void ApplyScaleFactors(){};
     virtual void FillValues(const std::vector<bool>& passVec) {}
@@ -65,45 +73,44 @@ protected:
     virtual bool passSelection() { return true; }
     virtual void SetupOutTreeBranches(TTree* tree);
 
-    // Protected Variables
-    TTreeReader fReader;
-    std::string groupName_;
+        // Protected Variables
+        TTreeReader fReader;
+        std::string groupName_;
 
-    std::vector<TTree*> treeHolder;
-    std::vector<std::set<Channel>> channels_to_tree;
+    std::vector<TreeInfo> trees;
 
     TTreeReaderValue<Float_t>* genWeight;
-    TTreeReaderArray<Float_t>* LHEScaleWeight;
+        TTreeReaderArray<Float_t>* LHEScaleWeight;
 
 
-    Year year_;
-    bool passTrigger;
-    bool isMC_ = true;
-    Channel channel_;
+        Year year_;
+        bool passTrigger;
+        bool isMC_ = true;
+        Channel channel_;
 
-    // Current weight and all weights
-    float* weight;
-    std::vector<Float_t> o_weight;
-    // Current channel and all channels
-    Channel* currentChannel_;
-    std::vector<Channel> o_channels;
+        // Current weight and all weights
+        float* weight;
+        std::vector<Float_t> o_weight;
+        // Current channel and all channels
+        Channel* currentChannel_;
+        std::vector<Channel> o_channels;
 
-    std::vector<Bool_t> o_pass_event;
+        std::vector<Bool_t> o_pass_event;
 
-    ScaleFactors sfMaker;
-    SystematicMaker* systMaker;
-    Muon muon;
-    Electron elec;
-    Jet jet;
+        ScaleFactors sfMaker;
+        SystematicMaker* systMaker;
+        Muon muon;
+        Electron elec;
+        Jet jet;
 
-private:
-    void SetupEvent(Systematic syst, Variation var, size_t systNum);
-    void setupParticleInfo();
+    private:
+        void SetupEvent(Systematic syst, Variation var, size_t systNum);
+        void setupParticleInfo();
 
-    std::vector<Systematic> systematics_ = { Systematic::Nominal };
-    size_t passed_events = 0;
+        std::vector<Systematic> systematics_ = { Systematic::Nominal };
+        size_t passed_events = 0;
 
-    float xsec_;
-};
+        float xsec_;
+    };
 
 #endif
