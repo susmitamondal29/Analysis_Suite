@@ -45,6 +45,7 @@ public:
     const std::vector<size_t>& list(Level level, size_t syst) const { return m_partArray.at(level).at(syst); };
     const std::vector<size_t>& bitmap(Level level) const { return m_bitArray.at(level); };
 
+    void moveLevel(Level level_start, Level level_end);
     virtual void clear();
 
     static size_t nSyst;

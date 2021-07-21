@@ -49,3 +49,9 @@ void Particle::setup_map(Level level)
     m_partList[level] = nullptr;
     m_bitArray[level] = std::vector<size_t>();
 }
+
+void Particle::moveLevel(Level level_start, Level level_end)
+{
+    m_partList[level_end] = m_partList[level_start];
+    m_bitArray[level_end] = m_bitArray[level_start];
+}

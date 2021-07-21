@@ -52,16 +52,17 @@ void BaseSelector::Init(TTree* tree)
     fOutput->Add(rootSystList);
     sfMaker = ScaleFactors(year_);
     systMaker = new SystematicMaker(this, year_);
-    createTree(groupName_);
 
     fReader.SetTree(tree);
     if (isMC_) {
-        std::cout << "here" << std::endl;
         genWeight = new TTreeReaderValue<Float_t>(fReader, "genWeight");
         LHEScaleWeight = new TTRArray<Float_t>(fReader, "LHEScaleWeight");
     }
 
     o_weight.resize(numSystematics());
+    o_channels.resize(numSystematics());
+    o_pass_event.resize(numSystematics());
+
 
     setupParticleInfo();
     muon.setup(fReader);
@@ -71,10 +72,13 @@ void BaseSelector::Init(TTree* tree)
 
 Bool_t BaseSelector::Process(Long64_t entry)
 {
+    // if(entry > 100)
+    //     return kFALSE;
+
     if (entry % 10000 == 0)
         std::cout << "At entry: " << entry << std::endl;
 
-    clearValues();
+    clearParticles();
     fReader.SetLocalEntry(entry);
     std::vector<bool> systPassSelection;
     bool passAny = false;
@@ -83,21 +87,35 @@ Bool_t BaseSelector::Process(Long64_t entry)
         for (auto var : var_by_syst.at(syst)) {
             SetupEvent(syst, var, systNum);
             systPassSelection.push_back(passSelection());
-            if (syst == Systematic::Nominal) {
-                fillCutFlow();
-            }
+            // if (syst == Systematic::Nominal) {
+            //     fillCutFlow();
+            // }
             passAny |= systPassSelection.back();
             systNum++;
         }
     }
+
     if (passAny) {
-        o_pass_event = systPassSelection;
-        FillValues(systPassSelection);
-        for (auto outTree: treeHolder) {
-            outTree->Fill();
+        for (size_t tree_n=0; tree_n < treeHolder.size(); ++tree_n) {
+            TTree* outTree = treeHolder[tree_n];
+            bool passedChannel = false;
+            for (size_t syst=0; syst < numSystematics(); ++syst) {
+                o_pass_event[syst] = systPassSelection[syst] && channels_to_tree[tree_n].count(o_channels[syst]);
+                passedChannel |= o_pass_event[syst];
+            }
+
+            if (tree_n == 0 && o_pass_event.at(0)) {
+                passed_events++;
+            }
+
+            if (passedChannel) {
+                clearOutputs();
+                FillValues(o_pass_event);
+                outTree->Fill();
+            }
         }
     }
-    passed_events += systPassSelection.at(0);
+
     return kTRUE;
 }
 
@@ -109,6 +127,8 @@ void BaseSelector::SlaveTerminate()
 void BaseSelector::SetupEvent(Systematic syst, Variation var, size_t systNum)
 {
     weight = &o_weight[systNum];
+    currentChannel_ = &o_channels[systNum];
+
     (*weight) = isMC_ ? **genWeight : 1.0;
 
     muon.setGoodParticles(jet, systNum);
@@ -125,13 +145,11 @@ void BaseSelector::SetupEvent(Systematic syst, Variation var, size_t systNum)
     }
 }
 
-void BaseSelector::clearValues()
+void BaseSelector::clearParticles()
 {
     muon.clear();
     elec.clear();
     jet.clear();
-
-    cuts.clear();
 
     std::fill(o_weight.begin(), o_weight.end(), 1.);
 }

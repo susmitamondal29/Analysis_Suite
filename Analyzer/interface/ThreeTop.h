@@ -12,9 +12,12 @@ using TTRValue = TTreeReaderValue<T>;
 enum class Channel {
     Hadronic,
     Single,
+    LooseToTightFake,
     OS,
     SS,
-    Multi
+    Multi,
+    MultiAllSame,
+    None,
 };
 
 enum class Subchannel {
@@ -22,6 +25,7 @@ enum class Subchannel {
     EM,
     ME,
     EE,
+    None,
 };
 
 class ThreeTop : public BaseSelector {
@@ -32,14 +36,18 @@ public:
     virtual void SetupOutTreeBranches(TTree* tree) override;
     virtual void setupChannel() override;
     virtual void ApplyScaleFactors() override;
-    virtual void clearValues() override;
+    virtual void clearParticles() override;
+    virtual void clearOutputs() override;
     virtual void setOtherGoodParticles(size_t syst) override;
     virtual void fillCutFlow() override;
     ClassDefOverride(ThreeTop, 0);
 
 private:
     void printStuff();
-    float getLeadPt();
+    float getLeadPt(size_t idx=0);
+    void setSubChannel();
+    bool isSameSign();
+
     Subchannel subChannel_;
 
     TTree* treeFakeRate_;
@@ -68,7 +76,7 @@ private:
     TTRValue<Float_t>* Met_phi;
     TTRValue<Float_t>* Pileup_nTrueInt;
 
-    TTRValue<Bool_t>*HLT_MuMu, *HLT_MuEle, *HLT_EleMu, *HLT_EleEle;
+    TTRValue<Bool_t>* HLT_MuMu, *HLT_MuEle, *HLT_EleMu, *HLT_EleEle;
 
     std::vector<Float_t> o_ht, o_htb, o_met, o_metphi, o_centrality;
 

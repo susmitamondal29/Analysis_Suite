@@ -38,7 +38,8 @@ public:
 
 protected:
     size_t numSystematics();
-    virtual void clearValues();
+    virtual void clearParticles();
+    virtual void clearOutputs() {};
 
     template <class T, class... Args>
     void createObject(T*& obj, std::string name, Args... args)
@@ -47,10 +48,11 @@ protected:
         fOutput->Add(obj);
     }
 
-    void createTree(std::string name)
+    void createTree(std::string name, std::set<Channel> chans)
     {
         treeHolder.push_back(new TTree(name.c_str(), name.c_str()));
         SetupOutTreeBranches(treeHolder.back());
+        channels_to_tree.push_back(chans);
     }
 
 
@@ -66,20 +68,27 @@ protected:
     // Protected Variables
     TTreeReader fReader;
     std::string groupName_;
+
     std::vector<TTree*> treeHolder;
+    std::vector<std::set<Channel>> channels_to_tree;
 
     TTreeReaderValue<Float_t>* genWeight;
     TTreeReaderArray<Float_t>* LHEScaleWeight;
 
-    float* weight;
+
     Year year_;
     bool passTrigger;
     bool isMC_ = true;
-    Channel channel_, currentChannel_;
+    Channel channel_;
 
+    // Current weight and all weights
+    float* weight;
     std::vector<Float_t> o_weight;
+    // Current channel and all channels
+    Channel* currentChannel_;
+    std::vector<Channel> o_channels;
+
     std::vector<Bool_t> o_pass_event;
-    std::vector<std::pair<std::string, bool>> cuts;
 
     ScaleFactors sfMaker;
     SystematicMaker* systMaker;
