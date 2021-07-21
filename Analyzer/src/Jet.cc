@@ -93,7 +93,7 @@ float Jet::getScaleFactor()
     const auto& goodBJets = list(Level::Bottom);
 
     for (auto bidx : goodBJets) {
-        switch(std::abs(hadronFlavour->At(bidx))) {
+        switch (std::abs(hadronFlavour->At(bidx))) {
         case static_cast<Int_t>(PID::Bottom):
             weight *= getBWeight(BTagEntry::FLAV_B, bidx);
         case static_cast<Int_t>(PID::Charm):
@@ -109,7 +109,7 @@ float Jet::getScaleFactor()
         }
 
         float eff, bSF;
-        switch(std::abs(hadronFlavour->At(jidx))) {
+        switch (std::abs(hadronFlavour->At(jidx))) {
         case static_cast<Int_t>(PID::Bottom):
             bSF = getBWeight(BTagEntry::FLAV_B, jidx);
             eff = getWeight(btagEff_b, pt(jidx), fabs(eta(jidx)));

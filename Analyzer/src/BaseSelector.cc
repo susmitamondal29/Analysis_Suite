@@ -63,7 +63,6 @@ void BaseSelector::Init(TTree* tree)
     o_channels.resize(numSystematics());
     o_pass_event.resize(numSystematics());
 
-
     setupParticleInfo();
     muon.setup(fReader);
     elec.setup(fReader);
@@ -96,9 +95,9 @@ Bool_t BaseSelector::Process(Long64_t entry)
     }
 
     if (passAny) {
-        for (auto tree: trees) {
+        for (auto tree : trees) {
             bool passedChannel = false;
-            for (size_t syst=0; syst < numSystematics(); ++syst) {
+            for (size_t syst = 0; syst < numSystematics(); ++syst) {
                 o_pass_event[syst] = systPassSelection[syst] && tree.contains(o_channels[syst]);
                 passedChannel |= o_pass_event[syst];
             }

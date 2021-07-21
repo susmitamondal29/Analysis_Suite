@@ -6,10 +6,10 @@
 void ThreeTop::Init(TTree* tree)
 {
     BaseSelector::Init(tree);
-    createTree(groupName_, {Channel::SS, Channel::Multi});
+    createTree(groupName_, { Channel::SS, Channel::Multi });
 
     if (!isMC_) {
-        createTree("Nonprompt_FR", {Channel::LooseToTightFake});
+        createTree("Nonprompt_FR", { Channel::LooseToTightFake });
     }
 
     createObject(passTrigger_leadPt, "passTrigger", 4, 0, 4, 100, 0, 100);
@@ -124,12 +124,12 @@ void ThreeTop::setupChannel()
 
 void ThreeTop::setSubChannel()
 {
-    if(!elec.size(Level::Tight)) {
+    if (!elec.size(Level::Tight)) {
         subChannel_ = Subchannel::MM;
     } else if (!muon.size(Level::Tight)) {
         subChannel_ = Subchannel::EE;
     } else {
-        if(getMuon(pt, 0) > getElec(pt, 0)) {
+        if (getMuon(pt, 0) > getElec(pt, 0)) {
             if (muon.size(Level::Tight) > 1 && getMuon(pt, 1) > getElec(pt, 0)) {
                 subChannel_ = Subchannel::MM;
             } else {
@@ -148,10 +148,10 @@ void ThreeTop::setSubChannel()
 bool ThreeTop::isSameSign()
 {
     int q_total = 0;
-    for(size_t idx: muon.list(Level::Tight)) {
+    for (size_t idx : muon.list(Level::Tight)) {
         q_total += muon.charge(idx);
     }
-    for(size_t idx: elec.list(Level::Tight)) {
+    for (size_t idx : elec.list(Level::Tight)) {
         q_total += elec.charge(idx);
     }
     return abs(q_total) == 1 || abs(q_total) == 2;
@@ -163,7 +163,7 @@ bool ThreeTop::passSelection()
     cuts.push_back(std::make_pair("passPreselection", true));
 
     cuts.push_back(std::make_pair("passMETFilter",
-                                  (**Flag_goodVertices && **Flag_globalSuperTightHalo2016Filter && **Flag_HBHENoiseFilter && **Flag_HBHENoiseIsoFilter && **Flag_EcalDeadCellTriggerPrimitiveFilter && **Flag_BadPFMuonFilter && **Flag_ecalBadCalibFilter)));
+        (**Flag_goodVertices && **Flag_globalSuperTightHalo2016Filter && **Flag_HBHENoiseFilter && **Flag_HBHENoiseIsoFilter && **Flag_EcalDeadCellTriggerPrimitiveFilter && **Flag_BadPFMuonFilter && **Flag_ecalBadCalibFilter)));
     cuts.push_back(std::make_pair("passZVeto", muon.passZVeto() && elec.passZVeto()));
     cuts.push_back(std::make_pair("passJetNumber", jet.size(Level::Tight) >= 2));
     cuts.push_back(std::make_pair("passBJetNumber", jet.size(Level::Bottom) >= 1));
@@ -180,15 +180,14 @@ bool ThreeTop::passSelection()
     // else if (subChannel_ == Subchannel::EM)
     //     passTrigger &= **HLT_EleMu;
     // else if (subChannel_ == Subchannel::ME)
-//     passTrigger &= **HLT_MuEle;
-// else if (subChannel_ == Subchannel::EE)
+    //     passTrigger &= **HLT_MuEle;
+    // else if (subChannel_ == Subchannel::EE)
     //     passTrigger &= **HLT_EleEle;
 
     for (auto& cut : cuts) {
         if (!cut.second)
             return false;
     }
-
 
     return passTrigger;
 }
@@ -276,8 +275,8 @@ void ThreeTop::printStuff()
     std::cout << "HT: " << jet.getHT(Level::Tight, 0) << std::endl;
     std::cout << "njet: " << jet.size(Level::Tight) << std::endl;
     std::cout << "nbjet: " << jet.size(Level::Bottom) << std::endl;
-    std::cout << "nlep: " <<muon.size(Level::Tight) << " " << elec.size(Level::Tight) << std::endl;
-    std::cout << "nlep loose: " <<muon.size(Level::Fake) << " " << elec.size(Level::Fake) << std::endl;
+    std::cout << "nlep: " << muon.size(Level::Tight) << " " << elec.size(Level::Tight) << std::endl;
+    std::cout << "nlep loose: " << muon.size(Level::Fake) << " " << elec.size(Level::Fake) << std::endl;
     std::cout << "lepVeto: " << muon.passZVeto() << " " << elec.passZVeto() << std::endl;
     std::cout << std::endl;
 }
