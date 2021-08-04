@@ -22,8 +22,16 @@ void SystematicMaker::applySystematic(Systematic syst, Variation var)
         } else if (syst == Systematic::LHE_muR) {
             int varIdx = (var == Variation::Up) ? 7 : 1;
             (*analysis_->weight) *= analysis_->LHEScaleWeight->At(varIdx);
-        } else if (syst == Systematic::BTagging) {
+        } else if (syst == Systematic::BJet_BTagging) {
             analysis_->jet.currentVar = var;
+        } else if (syst == Systematic::BJet_Eff) {
+            analysis_->jet.currentVar = var;
+        } else if (syst == Systematic::Muon_ID) {
+            analysis_->muon.currentVar = var;
+        } else if (syst == Systematic::Muon_Iso) {
+            analysis_->muon.currentVar = var;
+        } else if (syst == Systematic::Electron_Susy) {
+            analysis_->elec.currentVar = var;
         } else {
             return;
         }

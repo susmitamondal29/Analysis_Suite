@@ -20,8 +20,6 @@ public:
 
     TTRArray<Float_t>* discriminator;
 
-    TH1F *topSF, *fakeTopSF;
-
     const std::unordered_map<std::string, float> wp_by_name = {
         { "LWP", 0.75 }, // Loose 0.75
         { "MWP", 0.85 }, // Medium 0.85

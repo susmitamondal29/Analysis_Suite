@@ -53,9 +53,9 @@ void Electron::setup(TTreeReader& fReader)
             { 100, 1.489, 0.087, 2.359 } };
     }
 
-    setSF(electronLowSF, "electronSF_low");
-    setSF(electronSF, "electronSF");
-    setSF(electronSusySF, "electronSF_susy");
+    setSF<TH2F>("electronSF_low");
+    setSF<TH2F>("electronSF");
+    setSF<TH2F>("electronSF_susy");
 }
 
 void Electron::createLooseList()
@@ -79,7 +79,10 @@ void Electron::createLooseList()
 void Electron::createFakeList(Particle& jets)
 {
     for (auto i : list(Level::Loose)) {
-        if (pt(i) >= 10 && sip3d->At(i) < 4 && lostHits->At(i) == 0 && tightCharge->At(i) == 2) {
+        if (pt(i) >= 10
+            && sip3d->At(i) < 4
+            && lostHits->At(i) == 0
+            && tightCharge->At(i) == 2) {
             m_partList[Level::Fake]->push_back(i);
             dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(getCloseJet(i, jets));
         }
@@ -142,11 +145,11 @@ float Electron::getScaleFactor()
     for (auto eidx : list(Level::Tight)) {
         float fixed_pt = std::min(pt(eidx), ptMax);
         if (fixed_pt < 20) {
-            weight *= getWeight(electronLowSF, eta(eidx), fixed_pt);
+            weight *= getWeight("electronSF_low", eta(eidx), fixed_pt);
         } else {
-            weight *= getWeight(electronSF, eta(eidx), fixed_pt);
+            weight *= getWeight("electronSF", eta(eidx), fixed_pt);
         }
-        weight *= getWeight(electronSusySF, eta(eidx), fixed_pt);
+        weight *= getWeight("electronSF_susy", eta(eidx), fixed_pt);
     }
-    return weight;
+        return weight;
 }

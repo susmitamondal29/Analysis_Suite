@@ -29,9 +29,9 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
     }
 
     calib = BTagCalibration("deepcsv", scaleDir_ + "btag_" + yearStr_ + ".csv");
-    setSF(btagEff_b, "btagEff_b");
-    setSF(btagEff_c, "btagEff_c");
-    setSF(btagEff_udsg, "btagEff_udsg");
+    setSF<TH2D>("btagEff_b");
+    setSF<TH2D>("btagEff_c");
+    setSF<TH2D>("btagEff_udsg");
 
     createBtagReader(Variation::Nominal);
     createBtagReader(Variation::Down);
@@ -107,18 +107,17 @@ float Jet::getScaleFactor()
         if (std::find(goodBJets.begin(), goodBJets.end(), jidx) != goodBJets.end()) {
             continue; // is a bjet, weighting already taken care of
         }
-
         float eff, bSF;
         switch (std::abs(hadronFlavour->At(jidx))) {
         case static_cast<Int_t>(PID::Bottom):
             bSF = getBWeight(BTagEntry::FLAV_B, jidx);
-            eff = getWeight(btagEff_b, pt(jidx), fabs(eta(jidx)));
+            eff = getWeight("btagEff_b", pt(jidx), fabs(eta(jidx)));
         case static_cast<Int_t>(PID::Charm):
             bSF = getBWeight(BTagEntry::FLAV_C, jidx);
-            eff = getWeight(btagEff_c, pt(jidx), fabs(eta(jidx)));
+            eff = getWeight("btagEff_c", pt(jidx), fabs(eta(jidx)));
         default:
             bSF = getBWeight(BTagEntry::FLAV_UDSG, jidx);
-            eff = getWeight(btagEff_udsg, pt(jidx), fabs(eta(jidx)));
+            eff = getWeight("btagEff_udsg", pt(jidx), fabs(eta(jidx)));
         }
         weight *= (1 - bSF * eff) / (1 - eff);
     }

@@ -26,6 +26,7 @@ void Particle::clear()
 
 void Particle::setGoodParticles(size_t syst)
 {
+    currentVar = Variation::Nominal;
     for (auto& [key, plist] : m_partArray) {
         m_partList[key] = &plist[syst];
         m_bitArray[key].assign(size(), 0);

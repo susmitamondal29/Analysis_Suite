@@ -34,7 +34,6 @@ private:
     std::vector<std::vector<double>> mvaLoose, mvaTight;
     bool passMVACut(size_t idx, bool isTight);
 
-    TH2F *electronLowSF, *electronSF, *electronSusySF;
     Float_t ptMax = 499;
 };
 

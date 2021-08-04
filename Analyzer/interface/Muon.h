@@ -21,7 +21,6 @@ public:
     TTRArray<Bool_t>* mediumId;
     TTRArray<Float_t>* sip3d;
 
-    TH2D* muonSF;
     Float_t ptMax = 119;
     Float_t ptMin = 20;
 };

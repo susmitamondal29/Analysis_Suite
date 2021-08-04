@@ -38,8 +38,12 @@ enum class Systematic {
     Nominal,
     LHE_muF,
     LHE_muR,
-    BTagging,
-};
+    BJet_BTagging,
+    BJet_Eff,
+    Muon_ID,
+    Muon_Iso,
+    Electron_Susy,
+        };
 
 enum class Variation {
     Nominal,
@@ -50,14 +54,22 @@ enum class Variation {
 static const std::unordered_map<std::string, Systematic> syst_by_name = {
     { "LHE_muF", Systematic::LHE_muF },
     { "LHE_muR", Systematic::LHE_muR },
-    { "BTagging", Systematic::BTagging },
+    { "BJet_BTagging", Systematic::BJet_BTagging },
+    { "BJet_Eff", Systematic::BJet_Eff },
+    { "Muon_ID", Systematic::Muon_ID },
+    { "Muon_Iso", Systematic::Muon_Iso },
+    { "Electron_Susy", Systematic::Electron_Susy },
 };
 
 static const std::unordered_map<Systematic, std::vector<Variation>> var_by_syst = {
     { Systematic::Nominal, { Variation::Nominal } },
     { Systematic::LHE_muF, { Variation::Up, Variation::Down } },
     { Systematic::LHE_muR, { Variation::Up, Variation::Down } },
-    { Systematic::BTagging, { Variation::Up, Variation::Down } },
+    { Systematic::BJet_BTagging, { Variation::Up, Variation::Down } },
+    { Systematic::BJet_Eff, { Variation::Up, Variation::Down } },
+    { Systematic::Muon_ID, { Variation::Up, Variation::Down } },
+    { Systematic::Muon_Iso, { Variation::Up, Variation::Down } },
+    { Systematic::Electron_Susy, { Variation::Up, Variation::Down } },
 };
 
 #endif // __COMMONENUMS_H_
