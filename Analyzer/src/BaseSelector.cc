@@ -1,6 +1,7 @@
 #include "analysis_suite/Analyzer/interface/BaseSelector.h"
 
-#include "analysis_suite/Analyzer/interface/SystematicMaker.h"
+#include "analysis_suite/Analyzer/interface/Systematic.h"
+#include "analysis_suite/Analyzer/interface/ScaleFactors.h"
 
 size_t BaseSelector::numSystematics()
 {
@@ -50,20 +51,20 @@ void BaseSelector::Init(TTree* tree)
         }
     }
     fOutput->Add(rootSystList);
-    sfMaker = ScaleFactors(year_);
-    systMaker = new SystematicMaker(this, year_);
+
+    setupSystematicInfo();
 
     fReader.SetTree(tree);
     if (isMC_) {
         genWeight = new TTreeReaderValue<Float_t>(fReader, "genWeight");
-        LHEScaleWeight = new TTRArray<Float_t>(fReader, "LHEScaleWeight");
     }
 
     o_weight.resize(numSystematics());
     o_channels.resize(numSystematics());
     o_pass_event.resize(numSystematics());
 
-    setupParticleInfo();
+    sfMaker.init(isMC_, fReader);
+
     muon.setup(fReader);
     elec.setup(fReader);
     jet.setup(fReader, isMC_);
@@ -130,7 +131,8 @@ void BaseSelector::SetupEvent(Systematic syst, Variation var, size_t systNum)
     jet.setGoodParticles(systNum);
     setOtherGoodParticles(systNum);
 
-    systMaker->applySystematic(syst, var);
+    SystematicWeights::currentSyst = syst;
+    SystematicWeights::currentVar = var;
 
     setupChannel();
 
@@ -148,19 +150,20 @@ void BaseSelector::clearParticles()
     std::fill(o_weight.begin(), o_weight.end(), 1.);
 }
 
-void BaseSelector::setupParticleInfo()
+void BaseSelector::setupSystematicInfo()
 {
-    Particle::nSyst = numSystematics();
-    Particle::year_ = year_;
     std::string scaleDir = getenv("CMSSW_BASE");
     scaleDir += "/src/analysis_suite/data/scale_factors/";
-    Particle::scaleDir_ = scaleDir;
-    Particle::f_scale_factors = new TFile((scaleDir + "event_scalefactors.root").c_str());
+
+    SystematicWeights::nSyst = numSystematics();
+    SystematicWeights::year_ = year_;
+    SystematicWeights::scaleDir_ = scaleDir;
+    SystematicWeights::f_scale_factors = new TFile((scaleDir + "event_scalefactors.root").c_str());
     if (year_ == Year::yr2016) {
-        Particle::yearStr_ = "2016";
+        SystematicWeights::yearStr_ = "2016";
     } else if (year_ == Year::yr2017) {
-        Particle::yearStr_ = "2017";
+        SystematicWeights::yearStr_ = "2017";
     } else {
-        Particle::yearStr_ = "2018";
+        SystematicWeights::yearStr_ = "2018";
     }
 }

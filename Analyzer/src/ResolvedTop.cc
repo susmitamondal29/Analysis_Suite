@@ -10,8 +10,8 @@ void ResolvedTop::setup(TTreeReader& fReader)
     std::string workingPoint = "TWP";
     wp = wp_by_name.at(workingPoint);
 
-    setSF<TH1F>("topSF_" + workingPoint + "_True", "topSF");
-    setSF<TH1F>("topSF_" + workingPoint + "_Fake", "fakeTopSF");
+    setSF<TH1F>("topSF_" + workingPoint + "_True", Systematic::Top_SF, "topSF");
+    setSF<TH1F>("topSF_" + workingPoint + "_Fake", Systematic::Top_SF, "fakeTopSF");
 }
 
 void ResolvedTop::createLooseList()

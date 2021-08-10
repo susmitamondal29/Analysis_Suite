@@ -18,7 +18,7 @@
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
 
 enum class Channel;
-class SystematicMaker;
+//class ScaleFactors;
 
 struct TreeInfo {
     TTree* tree;
@@ -31,7 +31,7 @@ struct TreeInfo {
 };
 
 class BaseSelector : public TSelector {
-    friend SystematicMaker;
+    friend class ScaleFactors;
 
 public:
     BaseSelector(TTree* /*tree*/ = 0) {}
@@ -42,6 +42,7 @@ public:
     virtual Bool_t Process(Long64_t entry);
     virtual void SlaveTerminate();
 
+    void setOutputFile(TFile* outfile_) { outfile = outfile_; }
     std::vector<TreeInfo> getTrees() { return trees; }
 
     ClassDef(BaseSelector, 0);
@@ -60,8 +61,14 @@ protected:
 
     void createTree(std::string name, std::set<Channel> chans)
     {
-        trees.push_back({ new TTree(name.c_str(), name.c_str()), chans });
-        SetupOutTreeBranches(trees.back().tree);
+        std::cout << "here" << std::endl;
+        TTree* tree = new TTree(name.c_str(), name.c_str());
+        std::cout << "new tree" << std::endl;
+        std::cout << outfile << std::endl;
+        tree->SetDirectory(outfile->mkdir(name.c_str()));
+        std::cout << "after set tree"<< std::endl;
+        trees.push_back({ tree, chans });
+        SetupOutTreeBranches(tree);
     }
 
     // To be filled by Child class
@@ -76,6 +83,7 @@ protected:
     // Protected Variables
     TTreeReader fReader;
     std::string groupName_;
+    TFile* outfile;
 
     std::vector<TreeInfo> trees;
 
@@ -90,6 +98,7 @@ protected:
     // Current weight and all weights
     float* weight;
     std::vector<Float_t> o_weight;
+
     // Current channel and all channels
     Channel* currentChannel_;
     std::vector<Channel> o_channels;
@@ -97,14 +106,13 @@ protected:
     std::vector<Bool_t> o_pass_event;
 
     ScaleFactors sfMaker;
-    SystematicMaker* systMaker;
     Muon muon;
     Electron elec;
     Jet jet;
 
 private:
     void SetupEvent(Systematic syst, Variation var, size_t systNum);
-    void setupParticleInfo();
+    void setupSystematicInfo();
 
     std::vector<Systematic> systematics_ = { Systematic::Nominal };
     size_t passed_events = 0;

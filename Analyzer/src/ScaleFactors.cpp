@@ -1,29 +1,33 @@
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
 
-#include "analysis_suite/Analyzer/interface/CommonEnums.h"
-#include <filesystem>
-
-ScaleFactors::ScaleFactors(Year year)
-    : year_(year)
+void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
 {
-    std::string scaleDir = getenv("CMSSW_BASE");
-    scaleDir += "/src/analysis_suite/data/scale_factors/";
+    isMC = isMC_;
 
-    std::string strYear;
-    if (year == Year::yr2016) {
-        strYear = "2016";
-    } else if (year == Year::yr2017) {
-        strYear = "2017";
-    } else {
-        strYear = "2018";
-    }
+    LHEScaleWeight = new TTreeReaderArray<Float_t>(fReader, "LHEScaleWeight");
 
-    TFile* f_scale_factors = new TFile((scaleDir + "event_scalefactors.root").c_str());
-    f_scale_factors->cd(strYear.c_str());
-    pileupSF = (TH1D*)gDirectory->Get("pileupSF");
+    setSF<TH1D>("pileupSF", Systematic::Pileup, "", true);
 }
 
 float ScaleFactors::getPileupSF(int nPU)
 {
-    return getWeight(pileupSF, nPU);
+    return getWeight("pileupSF", nPU);
+}
+
+float ScaleFactors::getLHESF()
+{
+    // [0] is muR=0.5 muF=0.5 ; [1] is muR=0.5 muF=1.0 ; [2] is muR=0.5 muF=2.0 ;
+    // [3] is muR=0.1 muF=0.5 ; [4] is muR=1.0 muF=1.0 ; [5] is muR=1.0 muF=2.0 ;
+    // [6] is muR=2.0 muF=0.5 ; [7] is muR=2.0 muF=1.0 ; [8] is muR=2.0 muF=2.0 ;
+    if (isMC) {
+        int varIdx = 4;
+        if (currentSyst == Systematic::LHE_muF) {
+            varIdx = (currentVar == Variation::Up) ? 5 : 3;
+
+        } else if (currentSyst == Systematic::LHE_muR) {
+            varIdx = (currentVar == Variation::Up) ? 7 : 1;
+        }
+        return LHEScaleWeight->At(varIdx);
+    }
+    return 1.;
 }

@@ -22,7 +22,7 @@ void Muon::setup(TTreeReader& fReader)
         ptRelCut = pow(6.8, 2);
     }
 
-    setSF<TH2D>("muonSF");
+    setSF<TH2D>("muonSF", Systematic::Muon_ID);
 }
 
 void Muon::createLooseList()

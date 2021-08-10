@@ -79,6 +79,7 @@ void ThreeTop::clearOutputs()
 void ThreeTop::ApplyScaleFactors()
 {
     (*weight) *= sfMaker.getPileupSF(**Pileup_nTrueInt);
+    (*weight) *= sfMaker.getLHESF();
 
     (*weight) *= jet.getScaleFactor();
     (*weight) *= elec.getScaleFactor();

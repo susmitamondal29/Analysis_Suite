@@ -2,29 +2,21 @@
 #define __PARTICLE_H_
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "TH1.h"
-#include "TH2.h"
-#include <TFile.h>
+#include "analysis_suite/Analyzer/interface/Systematic.h"
+
 #include <TTreeReader.h>
 #include <TTreeReaderArray.h>
 #include <TTreeReaderValue.h>
 
 #include <vector>
 
-#include "analysis_suite/Analyzer/interface/CommonEnums.h"
-
-typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>
-    LorentzVector;
+typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> LorentzVector;
 typedef std::vector<std::vector<size_t>> PartList;
 
 template <class T>
 using TTRArray = TTreeReaderArray<T>;
 
-class ParticleOut;
-class BJetOut;
-class TopOut;
-
-class Particle {
+class Particle : public SystematicWeights {
 public:
     Particle(){};
     virtual ~Particle(){};
@@ -48,14 +40,6 @@ public:
     void moveLevel(Level level_start, Level level_end);
     virtual void clear();
 
-    static size_t nSyst;
-    static TFile* f_scale_factors;
-    static Year year_;
-    static std::string yearStr_;
-    static std::string scaleDir_;
-
-    Variation currentVar = Variation::Nominal;
-
 protected:
     TTRArray<Float_t>* m_pt;
     TTRArray<Float_t>* m_eta;
@@ -65,30 +49,9 @@ protected:
     std::unordered_map<Level, std::vector<size_t>*> m_partList;
     std::unordered_map<Level, PartList> m_partArray;
     std::unordered_map<Level, std::vector<size_t>> m_bitArray;
-    std::unordered_map<std::string, TH1*> scales_by_name;
 
     void setup_map(Level level);
     void fill_bitmap();
-
-    template <class T>
-    void setSF(std::string name, std::string map_name="")
-    {
-        if (map_name.empty())
-            map_name = name;
-        scales_by_name[map_name] = static_cast<T*>(f_scale_factors->Get((yearStr_ + "/" + name).c_str()));
-    }
-
-    template <class... Args>
-    float getWeight(std::string name, Args... args)
-    {
-        auto hist = scales_by_name[name];
-        float change = 0;
-        if (currentVar == Variation::Up)
-            change = hist->GetBinErrorUp(hist->FindBin(args...));
-        else if (currentVar == Variation::Nominal)
-            change = -hist->GetBinErrorLow(hist->FindBin(args...));
-        return hist->GetBinContent(hist->FindBin(args...)) + change;
-    }
 };
 
 #endif // __PARTICLE_H_

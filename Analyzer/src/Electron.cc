@@ -53,9 +53,9 @@ void Electron::setup(TTreeReader& fReader)
             { 100, 1.489, 0.087, 2.359 } };
     }
 
-    setSF<TH2F>("electronSF_low");
-    setSF<TH2F>("electronSF");
-    setSF<TH2F>("electronSF_susy");
+    setSF<TH2F>("electronSF_low", Systematic::Electron_SF);
+    setSF<TH2F>("electronSF", Systematic::Electron_SF);
+    setSF<TH2F>("electronSF_susy", Systematic::Electron_Susy);
 }
 
 void Electron::createLooseList()

@@ -29,9 +29,9 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
     }
 
     calib = BTagCalibration("deepcsv", scaleDir_ + "btag_" + yearStr_ + ".csv");
-    setSF<TH2D>("btagEff_b");
-    setSF<TH2D>("btagEff_c");
-    setSF<TH2D>("btagEff_udsg");
+    setSF<TH2D>("btagEff_b", Systematic::BJet_Eff);
+    setSF<TH2D>("btagEff_c", Systematic::BJet_Eff);
+    setSF<TH2D>("btagEff_udsg", Systematic::BJet_Eff);
 
     createBtagReader(Variation::Nominal);
     createBtagReader(Variation::Down);

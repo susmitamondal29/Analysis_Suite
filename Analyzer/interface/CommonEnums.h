@@ -41,8 +41,11 @@ enum class Systematic {
     BJet_BTagging,
     BJet_Eff,
     Muon_ID,
-    Muon_Iso,
-    Electron_Susy,
+        Muon_Iso,
+        Electron_SF,
+        Electron_Susy,
+        Top_SF,
+        Pileup,
         };
 
 enum class Variation {
@@ -58,7 +61,10 @@ static const std::unordered_map<std::string, Systematic> syst_by_name = {
     { "BJet_Eff", Systematic::BJet_Eff },
     { "Muon_ID", Systematic::Muon_ID },
     { "Muon_Iso", Systematic::Muon_Iso },
+    { "Electron_SF", Systematic::Electron_SF },
     { "Electron_Susy", Systematic::Electron_Susy },
+    { "Top_SF", Systematic::Top_SF },
+    { "Pileup", Systematic::Pileup },
 };
 
 static const std::unordered_map<Systematic, std::vector<Variation>> var_by_syst = {
@@ -69,7 +75,10 @@ static const std::unordered_map<Systematic, std::vector<Variation>> var_by_syst 
     { Systematic::BJet_Eff, { Variation::Up, Variation::Down } },
     { Systematic::Muon_ID, { Variation::Up, Variation::Down } },
     { Systematic::Muon_Iso, { Variation::Up, Variation::Down } },
+    { Systematic::Electron_SF, { Variation::Up, Variation::Down } },
     { Systematic::Electron_Susy, { Variation::Up, Variation::Down } },
+    { Systematic::Top_SF, { Variation::Up, Variation::Down } },
+    { Systematic::Pileup, { Variation::Up, Variation::Down } },
 };
 
 #endif // __COMMONENUMS_H_
