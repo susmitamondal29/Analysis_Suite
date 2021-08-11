@@ -34,6 +34,20 @@ def getSumW(infiles, isData):
         runChain.Draw("0>>sumweight",  "genEventSumw")
     return sumweight
 
+def run_jme(files, year, isMC):
+    from PhysicsTools.NanoAODTools.postprocessing.modules.jme.jetmetHelperRun2 import createJMECorrector
+    from PhysicsTools.NanoAODTools.postprocessing.framework.postprocessor import PostProcessor
+
+    # (isMC=True, dataYear=2016, runPeriod="B", jesUncert="Total", redojec=False, jetType = "AK4PFchs", noGroom=False)
+    jmeCorrections = createJMECorrector(isMC=isMC, dataYear=year, runPeriod="B",
+                                        jesUncert="Total", jetType="AK4PFchs")
+
+    # p=PostProcessor(".",fnames,"Jet_pt>150","",[jetmetUncertainties2016(),exampleModuleConstr()],provenance=True)
+    p = PostProcessor(outputDir=".", inputFiles=files,
+                      modules=[jmeCorrections()],)
+    p.run()
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="main")
@@ -70,21 +84,24 @@ if __name__ == "__main__":
     inputs["Systematics"] = configs.get_shape_systs()
     rInputs = setInputs(inputs)
 
+    # run_jme(files, year, not info.is_data())
+    # exit()
+
     # Run Selection
     fChain = ROOT.TChain()
     for fname in files:
         fChain.Add(f"{fname}/Events")
 
     selector = getattr(ROOT, "ThreeTop")()
+    rOutput = ROOT.TFile(outputfile, "RECREATE")
     selector.SetInputList(rInputs)
+    selector.setOutputFile(rOutput)
     fChain.Process(selector, "")
     sumweight = getSumW(files, info.is_data())
 
     ## Output
-    rOutput = ROOT.TFile(outputfile, "RECREATE")
     for tree in selector.getTrees():
-        groupName = tree.tree.GetName()
-        anaFolder = rOutput.mkdir(groupName)
+        anaFolder = getattr(rOutput, tree.tree.GetName())
         anaFolder.WriteObject(sumweight, "sumweight")
         anaFolder.WriteObject(tree.tree, "Analyzed")
         for i in selector.GetOutputList():
