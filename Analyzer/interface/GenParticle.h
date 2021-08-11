@@ -5,20 +5,24 @@
 
 class GenParticle : public Particle {
 public:
-    void setup(TTreeReader& fReader, bool isMC);
-    void createLooseList();
-    virtual void setGoodParticles(size_t syst) override
+    void setup(TTreeReader& fReader);
+    void createTopList();
+    virtual void setupGoodLists() override
     {
-        if (!isMC)
-            return;
-        Particle::setGoodParticles(syst);
-        createLooseList();
-
-        fill_bitmap();
+        createTopList();
     }
 
     TTRArray<Int_t>* pdgId;
-    bool isMC = true;
+};
+
+class GenJet : public Particle {
+public:
+    void setup(TTreeReader& fReader);
+    void createJetList(Particle& jet);
+    virtual void setupGoodLists(Particle& jet) override
+    {
+        createJetList(jet);
+    }
 };
 
 #endif // __GENPARTICLE_H_

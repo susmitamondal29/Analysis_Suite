@@ -31,8 +31,9 @@ enum class Level {
     Fake,
     Tight,
     Top,
-    Bottom,
-};
+        Bottom,
+        Jet,
+        };
 
 enum class Systematic {
     Nominal,
