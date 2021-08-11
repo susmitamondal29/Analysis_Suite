@@ -33,6 +33,7 @@ function setupImages() {
             $(data).find('a[href*=".png"]').each(function() {
                 if (el_in_row+1 >  el_per_line) {
                     row = $("<tr>").appendTo($("#picTable"));
+                    el_in_row = 0;
                 }
 
                 plot = this.innerHTML.replace(".png", "")
