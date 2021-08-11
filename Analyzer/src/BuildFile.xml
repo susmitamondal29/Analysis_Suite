@@ -4,6 +4,7 @@
 <use name="DataFormats/Math"/>
 <use name="CondFormats/BTauObjects"/>
 <use name="CondTools/BTau"/>
+<use name="JetMETCorrections/Modules"/>
 <export>
   <lib name="1"/>
 </export>
