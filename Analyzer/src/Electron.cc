@@ -53,9 +53,11 @@ void Electron::setup(TTreeReader& fReader)
             { 100, 1.489, 0.087, 2.359 } };
     }
 
-    setSF<TH2F>("electronSF_low", Systematic::Electron_SF);
-    setSF<TH2F>("electronSF", Systematic::Electron_SF);
-    setSF<TH2F>("electronSF_susy", Systematic::Electron_Susy);
+    setSF<TH2F>("ElectronSF_low", Systematic::Electron_SF);
+    setSF<TH2F>("ElectronSF", Systematic::Electron_SF);
+    setSF<TH2F>("Electron_MVATightIP2D3DIDEmu", Systematic::Electron_Susy);
+    setSF<TH2F>("Electron_ConvIHit0", Systematic::Electron_Susy);
+    setSF<TH2F>("Electron_MultiIsoEmu", Systematic::Electron_Susy);
 }
 
 void Electron::createLooseList()
@@ -145,11 +147,13 @@ float Electron::getScaleFactor()
     for (auto eidx : list(Level::Tight)) {
         float fixed_pt = std::min(pt(eidx), ptMax);
         if (fixed_pt < 20) {
-            weight *= getWeight("electronSF_low", eta(eidx), fixed_pt);
+            weight *= getWeight("ElectronSF_low", eta(eidx), fixed_pt);
         } else {
-            weight *= getWeight("electronSF", eta(eidx), fixed_pt);
+            weight *= getWeight("ElectronSF", eta(eidx), fixed_pt);
         }
-        weight *= getWeight("electronSF_susy", eta(eidx), fixed_pt);
+        weight *= getWeight("Electron_MVATightIP2D3DIDEmu", eta(eidx), fixed_pt);
+        weight *= getWeight("Electron_ConvIHit0", eta(eidx), fixed_pt);
+        weight *= getWeight("Electron_MultiIsoEmu", eta(eidx), fixed_pt);
     }
         return weight;
 }

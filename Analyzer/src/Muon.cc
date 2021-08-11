@@ -22,7 +22,7 @@ void Muon::setup(TTreeReader& fReader)
         ptRelCut = pow(6.8, 2);
     }
 
-    setSF<TH2D>("muonSF", Systematic::Muon_ID);
+    setSF<TH2D>("Muon_ID", Systematic::Muon_ID);
 }
 
 void Muon::createLooseList()
@@ -67,9 +67,9 @@ float Muon::getScaleFactor()
     for (auto midx : list(Level::Tight)) {
         float fixed_pt = std::max(std::min(pt(midx), ptMax), ptMin);
         if (year_ == Year::yr2016) {
-            weight *= getWeight("muonSF", eta(midx), fixed_pt);
+            weight *= getWeight("Muon_ID", eta(midx), fixed_pt);
         } else {
-            weight *= getWeight("muonSF", fixed_pt, fabs(eta(midx)));
+            weight *= getWeight("Muon_ID", fixed_pt, fabs(eta(midx)));
         }
     }
     return weight;

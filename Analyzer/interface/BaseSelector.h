@@ -61,12 +61,8 @@ protected:
 
     void createTree(std::string name, std::set<Channel> chans)
     {
-        std::cout << "here" << std::endl;
         TTree* tree = new TTree(name.c_str(), name.c_str());
-        std::cout << "new tree" << std::endl;
-        std::cout << outfile << std::endl;
         tree->SetDirectory(outfile->mkdir(name.c_str()));
-        std::cout << "after set tree"<< std::endl;
         trees.push_back({ tree, chans });
         SetupOutTreeBranches(tree);
     }
