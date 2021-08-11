@@ -20,9 +20,8 @@ public:
     float getCentrality(Level level, size_t syst) { return getCentrality(list(level, syst)); };
     float getCentrality(Level level) { return getCentrality(list(level)); };
 
-    virtual void setGoodParticles(size_t syst) override
+    virtual void setupGoodLists() override
     {
-        Particle::setGoodParticles(syst);
         n_loose_bjet.push_back(0);
         n_medium_bjet.push_back(0);
         n_tight_bjet.push_back(0);
@@ -30,8 +29,6 @@ public:
         createLooseList();
         createBJetList();
         createTightList();
-
-        fill_bitmap();
     }
 
     virtual void clear() override

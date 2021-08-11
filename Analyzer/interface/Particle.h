@@ -22,7 +22,11 @@ public:
     virtual ~Particle(){};
 
     void setup(std::string name, TTreeReader& fReader);
-    virtual void setGoodParticles(size_t syst);
+    virtual void setupGoodLists() {}
+    virtual void setupGoodLists(Particle&) {}
+
+    template <class... Args>
+    void setGoodParticles(size_t syst, Args&&... args);
 
     virtual float getScaleFactor() { return 1.0; };
 
@@ -51,7 +55,30 @@ protected:
     std::unordered_map<Level, std::vector<size_t>> m_bitArray;
 
     void setup_map(Level level);
-    void fill_bitmap();
 };
+
+template <class... Args>
+void Particle::setGoodParticles(size_t syst, Args&&... args)
+{
+    // Setup variables
+    currentVar = Variation::Nominal;
+    for (auto& [key, plist] : m_partArray) {
+        m_partList[key] = &plist[syst];
+        m_bitArray[key].assign(size(), 0);
+    }
+
+    // Virutal class specific list making
+    setupGoodLists(std::forward<Args>(args)...);
+
+    // Fill the bitmap
+    for (const auto& [key, plist] : m_partArray) {
+        for (size_t syst = 0; syst < nSyst; ++syst) {
+            for (auto idx : plist[syst]) {
+                m_bitArray[key][idx] += 1 << syst;
+            }
+        }
+    }
+}
+
 
 #endif // __PARTICLE_H_

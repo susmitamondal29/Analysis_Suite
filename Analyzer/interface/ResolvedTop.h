@@ -10,12 +10,10 @@ public:
     void setup(TTreeReader& fReader);
     void createLooseList();
     float getScaleFactor(const Particle& genPart);
-    virtual void setGoodParticles(size_t syst) override
-    {
-        Particle::setGoodParticles(syst);
-        createLooseList();
 
-        fill_bitmap();
+    virtual void setupGoodLists() override
+    {
+        createLooseList();
     }
 
     TTRArray<Float_t>* discriminator;

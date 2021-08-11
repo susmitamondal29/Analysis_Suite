@@ -18,26 +18,6 @@ void Particle::clear()
     }
 }
 
-void Particle::setGoodParticles(size_t syst)
-{
-    currentVar = Variation::Nominal;
-    for (auto& [key, plist] : m_partArray) {
-        m_partList[key] = &plist[syst];
-        m_bitArray[key].assign(size(), 0);
-    }
-}
-
-void Particle::fill_bitmap()
-{
-    for (const auto& [key, plist] : m_partArray) {
-        for (size_t syst = 0; syst < nSyst; ++syst) {
-            for (auto idx : plist[syst]) {
-                m_bitArray[key][idx] += 1 << syst;
-            }
-        }
-    }
-}
-
 void Particle::setup_map(Level level)
 {
     m_partArray[level] = PartList(nSyst);

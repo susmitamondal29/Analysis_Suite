@@ -126,8 +126,8 @@ void BaseSelector::SetupEvent(Systematic syst, Variation var, size_t systNum)
 
     (*weight) = isMC_ ? **genWeight : 1.0;
 
-    muon.setGoodParticles(jet, systNum);
-    elec.setGoodParticles(jet, systNum);
+    muon.setGoodParticles(systNum, jet);
+    elec.setGoodParticles(systNum, jet);
     jet.setGoodParticles(systNum);
     setOtherGoodParticles(systNum);
 

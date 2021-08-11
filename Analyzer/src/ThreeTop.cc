@@ -18,7 +18,9 @@ void ThreeTop::Init(TTree* tree)
     createObject(cutFlow_individual, "cutFlow_individual", 15, 0, 15);
 
     rTop.setup(fReader);
-    rGen.setup(fReader, isMC_);
+    if (isMC_) {
+        rGen.setup(fReader);
+    }
 
     event = new TTRValue<ULong64_t>(fReader, "event");
     Flag_goodVertices = new TTRValue<Bool_t>(fReader, "Flag_goodVertices");
@@ -90,7 +92,9 @@ void ThreeTop::ApplyScaleFactors()
 void ThreeTop::setOtherGoodParticles(size_t syst)
 {
     rTop.setGoodParticles(syst);
-    rGen.setGoodParticles(syst);
+    if (isMC_) {
+        rGen.setGoodParticles(syst);
+    }
 }
 
 void ThreeTop::setupChannel()
