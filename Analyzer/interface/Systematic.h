@@ -14,16 +14,16 @@ struct WeightGetter {
     TH1* down = nullptr;
 
     template <class... Args>
-    float getWeight(Systematic syst_, Variation var_, Args... args)
+    float getWeight(Systematic syst_, eVar var_, Args... args)
     {
         if(syst_ != syst) {
             return getBinContent(hist, args...);
-        } else if(var_ == Variation::Up) {
+        } else if(var_ == eVar::Up) {
             if (up)
                 return getBinContent(up, args...);
             else
                 return getBinContent(hist, args...) + getBinError(hist, args...);
-        } else if (var_ == Variation::Down) {
+        } else if (var_ == eVar::Down) {
             if (down)
                 return getBinContent(down, args...);
             else
@@ -46,7 +46,7 @@ public:
     static Year year_;
     static std::string yearStr_;
     static std::string scaleDir_;
-    static Variation currentVar;
+    static eVar currentVar;
     static Systematic currentSyst;
 
 protected:

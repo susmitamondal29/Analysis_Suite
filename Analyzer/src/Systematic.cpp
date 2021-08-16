@@ -6,5 +6,5 @@ Year SystematicWeights::year_ = Year::yrDefault;
 std::string SystematicWeights::yearStr_ = "";
 std::string SystematicWeights::scaleDir_ = "";
 TFile* SystematicWeights::f_scale_factors = nullptr;
-Variation SystematicWeights::currentVar = Variation::Nominal;
+eVar SystematicWeights::currentVar = eVar::Nominal;
 Systematic SystematicWeights::currentSyst = Systematic::Nominal;

@@ -119,7 +119,7 @@ void BaseSelector::SlaveTerminate()
     std::cout << passed_events << " events passed selection" << std::endl;
 }
 
-void BaseSelector::SetupEvent(Systematic syst, Variation var, size_t systNum)
+void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
 {
     weight = &o_weight[systNum];
     currentChannel_ = &o_channels[systNum];

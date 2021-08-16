@@ -33,9 +33,9 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
     setSF<TH2D>("btagEff_c", Systematic::BJet_Eff);
     setSF<TH2D>("btagEff_udsg", Systematic::BJet_Eff);
 
-    createBtagReader(Variation::Nominal);
-    createBtagReader(Variation::Down);
-    createBtagReader(Variation::Up);
+    createBtagReader(eVar::Nominal);
+    createBtagReader(eVar::Down);
+    createBtagReader(eVar::Up);
 }
 
 void Jet::createLooseList()

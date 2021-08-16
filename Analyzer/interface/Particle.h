@@ -61,7 +61,7 @@ template <class... Args>
 void Particle::setGoodParticles(size_t syst, Args&&... args)
 {
     // Setup variables
-    currentVar = Variation::Nominal;
+    currentVar = eVar::Nominal;
     for (auto& [key, plist] : m_partArray) {
         m_partList[key] = &plist[syst];
         m_bitArray[key].assign(size(), 0);

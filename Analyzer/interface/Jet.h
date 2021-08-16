@@ -60,14 +60,14 @@ private:
     float getCentrality(const std::vector<size_t>& jet_list);
 
     BTagCalibration calib;
-    std::unordered_map<Variation, BTagCalibrationReader*> bReader_by_var;
-    const std::unordered_map<Variation, std::string> varName_by_var = {
-        { Variation::Nominal, "central" },
-        { Variation::Up, "up" },
-        { Variation::Down, "down" },
+    std::unordered_map<eVar, BTagCalibrationReader*> bReader_by_var;
+    const std::unordered_map<eVar, std::string> varName_by_var = {
+        { eVar::Nominal, "central" },
+        { eVar::Up, "up" },
+        { eVar::Down, "down" },
     };
 
-    void createBtagReader(Variation var)
+    void createBtagReader(eVar var)
     {
         BTagCalibrationReader* btag_reader = new BTagCalibrationReader(BTagEntry::OP_MEDIUM, varName_by_var.at(var));
         btag_reader->load(calib, BTagEntry::FLAV_B, "comb");

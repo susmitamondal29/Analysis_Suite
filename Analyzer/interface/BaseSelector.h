@@ -107,7 +107,7 @@ protected:
     Jet jet;
 
 private:
-    void SetupEvent(Systematic syst, Variation var, size_t systNum);
+    void SetupEvent(Systematic syst, eVar var, size_t systNum);
     void setupSystematicInfo();
 
     std::vector<Systematic> systematics_ = { Systematic::Nominal };

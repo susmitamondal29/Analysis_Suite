@@ -22,10 +22,10 @@ float ScaleFactors::getLHESF()
     if (isMC) {
         int varIdx = 4;
         if (currentSyst == Systematic::LHE_muF) {
-            varIdx = (currentVar == Variation::Up) ? 5 : 3;
+            varIdx = (currentVar == eVar::Up) ? 5 : 3;
 
         } else if (currentSyst == Systematic::LHE_muR) {
-            varIdx = (currentVar == Variation::Up) ? 7 : 1;
+            varIdx = (currentVar == eVar::Up) ? 7 : 1;
         }
         return LHEScaleWeight->At(varIdx);
     }
