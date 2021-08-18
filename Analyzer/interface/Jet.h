@@ -14,6 +14,8 @@ public:
 
     virtual float getScaleFactor() override;
 
+    float rawPt(size_t idx) const { return (1-rawFactor->At(idx))*pt(idx); }
+
     float getHT(Level level, size_t syst) { return getHT(list(level, syst)); };
     float getHT(Level level) { return getHT(list(level)); };
 
@@ -47,6 +49,9 @@ public:
     TTRArray<Int_t>* jetId;
     TTRArray<Int_t>* hadronFlavour;
     TTRArray<Float_t>* btag;
+    TTRArray<Int_t>* genJetIdx;
+    TTRArray<Float_t>* area;
+    TTRArray<Float_t>* rawFactor;
 
 private:
     float loose_bjet_cut, medium_bjet_cut, tight_bjet_cut;

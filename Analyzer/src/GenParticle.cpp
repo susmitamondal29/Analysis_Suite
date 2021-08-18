@@ -4,7 +4,7 @@
 
 void GenParticle::setup(TTreeReader& fReader)
 {
-    Particle::setup("GenPart", fReader);
+    GenericParticle::setup("GenPart", fReader);
     pdgId = new TTRArray<Int_t>(fReader, "GenPart_pdgId");
 
     setup_map(Level::Top);
@@ -21,14 +21,6 @@ void GenParticle::createTopList()
 
 void GenJet::setup(TTreeReader& fReader)
 {
-    Particle::setup("GenJet", fReader);
+    GenericParticle::setup("GenJet", fReader);
 
-    setup_map(Level::Jet);
-}
-
-void GenJet::createJetList(Particle& jet)
-{
-    // for (size_t i = 0; i < jet.size(); i++) {
-
-    // }
 }

@@ -3,26 +3,17 @@
 
 #include "analysis_suite/Analyzer/interface/Particle.h"
 
-class GenParticle : public Particle {
+class GenParticle : public GenericParticle {
 public:
     void setup(TTreeReader& fReader);
     void createTopList();
-    virtual void setupGoodLists() override
-    {
-        createTopList();
-    }
 
     TTRArray<Int_t>* pdgId;
 };
 
-class GenJet : public Particle {
+class GenJet : public GenericParticle {
 public:
     void setup(TTreeReader& fReader);
-    void createJetList(Particle& jet);
-    virtual void setupGoodLists(Particle& jet) override
-    {
-        createJetList(jet);
-    }
 };
 
 #endif // __GENPARTICLE_H_

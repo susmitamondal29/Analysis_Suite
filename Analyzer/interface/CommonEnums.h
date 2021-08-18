@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <vector>
 
+const size_t MAX_PARTICLES = 65535;
+
 enum class Year {
     yr2016,
     yr2017,
@@ -31,9 +33,9 @@ enum class Level {
     Fake,
     Tight,
     Top,
-        Bottom,
-        Jet,
-        };
+    Bottom,
+    Jet,
+};
 
 enum class Systematic {
     Nominal,
@@ -42,12 +44,14 @@ enum class Systematic {
     BJet_BTagging,
     BJet_Eff,
     Muon_ID,
-        Muon_Iso,
-        Electron_SF,
-        Electron_Susy,
-        Top_SF,
-        Pileup,
-        };
+    Muon_Iso,
+    Electron_SF,
+    Electron_Susy,
+    Top_SF,
+    Pileup,
+    Jet_JER,
+    Jet_JES,
+};
 
 enum class eVar {
     Nominal,
@@ -66,6 +70,8 @@ static const std::unordered_map<std::string, Systematic> syst_by_name = {
     { "Electron_Susy", Systematic::Electron_Susy },
     { "Top_SF", Systematic::Top_SF },
     { "Pileup", Systematic::Pileup },
+    { "Jet_JER", Systematic::Jet_JER },
+    { "Jet_JES", Systematic::Jet_JES },
 };
 
 static const std::unordered_map<Systematic, std::vector<eVar>> var_by_syst = {
@@ -80,6 +86,8 @@ static const std::unordered_map<Systematic, std::vector<eVar>> var_by_syst = {
     { Systematic::Electron_Susy, { eVar::Up, eVar::Down } },
     { Systematic::Top_SF, { eVar::Up, eVar::Down } },
     { Systematic::Pileup, { eVar::Up, eVar::Down } },
+    { Systematic::Jet_JER, { eVar::Up, eVar::Down } },
+    { Systematic::Jet_JES, { eVar::Up, eVar::Down } },
 };
 
 #endif // __COMMONENUMS_H_

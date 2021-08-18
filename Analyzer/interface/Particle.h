@@ -16,19 +16,12 @@ typedef std::vector<std::vector<size_t>> PartList;
 template <class T>
 using TTRArray = TTreeReaderArray<T>;
 
-class Particle : public SystematicWeights {
+class GenericParticle : public SystematicWeights {
 public:
-    Particle(){};
-    virtual ~Particle(){};
+    GenericParticle() {};
+    virtual ~GenericParticle() {};
 
     void setup(std::string name, TTreeReader& fReader);
-    virtual void setupGoodLists() {}
-    virtual void setupGoodLists(Particle&) {}
-
-    template <class... Args>
-    void setGoodParticles(size_t syst, Args&&... args);
-
-    virtual float getScaleFactor() { return 1.0; };
 
     size_t size() const { return (m_pt) ? m_pt->GetSize() : 0; }
     size_t size(Level level) const { return list(level).size(); }
@@ -38,10 +31,7 @@ public:
     Float_t mass(size_t idx) const { return m_mass->At(idx); }
 
     const std::vector<size_t>& list(Level level) const { return *m_partList.at(level); };
-    const std::vector<size_t>& list(Level level, size_t syst) const { return m_partArray.at(level).at(syst); };
-    const std::vector<size_t>& bitmap(Level level) const { return m_bitArray.at(level); };
 
-    void moveLevel(Level level_start, Level level_end);
     virtual void clear();
 
 protected:
@@ -51,10 +41,35 @@ protected:
     TTRArray<Float_t>* m_mass;
 
     std::unordered_map<Level, std::vector<size_t>*> m_partList;
+
+    virtual void setup_map(Level level);
+};
+
+class Particle : public GenericParticle {
+public:
+    Particle(){};
+    virtual ~Particle(){};
+
+    virtual void setupGoodLists() {std::cout << "SHOULDN'T BE CALLED" << std::endl;}
+    virtual void setupGoodLists(Particle&) {std::cout << "SHOULDN'T BE CALLED (with jet)" << std::endl;}
+
+    template <class... Args>
+    void setGoodParticles(size_t syst, Args&&... args);
+
+    virtual float getScaleFactor() { return 1.0; };
+    using GenericParticle::list; // Need to have since overloading func in derived class
+    const std::vector<size_t>& list(Level level, size_t syst) const { return m_partArray.at(level).at(syst); };
+    const std::vector<size_t>& bitmap(Level level) const { return m_bitArray.at(level); };
+
+    void moveLevel(Level level_start, Level level_end);
+
+    virtual void clear() override;
+
+protected:
     std::unordered_map<Level, PartList> m_partArray;
     std::unordered_map<Level, std::vector<size_t>> m_bitArray;
 
-    void setup_map(Level level);
+    virtual void setup_map(Level level) override;
 };
 
 template <class... Args>

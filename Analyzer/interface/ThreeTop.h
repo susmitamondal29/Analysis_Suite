@@ -2,7 +2,6 @@
 #define THREETOP_H
 
 #include "analysis_suite/Analyzer/interface/BaseSelector.h"
-#include "analysis_suite/Analyzer/interface/GenParticle.h"
 #include "analysis_suite/Analyzer/interface/Output.h"
 #include "analysis_suite/Analyzer/interface/ResolvedTop.h"
 
@@ -53,7 +52,6 @@ private:
     TTree* treeFakeRate_;
 
     ResolvedTop rTop;
-    GenParticle rGen;
 
     ParticleOut* o_looseMuons;
     ParticleOut* o_tightMuons;

@@ -15,7 +15,9 @@
 #include "analysis_suite/Analyzer/interface/Electron.h"
 #include "analysis_suite/Analyzer/interface/Jet.h"
 #include "analysis_suite/Analyzer/interface/Muon.h"
+#include "analysis_suite/Analyzer/interface/GenParticle.h"
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
+#include "analysis_suite/Analyzer/interface/JetCorrection.h"
 
 enum class Channel;
 //class ScaleFactors;
@@ -84,7 +86,8 @@ protected:
     std::vector<TreeInfo> trees;
 
     TTreeReaderValue<Float_t>* genWeight;
-    TTreeReaderArray<Float_t>* LHEScaleWeight;
+    TTreeReaderValue<Float_t>* rho;
+    JetCorrection jetCorrector;
 
     Year year_;
     bool passTrigger;
@@ -105,6 +108,8 @@ protected:
     Muon muon;
     Electron elec;
     Jet jet;
+    GenParticle rGen;
+    GenJet rGenJet;
 
 private:
     void SetupEvent(Systematic syst, eVar var, size_t systNum);

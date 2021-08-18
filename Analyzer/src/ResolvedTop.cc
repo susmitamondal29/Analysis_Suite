@@ -2,7 +2,7 @@
 
 void ResolvedTop::setup(TTreeReader& fReader)
 {
-    Particle::setup("ResolvedTop", fReader);
+    GenericParticle::setup("ResolvedTop", fReader);
     discriminator = new TTRArray<Float_t>(fReader, "ResolvedTop_discriminator");
 
     setup_map(Level::Loose);

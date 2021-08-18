@@ -1,50 +1,89 @@
 #include "analysis_suite/Analyzer/interface/JetCorrection.h"
 
+#include <filesystem>
+#include <stdlib.h>
 #include <cmath>
 
-JetCorrection::JetCorrection(std::string factors_file, std::string filename)
-    : res_sf(factors_file)
-    , resolution(factors_file)
+void JetCorrection::setup(Year year)
 {
-    // JetCorrectorParameters parameters(filename, "");
-    // jecUnc = new JetCorrectionUncertainty(parameters);
+    namespace fs = std::filesystem;
+    std::string jecTag = jecTagsMC[year];
+    std::string jerTag = jerTagsMC[year];
+    std::string jetType = "AK4PFchs";
+    fs::path jme_path = fs::path(getenv("CMSSW_BASE")) / scaleDir_ / "JEC";
+
+    // make directory /tmp/USERNAME for putting unpacked files
+    auto tmp_path = fs::temp_directory_path() / getenv("USER");
+    fs::create_directory(tmp_path);
+
+    std::stringstream tar;
+    tar << "tar -C "<< tmp_path << " -xf ";
+    std::system((tar.str() + (jme_path/(jerTag+".tgz")).string() + " &>/dev/null").c_str());
+    std::system((tar.str() + (jme_path/(jecTag+".tgz")).string() + " &>/dev/null").c_str());
+
+
+    std::vector<JetCorrectorParameters> param_vec = {
+        JetCorrectorParameters(tmp_path/(jecTag + "_L1FastJet_" + jetType + ".txt")),
+        JetCorrectorParameters(tmp_path/(jecTag + "_L2Relative_" + jetType + ".txt")),
+        JetCorrectorParameters(tmp_path/(jecTag + "_L3Absolute_" + jetType + ".txt")),
+        JetCorrectorParameters(tmp_path/(jecTag + "_L2L3Residual_" + jetType + ".txt")),
+    };
+    JetCorrectorParameters parameters(tmp_path/(jecTag + "_Uncertainty_" + jetType + ".txt"));
+
+    jecCentral = new FactorizedJetCorrector(param_vec);
+    jecUnc = new JetCorrectionUncertainty(parameters);
+    res_sf = new JME::JetResolutionScaleFactor(tmp_path/(jerTag + "_SF_" + jetType + ".txt"));
+    resolution = new JME::JetResolution(tmp_path/(jerTag + "_PtResolution_" + jetType + ".txt"));
+
+    // Delete tmp folder
+    fs::remove_all(tmp_path);
 }
 
 
-float JetCorrection::getJES(float pt, float eta, float rho, float genPt)
+float JetCorrection::getJER(float pt, float eta, float rho, float genPt)
 {
-
-    // We do the same thing to access the scale factors}
-    float sf = res_sf.getScaleFactor({{JME::Binning::JetPt, pt},
-                                      {JME::Binning::JetEta, eta}});
-
-    // Access up and down variation of the scale factor
-    float sf_up = res_sf.getScaleFactor({{JME::Binning::JetPt, pt}, {JME::Binning::JetEta, eta}},
-                                        Variation::UP);
-    float sf_down = res_sf.getScaleFactor({{JME::Binning::JetPt, pt}, {JME::Binning::JetEta, eta}},
-                                          Variation::DOWN);
-    std::cout << "Scale factors (Nominal / Up / Down) : " << sf << " / " << sf_up << " / " << sf_down << std::endl;
-
-    float smear = pt;
-    if (genPt != 0) {
-        smear += (sf-1)*(pt - genPt);
+    float sf = 1.;
+    if (currentSyst != Systematic::Jet_JES || currentVar == eVar::Nominal) {
+        sf = res_sf->getScaleFactor({{JME::Binning::JetPt, pt},
+                                     {JME::Binning::JetEta, eta}});
+    } else if(currentVar == eVar::Up) {
+        sf = res_sf->getScaleFactor({{JME::Binning::JetPt, pt}, {JME::Binning::JetEta, eta}},
+                                    Variation::UP);
     } else {
-        float res = resolution.getResolution({{JME::Binning::JetPt, pt},
-                                              {JME::Binning::JetEta, eta},
-                                              {JME::Binning::Rho, rho}});
-        if (res > 1) {
-            std::normal_distribution<> gaussian{0, res};
-            smear += gaussian(gen)*sqrt(pow(sf,2) - 1);
-        }
+        sf = res_sf->getScaleFactor({{JME::Binning::JetPt, pt}, {JME::Binning::JetEta, eta}},
+                                    Variation::DOWN);
     }
-    return smear;
+
+    if (genPt < 0.) {
+        return pt + (sf-1)*(pt - genPt);
+    } else if(sf > 1) {
+        float res = resolution->getResolution({{JME::Binning::JetPt, pt},
+                                                   {JME::Binning::JetEta, eta},
+                                                   {JME::Binning::Rho, rho}});
+        std::normal_distribution<> gaussian{0, res};
+        return pt + pt*gaussian(gen)*sqrt(pow(sf,2) - 1);
+    }
+    return pt;
 }
 
-float JetCorrection::getJER(float pt, float eta)
+float JetCorrection::getJES(float pt, float eta)
 {
-    jecUnc->setJetPt(pt);
-    jecUnc->setJetEta(eta);
-    float delta = jecUnc->getUncertainty(true);
-    //    jet_pt_jesUp = jet_pt_nom*(1+delta);
-    return delta;
+    // jecCentral->setJetPt(pt);
+    // jecCentral->setJetEta(eta);
+    // jecCentral->setJetA(eta);
+    // jecCentral->setRho(eta);
+    // float corr = jecCentral->getCorrection();
+    // float jecPt = pt*corr;
+    // std::cout << "correction: " << corr << std::endl;
+    if (currentSyst != Systematic::Jet_JER || currentVar == eVar::Nominal) {
+        return pt;
+    } else {
+        jecUnc->setJetPt(pt);
+        jecUnc->setJetEta(eta);
+        float delta = jecUnc->getUncertainty(true);
+        return (currentVar == eVar::Up) ? (1+delta)*pt : (1-delta)*pt;
+    }
+
+
+    return pt;
 }

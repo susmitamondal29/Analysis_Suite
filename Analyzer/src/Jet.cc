@@ -2,11 +2,14 @@
 
 void Jet::setup(TTreeReader& fReader, bool isMC)
 {
-    Particle::setup("Jet", fReader);
+    GenericParticle::setup("Jet", fReader);
     jetId = new TTRArray<Int_t>(fReader, "Jet_jetId");
     btag = new TTRArray<Float_t>(fReader, "Jet_btagDeepB");
+    area = new TTRArray<Float_t>(fReader, "Jet_area");
     if (isMC) {
         hadronFlavour = new TTRArray<Int_t>(fReader, "Jet_hadronFlavour");
+        genJetIdx = new TTRArray<Int_t>(fReader, "Jet_genJetIdx");
+        rawFactor = new TTRArray<Float_t>(fReader, "Jet_rawFactor");
     }
 
     setup_map(Level::Loose);
@@ -28,7 +31,7 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
         tight_bjet_cut = 0.7527;
     }
 
-    calib = BTagCalibration("deepcsv", scaleDir_ + "btag_" + yearStr_ + ".csv");
+    calib = BTagCalibration("deepcsv", scaleDir_ + "/scale_factors/btag_" + yearStr_ + ".csv");
     setSF<TH2D>("btagEff_b", Systematic::BJet_Eff);
     setSF<TH2D>("btagEff_c", Systematic::BJet_Eff);
     setSF<TH2D>("btagEff_udsg", Systematic::BJet_Eff);

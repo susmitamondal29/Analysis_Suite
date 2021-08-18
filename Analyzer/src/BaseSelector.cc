@@ -54,7 +54,10 @@ void BaseSelector::Init(TTree* tree)
 
     setupSystematicInfo();
 
+    jetCorrector.setup(year_);
+
     fReader.SetTree(tree);
+    rho = new TTreeReaderValue<Float_t>(fReader, "fixedGridRhoFastjetAll");
     if (isMC_) {
         genWeight = new TTreeReaderValue<Float_t>(fReader, "genWeight");
     }
@@ -68,6 +71,10 @@ void BaseSelector::Init(TTree* tree)
     muon.setup(fReader);
     elec.setup(fReader);
     jet.setup(fReader, isMC_);
+    if (isMC_) {
+        rGen.setup(fReader);
+        rGenJet.setup(fReader);
+    }
 }
 
 Bool_t BaseSelector::Process(Long64_t entry)
@@ -121,18 +128,27 @@ void BaseSelector::SlaveTerminate()
 
 void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
 {
+    SystematicWeights::currentSyst = syst;
+    SystematicWeights::currentVar = var;
+
     weight = &o_weight[systNum];
     currentChannel_ = &o_channels[systNum];
 
     (*weight) = isMC_ ? **genWeight : 1.0;
 
+    if (isMC_) {
+        rGen.createTopList();
+        for(size_t i = 0; i < jet.size(); ++i) {
+            float jecPt = jetCorrector.getJES(jet.pt(i), jet.eta(i));
+            float genPt = (jet.genJetIdx->At(i) != -1) ? rGenJet.pt(jet.genJetIdx->At(i)) : -1.0;
+            float jetpt = jetCorrector.getJER(jecPt, jet.eta(i), **rho, genPt);
+        }
+    }
+
     muon.setGoodParticles(systNum, jet);
     elec.setGoodParticles(systNum, jet);
     jet.setGoodParticles(systNum);
     setOtherGoodParticles(systNum);
-
-    SystematicWeights::currentSyst = syst;
-    SystematicWeights::currentVar = var;
 
     setupChannel();
 
@@ -146,6 +162,8 @@ void BaseSelector::clearParticles()
     muon.clear();
     elec.clear();
     jet.clear();
+    rGen.clear();
+    rGenJet.clear();
 
     std::fill(o_weight.begin(), o_weight.end(), 1.);
 }
@@ -153,12 +171,12 @@ void BaseSelector::clearParticles()
 void BaseSelector::setupSystematicInfo()
 {
     std::string scaleDir = getenv("CMSSW_BASE");
-    scaleDir += "/src/analysis_suite/data/scale_factors/";
+    scaleDir += "/src/analysis_suite/data";
 
     SystematicWeights::nSyst = numSystematics();
     SystematicWeights::year_ = year_;
     SystematicWeights::scaleDir_ = scaleDir;
-    SystematicWeights::f_scale_factors = new TFile((scaleDir + "event_scalefactors.root").c_str());
+    SystematicWeights::f_scale_factors = new TFile((scaleDir + "/scale_factors/event_scalefactors.root").c_str());
     if (year_ == Year::yr2016) {
         SystematicWeights::yearStr_ = "2016";
     } else if (year_ == Year::yr2017) {

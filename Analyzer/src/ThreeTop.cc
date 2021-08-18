@@ -18,9 +18,6 @@ void ThreeTop::Init(TTree* tree)
     createObject(cutFlow_individual, "cutFlow_individual", 15, 0, 15);
 
     rTop.setup(fReader);
-    if (isMC_) {
-        rGen.setup(fReader);
-    }
 
     event = new TTRValue<ULong64_t>(fReader, "event");
     Flag_goodVertices = new TTRValue<Bool_t>(fReader, "Flag_goodVertices");
@@ -66,7 +63,6 @@ void ThreeTop::clearParticles()
 {
     BaseSelector::clearParticles();
     rTop.clear();
-    rGen.clear();
 }
 
 void ThreeTop::clearOutputs()
@@ -86,15 +82,12 @@ void ThreeTop::ApplyScaleFactors()
     (*weight) *= jet.getScaleFactor();
     (*weight) *= elec.getScaleFactor();
     (*weight) *= muon.getScaleFactor();
-    (*weight) *= rTop.getScaleFactor(rGen);
+    // (*weight) *= rTop.getScaleFactor(rGen);
 }
 
 void ThreeTop::setOtherGoodParticles(size_t syst)
 {
     rTop.setGoodParticles(syst);
-    if (isMC_) {
-        rGen.setGoodParticles(syst);
-    }
 }
 
 void ThreeTop::setupChannel()
