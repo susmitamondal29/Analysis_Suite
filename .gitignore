@@ -9,7 +9,6 @@ __pycache__
 poetry.lock
 *~
 *.root
-*.csv
 *.in
 *dat
 *pdf
