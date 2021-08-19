@@ -31,58 +31,11 @@ class XGBoostMaker(MLHolder):
         """
         super().__init__(*args, **kwargs)
         self.param = {"eta": 0.09, 'reg_alpha': 0.0,
-                      'min_child_weight': 1e-6, 'n_estimators': 200,
+                      'min_child_weight': 1e-6, 'n_estimators': 150,
                       'reg_lambda': 0.05,  'subsample': 1, 'base_score': 0.5,
-                      'colsample_bylevel': 1, 'max_depth': 5, 'learning_rate': 0.1,
+                      'colsample_bylevel': 1, 'max_depth': 3, 'learning_rate': 0.1,
                       'colsample_bytree': 1, 'gamma': 0, 'max_delta_step': 0,}
         # 'silent': 1, 'scale_pos_weight': 1,
-
-
-    def train_mult(self, fit_model):
-        """**Train for multiclass BDT**
-
-        Does final weighting of the data (normalize all groups total
-        weight to the same value), train the BDT, and fill the
-        predictions ie the BDT values for each group.
-
-        Returns:
-          xgboost.XGBClassifer: XGBoost model that was just trained
-
-        """
-        x_train = self.train_set.drop(self._drop_vars, axis=1)
-        w_train = self.train_set["finalWeight"].copy()
-        y_train = self.train_set["classID"]
-        
-        x_test = self.test_set.drop(self._drop_vars, axis=1)
-        y_test = self.test_set["classID"]
-
-        group_tot = [np.sum(w_train[self.train_set["classID"] == i]) for i in np.unique(y_train)]
-
-        for i in np.unique(y_train):
-            w_train[self.train_set["classID"] == i] *= max(group_tot)/group_tot[i]
-            if i == self.group_names.index("Signal"):
-                w_train[self.train_set["classID"] == i] *= 2
-
-        fit_model.fit(x_train, y_train, w_train,
-                      eval_set=[(x_train, y_train), (x_test, y_test)],
-                      early_stopping_rounds=100, verbose=50)
-
-        for i, grp in enumerate(self.group_names):
-            self.pred_test[grp] = fit_model.predict_proba(x_test).T[i]
-            self.pred_train[grp] = fit_model.predict_proba(x_train).T[i]
-
-        # loss, accuracy = fit_model.evaluate(x_test, y_test, verbose=1)
-        # print("loss: {}".format(loss))
-        # print("accuracy: {}".format(accuracy))
-
-        fpr_train, tpr_train, _ = roc_curve(y_train.astype(int), self.pred_train[groupName])
-        fpr_test, tpr_test, _ = roc_curve(y_test.astype(int), self.pred_test[groupName])
-
-        auc_train = auc(fpr_train, tpr_train)
-        auc_test = auc(fpr_test, tpr_test)
-
-        print(f'AUC for train: {auc_train}')
-        print(f'AUC for test: {auc_train}')
 
     def train(self, outdir):
         """**Train for multiclass BDT**
@@ -111,11 +64,11 @@ class XGBoostMaker(MLHolder):
         num_rounds = 150
 
         fit_model = xgb.XGBRegressor(**self.param)
-        fit_model.fit(x_train, y_train,
+        fit_model.fit(x_train, y_train, sample_weight=w_train,
                       eval_set=[(x_train, y_train), (x_test, y_test)],
                       early_stopping_rounds=25, verbose=50)
         
-        groupName = "Background"#self.group_names[-1]
+        groupName = "Background"
         self.pred_test[groupName] = fit_model.predict(x_test)
         self.pred_train[groupName] = fit_model.predict(x_train)
 
@@ -131,12 +84,7 @@ class XGBoostMaker(MLHolder):
         fit_model.save_model(f'{outdir}/model.bin')
 
 
-    def apply_model(self, model_file):
+    def predict(self, use_set, directory):
         fit_model = xgb.XGBClassifier({'nthread': 4})  # init model
-        fit_model.load_model(model_file)  # load data
-
-        for i, grp in enumerate(self.group_names):
-            self.pred_test[grp] = fit_model.predict_proba(
-                self.test_set.drop(self._drop_vars, axis=1)).T[i]
-            self.pred_train[grp] = fit_model.predict_proba(
-                self.train_set.drop(self._drop_vars, axis=1)).T[i]
+        fit_model.load_model(str(directory / "model.bin"))  # load data
+        return fit_model.predict_proba(use_set.drop(self._drop_vars, axis=1))

@@ -24,16 +24,16 @@ def setup(cli_args):
 def run(groupDict, workdir, trainType, applyModel, year, systName):
     if trainType == "None":
         from .dataholder import MLHolder
-        mvaRunner = MLHolder(mva_params.usevar, groupDict)
+        mvaRunner = MLHolder(mva_params.usevars, groupDict)
     if trainType == "DNN":
         from .DNN import KerasMaker
-        mvaRunner = KerasMaker(mva_params.usevar, groupDict)
+        mvaRunner = KerasMaker(mva_params.usevars, groupDict)
     elif trainType == "TMVA":
         from .TMVA import TMVAMaker
-        mvaRunner = TMVAMaker(mva_params.usevar, groupDict)
+        mvaRunner = TMVAMaker(mva_params.usevars, groupDict)
     else:
         from .MvaMaker import XGBoostMaker
-        mvaRunner = XGBoostMaker(mva_params.usevar, groupDict)
+        mvaRunner = XGBoostMaker(mva_params.usevars, groupDict)
     # mvaRunner.add_cut(mva_params.cuts)
 
     if applyModel:

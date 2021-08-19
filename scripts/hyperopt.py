@@ -15,7 +15,7 @@ workdir = "test_workdir"
 extraOptions = {"verbose": True}
 number_calls = 3
 
-nVars = len(mva_params.usevar)
+nVars = len(mva_params.usevars)
 hyperParams = OrderedDict({
     "hidden_layers": np.array([1, 2]),
     "initial_nodes": np.array([nVars, nVars + 1]),
@@ -69,7 +69,7 @@ def objective(**X):
     print(f"{X}")
 
     params = X.update(extraOptions)
-    mvaRunner = KerasMaker(mva_params.usevar, groupDict, params=X)
+    mvaRunner = KerasMaker(mva_params.usevars, groupDict, params=X)
     mvaRunner.setup_files(workdir, train=True)
     mvaRunner.train(workdir)
 

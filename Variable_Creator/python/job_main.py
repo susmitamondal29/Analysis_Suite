@@ -25,7 +25,7 @@ def setup(cli_args):
         
 
 def run(groupDict, infile, outdir, year, syst):
-    data = DataProcessor(mva_params.usevar, groupDict, syst)
+    data = DataProcessor(mva_params.allvar, groupDict, syst)
     logging.info(f'Processing year {year} with syst {syst} MC')
     data.process_year(infile, outdir)
 

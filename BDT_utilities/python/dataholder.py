@@ -38,7 +38,7 @@ class MLHolder:
     def __init__(self, use_vars, groupDict, systName="Nominal", **kwargs):
         """Constructor method
         """
-        self.group_names = list(groupDict.keys())
+        self.classID = {"Signal": 1, "NotTrained": -1, "Background": 0}
         self.group_dict = groupDict
         self.pred_train = dict()
         self.pred_test = dict()
@@ -72,11 +72,10 @@ class MLHolder:
         """
         if train:
             train_file = directory / f'train_{self.systName}.root'
-            test_file = directory / f'train_{self.systName}.root'
+            test_file = directory / f'test_{self.systName}.root'
         else:
             train_file = directory / year / f'train_{self.systName}.root'
             test_file = directory / year / f'test_{self.systName}.root'
-        classID = {"Signal": 1, "NotTrained": -1, "Background": 0}
 
         with uproot4.open(test_file) as f:
             self.sample_map = json.loads(f["sample_map"])
@@ -85,7 +84,7 @@ class MLHolder:
         self.test_set = self.get_samples(test_file, self.test_set)
 
         for group, samples in self.group_dict.items():
-            clsID =  classID[group]
+            clsID =  self.classID[group]
             if group == "NotTrained":
                 continue
             group_set = self.train_set[self.train_set["classID"] == clsID]
@@ -102,8 +101,21 @@ class MLHolder:
     def train(self):
         pass
 
-    def apply_model(self, model_file):
-        pass
+    def apply_model(self, directory, fit_test_vs_train=True):
+        use_set = self.test_set if fit_test_vs_train else self.train_set
+        pred = self.predict(use_set, directory)
+        split_pred = {grp: pred.T[i] for grp, i in self.classID.items() if i >= 0}
+
+        if fit_test_vs_train:
+            self.pred_test = split_pred
+        else:
+            self.pred_train = split_pred
+
+
+    def predict(self, use_set, directory):
+        print("Shouldn't be here")
+        raise Exception("Calling base function")
+
 
     def get_samples(self, filename, inset, train=False):
         train_groups = sum(self.group_dict.values(), [])
