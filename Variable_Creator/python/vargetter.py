@@ -19,7 +19,8 @@ class Variable:
             return self.func(arr, *self.inputs)
 
     def getType(self):
-        return "int" if "num" in repr(self.func) else "float"
+        isInt = "num" in repr(self.func) or "n_" in self.inputs
+        return "int" if isInt else "float"
 
 class VarGetter:
     def __init__(self, path, group, syst=0):

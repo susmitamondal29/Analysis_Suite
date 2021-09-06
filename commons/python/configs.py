@@ -43,6 +43,10 @@ def get_cli():
     parser.add_argument("-s", "--systs", default="Nominal",
                         type=lambda x : [i.strip() for i in x.split(',')],
                         help="Systematics to be used")
+    histInfo = [ f.name for f in pkgutil.iter_modules(plotInfo.__path__) if not f.ispkg]
+    parser.add_argument("-i", "--info", type=str, default="plotInfo_default",
+                        choices=histInfo,
+                            help="Name of file containing histogram Info")
     if len(sys.argv) == 1:
         pass
     elif sys.argv[1] == "mva":
@@ -50,6 +54,8 @@ def get_cli():
                             choices=['None', 'DNN', 'TMVA', 'XGB'],
                             help="Run the training")
         parser.add_argument("-m", '--apply_model', action='store_true')
+        parser.add_argument("--save", action='store_true')
+        parser.add_argument("--plot", action='store_true')
     elif sys.argv[1] == "plot":
         parser.add_argument("--hists", default="all",
                             type=lambda x : ["all"] if x == "all" \
@@ -77,10 +83,7 @@ def get_cli():
         parser.add_argument("-sig", "--signal", type=str, default='', required=True,
                             help="Name of the group to be made into the Signal")
 
-        histInfo = [ f.name for f in pkgutil.iter_modules(plotInfo.__path__) if not f.ispkg]
-        parser.add_argument("-i", "--info", type=str, default="plotInfo_default",
-                            choices=histInfo,
-                            help="Name of file containing histogram Info")
+
 
     
     return parser.parse_args()
@@ -200,13 +203,15 @@ def make_plot_paths(path):
     checkOrCreateDir(path / "logs")
 
 def setup_pandas(use_vars, all_vars):
-    train_set = pd.DataFrame(columns = all_vars)
-    test_set = pd.DataFrame(columns = all_vars)
+    df_set = pd.DataFrame(columns = all_vars)
     for key, func in use_vars.items():
-        train_set[key] = train_set[key].astype(func.getType())
-        test_set[key] = test_set[key].astype(func.getType())
-    return train_set, test_set
+        df_set[key] = df_set[key].astype(func.getType())
+    return df_set
 
-def get_shape_systs():
+def get_shape_systs(syst_allow='all'):
     from analysis_suite.data.inputs import systematics
-    return [syst.name for syst in systematics if syst.syst_type == "shape"]
+    all_syst = {syst.name for syst in systematics if syst.syst_type == "shape"}
+    if syst_allow == "all":
+        return list(all_syst)
+    else:
+        return list(set(syst_allow) - all_syst)

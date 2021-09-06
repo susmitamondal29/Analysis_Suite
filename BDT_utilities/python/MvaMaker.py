@@ -5,37 +5,66 @@
 """
 import numpy as np
 import xgboost as xgb
-from sklearn.metrics import roc_auc_score, roc_curve, auc
+from dataclasses import dataclass, InitVar, asdict
 
 from .dataholder import MLHolder
 
+def fom_metric(preds, dtrain):
+    labels = dtrain.get_label()
+    weights = dtrain.get_weight()
+
+    maxfom = 0
+    for cut in np.linspace(0, 1, 101):
+        mask = preds > cut
+        fom = np.sum(weights[mask*(labels==1)])/np.sqrt(np.sum(weights[mask]))
+        maxfom = fom if fom > maxfom else maxfom
+    return "fom", maxfom
+
+
+@dataclass
+class Params:
+    eta: float = 0.09
+    gamma: float = 0
+    reg_alpha: float = 0.0
+    min_child_weight: float = 1e-6
+    n_estimators: float = 250
+    reg_lambda: float = 0.05
+    subsample: float = 1
+    base_score: float = 0.5
+    colsample_bylevel: int = 1
+    colsample_bytree: int = 1
+    learning_rate: float = 1
+    max_depth: int = 3
+    max_delta_step: int = 0
+    objective: str = 'binary:logistic'
+    eval_metric: str = "logloss"
+
+    params: InitVar = None
+
+    def __post_init__(self, params):
+        if params is not None:
+            for key, val in params.items():
+                self.__setattr__(key, val)
+
+    def __getitem__(self, args):
+        if isinstance(args, str):
+            return {args: self.__getattribute__(args)}
+        else:
+            return {attr: self.__getattribute__(attr) for attr in args}
+
+
+
 class XGBoostMaker(MLHolder):
-    """Wrapper for XGBoost training. Takes an uproot input, a list of
-    groups to do a multiclass training, as well as a cut string if
-    needed and trains the data. After it is done, the results can be
-    outputed to be piped into MVAPlotter
-
-    Args:
-      split_ratio(float): Ratio of test events for train test splitting
-      group_names(list): List of the names of the different groups
-      pred_train(dict): Dictionary of group name to BDT associated with it for train set
-      pred_test(dict): Dictionary of group name to BDT associated with it for test set
-      train_set(pandas.DataFrame): DataFrame of the training events
-      test_set(pandas.DataFrame): DataFrame of the testing events
-      cuts(list): List of ROOT style cuts to apply
-      param(dict): Variables used in the training
-
-    """
     def __init__(self, *args, **kwargs):
         """Constructor method
         """
         super().__init__(*args, **kwargs)
-        self.param = {"eta": 0.09, 'reg_alpha': 0.0,
-                      'min_child_weight': 1e-6, 'n_estimators': 150,
-                      'reg_lambda': 0.05,  'subsample': 1, 'base_score': 0.5,
-                      'colsample_bylevel': 1, 'max_depth': 3, 'learning_rate': 0.1,
-                      'colsample_bytree': 1, 'gamma': 0, 'max_delta_step': 0,}
-        # 'silent': 1, 'scale_pos_weight': 1,
+
+        self.param = Params(params=kwargs.get("params"))
+
+    def update_params(self, params):
+        self.param = Params(params=params)
+
 
     def train(self, outdir):
         """**Train for multiclass BDT**
@@ -49,37 +78,35 @@ class XGBoostMaker(MLHolder):
 
         """
         x_train = self.train_set.drop(self._drop_vars, axis=1)
-        w_train = self.train_set["finalWeight"].copy()
+        w_train = self.train_set.train_weight.copy()
         y_train = self.train_set.classID
 
-        x_test = self.test_set.drop(self._drop_vars, axis=1)
-        y_test = self.test_set.classID
+        x_test = self.validation_set.drop(self._drop_vars, axis=1)
+        y_test = self.validation_set.classID
+        w_test = self.validation_set.scale_factor
 
         _, group_tot = np.unique(y_train, return_counts=True)
+        print(group_tot)
         w_train[self.train_set["classID"] == 0] *= max(group_tot)/group_tot[0]
         w_train[self.train_set["classID"] == 1] *= max(group_tot)/group_tot[1]
 
-        self.param['objective'] = 'binary:logistic'
-        self.param['eval_metric'] = "auc"#"logloss"
-        num_rounds = 150
 
-        fit_model = xgb.XGBRegressor(**self.param)
+        # dtrain = xgb.DMatrix(data=x_train, label=y_train, weight=w_train)
+        # dtrain_2 = xgb.DMatrix(data=x_train, label=y_train, weight=self.train_set.scale_factor)
+        # dtest = xgb.DMatrix(data=x_test, label=y_test, weight=w_test)
+
+        # num_round = 100
+        # param = {'max_depth': 5, 'objective': 'binary:logistic',
+        #          'booster': 'dart', 'verbosity': 1}
+        # watchlist = [(dtest, 'eval'), (dtrain_2, 'train')]
+        # bst = xgb.train(param, dtrain, num_round, watchlist,
+        #                 feval=fom_metric)
+        # bst.save_model(f"{outdir}/model.bin")
+
+        fit_model = xgb.XGBRegressor(**asdict(self.param))
         fit_model.fit(x_train, y_train, sample_weight=w_train,
                       eval_set=[(x_train, y_train), (x_test, y_test)],
-                      early_stopping_rounds=25, verbose=50)
-        
-        groupName = "Background"
-        self.pred_test[groupName] = fit_model.predict(x_test)
-        self.pred_train[groupName] = fit_model.predict(x_train)
-
-        fpr_train, tpr_train, _ = roc_curve(y_train.astype(int), self.pred_train[groupName])
-        fpr_test, tpr_test, _ = roc_curve(y_test.astype(int), self.pred_test[groupName])
-
-        auc_train = auc(fpr_train, tpr_train)
-        auc_test = auc(fpr_test, tpr_test)
-
-        print(f'AUC for train: {auc_train}')
-        print(f'AUC for test: {auc_train}')
+                      early_stopping_rounds=50, verbose=20)
 
         fit_model.save_model(f'{outdir}/model.bin')
 

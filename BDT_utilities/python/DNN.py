@@ -108,11 +108,11 @@ class KerasMaker(MLHolder):
         bkg = shuf_train[shuf_train["classID"] == 0]
 
         x_train = shuf_train.drop(self._drop_vars, axis=1)
-        w_train = shuf_train["finalWeight"].to_numpy()
+        w_train = shuf_train["train_weight"].to_numpy()
         y_train = shuf_train.classID
         
-        x_test = self.test_set.drop(self._drop_vars, axis=1)
-        y_test = self.test_set.classID
+        x_test = self.validation_set.drop(self._drop_vars, axis=1)
+        y_test = self.validation_set.classID
 
         _, group_tot = np.unique(y_train, return_counts=True)
         w_train[shuf_train["classID"] == 0] *= max(group_tot) / group_tot[0]
@@ -137,22 +137,9 @@ class KerasMaker(MLHolder):
 
         # Test
         logging.info("\n>> Testing.")
-        groupName = "Background"
-
-        self.pred_test[groupName] = fit_model.predict(x_test).flatten()
-        self.pred_train[groupName] = fit_model.predict(x_train).flatten()
         loss, accuracy = fit_model.evaluate(x_test, y_test, verbose=1)
         logging.debug(f'loss: {loss}')
         logging.debug(f'accuracy: {accuracy}')
-
-        fpr_train, tpr_train, _ = roc_curve(y_train.astype(int), self.pred_train[groupName])
-        fpr_test, tpr_test, _ = roc_curve(y_test.astype(int), self.pred_test[groupName])
-
-        self.auc_train = auc(fpr_train, tpr_train)
-        self.auc_test = auc(fpr_test, tpr_test)
-        
-        logging.info(f'AUC for train: {self.auc_train}')
-        logging.info(f'AUC for test: {self.auc_test}')
 
         fit_model.save(outdir / 'model.h5')
 

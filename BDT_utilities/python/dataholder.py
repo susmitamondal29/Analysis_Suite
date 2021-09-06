@@ -7,15 +7,18 @@
 """
 import numpy as np
 import pandas as pd
+pd.options.mode.chained_assignment = None
 from pandas.api.types import is_numeric_dtype
-import xgboost as xgb
-import awkward1 as ak
 from pathlib import Path
+from random import randint
+import sys
 import uproot4
 import uproot as upwrite
 import json
 from analysis_suite.commons.configs import setup_pandas
+from analysis_suite.commons.info import PlotInfo
 
+from sklearn.metrics import roc_auc_score, confusion_matrix
 from sklearn.model_selection import train_test_split
 
 class MLHolder:
@@ -38,29 +41,35 @@ class MLHolder:
     def __init__(self, use_vars, groupDict, systName="Nominal", **kwargs):
         """Constructor method
         """
-        self.classID = {"Signal": 1, "NotTrained": -1, "Background": 0}
+        self.classID_by_className = {"Signal": 1, "Background": 0, "NotTrained": 0}
         self.group_dict = groupDict
-        self.pred_train = dict()
-        self.pred_test = dict()
+        self.group_dict["NotTrained"] = list()
         self.sample_map = dict()
         self.systName = systName
 
         self.use_vars = use_vars
-
-        nonTrain_vars = ["classID", "groupName", "scale_factor"]
-        derived_vars = ["finalWeight"]
+        nonTrain_vars = ["scale_factor"]
+        derived_vars = ["classID", "sampleName", "train_weight"]
         self._file_vars = list(use_vars.keys()) + nonTrain_vars
         self._drop_vars = nonTrain_vars + derived_vars
+        self.all_vars = self._file_vars + derived_vars
 
-        all_vars = self._file_vars + derived_vars
-        self.train_set, self.test_set = setup_pandas(self.use_vars, all_vars)
+        self.split_ratio = 0.3
+        self.validation_ratio = 0.10
+        self.max_train_events = 1000000
+        self.min_train_events = 1
+        self.random_state = randint(0, 2**32-1)#12345
 
-        self.param = dict()
-        self.auc_train = 0.
-        self.auc_test = 0.
+        self.train_set = setup_pandas(self.use_vars, self.all_vars)
+        self.validation_set = setup_pandas(self.use_vars, self.all_vars)
+        self.test_sets = dict()
+
+        self.pred_test = dict()
+        self.auc = dict()
+        self.fom = dict()
 
 
-    def setup_files(self, directory, year="2018", train=False):
+    def setup_year(self, directory, year="2018", save_train=False):
         """**Fill the dataframes with all info in the input files**
 
         This grabs all the variable information about each sample,
@@ -70,74 +79,133 @@ class MLHolder:
         Args:
             directory(string): Path to directory where root files are kept
         """
-        if train:
-            train_file = directory / f'train_{self.systName}.root'
-            test_file = directory / f'test_{self.systName}.root'
-        else:
-            train_file = directory / year / f'train_{self.systName}.root'
-            test_file = directory / year / f'test_{self.systName}.root'
+        train_set= setup_pandas(self.use_vars, self.all_vars)
+        test_set= setup_pandas(self.use_vars, self.all_vars)
+        validation_set= setup_pandas(self.use_vars, self.all_vars)
 
-        with uproot4.open(test_file) as f:
-            self.sample_map = json.loads(f["sample_map"])
+        with uproot4.open(directory / year / f'processed_{self.systName}.root') as f:
+            allSet = set([name[:name.index(";")] for name in f.keys()])
+            self.update_sample_map(allSet)
 
-        self.train_set = self.get_samples(train_file, self.train_set, train=True)
-        self.test_set = self.get_samples(test_file, self.test_set)
+            for className, samples in self.group_dict.items():
+                for sample in samples:
+                    if sample not in f:
+                        print(f"{sample} not found")
+                        continue
+                    df = f[sample].arrays(self._file_vars, library="pd")
+                    df.loc[:, "classID"] = self.classID_by_className[className]
+                    df.loc[:, "sampleName"] = self.sample_map[sample]
+                    df.loc[:, "train_weight"] = sum(df.scale_factor) / len(df)
 
-        for group, samples in self.group_dict.items():
-            clsID =  self.classID[group]
-            if group == "NotTrained":
-                continue
-            group_set = self.train_set[self.train_set["classID"] == clsID]
-            scale = 1.*len(group_set)/sum(group_set["scale_factor"]) if len(group_set) != 0 else 0
-            for sample in samples:
-                if sample not in self.sample_map:
-                    continue
-                sampleID = self.sample_map[sample]
-                sampleScale = group_set[group_set["groupName"] == sampleID]["scale_factor"]
-                sumW = sum(sampleScale)
-                finalWeight = scale*abs(sampleScale)*sumW/np.sum(abs(sampleScale))
-                self.train_set.loc[self.train_set["groupName"] == sampleID, "finalWeight"] = finalWeight
+                    split_ratio = self.split_ratio
+                    if len(df) < self.min_train_events/split_ratio or className == "NotTrained":
+                        test_set = pd.concat([df, test_set], ignore_index=True)
+                        continue
+                    elif len(df) > self.max_train_events/split_ratio:
+                        split_ratio = self.max_train_events
 
-    def train(self):
-        pass
+                    test, train = self.split(df, split_ratio)
+                    train, validation = self.split(train, self.validation_ratio)
 
-    def apply_model(self, directory, fit_test_vs_train=True):
-        use_set = self.test_set if fit_test_vs_train else self.train_set
+                    train_set = pd.concat([train, train_set], ignore_index=True)
+                    test_set = pd.concat([test, test_set], ignore_index=True)
+                    validation_set = pd.concat([validation, validation_set], ignore_index=True)
+
+
+        if save_train:
+            self._output(train_set, directory / year / f"train_{self.systName}.root")
+            self._output(validation_set, directory / year / f"validation_{self.systName}.root")
+
+        self.train_set = pd.concat([self.class_reweight(train_set),
+                                    self.train_set,], ignore_index=True)
+        self.validation_set = pd.concat([validation, self.validation_set],
+                                        ignore_index=True)
+        self.test_sets[year] = test_set
+
+
+    def split(self, workset, split_ratio):
+        train, test = train_test_split(workset, train_size=split_ratio, random_state=self.random_state)
+        test.loc[:, ["scale_factor", "train_weight"]] *= len(workset)/len(test)
+        train.loc[:, ["scale_factor", "train_weight"]] *= len(workset)/len(train)
+        return test, train
+
+
+    def update_sample_map(self, allSet):
+        currentSamples = set(sum(self.group_dict.values(), []))
+        for sample in (allSet - set(self.sample_map)):
+            self.sample_map[sample] = len(self.sample_map)
+        self.group_dict["NotTrained"] += list(allSet - currentSamples)
+
+    def class_reweight(self, workset):
+        for className, classID in self.classID_by_className.items():
+            class_mask = workset["classID"] == classID
+            class_set = workset[class_mask]
+            scale = len(class_set)/sum(class_set.train_weight)
+            workset.loc[class_mask, "train_weight"] *= scale
+        return workset
+
+
+    def apply_model(self, directory, year):
+        use_set = self.test_sets[year]
         pred = self.predict(use_set, directory)
-        split_pred = {grp: pred.T[i] for grp, i in self.classID.items() if i >= 0}
+        weights = use_set.scale_factor*137000.
+        labels = use_set.classID.astype(int)
 
-        if fit_test_vs_train:
-            self.pred_test = split_pred
-        else:
-            self.pred_train = split_pred
+        self.pred_test[year] = {grp: pred.T[i] for grp, i in self.classID_by_className.items()}
+        self.auc[year] = roc_auc_score(labels, pred.T[1],
+                                       # sample_weight = abs(weights)
+                                       )
 
+        self.fom[year] = 0
+        for cut in np.linspace(0, 1, 101):
+            mask = self.pred_test[year]["Signal"] > cut
+            if np.sum(weights[mask]) == 0:
+                continue
+            fom = np.sum(weights[mask&(labels==1)])/np.sqrt(np.sum(weights[mask]))
+            if fom > self.fom[year]:
+                self.fom[year] = fom
+
+        print(f'AUC for year {year}: {self.auc[year]}')
+        print(f'FOM for year {year}: {self.fom[year]}')
+
+
+    def get_stats(self, year, cut):
+        truth_vals = self.test_sets[year].classID.astype(int)
+        pred_mask = self.pred_test[year]["Signal"] > cut
+        tn, fp, fn, tp = confusion_matrix(truth_vals, pred_mask).ravel()
+        precision = tp / (tp+fp)
+        recall = tp / (tp + fn)
+        f1_score = 2*(precision*recall)/(precision+recall)
+        s = (tp+fn)/len(truth_vals)
+        p = (tp+fp)/len(truth_vals)
+
+        cut_set = self.test_sets[year][pred_mask]
+
+        sig = np.sum(cut_set[cut_set.classID == 1].scale_factor)
+        bkg = np.sum(cut_set[cut_set.classID == 0].scale_factor)
+        fom = sig/np.sqrt(sig+bkg)*np.sqrt(137*1000)
+
+        matthew_coef = (tp/len(truth_vals)-s*p)/np.sqrt(p*s*(1-p)*(1-s))
+        print(f'Cut {cut:0.3f} for year {year}: {precision:0.3f} {recall:0.3f} {f1_score:0.3f} {matthew_coef:0.3f} {fom:0.3f}')
+
+    def _get_stats(self, year, cut, directory):
+        work_set
+        truth_vals = work_set.classID.astype(int)
+        pred = self.predict(work_set, directory).T[1]
+        tn, fp, fn, tp = confusion_matrix(truth_vals, pred >cut).ravel()
+        precision = tp / (tp+fp)
+        recall = tp / (tp + fn)
+        f1_score = 2*(precision*recall)/(precision+recall)
+        s = (tp+fn)/len(truth_vals)
+        p = (tp+fp)/len(truth_vals)
+
+        matthew_coef = (tp/len(truth_vals)-s*p)/np.sqrt(p*s*(1-p)*(1-s))
+        print(f'Cut {cut:0.3f} for year {year}: {precision:0.3f} {recall:0.3f} {f1_score:0.3f} {matthew_coef:0.3f}')
 
     def predict(self, use_set, directory):
         print("Shouldn't be here")
         raise Exception("Calling base function")
 
-
-    def get_samples(self, filename, inset, train=False):
-        train_groups = sum(self.group_dict.values(), [])
-        with uproot4.open(filename) as f:
-            groups = [group for group in self.sample_map.keys()
-                      if group in f and (not train or group in train_groups)]
-            for group in groups:
-                inset = pd.concat([f[group].arrays(self._file_vars, library="pd"), inset], sort=True)
-        inset["finalWeight"] = 1.
-        return inset
-
-    def output(self, outdir, year, syst):
-        """Wrapper for write out commands
-
-        Args:
-          outname: Directory where files will be written
-
-        """
-        self._write_uproot(outdir / year / f'test_{syst}.root', self.test_set,
-                           self.pred_test)
-        self._write_uproot(outdir / year / f'train_{syst}.root', self.train_set,
-                           self.pred_train)
 
     # Private Functions
 
@@ -163,27 +231,29 @@ class MLHolder:
     def add_cut(self, cut_string):
         self.cuts = cut_string
 
-    def _write_uproot(self, outfile, workSet, prediction=dict()):
+
+    def output(self, outdir, year):
+        workSet = self.test_sets[year]
+        for key, arr in self.pred_test[year].items():
+            workSet.insert(0, key, arr)
+        self._output(workSet, outdir / year / f"test_{self.systName}.root")
+
+
+    def _output(self, workSet, outfile):
         """**Write out pandas file as a compressed pickle file
 
         Args:
-          outfile(string): Name of file to write
           workSet(pandas.DataFrame): DataFrame of variables to write out
-          prediction(pandas.DataFrame): DataFrame of BDT predictions
-
+          outfile(string): Name of file to write
         """
-        for key, arr in prediction.items():
-            workSet.insert(0, key, arr)
-
         keepList = [key for key in workSet.columns if is_numeric_dtype(workSet[key])]
         branches = {key: workSet[key].dtype for key in keepList}
         with upwrite.recreate(f'{outfile}.tmp') as f:
-            f["sample_map"] = json.dumps(self.sample_map)
-            for group, value in self.sample_map.items():
-                if value not in np.unique(workSet.groupName):
+            for sample, value in self.sample_map.items():
+                if value not in np.unique(workSet.sampleName):
                     continue
-                f[group] = upwrite.newtree(branches)
-                f[group].extend(workSet[workSet.groupName == value][keepList].to_dict('list'))
+                f[sample] = upwrite.newtree(branches)
+                f[sample].extend(workSet[workSet.sampleName == value][keepList].to_dict('list'))
 
         # rename to avoid losing file if root writing fails
         Path(f'{outfile}.tmp').rename(outfile)

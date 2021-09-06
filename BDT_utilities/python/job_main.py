@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import logging
+import numpy as np
+import os
 
-from analysis_suite.commons import GroupInfo
-from analysis_suite.commons.configs import getGroupDict, get_list_systs
+from analysis_suite.commons import GroupInfo, PlotInfo
+from analysis_suite.commons.configs import getGroupDict, get_shape_systs
+from .MVAPlotter import MVAPlotter
 
 import analysis_suite.data.inputs as mva_params
 
@@ -10,47 +13,49 @@ def setup(cli_args):
     group_info = GroupInfo(**vars(cli_args))
     groupDict = getGroupDict(mva_params.groups, group_info)
 
+    os.environ["NUMEXPR_MAX_THREADS"] = "8"
+
     argList = list()
-    for year in cli_args.years:
-        path = cli_args.workdir / year
-        allSysts = get_list_systs(path, cli_args.systs)
-        for syst in allSysts:
-            argList.append((groupDict, cli_args.workdir, cli_args.train,
-                                cli_args.apply_model, year, syst))
+    for syst in get_shape_systs(cli_args.systs):
+        argList.append((groupDict, cli_args.workdir, cli_args.train,
+                        cli_args.apply_model, cli_args.years, syst, cli_args.save))
 
     return argList
-        
 
-def run(groupDict, workdir, trainType, applyModel, year, systName):
-    if trainType == "None":
-        from .dataholder import MLHolder
-        mvaRunner = MLHolder(mva_params.usevars, groupDict)
-    if trainType == "DNN":
+
+def run(groupDict, workdir, trainType, applyModel, years, systName, save_train):
+    if trainType == "XGB":
+        from .MvaMaker import XGBoostMaker
+        params = {"max_depth": 4, "colsample_by_tree": 0.75, "min_childweight": 1e-3,
+                  "subsample": 0.75, "eta": 0.05}
+        mvaRunner = XGBoostMaker(mva_params.usevars, groupDict, # params=params
+                                 )
+    elif trainType == "DNN":
         from .DNN import KerasMaker
         mvaRunner = KerasMaker(mva_params.usevars, groupDict)
     elif trainType == "TMVA":
         from .TMVA import TMVAMaker
         mvaRunner = TMVAMaker(mva_params.usevars, groupDict)
     else:
-        from .MvaMaker import XGBoostMaker
-        mvaRunner = XGBoostMaker(mva_params.usevars, groupDict)
+        return
     # mvaRunner.add_cut(mva_params.cuts)
 
-    if applyModel:
-        mvaRunner.setup_files(workdir, year)
-        mvaRunner.apply_model(workdir)
-        mvaRunner.apply_model(workdir, False)
+    for year in years:
+        mvaRunner.setup_year(workdir, year, save_train)
 
-        logging.info(f"Starting to write out for year {year} and syst {systName}")
-        mvaRunner.output(workdir, year, systName)
-        logging.info(f"Finished writing out for year {year} and syst {systName}")
-    elif trainType != "None":
-        mvaRunner.setup_files(workdir, train=True)
-        fitModel = mvaRunner.train(workdir)
-        logging.info("Training finished. To apply training model to code, run code again while applying the model")
-        return
-    else:
-        return
+    if not applyModel:
+        mvaRunner.train(workdir)
+
+    # exit()
+    for year in years:
+        mvaRunner.apply_model(workdir, year)
+        # for i in np.linspace(0, 1, 11):
+        #     mvaRunner.get_stats(year, i)
+        # logging.info(f"Starting to write out for year {year} and syst {systName}")
+        mvaRunner.output(workdir, year)
+        # logging.info(f"Finished writing out for year {year} and syst {systName}")
+
+
     # sorted_import = {k: v for k, v in sorted(impor.items(), key=lambda item: item[1])}
     # import matplotlib.pyplot as plt
     # plt.barh(range(len(sorted_import)), list(sorted_import.values()),
@@ -64,4 +69,35 @@ def run(groupDict, workdir, trainType, applyModel, year, systName):
     # plt.close()
 
 def cleanup(cli_args):
-    return
+    if not cli_args.plot:
+        return
+    group_info = GroupInfo(**vars(cli_args))
+    groupDict = getGroupDict(mva_params.groups, group_info)
+
+    plot_info = PlotInfo(cli_args.info)
+
+    plots = [
+        MVAPlotter(groupDict, "test", "Nominal", **vars(cli_args)),
+        # MVAPlotter(groupDict, "train", "Nominal", **vars(cli_args)),
+    ]
+
+
+
+    for plot in plots:
+        plot.make_roc("2016")
+        exit()
+        plot.group_shapes("Signal", np.linspace(0, 1, 26), "2016")
+        for usevar in mva_params.usevars.keys():
+            print(usevar)
+            bins = plot_info.get_binning(usevar).edges
+            # plot.year_shapes(usevar, bins, "Signal")
+            # plot.year_shapes(usevar, bins, "Background")
+            plot.group_shapes(usevar, bins, "2016")
+
+    pass
+#    plotter.func("NJets", np.linspace(0, 15, 15), "2016")
+
+    # for year in cli_args.years:
+    #     plotter.print_info("NJets", year)
+    # for year in cli_args.years:
+    #     plotter.print_info("NBJets", year)

@@ -9,16 +9,16 @@ class BasicInfo:
         self.base_path = "analysis_suite.data"
 
 class PlotInfo(BasicInfo):
+    lumi = {
+        "2016" : 35.9,
+        "2017" : 41.5,
+        "2018" : 59.6,
+        "all" : 137.0,
+    }
     def __init__(self, plotInfo, **kwargs):
         super().__init__(**kwargs)
         plot_path = f'{self.base_path}.plotInfo.{plotInfo}'
         self.plotSpecs = importlib.import_module(plot_path).info
-        self.lumi = {
-            "2016" : 35.9,
-            "2017" : 41.5,
-            "2018" : 59.6,
-            "all" : 137.0,
-        }
 
     def at(self, histname, name=None):
         if name is None:
