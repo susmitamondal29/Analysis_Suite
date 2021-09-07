@@ -63,7 +63,15 @@ class MVAPlotter(object):
         #  ['#462066', '#FFB85F', '#FF7A5A', '#00AAA0']
 
         self.color_dict = {grp: col for grp, col in zip(self.group_dict.keys(), colors)}
-        
+
+        # for sample, data in self.data["2016"].items():
+        #     scale = self.get_scale("2016", sample)
+
+        #     print(f'{sample} with total {sum(scale)} and error {np.sqrt(np.sum(scale**2))/np.sum(scale)}')
+
+        # exit()
+
+
 
     def _darkenColor(self, color):
         cvec = clr.to_rgb(color)
@@ -71,7 +79,7 @@ class MVAPlotter(object):
         return [i - dark if i > dark else 0.0 for i in cvec]
 
 
-    def get_fom(self, var, bins, year, comb_bkg):
+    def get_fom(self, var, bins, year, comb_bkg=True):
         """**Return FoM histogram**
 
         Args:
@@ -95,7 +103,7 @@ class MVAPlotter(object):
     def get_max_fom(self, var, bins, year, comb_bkg):
         return max(self.get_fom(var, bins, year, comb_bkg))
 
-    def plot_fom(self, var, bins, year, comb_bkg):
+    def plot_fom(self, var, bins, year, comb_bkg=True):
         """**Plots Figure of Merits for variable scan**
 
         Plot figure of merit by creating a "signal region" by only
@@ -109,13 +117,14 @@ class MVAPlotter(object):
         Returns:
           list: List of (FOM, bin) for the max FOM
         """
-        fom = self.get_fom(var, bins, year, comb_bkg)
-        fom_maxbin = bins[fom.index(max(fom))]
+        fom_bins = np.linspace(bins[0], bins[-1], 101)
+        fom = self.get_fom(var, fom_bins, year, comb_bkg)
+        fom_maxbin = fom_bins[np.argmax(fom)]
         with plot(f'{self.fType}_fom_{var}_{year}.png') as ax:
-            ax.plot(bins, fom, label=f'$S/\sqrt{S+B}={max(fom):.3f}$\n cut={fom_maxbin:.2f}',
-                    color = )
+            ax.plot(fom_bins[:-1], fom, label=f'$S/\sqrt{{S+B}}={max(fom):.3f}$\n cut={fom_maxbin:.2f}',
+                    color = 'k')
             ax.plot(np.linspace(bins[0], bins[-1], 5), [max(fom)]*5,
-                    linestyle=':', color=fom_plot[-1].get_color())
+                    linestyle=':', color='k')
             ax.set_xlabel("BDT value", horizontalalignment='right', x=1.0)
             ax.set_ylabel("A.U.", horizontalalignment='right', y=1.0)
 
@@ -123,9 +132,15 @@ class MVAPlotter(object):
             hists = self.get_hist(var, bins, year)
             scale = self._find_scales(hists)
             ax2.hist(x=bins[:-1], weights=hists["Signal"]*scale, bins=bins,
-                    label=f'Signal x {scale}', histtype="step", linewidth=1.5, )
-            ax.hist(x=bins[:-1], weights=hists["Background"], bins=bins, linewidth=1.5,
-                    label=f'Background', histtype="step", )
+                    label=f'Signal x {scale}', histtype="stepfilled", linewidth=1.5,
+                     density=True, alpha=0.5, color=self.color_dict["Signal"],
+                     edgecolor=self._darkenColor(self.color_dict["Signal"]),
+                     hatch="///")
+            ax2.hist(x=bins[:-1], weights=hists["Background"], bins=bins, linewidth=1.5,
+                    label=f'Background', histtype="stepfilled",
+                    density=True, alpha=0.5, color=self.color_dict["Background"],
+                    edgecolor=self._darkenColor(self.color_dict["Background"]),
+                    hatch="///")
 
             lines, labels = ax2.get_legend_handles_labels()
             lines2, labels2 = ax.get_legend_handles_labels()
@@ -146,7 +161,7 @@ class MVAPlotter(object):
         sig, bkg = hists["Signal"], hists["Background"]
 
         value = (sig+bkg)*np.log(1+sig/bkg) - sig
-        return math.sqrt(np.sum(2*np.nan_to_num(0.0))
+        return math.sqrt(np.sum(2*np.nan_to_num(0.0)))
 
 
     def make_roc(self, year, comb_bkg=True):
@@ -292,7 +307,7 @@ class MVAPlotter(object):
 
     def func(self, var, bins, year, comb_bkg=True):
         with plot(f'{self.fType}_{var}_{year}.png') as ax:
-            hists = self.get_hist(var, bins, year)
+            hists = self.get_hist(var, bins, year, comb_bkg)
             scale = self._find_scales(hists, with_nontrain)
             ax.hist(x=bins[:-1], weights=hists["Signal"]*scale, bins=bins,
                     label=f'Signal x {scale}', histtype="step", linewidth=1.5, )
