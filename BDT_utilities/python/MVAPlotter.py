@@ -3,31 +3,18 @@
    :synopsis: Takes MvaMaker output and creates graphs
 .. moduleauthor:: Dylan Teague
 """
-import sys
-from os.path import isfile
-import os
 import math
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib import colors as clr
 from sklearn.metrics import roc_curve, roc_auc_score
 import xgboost as xgb
 import uproot4 as uproot
 import operator
 
-from contextlib import contextmanager
-
+from analysis_suite.commons.plot_utils import plot, color_options
+from analysis_suite.commons.configs import checkOrCreateDir
 from analysis_suite.commons.info import PlotInfo
 # import shap
-
-@contextmanager
-def plot(filename, option=""):
-    fig, ax = plt.subplots()
-    yield ax
-    fig.tight_layout()
-    fig.savefig(filename)
-    plt.close(fig)
 
 
 class MVAPlotter(object):
@@ -43,11 +30,12 @@ class MVAPlotter(object):
     """
     def __init__(self, groupDict, filetype, syst, workdir, years, **kwargs):
         self.group_dict = groupDict
-        self.group_dict["NotTrained"] = list()
         self.years = years
         self.data = dict()
-        self.workdir = workdir
         self.fType = filetype
+
+        plot.workdir = workdir / "plots"
+        checkOrCreateDir(workdir / "plots")
 
         for year in years:
             trainSamples = set(sum(self.group_dict.values(), []))
@@ -55,8 +43,6 @@ class MVAPlotter(object):
                 allSet = set([name[:name.index(";")] for name in f.keys()])
                 self.data[year] = {sample.strip(";1"): data.arrays(library="pd")
                                    for sample, data in f.items()}
-                for sample in allSet - trainSamples:
-                    self.group_dict["NotTrained"].append(sample)
 
         colors = ['#f15854', '#5da5da', '#60bd68', '#faa43a', ]
         #  ['#CC0000', '#99FF00', '#FFCC00', '#3333FF']
@@ -66,18 +52,12 @@ class MVAPlotter(object):
 
         # for sample, data in self.data["2016"].items():
         #     scale = self.get_scale("2016", sample)
+        #     mask = data["b4Pt"] > 0
 
-        #     print(f'{sample} with total {sum(scale)} and error {np.sqrt(np.sum(scale**2))/np.sum(scale)}')
+        #     print(f'{sample} with total {sum(scale[mask])}')
+            # print(f'{sample} with total {sum(scale)} and error {np.sqrt(np.sum(scale**2))/np.sum(scale)}')
 
         # exit()
-
-
-
-    def _darkenColor(self, color):
-        cvec = clr.to_rgb(color)
-        dark = 0.3
-        return [i - dark if i > dark else 0.0 for i in cvec]
-
 
     def get_fom(self, var, bins, year, comb_bkg=True):
         """**Return FoM histogram**
@@ -133,14 +113,12 @@ class MVAPlotter(object):
             scale = self._find_scales(hists)
             ax2.hist(x=bins[:-1], weights=hists["Signal"]*scale, bins=bins,
                     label=f'Signal x {scale}', histtype="stepfilled", linewidth=1.5,
-                     density=True, alpha=0.5, color=self.color_dict["Signal"],
-                     edgecolor=self._darkenColor(self.color_dict["Signal"]),
-                     hatch="///")
+                     density=True, alpha=0.5,  hatch="///",
+                     **color_options(self.color_dict["Signal"]))
             ax2.hist(x=bins[:-1], weights=hists["Background"], bins=bins, linewidth=1.5,
                     label=f'Background', histtype="stepfilled",
-                    density=True, alpha=0.5, color=self.color_dict["Background"],
-                    edgecolor=self._darkenColor(self.color_dict["Background"]),
-                    hatch="///")
+                    density=True, alpha=0.5, hatch="///",
+                     **color_options(self.color_dict["Signal"]))
 
             lines, labels = ax2.get_legend_handles_labels()
             lines2, labels2 = ax.get_legend_handles_labels()
@@ -296,9 +274,8 @@ class MVAPlotter(object):
             for group, hist in hists.items():
                 ax.hist(x=bins[:-1], weights=hist,
                         bins=bins, label=group, histtype="stepfilled", linewidth=1.5,
-                        density=True, alpha=0.5, color=self.color_dict[group],
-                        edgecolor=self._darkenColor(self.color_dict[group]),
-                        hatch="///")
+                        density=True, alpha=0.5, hatch="///",
+                        **color_options(self.color_dict[group]))
 
             ax.set_title(f"Year {year}")
             ax.legend()
@@ -310,9 +287,11 @@ class MVAPlotter(object):
             hists = self.get_hist(var, bins, year, comb_bkg)
             scale = self._find_scales(hists, with_nontrain)
             ax.hist(x=bins[:-1], weights=hists["Signal"]*scale, bins=bins,
-                    label=f'Signal x {scale}', histtype="step", linewidth=1.5, )
+                    label=f'Signal x {scale}', histtype="step", linewidth=1.5,
+                    **color_options(self.color_dict["Background"]))
             ax.hist(x=bins[:-1], weights=hists["Background"], bins=bins, linewidth=1.5,
-                    label=f'Background', histtype="step", )
+                    label=f'Background', histtype="step",
+                    **color_options(self.color_dict["Background"]))
 
             ax.legend(loc='upper left')
             ax.set_xlabel(var)

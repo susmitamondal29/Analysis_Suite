@@ -67,38 +67,25 @@ usevars = {var : allvar[var] for var in [
 
 cuts = ["l1Pt>25", "l2Pt>20"]
 
-# Input Rootfile
-single=True
 # Sampels and the groups they are a part of
-if single:
-    groups = [["Signal", ["ttt", ]],
-              ["Background", ["ttw", "ttz", "tth",
-                              # "tttt",
-                              # "ttXY",
-                              # "vvv", "vv", "xg",
-                              # "other",
-                                  ]]]
-else:
-    groups = [["Signal", ["ttt"]],
-              ["FourTop", ["tttt",]],
-              ["Background", ["ttw", "ttz", "tth", "ttXY", "vvv", "vv", "xg","other"
-                              ]]]
+groups = OrderedDict({
+    "Signal": ["ttt"],
+    "Background": ["ttw", "ttz", "tth",
+                   "ttXY",
+                   "vvv", "vv", "xg",
+                   "other",],
+    "NotTrained": ["tttt",
+                   "ttXY",
+                   "vvv", "vv", "xg",
+                   "other",]
+})
+
+
 
 all_years = ["2016", "2017", "2018"]
 classID = {"Signal": 1, "NotTrained": -1, "Background": 0}
 
 
-# color_by_group = {
-#     "ttt": "crimson",
-#     "ttw": "darkgreen",
-#     "rare": "darkorange",
-#     "tth": "slategray",
-#     "ttz": "mediumseagreen",
-#     "xg": "indigo",
-#     "ttXY": "cornflowerblue",
-#     # "other": "blue",
-#     "tttt": "darkmagenta",
-# }
 color_by_group = {
     "ttt": "crimson",
     "xg": "indigo",

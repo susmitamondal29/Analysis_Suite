@@ -153,7 +153,7 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
 
 def getGroupDict(groups, group_info):
     groupDict = OrderedDict()
-    for groupName, samples in groups:
+    for groupName, samples in groups.items():
         new_samples = list()
         for samp in samples:
             if samp in group_info.group2MemberMap:

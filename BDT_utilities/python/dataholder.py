@@ -131,10 +131,8 @@ class MLHolder:
 
 
     def update_sample_map(self, allSet):
-        currentSamples = set(sum(self.group_dict.values(), []))
         for sample in (allSet - set(self.sample_map)):
             self.sample_map[sample] = len(self.sample_map)
-        self.group_dict["NotTrained"] += list(allSet - currentSamples)
 
     def class_reweight(self, workset):
         for className, classID in self.classID_by_className.items():
