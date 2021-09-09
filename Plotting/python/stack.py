@@ -1,27 +1,18 @@
 from analysis_suite.commons.histogram import Histogram
+from analysis_suite.commons.plot_utils import darkenColor
 
-from matplotlib import colors as clr
 import numpy as np
 
 class Stack(Histogram):
     def __init__(self, bin_info):
-        super().__init__("", "", bin_info)
+        super().__init__("", bin_info)
         self.stack = list()
         self.options = {"stacked": True, "histtype": "stepfilled"}
-        # if isMult:
-        #     self.bins = self.bins - 0.5
-        # #self.align = 'left' if isMult else "mid"
-        # self.align = "mid"
 
-    def __add__(self, right):
+    def __iadd__(self, right):
         idx = self._get_index(right.integral())
         self.stack.insert(idx, right)
-        return super().__add__(right)
-
-    def _darkenColor(self, color):
-        cvec = clr.to_rgb(color)
-        dark = 0.3
-        return [i - dark if i > dark else 0.0 for i in cvec]
+        return super().__iadd__(right)
 
     def _get_index(self, integral):
         if not self.stack:
@@ -29,10 +20,10 @@ class Stack(Histogram):
         else:
             return np.argmax(np.array([s.integral() for s in self.stack]) < integral)
 
-    def applyPatches(self, plot, patches):
-        edgecolors = [self._darkenColor(h.color) for h in self.stack]
+    def applyPatches(self, patches):
+        edgecolors = [darkenColor(h.color) for h in self.stack]
         for p, ec in zip(patches, edgecolors):
-            plot.setp(p, edgecolor=ec)
+            p[0].set_ec(ec)
 
     def getInputs(self, **kwargs):
         stack = [h.vals for h in self.stack]
@@ -40,8 +31,7 @@ class Stack(Histogram):
         fancyNames = [h.name for h in self.stack]
         colors = [h.color for h in self.stack]
         rDict = dict({"weights": stack, "bins": self.axis.edges,
-                      "x": base_vals, "color": colors, "label": fancyNames
-                      # , 'align': self.align,
+                      "x": base_vals, "color": colors, "label": fancyNames,
                       }, **self.options)
         rDict.update(kwargs)
         return rDict

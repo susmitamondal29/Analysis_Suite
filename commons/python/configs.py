@@ -188,13 +188,13 @@ def get_list_systs(filename, cli_systs=["all"]):
 def get_plot_area(analysis, drawStyle, path):
     extraPath = time.strftime("%Y_%m_%d")
     if path:
-        extraPath = path + '/' + extraPath
+        extraPath = path / extraPath
 
     if 'hep.wisc.edu' in socket.gethostname():
         basePath = Path(f'{Path.home()}/public_html')
     elif 'uwlogin' in socket.gethostname() or 'lxplus' in socket.gethostname():
         basePath = Path('/eos/home-{0:1.1s}/{0}/www'.format(Path.home().owner()))
-    basePath /= f'PlottingResults/{analysis}/{extraPath}_{drawStyle}'
+    basePath = basePath /'PlottingResults' / analysis / f'{extraPath}_{drawStyle}'
 
     return basePath
 

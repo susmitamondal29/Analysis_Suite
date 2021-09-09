@@ -5,29 +5,26 @@ import datetime
 from pathlib import Path
 import socket
 import subprocess
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import logging
 logging.getLogger('matplotlib.font_manager').disabled = True
-import mplhep as hep
-plt.style.use([hep.style.CMS, hep.style.firamath])
+import numpy as np
 
+from analysis_suite.commons.plot_utils import plot, setup_mplhep, setup_ticks, axisSetup
 import analysis_suite.commons.configs as config
 from analysis_suite.commons import writeHTML, PlotInfo, GroupInfo
 from analysis_suite.commons.histogram import Histogram
 import analysis_suite.data.inputs as plot_params
 from .stack import Stack
-from .pyPad import pyPad
 from .LogFile import LogFile
+
+hep = setup_mplhep()
 
 def setup(cli_args):
     callTime = str(datetime.datetime.now())
     command = ' '.join(sys.argv)
     LogFile.add_metainfo(callTime, command)
-    
-    signalNames = cli_args.signal.split(',')
-    if not set(signalNames) & set(plot_params.color_by_group.keys()):
+
+    if cli_args.signal not in plot_params.color_by_group:
         logging.error("signal not in list of groups!")
         logging.error(plot_params.color_by_group.keys())
         exit(1)
@@ -52,43 +49,44 @@ def setup(cli_args):
                 config.make_plot_paths(outpath)
             for histName in plot_info.get_hists(cli_args.hists):
                 argList.append((histName, group_info, plot_info, outpath,
-                                filename, signalNames, year, syst))
+                                filename, cli_args.signal, year, syst))
 
     for histName in plot_info.get_hists(cli_args.hists):
         argList.append((histName, group_info, plot_info, basePath,
                         cli_args.workdir / "test_Nominal.root",
-                        signalNames, "all", "Nominal"))
+                        cli_args.signal, "all", "Nominal"))
 
     return argList
 
 
-def run(histName, file_info, plot_info, outpath, filename, signalNames, year, syst):
+def run(histName, file_info, plot_info, outpath, filename, signalName, year, syst):
     logging.info(f'Processing {histName} for year {year} and systematic {syst}')
 
     logger = LogFile(histName, plot_info.at(histName), plot_info.get_lumi(year))
     binning = plot_info.get_binning(histName)
+
     # Setup histograms
-    ratio = Histogram("Ratio", "black", binning)
-    band = Histogram("Ratio", "plum", binning)
-    error = Histogram("Stat Errors", "plum", binning)
-    data = Histogram("Data", "black", binning)
+    ratio = Histogram("Ratio", binning, color="black")
+    band = Histogram("Ratio", binning, color="plum")
+    error = Histogram("Stat Errors", binning, color="plum")
+    data = Histogram("Data", binning, color="black")
+
     stacker = Stack(binning)
-    try:
-        groupHists = config.getNormedHistos(filename, file_info, plot_info,
+
+    groupHists = config.getNormedHistos(filename, file_info, plot_info,
                                         histName, year)
-        for group, hist in groupHists.items():
-            hist.set_plot_details(file_info)
-    except:
-        return
-    exclude = ['data'] + signalNames
-    signal = groupHists[signalNames[0]] if signalNames[0] in groupHists else None
-    # signals = {sig: groupHists[sig] for sig in (sig for sig in signalNames
-    #                                          if sig in groupHists)}
-    data += groupHists['data'] if 'data' in groupHists else None
-    for group in (g for g in groupHists.keys() if g not in exclude):
-        stacker += groupHists[group]
+    for group, hist in groupHists.items():
+        hist.set_plot_details(file_info)
+
+
+    signal = groupHists.pop(signalName)
+    if "data" in groupHists:
+        data += groupHists.pop("data")
+
+    for groupHist in groupHists.values():
+        stacker += groupHist
     error += stacker
-    # for sig, signal in signals.items():
+
     if signal:
         # scale = config.findScale(stacker.integral() / signal.integral())
         scale = stacker.integral() / signal.integral()
@@ -103,33 +101,39 @@ def run(histName, file_info, plot_info, outpath, filename, signalNames, year, sy
     # # Extra options
     # stacker.setDrawType(args.drawStyle)
 
-    pad = pyPad(plt, ratio)
-    n, bins, patches = pad().hist(**stacker.getInputs())
-    stacker.applyPatches(plt, patches)
-
-    # for signal in (s for s in signals.values() if s):
-    if signal:
-        pad().hist(**signal.getInputsHist())
-        pad().errorbar(**signal.getInputs())
-    if data:
-        pad().errorbar(**data.getInputs())
-    if error:
-        pad().hist(**error.getInputsError())
+    plot_inputs = {"nrows": 1, "ncols": 1, "sharex": True, "gridspec_kw": {"hspace": 0.1}}
     if ratio:
-        pad(sub_pad=True).errorbar(**ratio.getInputs())
-        pad(sub_pad=True).hist(**band.getInputsError())
+        plot_inputs["nrows"] = 2
+        plot_inputs["gridspec_kw"]["height_ratio"] = [3, 1]
 
-    pad.setLegend(plot_info.at(histName))
-    pad.axisSetup(plot_info.at(histName), stacker.get_xrange())
-    hep.cms.label(ax=pad(), data=data, lumi=plot_info.get_lumi(year)) #year=year
-    fig = plt.gcf()
+    plotBase = outpath / 'plots' / histName
+    with plot(f"{plotBase}.png", **plot_inputs) as pad:
+        if isinstance(pad, np.ndarray):
+            pad, subpad = pad
+        else:
+            subpad = None
+        setup_ticks(pad, subpad)
 
+        n, bins, patches = pad.hist(**stacker.getInputs())
+        stacker.applyPatches(patches)
 
-    plotBase = outpath / f'plots/{histName}'
-    plt.savefig(f'{plotBase}.png', format="png", bbox_inches='tight')
-    subprocess.call('convert {0}.png -quality 0 {0}.pdf'.format(plotBase),
-                    shell=True)
-    plt.close()
+        if signal:
+            pad.hist(**signal.getInputsHist())
+            pad.errorbar(**signal.getInputs())
+        if data:
+            pad.errorbar(**data.getInputs())
+        if error:
+            pad.hist(**error.getInputsError())
+        if ratio:
+            subpad.errorbar(**ratio.getInputs())
+            subpad.hist(**band.getInputsError())
+
+        pad.legend(loc=plot_info.get_legend_loc(histName))
+        axisSetup(pad, subpad, xlabel=plot_info.get_label(histName), binning=stacker.get_xrange())
+        hep.cms.label(ax=pad, data=data, lumi=plot_info.get_lumi(year)) #year=year
+
+    subprocess.call('convert {0}.png -quality 0 {0}.pdf'.format(plotBase), shell=True)
+
 
     # setup log file
     for group, hist in groupHists.items():

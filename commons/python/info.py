@@ -47,6 +47,12 @@ class PlotInfo(BasicInfo):
     def get_lumi(self, year):
         return self.lumi[year]
 
+    def get_label(self, histname):
+        return self.at(histname, "Label")
+
+    def get_legend_loc(self, histname):
+        loc = self.at(histname, "LegendLoc")
+        return loc if loc is not None else "best"
 
 class GroupInfo(BasicInfo):
     def __init__(self, group2color=None, **kwargs):
@@ -60,7 +66,6 @@ class GroupInfo(BasicInfo):
         return self.groupInfo[group]["Name"]
 
     def get_color(self, group):
-        print(self.group2color)
         return self.group2color[group]
 
     def get_memberMap(self):

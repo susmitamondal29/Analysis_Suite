@@ -7,11 +7,11 @@ from scipy.stats import beta
 
 
 class Histogram:
-    def __init__(self, group, *args):
+    def __init__(self, group, *args, **kwargs):
         self.hist = bh.Histogram(*args, storage=bh.storage.Weight())
         self.breakdown = dict()
         self.group = group
-        self.color = dict()
+        self.color = "k" if "color" not in kwargs else kwargs["color"]
         self.name = ""
         self.draw_sc = 1.
 
@@ -71,10 +71,10 @@ class Histogram:
         else:
             raise Exception()
 
-    def set_plot_details(self, file_info):
-        name = file_info[self.group]
+    def set_plot_details(self, group_info):
+        name = group_info.get_legend_name(self.group)
         self.name = f'${name}$' if '\\' in name else name
-        self.color = file_info.get_color(self.group)
+        self.color = group_info.get_color(self.group)
 
     def get_xrange(self):
         return [self.axis.edges[0], self.axis.edges[-1]]

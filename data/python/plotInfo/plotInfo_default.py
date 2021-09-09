@@ -1,60 +1,195 @@
 # -*- coding: utf-8 -*-
 
 info = {
-    "BDT.Background" : {
-        "Column": "Background",
-        "set_xlabel": "$BDT_{Background}$",
+    "Signal" : {
+        "Column": "Signal",
+        "Label": "$BDT_{Signal}$",
         "Binning"     :  [20, 0, 1.],
-        "Modify": "1-{}"
     },
-    "HT" : {
-        "Column": "HT",
-        "set_xlabel": "$H_{T}$ (GeV)",
-        "Binning"     :  [15, 0, 1200],
-    },
-    "Met" : {
-        "Column": "Met",
-        "set_xlabel": "$p_{T}^{miss}$ (GeV)",
-        "Binning"     :  [20, 0, 500],
-    },
+
     "NJets" : {
         "Column": "NJets",
-        "set_xlabel": "$N_{j}$",
+        "Label": "$N_{j}$",
         "Binning"     :  [10, 0, 10],
         "Discrete": True,
     },
     "NBJets" : {
         "Column": "NBJets",
-        "set_xlabel": "$N_{b}$",
-        "Binning"     :  [10, 0, 10],
+        "Label": "$N_{b}$",
+        "Binning"     :  [6, 0, 6],
         "Discrete": True,
     },
+
+    "NResolvedTops" : {
+        "Column": "NResolvedTops",
+        "Label": "$N_{t}$",
+        "Binning"     :  [5, 0, 5],
+        "Discrete": True,
+    },
+
     "NlooseBJets" : {
         "Column": "NlooseBJets",
-        "set_xlabel": "$N_{looseb}$",
+        "Label": "$N_{looseb}$",
         "Binning"     :  [10, 0, 10],
         "Discrete": True,
     },
     "NtightBJets" : {
         "Column": "NtightBJets",
-        "set_xlabel": "$N_{tightb}$",
-        "Binning"     :  [10, 0, 10],
+        "Label": "$N_{tightb}$",
+        "Binning"     :  [6, 0, 6],
         "Discrete": True,
     },
-    "NTops" : {
-        "Column": "NResolvedTops",
-        "set_xlabel": "$N_{t}$",
-        "Binning"     :  [5, 0, 5],
+
+    "NlooseMuons" : {
+        "Column": "NlooseMuons",
+        "Label": "$N_{loose}(\mu)$",
+        "Binning"     :  [4, 0, 4],
         "Discrete": True,
     },
-    "lep1_pt" : {
+    "NlooseElectrons" : {
+        "Column": "NtightElectrons",
+        "Label": "$N_{loose}(e)$",
+        "Binning"     :  [4, 0, 4],
+        "Discrete": True,
+    },
+
+    "HT" : {
+        "Column": "HT",
+        "Label": "$H_{T}$ (GeV)",
+        "Binning"     :  [15, 0, 1500],
+    },
+    "HT_b" : {
+        "Column": "HT_b",
+        "Label": "$H_{T}(b)$ (GeV)",
+        "Binning"     :  [15, 0, 1200],
+    },
+
+    "Met" : {
+        "Column": "Met",
+        "Label": "$p_{T}^{miss}$ (GeV)",
+        "Binning"     :  [20, 0, 500],
+    },
+
+    "centrality" : {
+        "Column": "centrality",
+        "Label": "$centrality$",
+        "Binning"     :  [20, 0, 1.],
+    },
+
+    "j1Pt" : {
+        "Column": "j1Pt",
+        "Label": "$p_{T}(j_{1})$",
+        "Binning"     :  [30, 0, 650],
+    },
+    "j2Pt" : {
+        "Column": "j2Pt",
+        "Label": "$p_{T}(j_{2})$",
+        "Binning"     :  [30, 0, 500],
+    },
+    "j3Pt" : {
+        "Column": "j3Pt",
+        "Label": "$p_{T}(j_{3})$",
+        "Binning"     :  [20, 0, 300],
+    },
+    "j4Pt" : {
+        "Column": "j4Pt",
+        "Label": "$p_{T}(j_{4})$",
+        "Binning"     :  [20, 0, 250],
+    },
+    "j5Pt" : {
+        "Column": "j5Pt",
+        "Label": "$p_{T}(j_{5})$",
+        "Binning"     :  [15, 0, 150],
+    },
+    "j6Pt" : {
+        "Column": "j6Pt",
+        "Label": "$p_{T}(j_{6})$",
+        "Binning"     :  [15, 0, 150],
+    },
+    "j7Pt" : {
+        "Column": "j7Pt",
+        "Label": "$p_{T}(j_{7})$",
+        "Binning"     :  [15, 0, 150],
+    },
+    "j8Pt" : {
+        "Column": "j8Pt",
+        "Label": "$p_{T}(j_{8})$",
+        "Binning"     :  [15, 0, 100],
+    },
+
+    "b1Pt" : {
+        "Column": "b1Pt",
+        "Label": "$p_{T}(b_{1})$",
+        "Binning"     :  [30, 0, 500],
+    },
+    "b2Pt" : {
+        "Column": "b2Pt",
+        "Label": "$p_{T}(b_{2})$",
+        "Binning"     :  [30, 0, 300],
+    },
+    "b3Pt" : {
+        "Column": "b3Pt",
+        "Label": "$p_{T}(b_{3})$",
+        "Binning"     :  [30, 0, 200],
+    },
+    "b4Pt" : {
+        "Column": "b4Pt",
+        "Label": "$p_{T}(b_{4})$",
+        "Binning"     :  [30, 0, 100],
+    },
+
+    "l1Pt" : {
         "Column": "l1Pt",
-        "set_xlabel": "$p_{T}(j_{1})$",
+        "Label": "$p_{T}(\ell_{1})$",
         "Binning"     :  [30, 0, 500],
     },
-    "lep2_pt" : {
+    "l2Pt" : {
         "Column": "l2Pt",
-        "set_xlabel": "$p_{T}(j_{2})$",
-        "Binning"     :  [30, 0, 500],
+        "Label": "$p_{T}(\ell_{2})$",
+        "Binning"     :  [20, 0, 250],
     },
+
+    "lepMass" : {
+        "Column": "lepMass",
+        "Label": "$m(\ell_{1}, \ell_{2})$",
+        "Binning"     :  [30, 0, 1500],
+    },
+
+    "lepDR" : {
+        "Column": "lepDR",
+        "Label": "$\Delta R(\ell_{1}, \ell_{2})$",
+        "Binning"     :  [30, 0, 6.],
+    },
+    "jetDR" : {
+        "Column": "lepDR",
+        "Label": "$\Delta R(j_{1}, j_{2})$",
+        "Binning"     :  [30, 0, 6.],
+    },
+    "jetMass" : {
+        "Column": "jetMass",
+        "Label": "$m(j_{1}, j_{2})$",
+        "Binning"     :  [30, 0, 1500],
+    },
+
+    "LepCos" : {
+        "Column": "LepCos",
+        "Label": "$\cos(\Delta\phi(\ell_{1}, \ell_{2}))$",
+        "Binning"     :  [20, -1, 1],
+    },
+    "JetLep1_Cos"  : {
+        "Column": "JetLep1_Cos",
+        "Label": "$\cos(\Delta\phi(j_{1}, \ell_{1}))$",
+        "Binning"     :  [20, -1, 1],
+    },
+    "JetLep2_Cos"  : {
+        "Column": "JetLep2_Cos",
+        "Label": "$\cos(\Delta\phi(j_{1}, \ell_{2}))$",
+        "Binning"     :  [20, -1, 1],
+    },
+    "mwT" : {
+        "Column": "mwT",
+        "Label": "$m(W_{T})$",
+        "Binning"     :  [30, 0, 300],
+    },
+
 }
