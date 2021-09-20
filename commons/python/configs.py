@@ -83,14 +83,8 @@ def get_cli():
         parser.add_argument("-sig", "--signal", type=str, default='', required=True,
                             help="Name of the group to be made into the Signal")
 
-
-
-    
     return parser.parse_args()
 
-
-def pre(pre, lister):
-    return ["_".join([pre, l]) for l in lister]
 
 def findScale(ratio):
     sigNum = 10**int(math.log10(ratio))
@@ -163,27 +157,32 @@ def getGroupDict(groups, group_info):
         groupDict[groupName] = new_samples
     return groupDict
 
-def get_list_systs(filename, cli_systs=["all"]):
+def get_list_systs(systs=["all"], tool="", **kwargs):
     allSysts = list()
 
-    if filename.is_file():
+    if tool == "analyze":
         import numpy as np
         import uproot4 as uproot
-        with uproot.open(filename) as f:
-            for d in f:
-                if "Systematics" not in d:
-                    continue
-                allSysts = np.unique([syst.member("fName") for syst in f[d]])
-                break
+        for year in kwargs["years"]:
+            filename = Path(f'result_{year}.root')
+            with uproot.open(filename) as f:
+                syst_loc = list(filter(lambda x: "Systematics" in x, f.keys()))[0]
+                allSysts.append(set(np.unique([syst.member("fName") for syst in f[syst_loc]])))
+    elif tool == "mva":
+        name="processed_"
+        allSets = list()
+        for year in kwargs["years"]:
+            d = kwargs["workdir"] / year
+            allSysts.append({syst.stem[len(name):] for syst in d.glob(f"{name}*.root")})
     else:
-        allSysts = [syst.name.replace("test_", "").replace(".root", "")
-                    for syst in filename.glob("test*.root")]
+        name="test_"
+        allSysts = {syst.stem[len(name):] for syst in filename.glob(f"{name}*.root")}
 
-    if cli_systs == ["all"]:
-        return allSysts
+    if systs == ["all"]:
+        return set.intersection(*allSysts)
     else:
-        return [syst for syst in allSysts
-                if syst.replace("_down","").replace("_up","") in cli_systs]
+        return [syst for syst in set.intersection(*allSysts)
+                if syst.replace("_down","").replace("_up","") in systs]
 
 def get_plot_area(analysis, drawStyle, path):
     extraPath = time.strftime("%Y_%m_%d")
@@ -207,11 +206,3 @@ def setup_pandas(use_vars, all_vars):
     for key, func in use_vars.items():
         df_set[key] = df_set[key].astype(func.getType())
     return df_set
-
-def get_shape_systs(syst_allow='all'):
-    from analysis_suite.data.inputs import systematics
-    all_syst = {syst.name for syst in systematics if syst.syst_type == "shape"}
-    if syst_allow == "all":
-        return list(all_syst)
-    else:
-        return list(set(syst_allow) - all_syst)

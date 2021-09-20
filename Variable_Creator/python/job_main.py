@@ -9,11 +9,12 @@ import analysis_suite.data.inputs as mva_params
 
 def setup(cli_args):
     argList = list()
+    allSysts = get_list_systs(**vars(cli_args))
+
     for year in cli_args.years:
         outdir = cli_args.workdir / year
         checkOrCreateDir(outdir)
         infile = Path(f'result_{year}.root')
-        allSysts = get_list_systs(infile, cli_args.systs)
         for syst in allSysts:
             argList.append((infile, outdir, year, syst))
 
