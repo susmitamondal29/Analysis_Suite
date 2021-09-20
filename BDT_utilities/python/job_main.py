@@ -29,14 +29,14 @@ def run(groupDict, workdir, trainType, applyModel, years, systName, save_train):
         from .MvaMaker import XGBoostMaker
         params = {"max_depth": 2, "colsample_by_tree": 0.65, "min_childweight": 1e-3,
                   "subsample": 0.75, "eta": 0.05, "eval_metric": "rmse"}
-        mvaRunner = XGBoostMaker(mva_params.usevars, groupDict, params=params
-                                 )
+        mvaRunner = XGBoostMaker(mva_params.usevars, groupDict, systName=systName,
+                                 params=params)
     elif trainType == "DNN":
         from .DNN import KerasMaker
-        mvaRunner = KerasMaker(mva_params.usevars, groupDict)
+        mvaRunner = KerasMaker(mva_params.usevars, groupDict, systName=systName)
     elif trainType == "TMVA":
         from .TMVA import TMVAMaker
-        mvaRunner = TMVAMaker(mva_params.usevars, groupDict)
+        mvaRunner = TMVAMaker(mva_params.usevars, groupDict, systName=systName)
     else:
 
         return

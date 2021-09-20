@@ -54,4 +54,5 @@ class Card_Maker:
         # Specify systematics
         for syst in syst_list:
             self.write(syst.output(self.plot_groups, self.years))
+        self.write("syst_error group = " + " ".join([syst.name for syst in syst_list]))
         self.write("* autoMCStats 1")

@@ -5,7 +5,7 @@ import uproot as upwrite
 import numpy as np
 
 from analysis_suite.commons import GroupInfo, PlotInfo
-from analysis_suite.commons.configs import getGroupDict, get_list_systs, checkOrCreateDir
+from analysis_suite.commons.configs import getGroupDict, get_list_systs, checkOrCreateDir, clean_syst
 from .histogram_creater import getNormedHistos
 
 from .card_maker import Card_Maker
@@ -43,7 +43,7 @@ def run(inpath, outpath, file_info, plot_info, histName, year, systs):
 
 def cleanup(cli_args):
     group_info = GroupInfo(mva_params.color_by_group, **vars(cli_args))
-    shapeSysts = get_list_systs(**vars(cli_args))
+    shapeSysts = {clean_syst(syst) for syst in get_list_systs(**vars(cli_args))}
     allSysts = [syst for syst in mva_params.systematics
                 if syst.name in shapeSysts or syst.syst_type == "lnN"]
 

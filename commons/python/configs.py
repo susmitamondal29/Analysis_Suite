@@ -147,6 +147,7 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
 
 def getGroupDict(groups, group_info):
     groupDict = OrderedDict()
+    allSamples = set()
     for groupName, samples in groups.items():
         new_samples = list()
         for samp in samples:
@@ -154,6 +155,9 @@ def getGroupDict(groups, group_info):
                 new_samples += group_info.group2MemberMap[samp]
             else:
                 new_samples.append(samp)
+        if allSamples.intersection(new_samples):
+            raise Exception("Group has overlap, probably from same sample groups repeated. Change this")
+        allSamples = allSamples.union(new_samples)
         groupDict[groupName] = new_samples
     return groupDict
 
@@ -176,13 +180,19 @@ def get_list_systs(systs=["all"], tool="", **kwargs):
             allSysts.append({syst.stem[len(name):] for syst in d.glob(f"{name}*.root")})
     else:
         name="test_"
-        allSysts = {syst.stem[len(name):] for syst in filename.glob(f"{name}*.root")}
+        allSets = list()
+        for year in kwargs["years"]:
+            d = kwargs["workdir"] / year
+            allSysts.append({syst.stem[len(name):] for syst in d.glob(f"{name}*.root")})
 
     if systs == ["all"]:
         return set.intersection(*allSysts)
     else:
         return [syst for syst in set.intersection(*allSysts)
-                if syst.replace("_down","").replace("_up","") in systs]
+                if clean_syst(syst) in systs]
+
+def clean_syst(syst):
+    return syst.replace("_down","").replace("_up","")
 
 def get_plot_area(analysis, drawStyle, path):
     extraPath = time.strftime("%Y_%m_%d")

@@ -29,8 +29,8 @@ def from_boost(histogram, title=""):
     out._fTsumwx = (histogram.values() * centers).sum()
     out._fTsumwx2 = (histogram.values() * centers**2).sum()
 
-    out.extend(histogram.values())
-    out._fSumw2 = histogram.view().variance
+    out.extend(histogram.values(flow=True))
+    out._fSumw2 = histogram.variances(flow=True)
  # out._classname, content = _histtype(content)
 
     return out
