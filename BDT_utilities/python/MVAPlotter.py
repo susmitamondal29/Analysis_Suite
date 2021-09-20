@@ -118,7 +118,7 @@ class MVAPlotter(object):
             ax2.hist(x=bins[:-1], weights=hists["Background"], bins=bins, linewidth=1.5,
                     label=f'Background', histtype="stepfilled",
                     density=True, alpha=0.5, hatch="///",
-                     **color_options(self.color_dict["Signal"]))
+                     **color_options(self.color_dict["Background"]))
 
             lines, labels = ax2.get_legend_handles_labels()
             lines2, labels2 = ax.get_legend_handles_labels()
@@ -177,7 +177,7 @@ class MVAPlotter(object):
         opr = cutter[1]
         var, cut_val = cutter[0]
         for group, workset in self.data[year].items():
-            self.data[year][group] = workset[opr(workset[var], cut_val)]
+            self.data[year][group] = workset[opr(workset[var], float(cut_val))]
 
 
     def print_info(self, var, year):

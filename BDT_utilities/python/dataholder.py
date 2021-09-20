@@ -43,7 +43,6 @@ class MLHolder:
         """
         self.classID_by_className = {"Signal": 1, "Background": 0, "NotTrained": 0}
         self.group_dict = groupDict
-        self.group_dict["NotTrained"] = list()
         self.sample_map = dict()
         self.systName = systName
 
@@ -57,7 +56,7 @@ class MLHolder:
         self.split_ratio = 0.3
         self.validation_ratio = 0.10
         self.max_train_events = 1000000
-        self.min_train_events = 1
+        self.min_train_events = 100
         self.random_state = randint(0, 2**32-1)#12345
 
         self.train_set = setup_pandas(self.use_vars, self.all_vars)
@@ -151,17 +150,17 @@ class MLHolder:
 
         self.pred_test[year] = {grp: pred.T[i] for grp, i in self.classID_by_className.items()}
         self.auc[year] = roc_auc_score(labels, pred.T[1],
-                                       # sample_weight = abs(weights)
+                                       sample_weight = abs(weights)
                                        )
 
         self.fom[year] = 0
-        for cut in np.linspace(0, 1, 101):
-            mask = self.pred_test[year]["Signal"] > cut
-            if np.sum(weights[mask]) == 0:
-                continue
-            fom = np.sum(weights[mask&(labels==1)])/np.sqrt(np.sum(weights[mask]))
-            if fom > self.fom[year]:
-                self.fom[year] = fom
+        fom_bins = np.linspace(0, 1, 101)
+        sig = np.cumsum(np.histogram(self.pred_test[year]["Signal"][labels==1], bins=fom_bins,
+                                     weights=weights[labels==1])[0][::-1])[::-1]
+        tot = np.cumsum(np.histogram(self.pred_test[year]["Signal"], bins=fom_bins,
+                                     weights=weights)[0][::-1])[::-1]
+        self.fom[year] = max(sig/np.sqrt(tot))
+
 
         print(f'AUC for year {year}: {self.auc[year]}')
         print(f'FOM for year {year}: {self.fom[year]}')
@@ -234,7 +233,7 @@ class MLHolder:
         workSet = self.test_sets[year]
         for key, arr in self.pred_test[year].items():
             workSet.insert(0, key, arr)
-        self._output(workSet, outdir / year / f"test_{self.systName}.root")
+            self._output(workSet, outdir / year / f"test_{self.systName}.root")
 
 
     def _output(self, workSet, outfile):
