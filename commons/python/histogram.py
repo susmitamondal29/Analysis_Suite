@@ -23,21 +23,29 @@ class Histogram:
 
     def __iadd__(self, right):
         if isinstance(right, Histogram):
-            self.hist += right.hist
+            self._set_hist(right.hist)
             self.breakdown.update({mem: bh_weights()
                                    for mem in right.breakdown.keys()
                                    if mem not in self.breakdown})
             for mem, info in right.breakdown.items():
                 self.breakdown[mem] += info
+        elif isinstance(right, bh.Histogram):
+            self._set_hist(right)
         else:
             pass
         return self
+
+    def _set_hist(self, hist):
+        if not self:
+            self.hist = hist
+        else:
+            self.hist += hist
 
     def __truediv__(self, denom):
         p_raw = (self.vals*self.vals/self.sumw2)
         t_raw = (denom.vals*denom.vals/denom.sumw2)
         ratio = (self.sumw2*denom.vals/(self.vals*denom.sumw2))
-        hist = self.hist/denom.hist
+        hist = self.vals/denom.vals
 
         alf = (1-0.682689492137)/2
         lo = np.array([beta.ppf(alf, p, t+1) for p, t in zip(p_raw, t_raw)])
@@ -46,9 +54,9 @@ class Histogram:
         errHi = ratio*hi/(1-hi) - hist
         hist[np.isnan(hist)], errLo[np.isnan(errLo)], errHi[np.isnan(errHi)] = 0, 0, 0
 
-        return_obj = Histogram("", "", self.hist.axes[0])
-        return_obj.hist.view().value = hist
-        return_obj.hist.view().variance = (errLo**2 + errHi**2)/2
+        return_obj = Histogram("", self.hist.axes[0])
+        return_obj.vals = hist
+        return_obj.sumw2 = (errLo**2 + errHi**2)/2
         return return_obj
 
     def __bool__(self):

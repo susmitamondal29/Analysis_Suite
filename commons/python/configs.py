@@ -103,11 +103,11 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
 
     groupHists = dict()
     ak_col = plot_info.at(histName, "Column")
-    cuts = cuts if (cuts := plot_info.at(histName, "Cuts")) else list()
-    cut = "*".join([f'({cut})' for cut in cuts])
+    cuts = cuts if (cuts := plot_info.at(histName, "Cuts")) else None
+    cut = "*".join([f'({cut})' for cut in cuts]) if cuts else None
 
     with uproot.open(infilename) as f:
-        for group, members in file_info.group2MemberMap.items():m
+        for group, members in file_info.group2MemberMap.items():
             groupHists[group] = Histogram(group, plot_info.get_binning(histName))
             for mem in members:
                 if mem not in f:
@@ -118,7 +118,7 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
                     raise ValueError()
                 array = f[mem].arrays([ak_col, "scale_factor"], cut=cut)
                 groupHists[group].fill(array[ak_col], array["scale_factor"], mem)
-            hist.scale(plot_info.get_lumi(year)*1000)
+            groupHists[group].scale(plot_info.get_lumi(year)*1000)
 
     return groupHists
 
