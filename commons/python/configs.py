@@ -103,10 +103,12 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
 
     groupHists = dict()
     ak_col = plot_info.at(histName, "Column")
+    cuts = cuts if (cuts := plot_info.at(histName, "Cuts")) else list()
+    cut = "*".join([f'({cut})' for cut in cuts])
 
-    for group, members in file_info.group2MemberMap.items():
-        groupHists[group] = Histogram(group, plot_info.get_binning(histName))
-        with uproot.open(infilename) as f:
+    with uproot.open(infilename) as f:
+        for group, members in file_info.group2MemberMap.items():m
+            groupHists[group] = Histogram(group, plot_info.get_binning(histName))
             for mem in members:
                 if mem not in f:
                     logging.warning(f'Could not find sample {mem} in file for year {year}')
@@ -114,34 +116,10 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
                 if ak_col not in f[mem]:
                     logging.error(f"Could not find variable {histName} in file for year {year}")
                     raise ValueError()
-                array = f[mem].arrays([ak_col, "scale_factor"],)
-                narray = {"name": mem}
-                sf = array["scale_factor"]
-                vals = array[ak_col]
-                if plot_info.at(histName, "Modify"):
-                    vals = eval(plot_info.at(histName, "Modify").format("vals"))
-                    if len(vals) != len(sf):
-                        sf,_ = ak.unzip(ak.cartesian([sf, array[ak_col]]))
-                        sf = ak.flatten(sf)
-                narray[ak_col] = vals
-                narray["scale_factor"] = sf
-                #print("{}: {:.3f}+-{:.3f} ({})".format(mem, ak.sum(sf)*plot_info.lumi, plot_info.lumi*math.sqrt(ak.sum(sf**2)),len(sf)))
-                groupHists[group] += narray
+                array = f[mem].arrays([ak_col, "scale_factor"], cut=cut)
+                groupHists[group].fill(array[ak_col], array["scale_factor"], mem)
+            hist.scale(plot_info.get_lumi(year)*1000)
 
-    for name, hist in groupHists.items():
-        # if plot_info.lumi < 0:
-        #     scale = 1 / sum(hist.hist)
-        #     hist.scale(scale)
-        # else:
-        hist.scale(plot_info.get_lumi(year)*1000)
-    s, b = 0, 0
-    for group, hist in groupHists.items():
-        if group == "ttt":
-            s = hist.integral()
-        else:
-            b += hist.integral()
-
-    logging.debug("Figure of merit: ", s/math.sqrt(s+b+1e-9))
     return groupHists
 
 

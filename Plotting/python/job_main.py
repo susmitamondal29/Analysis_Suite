@@ -36,9 +36,9 @@ def setup(cli_args):
     config.make_plot_paths(basePath)
 
     argList = list()
+    allSysts = config.get_list_systs(**vars(cli_args))
     for year in cli_args.years:
         path = cli_args.workdir / year
-        allSysts = config.get_list_systs(path, cli_args.systs)
         baseYear = basePath / year
         config.make_plot_paths(baseYear)
         for syst in allSysts:
@@ -51,10 +51,10 @@ def setup(cli_args):
                 argList.append((histName, group_info, plot_info, outpath,
                                 filename, cli_args.signal, year, syst))
 
-    for histName in plot_info.get_hists(cli_args.hists):
-        argList.append((histName, group_info, plot_info, basePath,
-                        cli_args.workdir / "test_Nominal.root",
-                        cli_args.signal, "all", "Nominal"))
+    # for histName in plot_info.get_hists(cli_args.hists):
+    #     argList.append((histName, group_info, plot_info, basePath,
+    #                     cli_args.workdir / "test_Nominal.root",
+    #                     cli_args.signal, "all", "Nominal"))
 
     return argList
 
@@ -72,7 +72,7 @@ def run(histName, file_info, plot_info, outpath, filename, signalName, year, sys
     data = Histogram("Data", binning, color="black")
 
     stacker = Stack(binning)
-
+    print(histName, filename)
     groupHists = config.getNormedHistos(filename, file_info, plot_info,
                                         histName, year)
     for group, hist in groupHists.items():
@@ -149,14 +149,13 @@ def cleanup(cli_args):
     basePath = config.get_plot_area(cli_args.analysis, cli_args.drawStyle,
                                     cli_args.workdir)
     analysis = cli_args.analysis
+    allSysts = config.get_list_systs(**vars(cli_args))
 
     # combined page
     writeHTML(basePath, analysis, plot_params.all_years)
     for year in cli_args.years:
-        path = cli_args.workdir / year
         yearPath = basePath / year
         yearAnalysis = f'{analysis}/{year}'
-        allSysts = config.get_list_systs(path, cli_args.systs)
         allSysts.remove("Nominal")
         writeHTML(yearPath, yearAnalysis, allSysts)
         for syst in allSysts:

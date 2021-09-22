@@ -19,6 +19,14 @@ info = {
         "Binning"     :  [6, 0, 6],
         "Discrete": True,
     },
+    "NBJets_withCuts" : {
+        "Column": "NBJets",
+        "Label": "$N_{b}$",
+        "Binning"     :  [6, 0, 6],
+        "Discrete": True,
+        "Cuts" : ["Signal>0.65"]
+    },
+
 
     "NResolvedTops" : {
         "Column": "NResolvedTops",

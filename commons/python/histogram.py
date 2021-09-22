@@ -29,11 +29,6 @@ class Histogram:
                                    if mem not in self.breakdown})
             for mem, info in right.breakdown.items():
                 self.breakdown[mem] += info
-        elif isinstance(right, dict):
-            histName = (set(right.keys()) - {"scale_factor", "name"}).pop()
-            self.hist.fill(right[histName], weight=right["scale_factor"])
-            total = sum(right["scale_factor"])
-            self.breakdown[right["name"]] = bh_weights().fill(total)
         else:
             pass
         return self
@@ -70,6 +65,11 @@ class Histogram:
             return self.hist.view().variance
         else:
             raise Exception()
+
+    def fill(self, vals, weight, member=None):
+        self.hist.fill(vals, weight=weight)
+        if member is not None:
+            self.breakdown[member] = bh_weights().fill(sum(weight))
 
     def set_plot_details(self, group_info):
         name = group_info.get_legend_name(self.group)
