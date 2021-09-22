@@ -57,7 +57,7 @@ class MLHolder:
         self.validation_ratio = 0.10
         self.max_train_events = 1000000
         self.min_train_events = 100
-        self.random_state = randint(0, 2**32-1)#12345
+        self.random_state = 12345#randint(0, 2**32-1)#12345
 
         self.train_set = setup_pandas(self.use_vars, self.all_vars)
         self.validation_set = setup_pandas(self.use_vars, self.all_vars)

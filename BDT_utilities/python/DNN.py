@@ -104,9 +104,6 @@ class KerasMaker(MLHolder):
     def train(self, outdir):
         shuf_train = self.train_set.sample(frac=1, random_state=0).reset_index(drop=True)
 
-        signal = shuf_train[shuf_train["classID"] == 1]
-        bkg = shuf_train[shuf_train["classID"] == 0]
-
         x_train = shuf_train.drop(self._drop_vars, axis=1)
         w_train = shuf_train["train_weight"].to_numpy()
         y_train = shuf_train.classID

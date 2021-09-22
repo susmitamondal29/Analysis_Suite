@@ -32,7 +32,7 @@ class Params:
     subsample: float = 1
     base_score: float = 0.5
     colsample_bylevel: int = 1
-    colsample_bytree: int = 1
+    colsample_bytree: int = 0.75
     learning_rate: float = 1
     max_depth: int = 3
     max_delta_step: int = 0
@@ -64,7 +64,6 @@ class XGBoostMaker(MLHolder):
 
     def update_params(self, params):
         self.param = Params(params=params)
-
 
     def train(self, outdir):
         """**Train for multiclass BDT**
@@ -106,7 +105,7 @@ class XGBoostMaker(MLHolder):
         fit_model = xgb.XGBRegressor(**asdict(self.param))
         fit_model.fit(x_train, y_train, sample_weight=w_train,
                       eval_set=[(x_train, y_train), (x_test, y_test)],
-                      early_stopping_rounds=50, verbose=20)
+                      early_stopping_rounds=75, verbose=20)
 
         fit_model.save_model(f'{outdir}/model.bin')
 
