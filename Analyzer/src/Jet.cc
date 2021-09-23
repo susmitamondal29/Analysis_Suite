@@ -30,15 +30,14 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
         medium_bjet_cut = 0.4184;
         tight_bjet_cut = 0.7527;
     }
-
-    calib = BTagCalibration("deepcsv", scaleDir_ + "/scale_factors/btag_" + yearStr_ + ".csv");
+    // calib = BTagCalibration("deepcsv", scaleDir_ + "/btagging/DeepCSV_" + btag_file[year_] + ".csv");
+    calib = BTagCalibration("deepcsv", scaleDir_ + "/btagging/DeepCSV_" + yearStr_ + ".csv");
     setSF<TH2D>("btagEff_b", Systematic::BJet_Eff);
     setSF<TH2D>("btagEff_c", Systematic::BJet_Eff);
     setSF<TH2D>("btagEff_udsg", Systematic::BJet_Eff);
 
-    createBtagReader(eVar::Nominal);
-    createBtagReader(eVar::Down);
-    createBtagReader(eVar::Up);
+    use_shape_btag = true;
+    createBtagReaders();
 }
 
 void Jet::createLooseList()
@@ -55,7 +54,8 @@ void Jet::createLooseList()
 void Jet::createBJetList()
 {
     for (auto i : list(Level::Loose)) {
-        if (btag->At(i) > medium_bjet_cut)
+        if (pt(i) > 25
+            && btag->At(i) > medium_bjet_cut)
             m_partList[Level::Bottom]->push_back(i);
         n_loose_bjet.back() += (btag->At(i) > loose_bjet_cut) ? 1 : 0;
         n_medium_bjet.back() += (btag->At(i) > medium_bjet_cut) ? 1 : 0;
@@ -92,38 +92,73 @@ float Jet::getCentrality(const std::vector<size_t>& jet_list)
 
 float Jet::getScaleFactor()
 {
-    float weight = 1.;
-    const auto& goodBJets = list(Level::Bottom);
+    if (use_shape_btag) {
+        return getTotalShapeWeight();
+    } else {
+        return getTotalBTagWeight();
 
+    }
+}
+
+float Jet::getTotalBTagWeight() {
+    float weight = 1;
+    const auto& goodBJets = list(Level::Bottom);
     for (auto bidx : goodBJets) {
-        switch (std::abs(hadronFlavour->At(bidx))) {
-        case static_cast<Int_t>(PID::Bottom):
-            weight *= getBWeight(BTagEntry::FLAV_B, bidx);
-        case static_cast<Int_t>(PID::Charm):
-            weight *= getBWeight(BTagEntry::FLAV_C, bidx);
-        default:
-            weight *= getBWeight(BTagEntry::FLAV_UDSG, bidx);
-        }
+        auto btagInfo = btagInfo_by_flav[std::abs(hadronFlavour->At(bidx))];
+        weight *= getBWeight(btagInfo.flavor_type, bidx);
     }
 
     for (auto jidx : list(Level::Tight)) {
         if (std::find(goodBJets.begin(), goodBJets.end(), jidx) != goodBJets.end()) {
             continue; // is a bjet, weighting already taken care of
         }
-        float eff, bSF;
-        switch (std::abs(hadronFlavour->At(jidx))) {
-        case static_cast<Int_t>(PID::Bottom):
-            bSF = getBWeight(BTagEntry::FLAV_B, jidx);
-            eff = getWeight("btagEff_b", pt(jidx), fabs(eta(jidx)));
-        case static_cast<Int_t>(PID::Charm):
-            bSF = getBWeight(BTagEntry::FLAV_C, jidx);
-            eff = getWeight("btagEff_c", pt(jidx), fabs(eta(jidx)));
-        default:
-            bSF = getBWeight(BTagEntry::FLAV_UDSG, jidx);
-            eff = getWeight("btagEff_udsg", pt(jidx), fabs(eta(jidx)));
-        }
+        auto btagInfo = btagInfo_by_flav[std::abs(hadronFlavour->At(jidx))];
+        float eff = getWeight(btagInfo.jet_type, pt(jidx), fabs(eta(jidx)));
+        float bSF = getBWeight(btagInfo.flavor_type, jidx);
         weight *= (1 - bSF * eff) / (1 - eff);
     }
-
     return weight;
+}
+
+float Jet::getTotalShapeWeight() {
+    float weight = 1;
+    const auto bjets = list(Level::Bottom);
+    const auto jets = list(Level::Tight);
+    std::vector<size_t> jet_list;
+    jet_list.reserve(size());
+    std::merge(bjets.begin(), bjets.end(), jets.begin(), jets.end(), std::back_inserter(jet_list));
+    bool charmSyst = std::find(charm_systs.begin(), charm_systs.end(), currentSyst) != charm_systs.end();
+
+
+    for (auto idx : jet_list) {
+        switch (std::abs(hadronFlavour->At(idx))) {
+        case static_cast<Int_t>(PID::Bottom):
+            if (!charmSyst) weight *= getShapeWeight(BTagEntry::FLAV_B, idx);
+        case static_cast<Int_t>(PID::Charm):
+            if (charmSyst) weight *= getShapeWeight(BTagEntry::FLAV_C, idx);
+        default:
+            if (!charmSyst) weight *= getShapeWeight(BTagEntry::FLAV_UDSG, idx);
+        }
+    }
+    return weight;
+}
+
+void Jet::createBtagReaders()
+{
+    if (use_shape_btag) {
+        std::vector<std::string> systs;
+        for (auto [syst, name]: systName_by_syst) {
+            systs.push_back("up_"+name);
+            systs.push_back("down_"+name);
+        }
+        btag_reader = new BTagCalibrationReader(BTagEntry::OP_RESHAPING, "central", systs);
+        btag_reader->load(calib, BTagEntry::FLAV_B, "iterativefit");
+        btag_reader->load(calib, BTagEntry::FLAV_C, "iterativefit");
+        btag_reader->load(calib, BTagEntry::FLAV_UDSG, "iterativefit");
+    } else {
+        btag_reader = new BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"});
+        btag_reader->load(calib, BTagEntry::FLAV_B, "comb");
+        btag_reader->load(calib, BTagEntry::FLAV_C, "comb");
+        btag_reader->load(calib, BTagEntry::FLAV_UDSG, "incl");
+    }
 }

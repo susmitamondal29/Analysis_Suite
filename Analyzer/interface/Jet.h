@@ -8,6 +8,11 @@
 #include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 #include "CondTools/BTau/interface/BTagCalibrationReader.h"
 
+struct Btag_Info {
+    BTagEntry::JetFlavor flavor_type;
+    std::string jet_type;
+};
+
 class Jet : public Particle {
 public:
     void setup(TTreeReader& fReader, bool isMC);
@@ -64,26 +69,56 @@ private:
     float getHT(const std::vector<size_t>& jet_list);
     float getCentrality(const std::vector<size_t>& jet_list);
 
-    BTagCalibration calib;
-    std::unordered_map<eVar, BTagCalibrationReader*> bReader_by_var;
-    const std::unordered_map<eVar, std::string> varName_by_var = {
-        { eVar::Nominal, "central" },
-        { eVar::Up, "up" },
-        { eVar::Down, "down" },
+    std::unordered_map<int, Btag_Info> btagInfo_by_flav = {
+        {static_cast<int>(PID::Bottom), {BTagEntry::FLAV_B, "btagEff_b"}},
+        {static_cast<int>(PID::Charm), {BTagEntry::FLAV_C, "btagEff_c"}},
+        {static_cast<int>(PID::Jet), {BTagEntry::FLAV_UDSG, "btagEff_udsg"}},
     };
 
-    void createBtagReader(eVar var)
-    {
-        BTagCalibrationReader* btag_reader = new BTagCalibrationReader(BTagEntry::OP_MEDIUM, varName_by_var.at(var));
-        btag_reader->load(calib, BTagEntry::FLAV_B, "comb");
-        btag_reader->load(calib, BTagEntry::FLAV_C, "comb");
-        btag_reader->load(calib, BTagEntry::FLAV_UDSG, "incl");
-        bReader_by_var[var] = btag_reader;
-    }
+    const std::unordered_map<Systematic, std::string> systName_by_syst = {
+        { Systematic::BJet_Shape_hf, "hf" },
+        { Systematic::BJet_Shape_hfstats1, "hfstats1" },
+        { Systematic::BJet_Shape_hfstats2, "hfstats2" },
+        { Systematic::BJet_Shape_lf, "lf" },
+        { Systematic::BJet_Shape_lfstats1, "lfstats1" },
+        { Systematic::BJet_Shape_lfstats2, "lfstats2" },
+        { Systematic::BJet_Shape_cferr1, "cferr1" },
+        { Systematic::BJet_Shape_cferr2, "cferr2" },
+    };
+
+    const std::vector<Systematic> charm_systs = {
+        Systematic::BJet_Shape_cferr1,
+        Systematic::BJet_Shape_cferr2,
+    };
+
+    std::unordered_map<Year, std::string> btag_file = {
+        {Year::yr2016, "2016Legacy_V1"},
+        {Year::yr2017, "94XSF_V5_B_F"},
+        {Year::yr2018, "102XSF_V2"},
+    };
+
+    void createBtagReaders();
+    float getTotalBTagWeight();
+    float getTotalShapeWeight();
+
+    bool use_shape_btag = false;
+    BTagCalibration calib;
+    BTagCalibrationReader* btag_reader, *shape_btag_reader;
 
     double getBWeight(BTagEntry::JetFlavor flav, size_t idx)
     {
-        return bReader_by_var.at(currentVar)->eval_auto_bounds(varName_by_var.at(currentVar), flav, eta(idx), pt(idx));
+        std::string measType = "central";
+        if (currentSyst == Systematic::BJet_BTagging) {
+            measType = varName_by_var.at(currentVar);
+        }
+        return btag_reader->eval_auto_bounds(measType, flav, eta(idx), pt(idx));
+    }
+    double getShapeWeight(BTagEntry::JetFlavor flav, size_t idx) {
+        std::string measType = "central";
+        if (systName_by_syst.find(currentSyst) != systName_by_syst.end()) {
+            measType = varName_by_var.at(currentVar) + "_" + systName_by_syst.at(currentSyst);
+        }
+        return btag_reader->eval_auto_bounds(measType, flav, eta(idx), pt(idx), btag->At(idx));
     }
 };
 

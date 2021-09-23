@@ -194,3 +194,7 @@ def setup_pandas(use_vars, all_vars):
     for key, func in use_vars.items():
         df_set[key] = df_set[key].astype(func.getType())
     return df_set
+
+def get_shape_systs():
+    from analysis_suite.data.inputs import systematics
+    return [syst.name for syst in systematics if syst.syst_type == "shape"]

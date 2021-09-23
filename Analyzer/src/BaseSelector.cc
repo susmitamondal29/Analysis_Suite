@@ -5,11 +5,7 @@
 
 size_t BaseSelector::numSystematics()
 {
-    size_t total = 0;
-    for (auto syst : systematics_) {
-        total += var_by_syst.at(syst).size();
-    }
-    return total;
+    return systematics_.size()*2 - 1; // up/down for each, but nominal only 1
 };
 
 void BaseSelector::SetupOutTreeBranches(TTree* tree)
@@ -53,7 +49,6 @@ void BaseSelector::Init(TTree* tree)
     fOutput->Add(rootSystList);
 
     setupSystematicInfo();
-
     jetCorrector.setup(year_);
 
     fReader.SetTree(tree);
@@ -67,7 +62,6 @@ void BaseSelector::Init(TTree* tree)
     o_pass_event.resize(numSystematics());
 
     sfMaker.init(isMC_, fReader);
-
     muon.setup(fReader);
     elec.setup(fReader);
     jet.setup(fReader, isMC_);
@@ -88,7 +82,15 @@ Bool_t BaseSelector::Process(Long64_t entry)
     bool passAny = false;
     size_t systNum = 0;
     for (auto syst : systematics_) {
-        for (auto var : var_by_syst.at(syst)) {
+        // for (auto [systName, systematic]: syst_by_name) {
+        //     if (syst == systematic) {
+        //         std::cout << "Systematic is: " << systName << std::endl;
+        //         break;
+        //     }
+        // }
+        std::vector<eVar> vars = (syst != Systematic::Nominal) ? syst_vars : nominal_var;
+        for (auto var : vars) {
+            // std::cout << "Variation is: " << varName_by_var.at(var) << std::endl;
             SetupEvent(syst, var, systNum);
             systPassSelection.push_back(passSelection());
             // if (syst == Systematic::Nominal) {
@@ -144,14 +146,11 @@ void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
             float jetpt = jetCorrector.getJER(jecPt, jet.eta(i), **rho, genPt);
         }
     }
-
     muon.setGoodParticles(systNum, jet);
     elec.setGoodParticles(systNum, jet);
     jet.setGoodParticles(systNum);
     setOtherGoodParticles(systNum);
-
     setupChannel();
-
     if (isMC_) {
         ApplyScaleFactors();
     }
