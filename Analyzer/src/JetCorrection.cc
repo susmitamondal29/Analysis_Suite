@@ -39,7 +39,6 @@ void JetCorrection::setup(Year year)
     fs::remove_all(tmp_path);
 }
 
-
 float JetCorrection::getJER(float pt, float eta, float rho, float genPt)
 {
     float sf = 1.;
@@ -55,15 +54,18 @@ float JetCorrection::getJER(float pt, float eta, float rho, float genPt)
     }
 
     if (genPt < 0.) {
-        return pt + (sf-1)*(pt - genPt);
+        return sf + (1-sf)*(genPt/pt);
+        //return pt + (sf-1)*(pt - genPt);
     } else if(sf > 1) {
         float res = resolution->getResolution({{JME::Binning::JetPt, pt},
                                                    {JME::Binning::JetEta, eta},
                                                    {JME::Binning::Rho, rho}});
         std::normal_distribution<> gaussian{0, res};
-        return pt + pt*gaussian(gen)*sqrt(pow(sf,2) - 1);
+        return 1 + gaussian(gen)*sqrt(pow(sf,2) - 1);
+        //return pt + pt*gaussian(gen)*sqrt(pow(sf,2) - 1);
     }
-    return pt;
+    return 1.;
+    //return pt;
 }
 
 float JetCorrection::getJES(float pt, float eta)
@@ -76,14 +78,13 @@ float JetCorrection::getJES(float pt, float eta)
     // float jecPt = pt*corr;
     // std::cout << "correction: " << corr << std::endl;
     if (currentSyst != Systematic::Jet_JER || currentVar == eVar::Nominal) {
-        return pt;
+        return 1.;
+        //return pt;
     } else {
         jecUnc->setJetPt(pt);
         jecUnc->setJetEta(eta);
         float delta = jecUnc->getUncertainty(true);
-        return (currentVar == eVar::Up) ? (1+delta)*pt : (1-delta)*pt;
+        return (currentVar == eVar::Up) ? (1+delta) : (1-delta);
+        // return (currentVar == eVar::Up) ? (1+delta)*pt : (1-delta)*pt;
     }
-
-
-    return pt;
 }

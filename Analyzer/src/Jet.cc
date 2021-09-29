@@ -1,4 +1,5 @@
 #include "analysis_suite/Analyzer/interface/Jet.h"
+#include "analysis_suite/Analyzer/interface/JetCorrection.h"
 
 void Jet::setup(TTreeReader& fReader, bool isMC)
 {
@@ -10,6 +11,7 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
         hadronFlavour = new TTRArray<Int_t>(fReader, "Jet_hadronFlavour");
         genJetIdx = new TTRArray<Int_t>(fReader, "Jet_genJetIdx");
         rawFactor = new TTRArray<Float_t>(fReader, "Jet_rawFactor");
+        rho = new TTreeReaderValue<Float_t>(fReader, "fixedGridRhoFastjetAll");
     }
 
     setup_map(Level::Loose);
@@ -31,13 +33,21 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
         tight_bjet_cut = 0.7527;
     }
     // calib = BTagCalibration("deepcsv", scaleDir_ + "/btagging/DeepCSV_" + btag_file[year_] + ".csv");
-    calib = BTagCalibration("deepcsv", scaleDir_ + "/btagging/DeepCSV_" + yearStr_ + ".csv");
+    calib = BTagCalibration("deepcsv", scaleDir_ + "/btagging/DeepCSV_" + yearMap.at(year_) + ".csv");
     setSF<TH2D>("btagEff_b", Systematic::BJet_Eff);
     setSF<TH2D>("btagEff_c", Systematic::BJet_Eff);
     setSF<TH2D>("btagEff_udsg", Systematic::BJet_Eff);
 
     use_shape_btag = true;
     createBtagReaders();
+
+    m_jet_scales[Systematic::Nominal] = {{eVar::Nominal, std::vector<float>()}};
+    for (auto syst : jec_systs) {
+        m_jet_scales[syst] = {
+            {eVar::Up, std::vector<float>()},
+            {eVar::Down, std::vector<float>()}
+        };
+    }
 }
 
 void Jet::createLooseList()
@@ -127,7 +137,7 @@ float Jet::getTotalShapeWeight() {
     std::vector<size_t> jet_list;
     jet_list.reserve(size());
     std::merge(bjets.begin(), bjets.end(), jets.begin(), jets.end(), std::back_inserter(jet_list));
-    bool charmSyst = std::find(charm_systs.begin(), charm_systs.end(), currentSyst) != charm_systs.end();
+    bool charmSyst = charm_systs.find(currentSyst) != charm_systs.end();
 
 
     for (auto idx : jet_list) {
@@ -160,5 +170,22 @@ void Jet::createBtagReaders()
         btag_reader->load(calib, BTagEntry::FLAV_B, "comb");
         btag_reader->load(calib, BTagEntry::FLAV_C, "comb");
         btag_reader->load(calib, BTagEntry::FLAV_UDSG, "incl");
+    }
+}
+
+void Jet::setupJEC(JetCorrection& jecCorr, GenericParticle& genJet) {
+    if (isJECSyst()) {
+        m_jec = &m_jet_scales[currentSyst][currentVar];
+        for(size_t i = 0; i < size(); ++i) {
+            float jes_scale = jecCorr.getJES(nompt(i), eta(i));
+            float genPt = (genJetIdx->At(i) != -1) ? genJet.pt(genJetIdx->At(i)) : -1.0;
+            float jer_scale = jecCorr.getJER(jes_scale*nompt(i), eta(i), **rho, genPt);
+            m_jec->push_back(jes_scale*jer_scale);
+        }
+    } else {
+        m_jec = &m_jet_scales[Systematic::Nominal][eVar::Nominal];
+        if (currentSyst == Systematic::Nominal) {
+            m_jec->assign(size(), 1);
+        }
     }
 }

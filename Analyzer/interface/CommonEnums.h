@@ -13,10 +13,10 @@ enum class Year {
     yrDefault,
 };
 
-static const std::unordered_map<std::string, Year> yearMap = {
-    { "2016", Year::yr2016 },
-    { "2017", Year::yr2017 },
-    { "2018", Year::yr2018 }
+static const std::unordered_map<Year, std::string> yearMap = {
+    { Year::yr2016, "2016" },
+    { Year::yr2017, "2017" },
+    { Year::yr2018, "2018" }
 };
 
 enum class PID {

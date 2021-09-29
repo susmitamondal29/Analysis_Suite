@@ -1,5 +1,19 @@
 #include "analysis_suite/Analyzer/interface/Output.h"
 
+void fillJet(const Jet& jet, Level level, JetOut& fillObject, size_t pass_bitmap)
+{
+    fillObject.clear();
+
+    for (size_t idx = 0; idx < jet.size(); ++idx) {
+        size_t final_bitmap = fillParticle(jet, level, fillObject, idx, pass_bitmap);
+        if (final_bitmap != 0) {
+            fillObject.discriminator.push_back(jet.btag->At(idx));
+            fillObject.jer.push_back(jet.get_JEC_pair(Systematic::Jet_JER, idx));
+            fillObject.jes.push_back(jet.get_JEC_pair(Systematic::Jet_JES, idx));
+        }
+    }
+}
+
 void fillBJet(const Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitmap)
 {
     fillObject.clear();
@@ -15,6 +29,8 @@ void fillBJet(const Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitm
         size_t final_bitmap = fillParticle(jet, level, fillObject, idx, pass_bitmap);
         if (final_bitmap != 0) {
             fillObject.discriminator.push_back(jet.btag->At(idx));
+            fillObject.jer.push_back(jet.get_JEC_pair(Systematic::Jet_JER, idx));
+            fillObject.jes.push_back(jet.get_JEC_pair(Systematic::Jet_JES, idx));
         }
     }
 }

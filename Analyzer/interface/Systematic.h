@@ -44,7 +44,6 @@ public:
     static size_t nSyst;
     static TFile* f_scale_factors;
     static Year year_;
-    static std::string yearStr_;
     static std::string scaleDir_;
     static eVar currentVar;
     static Systematic currentSyst;
@@ -57,7 +56,7 @@ protected:
     {
         if (map_name.empty())
             map_name = name;
-        std::string histname = yearStr_ + "/" + name;
+        std::string histname = yearMap.at(year_) + "/" + name;
         if (separateErrors) {
             scales_by_name[map_name] = new WeightGetter({static_cast<T*>(f_scale_factors->Get(histname.c_str())), syst});
         } else {

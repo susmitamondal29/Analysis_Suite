@@ -50,6 +50,7 @@ void ThreeTop::SetupOutTreeBranches(TTree* tree)
     tree->Branch("TightLeptons", "ParticleOut", &o_tightLeptons);
     tree->Branch("Jets", "ParticleOut", &o_jets);
     tree->Branch("BJets", "BJetOut", &o_bJets);
+    tree->Branch("newJets", "JetOut", &o_Jets);
     tree->Branch("ResolvedTops", "TopOut", &o_resolvedTop);
 
     tree->Branch("HT", &o_ht);
@@ -234,6 +235,7 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
     fillParticle(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
     fillParticle(jet, Level::Tight, *o_jets, pass_bitmap);
     fillBJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
+    fillJet(jet, Level::Tight, *o_Jets, pass_bitmap);
     fillTop(rTop, Level::Loose, *o_resolvedTop, pass_bitmap);
     fillLeptons(muon, elec, *o_tightLeptons, pass_bitmap);
 

@@ -2,6 +2,7 @@
 
 #include "analysis_suite/Analyzer/interface/Systematic.h"
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
+#include "analysis_suite/Analyzer/interface/CommonFuncs.h"
 
 size_t BaseSelector::numSystematics()
 {
@@ -30,7 +31,8 @@ void BaseSelector::Init(TTree* tree)
             for (auto data : *static_cast<TList*>(item)) {
                 std::string dataName = data->GetName();
                 if (dataName == "Year") {
-                    year_ = yearMap.at(data->GetTitle());
+                    std::string year = data->GetTitle();
+                    year_ = get_by_val(yearMap, year);
                 } else if (dataName == "isData") {
                     isMC_ = static_cast<std::string>(data->GetTitle()) == "False";
                 } else if (dataName == "Group") {
@@ -52,7 +54,6 @@ void BaseSelector::Init(TTree* tree)
     jetCorrector.setup(year_);
 
     fReader.SetTree(tree);
-    rho = new TTreeReaderValue<Float_t>(fReader, "fixedGridRhoFastjetAll");
     if (isMC_) {
         genWeight = new TTreeReaderValue<Float_t>(fReader, "genWeight");
     }
@@ -82,11 +83,9 @@ Bool_t BaseSelector::Process(Long64_t entry)
     bool passAny = false;
     size_t systNum = 0;
     for (auto syst : systematics_) {
-        // for (auto [systName, systematic]: syst_by_name) {
-        //     if (syst == systematic) {
-        //         std::cout << "Systematic is: " << systName << std::endl;
-        //         break;
-        //     }
+        // if (syst != Systematic::Nominal) {
+        //     std::string systName = get_by_val(syst_by_name, syst);
+        //     std::cout << "Systematic is: " << systName << std::endl;
         // }
         std::vector<eVar> vars = (syst != Systematic::Nominal) ? syst_vars : nominal_var;
         for (auto var : vars) {
@@ -140,12 +139,8 @@ void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
 
     if (isMC_) {
         rGen.createTopList();
-        for(size_t i = 0; i < jet.size(); ++i) {
-            float jecPt = jetCorrector.getJES(jet.pt(i), jet.eta(i));
-            float genPt = (jet.genJetIdx->At(i) != -1) ? rGenJet.pt(jet.genJetIdx->At(i)) : -1.0;
-            float jetpt = jetCorrector.getJER(jecPt, jet.eta(i), **rho, genPt);
-        }
     }
+    jet.setupJEC(jetCorrector, rGenJet);
     muon.setGoodParticles(systNum, jet);
     elec.setGoodParticles(systNum, jet);
     jet.setGoodParticles(systNum);
@@ -176,11 +171,4 @@ void BaseSelector::setupSystematicInfo()
     SystematicWeights::year_ = year_;
     SystematicWeights::scaleDir_ = scaleDir;
     SystematicWeights::f_scale_factors = new TFile((scaleDir + "/scale_factors/event_scalefactors.root").c_str());
-    if (year_ == Year::yr2016) {
-        SystematicWeights::yearStr_ = "2016";
-    } else if (year_ == Year::yr2017) {
-        SystematicWeights::yearStr_ = "2017";
-    } else {
-        SystematicWeights::yearStr_ = "2018";
-    }
 }

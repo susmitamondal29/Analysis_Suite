@@ -60,6 +60,7 @@ private:
     ParticleOut* o_tightLeptons;
     ParticleOut* o_jets;
     BJetOut* o_bJets;
+    JetOut* o_Jets;
     TopOut* o_resolvedTop;
 
     TTRValue<ULong64_t>* event;

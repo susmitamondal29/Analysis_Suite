@@ -8,6 +8,8 @@
 #include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 #include "CondTools/BTau/interface/BTagCalibrationReader.h"
 
+class JetCorrection;
+
 struct Btag_Info {
     BTagEntry::JetFlavor flavor_type;
     std::string jet_type;
@@ -19,6 +21,12 @@ public:
 
     virtual float getScaleFactor() override;
 
+    float pt(size_t idx) const {
+        return m_pt->At(idx)*m_jec->at(idx);
+    }
+    float nompt(size_t idx) const {
+        return m_pt->At(idx);
+    }
     float rawPt(size_t idx) const { return (1-rawFactor->At(idx))*pt(idx); }
 
     float getHT(Level level, size_t syst) { return getHT(list(level, syst)); };
@@ -45,6 +53,10 @@ public:
         n_loose_bjet.clear();
         n_medium_bjet.clear();
         n_tight_bjet.clear();
+
+        for (auto& [syst, scales] : m_jet_scales ) {
+            scales.clear();
+        }
     }
 
     std::unordered_map<size_t, size_t> closeJetDr_by_index;
@@ -57,10 +69,21 @@ public:
     TTRArray<Int_t>* genJetIdx;
     TTRArray<Float_t>* area;
     TTRArray<Float_t>* rawFactor;
+    TTreeReaderValue<Float_t>* rho;
+
+    void setupJEC(JetCorrection& jecCorr, GenericParticle& genJet);
+    bool isJECSyst() {return jec_systs.find(currentSyst) != jec_systs.end(); }
+    std::pair<Float_t, Float_t> get_JEC_pair(Systematic syst, size_t idx) const
+    {
+        const auto scales = m_jet_scales.at(syst);
+        return std::make_pair(scales.at(eVar::Down).at(idx), scales.at(eVar::Up).at(idx));
+    }
 
 private:
     float loose_bjet_cut, medium_bjet_cut, tight_bjet_cut;
     int looseId = 0b11;
+    std::unordered_map<Systematic, std::unordered_map<eVar, std::vector<float>>> m_jet_scales;
+    std::vector<float>* m_jec;
 
     void createLooseList();
     void createBJetList();
@@ -86,9 +109,14 @@ private:
         { Systematic::BJet_Shape_cferr2, "cferr2" },
     };
 
-    const std::vector<Systematic> charm_systs = {
+    const std::set<Systematic> charm_systs = {
         Systematic::BJet_Shape_cferr1,
         Systematic::BJet_Shape_cferr2,
+    };
+
+    const std::set<Systematic> jec_systs = {
+        Systematic::Jet_JER,
+        Systematic::Jet_JES,
     };
 
     std::unordered_map<Year, std::string> btag_file = {
@@ -113,6 +141,7 @@ private:
         }
         return btag_reader->eval_auto_bounds(measType, flav, eta(idx), pt(idx));
     }
+
     double getShapeWeight(BTagEntry::JetFlavor flav, size_t idx) {
         std::string measType = "central";
         if (systName_by_syst.find(currentSyst) != systName_by_syst.end()) {

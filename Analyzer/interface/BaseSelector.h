@@ -86,7 +86,6 @@ protected:
     std::vector<TreeInfo> trees;
 
     TTreeReaderValue<Float_t>* genWeight;
-    TTreeReaderValue<Float_t>* rho;
     JetCorrection jetCorrector;
 
     Year year_;

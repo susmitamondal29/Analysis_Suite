@@ -22,6 +22,28 @@ struct ParticleOut {
     }
 };
 
+struct JetOut {
+    std::vector<Float_t> pt;
+    std::vector<Float_t> eta;
+    std::vector<Float_t> phi;
+    std::vector<Float_t> mass;
+    std::vector<Int_t> syst_bitMap;
+    std::vector<std::pair<Float_t, Float_t>> jer;
+    std::vector<std::pair<Float_t, Float_t>> jes;
+    std::vector<Float_t> discriminator;
+    void clear() {
+        pt.clear();
+        eta.clear();
+        phi.clear();
+        mass.clear();
+        syst_bitMap.clear();
+        jer.clear();
+        jes.clear();
+        discriminator.clear();
+    }
+};
+
+
 struct BJetOut {
     std::vector<Float_t> pt;
     std::vector<Float_t> eta;
@@ -32,7 +54,8 @@ struct BJetOut {
     std::vector<Int_t> n_loose;
     std::vector<Int_t> n_medium;
     std::vector<Int_t> n_tight;
-
+    std::vector<std::pair<Float_t, Float_t>> jer;
+    std::vector<std::pair<Float_t, Float_t>> jes;
     void clear()
     {
         pt.clear();
@@ -44,6 +67,8 @@ struct BJetOut {
         n_loose.clear();
         n_medium.clear();
         n_tight.clear();
+        jer.clear();
+        jes.clear();
     }
 };
 
@@ -72,6 +97,8 @@ template <class T>
 void fillParticle(const Particle& particle, Level level, T& fillObject, size_t pass_bitmap);
 
 void fillBJet(const Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitmap);
+
+void fillJet(const Jet& jet, Level level, JetOut& fillObject, size_t pass_bitmap);
 
 void fillTop(const ResolvedTop& top, Level level, TopOut& fillObject, size_t pass_bitmap);
 
