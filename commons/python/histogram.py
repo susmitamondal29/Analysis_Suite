@@ -90,10 +90,9 @@ class Histogram:
     def scale(self, scale, forPlot=False):
         if forPlot:
             self.draw_sc *= scale
-            # self.name = self.name.split(" x")[0] + " x {}".format(int(self.draw_sc))
+            self.name = self.name.split(" x")[0] + " x {}".format(int(self.draw_sc))
         else:
             self.hist *= scale
-
             for mem, info in self.breakdown.items():
                 self.breakdown[mem] *= scale
 
