@@ -3,10 +3,24 @@ import os
 import argparse
 from analysis_suite.commons import FileInfo
 import analysis_suite.commons.configs as configs
+import tarfile
+from pathlib import Path
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine( "gErrorIgnoreLevel = 1001;")
+
+jecTagsMC = {
+    "2016": "Summer16_07Aug2017_V11_MC",
+    "2017": "Fall17_17Nov2017_V32_MC",
+    "2018": "Autumn18_V19_MC",
+}
+jerTagsMC = {
+    "2016": "Summer16_25nsV1_MC",
+    "2017": "Fall17_V3_MC",
+    "2018": "Autumn18_V7b_MC",
+}
+
 
 def setInputs(inputs):
     root_inputs = ROOT.TList()
@@ -19,6 +33,9 @@ def setInputs(inputs):
         elif isinstance(data, list):
             for subitem in data:
                 subList.Add(ROOT.TNamed(subitem, subitem))
+        elif isinstance(data, (str, int, float, bool)):
+            root_inputs.Add(ROOT.TNamed(key, str(data)))
+            continue
         root_inputs.Add(subList)
     return root_inputs
 
@@ -47,6 +64,17 @@ def run_jme(files, year, isMC):
                       modules=[jmeCorrections()],)
     p.run()
 
+def setup_jec(filename):
+    jetType = "AK4PFchs"
+    scaledir = Path(os.getenv("CMSSW_BASE"))/"src"/"analysis_suite"/"data"/"JEC"
+    outdir = Path("jec_files")
+    outdir.mkdir(exist_ok=True)
+
+    with tarfile.open(scaledir / f"{filename}.tgz") as tar:
+        for member in [name for name in tar.getnames() if jetType in name]:
+            if (outdir/member).exists():
+                continue
+            tar.extract(member, path=outdir)
 
 
 if __name__ == "__main__":
@@ -70,6 +98,9 @@ if __name__ == "__main__":
     info = FileInfo(analysis=analysis, year=year, selection=selection)
     groupName = info.get_group(sampleName)
 
+    setup_jec(jecTagsMC[year])
+    setup_jec(jerTagsMC[year])
+
     # Setup inputs
     inputs = dict()
     inputs["MetaData"] = {
@@ -81,11 +112,10 @@ if __name__ == "__main__":
         'Year': year,
         'isData': info.is_data(),
     }
+    inputs["Verbosity"] = 0
     inputs["Systematics"] = configs.get_shape_systs()
     rInputs = setInputs(inputs)
-
-    # run_jme(files, year, not info.is_data())
-    # exit()
+    print(inputs)
 
     # Run Selection
     fChain = ROOT.TChain()
@@ -94,6 +124,7 @@ if __name__ == "__main__":
 
     selector = getattr(ROOT, "ThreeTop")()
     rOutput = ROOT.TFile(outputfile, "RECREATE")
+
     selector.SetInputList(rInputs)
     selector.setOutputFile(rOutput)
     fChain.Process(selector, "")
@@ -101,10 +132,12 @@ if __name__ == "__main__":
 
     ## Output
     for tree in selector.getTrees():
+        print(tree.tree.GetName())
         anaFolder = getattr(rOutput, tree.tree.GetName())
         anaFolder.WriteObject(sumweight, "sumweight")
         anaFolder.WriteObject(tree.tree, "Analyzed")
         for i in selector.GetOutputList():
+            print(i.GetName())
             anaFolder.WriteObject(i, i.GetName())
 
     rOutput.Close()

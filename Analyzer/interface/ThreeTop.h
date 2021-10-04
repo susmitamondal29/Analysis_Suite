@@ -1,6 +1,8 @@
 #ifndef THREETOP_H
 #define THREETOP_H
 
+#include"analysis_suite/Analyzer/interface/loguru.hpp"
+
 #include "analysis_suite/Analyzer/interface/BaseSelector.h"
 #include "analysis_suite/Analyzer/interface/Output.h"
 #include "analysis_suite/Analyzer/interface/ResolvedTop.h"

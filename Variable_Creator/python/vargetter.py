@@ -23,26 +23,27 @@ class Variable:
         return "int" if isInt else "float"
 
 class VarGetter:
-    def __init__(self, path, group, syst=0):
+    def __init__(self, f, group, syst=0):
         self.syst = syst
         self.syst_bit = 2**self.syst
-        with uproot.open(path) as f:
-            branches = [key for key, array in f[group]["Analyzed"].items()
-                        if len(array.keys()) == 0]
-            analysis = self.get_tlist_var(f[group]["MetaData"], "Analysis")
-            year = self.get_tlist_var(f[group]["MetaData"], "Year")
 
-            info = FileInfo(analysis=analysis, year=year)
-            self.xsec = info.get_xsec(group)
-            self.sumw = sum(f[group]["sumweight"].values())
-            if f[group]["Analyzed"].num_entries != 0:
-                analyzed = f[group]["Analyzed"]
-                passMask = analyzed["PassEvent"].array()[:, self.syst]
-                self.arr = analyzed.arrays(branches)[passMask]
-                self.scale = self.arr["weight"][:,self.syst]*self.xsec/self.sumw
-            else:
-                self.arr = ak.Array([])
-                self.scale = ak.Array([])
+        branches = [key for key, array in f[group]["Analyzed"].items()
+                    if len(array.keys()) == 0]
+        analysis = self.get_tlist_var(f[group]["MetaData"], "Analysis")
+        year = self.get_tlist_var(f[group]["MetaData"], "Year")
+        print(branches)
+        exit()
+        info = FileInfo(analysis=analysis, year=year)
+        self.xsec = info.get_xsec(group)
+        self.sumw = sum(f[group]["sumweight"].values())
+        if f[group]["Analyzed"].num_entries != 0:
+            analyzed = f[group]["Analyzed"]
+            passMask = analyzed["PassEvent"].array()[:, self.syst]
+            self.arr = analyzed.arrays(branches)[passMask]
+            self.scale = self.arr["weight"][:,self.syst]*self.xsec/self.sumw
+        else:
+            self.arr = ak.Array([])
+            self.scale = ak.Array([])
 
     def __add__(self, other):
         sumwTot = self.sumw + other.sumw
@@ -53,6 +54,9 @@ class VarGetter:
 
     def __len__(self):
         return len(self.scale)
+
+    def set_JEC(self, systName):
+        pass
 
     def setup_scale(self):
         self.scale *= self.xsec/self.sumw
@@ -119,5 +123,5 @@ class VarGetter:
     
     def flatten(self, arr):
         return ak.to_numpy(ak.flatten(arr))
-        # arr_mod, scale_mod = ak.unzip(ak.cartesian([self.arr[name], self.scale]))
-        # return ak.to_numpy(ak.flatten(arr_mod))
+    # arr_mod, scale_mod = ak.unzip(ak.cartesian([self.arr[name], self.scale]))
+    # return ak.to_numpy(ak.flatten(arr_mod))

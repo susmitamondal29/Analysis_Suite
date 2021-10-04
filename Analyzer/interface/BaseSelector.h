@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "analysis_suite/Analyzer/interface/logging.h"
+
 #include "analysis_suite/Analyzer/interface/CommonEnums.h"
 #include "analysis_suite/Analyzer/interface/Electron.h"
 #include "analysis_suite/Analyzer/interface/Jet.h"
@@ -20,7 +22,6 @@
 #include "analysis_suite/Analyzer/interface/JetCorrection.h"
 
 enum class Channel;
-//class ScaleFactors;
 
 struct TreeInfo {
     TTree* tree;

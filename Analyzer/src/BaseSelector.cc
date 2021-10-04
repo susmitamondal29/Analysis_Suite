@@ -17,13 +17,16 @@ void BaseSelector::SetupOutTreeBranches(TTree* tree)
 
 void BaseSelector::Init(TTree* tree)
 {
+    LOG_FUNC << "Start of Init";
+    loguru::g_preamble_thread = false;
+    loguru::g_preamble_time = false;
     if (!tree)
         return;
 
     TList* rootSystList = new TList();
     rootSystList->SetName("Systematics");
     rootSystList->Add(new TNamed("Nominal", "Nominal"));
-
+    LOG_POST <<  "Start Reading python inputs";
     for (auto item : *fInput) {
         std::string itemName = item->GetName();
         if (itemName == "MetaData") {
@@ -46,10 +49,12 @@ void BaseSelector::Init(TTree* tree)
                 rootSystList->Add(new TNamed((systName + "_up").c_str(), systName.c_str()));
                 rootSystList->Add(new TNamed((systName + "_down").c_str(), systName.c_str()));
             }
+        } else if (itemName == "Verbosity") {
+            loguru::g_stderr_verbosity = std::stoi(item->GetTitle());
         }
     }
     fOutput->Add(rootSystList);
-
+    LOG_POST << "Finished setting python inputs";
     setupSystematicInfo();
     jetCorrector.setup(year_);
 
@@ -70,12 +75,13 @@ void BaseSelector::Init(TTree* tree)
         rGen.setup(fReader);
         rGenJet.setup(fReader);
     }
+    LOG_FUNC << "End of Init";
 }
 
 Bool_t BaseSelector::Process(Long64_t entry)
 {
-    if (entry % 10000 == 0)
-        std::cout << "At entry: " << entry << std::endl;
+    LOG_FUNC << "Start of Process";
+    LOG_IF_S(INFO, entry % 10000 == 0) << "At entry " <<  entry;
 
     clearParticles();
     fReader.SetLocalEntry(entry);
@@ -83,13 +89,11 @@ Bool_t BaseSelector::Process(Long64_t entry)
     bool passAny = false;
     size_t systNum = 0;
     for (auto syst : systematics_) {
-        // if (syst != Systematic::Nominal) {
-        //     std::string systName = get_by_val(syst_by_name, syst);
-        //     std::cout << "Systematic is: " << systName << std::endl;
-        // }
+        LOG_EVENT_IF(syst != Systematic::Nominal) << "Systematic is " << get_by_val(syst_by_name, syst);
+
         std::vector<eVar> vars = (syst != Systematic::Nominal) ? syst_vars : nominal_var;
         for (auto var : vars) {
-            // std::cout << "Variation is: " << varName_by_var.at(var) << std::endl;
+            LOG_EVENT << "Variation is: %s" << varName_by_var.at(var);
             SetupEvent(syst, var, systNum);
             systPassSelection.push_back(passSelection());
             // if (syst == Systematic::Nominal) {
@@ -118,17 +122,18 @@ Bool_t BaseSelector::Process(Long64_t entry)
             }
         }
     }
-
+    LOG_FUNC << "End of Process";
     return kTRUE;
 }
 
 void BaseSelector::SlaveTerminate()
 {
-    std::cout << passed_events << " events passed selection" << std::endl;
+    LOG_S(INFO) << passed_events << " events passed selection";
 }
 
 void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
 {
+    LOG_FUNC << "Start of SetupEvent";
     SystematicWeights::currentSyst = syst;
     SystematicWeights::currentVar = var;
 
@@ -149,10 +154,12 @@ void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
     if (isMC_) {
         ApplyScaleFactors();
     }
+    LOG_FUNC << "End of SetupEvent";
 }
 
 void BaseSelector::clearParticles()
 {
+    LOG_FUNC << "Start of clearParticles";
     muon.clear();
     elec.clear();
     jet.clear();
@@ -160,10 +167,12 @@ void BaseSelector::clearParticles()
     rGenJet.clear();
 
     std::fill(o_weight.begin(), o_weight.end(), 1.);
+    LOG_FUNC << "End of clearParticles";
 }
 
 void BaseSelector::setupSystematicInfo()
 {
+    LOG_FUNC << "Start of setupSystematicInfo";
     std::string scaleDir = getenv("CMSSW_BASE");
     scaleDir += "/src/analysis_suite/data";
 
@@ -171,4 +180,5 @@ void BaseSelector::setupSystematicInfo()
     SystematicWeights::year_ = year_;
     SystematicWeights::scaleDir_ = scaleDir;
     SystematicWeights::f_scale_factors = new TFile((scaleDir + "/scale_factors/event_scalefactors.root").c_str());
+    LOG_FUNC << "End of setupSystematicInfo";
 }

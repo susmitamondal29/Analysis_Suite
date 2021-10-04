@@ -5,6 +5,7 @@
 
 void ThreeTop::Init(TTree* tree)
 {
+    LOG_FUNC << "Start of Init";
     BaseSelector::Init(tree);
     createTree(groupName_, { Channel::SS, Channel::Multi });
 
@@ -38,10 +39,12 @@ void ThreeTop::Init(TTree* tree)
     HLT_MuEle = new TTRValue<Bool_t>(fReader, "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL");
     HLT_EleMu = new TTRValue<Bool_t>(fReader, "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL");
     HLT_EleEle = new TTRValue<Bool_t>(fReader, "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL");
+    LOG_FUNC << "End of Init";
 }
 
 void ThreeTop::SetupOutTreeBranches(TTree* tree)
 {
+    LOG_FUNC << "Start of SetupOutTreeBranches";
     BaseSelector::SetupOutTreeBranches(tree);
     tree->Branch("LooseMuon", "ParticleOut", &o_looseMuons);
     tree->Branch("TightMuon", "ParticleOut", &o_tightMuons);
@@ -58,25 +61,31 @@ void ThreeTop::SetupOutTreeBranches(TTree* tree)
     tree->Branch("Met", &o_met);
     tree->Branch("Met_phi", &o_metphi);
     tree->Branch("Centrality", &o_centrality);
+    LOG_FUNC << "End of SetupOutTreeBranches";
 }
 
 void ThreeTop::clearParticles()
 {
+    LOG_FUNC << "Start of clearParticles";
     BaseSelector::clearParticles();
     rTop.clear();
+    LOG_FUNC << "End of clearParticles";
 }
 
 void ThreeTop::clearOutputs()
 {
+    LOG_FUNC << "Start of clearOutputs";
     o_ht.clear();
     o_htb.clear();
     o_met.clear();
     o_metphi.clear();
     o_centrality.clear();
+    LOG_FUNC << "End of clearOutputs";
 }
 
 void ThreeTop::ApplyScaleFactors()
 {
+    LOG_FUNC << "Start of ApplyScaleFactors";
     (*weight) *= sfMaker.getPileupSF(**Pileup_nTrueInt);
     (*weight) *= sfMaker.getLHESF();
 
@@ -84,15 +93,19 @@ void ThreeTop::ApplyScaleFactors()
     (*weight) *= elec.getScaleFactor();
     (*weight) *= muon.getScaleFactor();
     // (*weight) *= rTop.getScaleFactor(rGen);
+    LOG_FUNC << "End of ApplyScaleFactors";
 }
 
 void ThreeTop::setOtherGoodParticles(size_t syst)
 {
+    LOG_FUNC << "Start of setOtherGoodParticles";
     rTop.setGoodParticles(syst);
+    LOG_FUNC << "End of setOtherGoodParticles";
 }
 
 void ThreeTop::setupChannel()
 {
+    LOG_FUNC << "Start of setupChannel";
     (*currentChannel_) = Channel::None;
     (subChannel_) = Subchannel::None;
     size_t nLep = muon.size(Level::Tight) + elec.size(Level::Tight);
@@ -119,10 +132,12 @@ void ThreeTop::setupChannel()
             (*currentChannel_) = (isSameSign()) ? Channel::Multi : Channel::MultiAllSame;
         setSubChannel();
     }
+    LOG_FUNC << "End of setupChannel";
 }
 
 void ThreeTop::setSubChannel()
 {
+    LOG_FUNC << "Start of setSubChannel";
     if (!elec.size(Level::Tight)) {
         subChannel_ = Subchannel::MM;
     } else if (!muon.size(Level::Tight)) {
@@ -142,6 +157,7 @@ void ThreeTop::setSubChannel()
             }
         }
     }
+    LOG_FUNC << "End of setSubChannel";
 }
 
 bool ThreeTop::isSameSign()
@@ -158,6 +174,7 @@ bool ThreeTop::isSameSign()
 
 bool ThreeTop::passSelection()
 {
+    LOG_FUNC << "Start of passSelection";
     std::vector<std::pair<std::string, bool>> cuts;
     cuts.push_back(std::make_pair("passPreselection", true));
 
@@ -183,6 +200,7 @@ bool ThreeTop::passSelection()
     // else if (subChannel_ == Subchannel::EE)
     //     passTrigger &= **HLT_EleEle;
 
+    LOG_FUNC << "End of passSelection";
     for (auto& cut : cuts) {
         if (!cut.second)
             return false;
@@ -193,6 +211,7 @@ bool ThreeTop::passSelection()
 
 void ThreeTop::fillCutFlow()
 {
+    LOG_FUNC << "Start of fillCutFlow";
     std::vector<std::pair<std::string, bool>> cuts;
     // Setup cutflow histogram
     if (!cutFlows_setBins) {
@@ -220,10 +239,12 @@ void ThreeTop::fillCutFlow()
     } else if (passAll) {
         failTrigger_leadPt->Fill(static_cast<int>(subChannel_), getLeadPt(), *weight);
     }
+    LOG_FUNC << "End of fillCutFlow";
 }
 
 void ThreeTop::FillValues(const std::vector<bool>& passVec)
 {
+    LOG_FUNC << "Start of FillValues";
     size_t pass_bitmap = 0;
     for (size_t i = 0; i < passVec.size(); ++i) {
         pass_bitmap += passVec.at(i) << i;
@@ -246,6 +267,7 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
         o_metphi.push_back(**Met_phi);
         o_centrality.push_back(jet.getCentrality(Level::Tight, syst));
     }
+    LOG_FUNC << "End of FillValues";
 }
 
 float ThreeTop::getLeadPt(size_t idx)
@@ -264,12 +286,12 @@ float ThreeTop::getLeadPt(size_t idx)
         else if (subChannel_ == Subchannel::EE)
             return getElec(pt, 1);
     }
-
     return 0;
 }
 
 void ThreeTop::printStuff()
 {
+    LOG_FUNC << "Start of printStuff";
     std::cout << "Event: " << **event << std::endl;
     std::cout << "Met: " << **Met_pt << std::endl;
     std::cout << "HT: " << jet.getHT(Level::Tight, 0) << std::endl;
@@ -279,4 +301,5 @@ void ThreeTop::printStuff()
     std::cout << "nlep loose: " << muon.size(Level::Fake) << " " << elec.size(Level::Fake) << std::endl;
     std::cout << "lepVeto: " << muon.passZVeto() << " " << elec.passZVeto() << std::endl;
     std::cout << std::endl;
+    LOG_FUNC << "End of printStuff";
 }

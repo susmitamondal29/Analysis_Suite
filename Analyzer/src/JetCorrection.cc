@@ -10,33 +10,22 @@ void JetCorrection::setup(Year year)
     std::string jecTag = jecTagsMC[year];
     std::string jerTag = jerTagsMC[year];
     std::string jetType = "AK4PFchs";
-    fs::path jme_path = fs::path(getenv("CMSSW_BASE")) / scaleDir_ / "JEC";
 
-    // make directory /tmp/USERNAME for putting unpacked files
-    auto tmp_path = fs::temp_directory_path() / getenv("USER");
-    fs::create_directory(tmp_path);
+    fs::path jec_path = "jec_files";
 
-    std::stringstream tar;
-    tar << "tar -C "<< tmp_path << " -xf ";
-    std::system((tar.str() + (jme_path/(jerTag+".tgz")).string() + " &>/dev/null").c_str());
-    std::system((tar.str() + (jme_path/(jecTag+".tgz")).string() + " &>/dev/null").c_str());
+    // std::vector<JetCorrectorParameters> param_vec = {
+    //     JetCorrectorParameters(tmp_path/(jecTag + "_L1FastJet_" + jetType + ".txt")),
+    //     JetCorrectorParameters(tmp_path/(jecTag + "_L2Relative_" + jetType + ".txt")),
+    //     JetCorrectorParameters(tmp_path/(jecTag + "_L3Absolute_" + jetType + ".txt")),
+    //     JetCorrectorParameters(tmp_path/(jecTag + "_L2L3Residual_" + jetType + ".txt")),
+    // };
+    // jecCentral = new FactorizedJetCorrector(param_vec);
 
-
-    std::vector<JetCorrectorParameters> param_vec = {
-        JetCorrectorParameters(tmp_path/(jecTag + "_L1FastJet_" + jetType + ".txt")),
-        JetCorrectorParameters(tmp_path/(jecTag + "_L2Relative_" + jetType + ".txt")),
-        JetCorrectorParameters(tmp_path/(jecTag + "_L3Absolute_" + jetType + ".txt")),
-        JetCorrectorParameters(tmp_path/(jecTag + "_L2L3Residual_" + jetType + ".txt")),
-    };
-    JetCorrectorParameters parameters(tmp_path/(jecTag + "_Uncertainty_" + jetType + ".txt"));
-
-    jecCentral = new FactorizedJetCorrector(param_vec);
+    JetCorrectorParameters parameters(jec_path/(jecTag + "_Uncertainty_" + jetType + ".txt"));
     jecUnc = new JetCorrectionUncertainty(parameters);
-    res_sf = new JME::JetResolutionScaleFactor(tmp_path/(jerTag + "_SF_" + jetType + ".txt"));
-    resolution = new JME::JetResolution(tmp_path/(jerTag + "_PtResolution_" + jetType + ".txt"));
 
-    // Delete tmp folder
-    fs::remove_all(tmp_path);
+    res_sf = new JME::JetResolutionScaleFactor(jec_path/(jerTag + "_SF_" + jetType + ".txt"));
+    resolution = new JME::JetResolution(jec_path/(jerTag + "_PtResolution_" + jetType + ".txt"));
 }
 
 float JetCorrection::getJER(float pt, float eta, float rho, float genPt)

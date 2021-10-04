@@ -10,6 +10,8 @@
 
 class JetCorrection;
 
+enum PUID { PU_Tight = 0, PU_Medium = 1, PU_Loose = 2 };
+
 struct Btag_Info {
     BTagEntry::JetFlavor flavor_type;
     std::string jet_type;
@@ -69,7 +71,9 @@ public:
     TTRArray<Int_t>* genJetIdx;
     TTRArray<Float_t>* area;
     TTRArray<Float_t>* rawFactor;
+    TTRArray<Int_t>* puId;
     TTreeReaderValue<Float_t>* rho;
+
 
     void setupJEC(JetCorrection& jecCorr, GenericParticle& genJet);
     bool isJECSyst() {return jec_systs.find(currentSyst) != jec_systs.end(); }

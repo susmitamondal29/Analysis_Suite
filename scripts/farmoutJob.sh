@@ -3,6 +3,7 @@ set -euo pipefail
 
 analysis="ThreeTop"
 selection="NEWtopTagger-HT250-Bjet1-Leptons2"
+years='2016 2017 2018'
 
 if [ "$#" -ne 1 ]; then
     echo "Need to specify an output directory name"
@@ -13,8 +14,8 @@ fi
 
 outname=$1
 
-for year in 2016 2017 2018; do
-    run_file="run_files_$year.dat"
+for year in ${years}; do
+    run_file="run_files_${year}.dat"
     analysis_dir="${analysis}_${year}_${selection}"
 
     if [ ! -f $run_file ]; then
@@ -29,6 +30,5 @@ for year in 2016 2017 2018; do
         --input-file-list=$run_file \
         --infer-cmssw-path --fwklite analyze.py \
         --input-basenames-not-unique \
-        --output-dir="/store/user/$USER/${analysis}_${year}_$outname" \
-        --extra-usercode-files="src/analysis_suite/data/scale_factors"
+        --output-dir="/store/user/$USER/${analysis}_${year}_$outname"
 done

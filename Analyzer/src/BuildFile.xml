@@ -9,3 +9,5 @@
 <export>
   <lib name="1"/>
 </export>
+
+<Flags CXXFLAGS="-DLOGURU_WITH_STREAMS=1">

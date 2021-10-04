@@ -7,6 +7,7 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
     jetId = new TTRArray<Int_t>(fReader, "Jet_jetId");
     btag = new TTRArray<Float_t>(fReader, "Jet_btagDeepB");
     area = new TTRArray<Float_t>(fReader, "Jet_area");
+    puId = new TTRArray<Int_t>(fReader, "Jet_puId");
     if (isMC) {
         hadronFlavour = new TTRArray<Int_t>(fReader, "Jet_hadronFlavour");
         genJetIdx = new TTRArray<Int_t>(fReader, "Jet_genJetIdx");
@@ -56,6 +57,7 @@ void Jet::createLooseList()
         if (pt(i) > 5
             && fabs(eta(i)) < 2.4
             && (jetId->At(i) & looseId) != 0
+            && (pt(i) > 50 || (puId->At(i) >> PU_Medium) & 1)
             && (closeJetDr_by_index.find(i) == closeJetDr_by_index.end() || closeJetDr_by_index.at(i) >= pow(0.4, 2)))
             m_partList[Level::Loose]->push_back(i);
     }
