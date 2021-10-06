@@ -51,7 +51,7 @@ def get_cli():
         pass
     elif sys.argv[1] == "mva":
         parser.add_argument('-t', '--train', default="None",
-                            choices=['None', 'DNN', 'TMVA', 'XGB'],
+                            choices=['None', 'DNN', 'TMVA', 'XGB', "CutBased"],
                             help="Run the training")
         parser.add_argument("-m", '--apply_model', action='store_true')
         parser.add_argument("--save", action='store_true')

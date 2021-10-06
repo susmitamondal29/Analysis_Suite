@@ -29,9 +29,10 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
                     logging.error(f"Could not find variable {histName} in file for year {year}")
                     raise ValueError()
                 arrays = f[mem].arrays()
-                groupHists[group] += create_SR(arrays, "NBJets")
+
+                groupHists[group].fill(*create_SR(arrays, "NBJets"))
                 for cr_bin, cr_func in zip(cr_bins, cr_list):
-                    groupHists[group] += cr_func(arrays, cr_bin)
+                    groupHists[group].fill(*cr_func(arrays, cr_bin))
             groupHists[group].scale(plot_info.get_lumi(year)*1000)
 
     return groupHists
@@ -43,14 +44,12 @@ def get_binning(nbins, start, end, nCR):
 
 def create_SR(array, varname):
     mask = array.Signal >= 0.65
-    return {"name": "", "scale_factor": array.scale_factor[mask],
-            varname: array[varname][mask]}
+    new_array = array[mask]
+    return (new_array[varname], new_array.scale_factor)
 
 def create_W_CR(array, cr_value):
     mask = array.Signal < 0.65
-    return {"name": "", "scale_factor": array.scale_factor[mask],
-            "varname": np.ones(np.sum(mask))*cr_value}
-
+    return (np.ones(np.sum(mask))*cr_value, array.scale_factor[mask])
 
 def create_Z_CR(array):
     pass

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+from collections import OrderedDict
 import numpy as np
 import pandas as pd
 import logging
@@ -26,15 +26,17 @@ class DataProcessor:
             syst = 0
             with uproot4.open(root_file) as f:
                 groups = [key.strip(";1") for key in f.keys() if "/" not in key]
-                for i, syst_tnamed in enumerate(f[groups[0]]["Systematics"]):
-                    if syst_tnamed.member("fName") == self.systName:
-                        syst = i
-                        break
-            for group in groups:
-                if group not in arr_dict:
-                    arr_dict[group] = VarGetter(root_file, group, syst)
-                else:
-                    arr_dict[group] += VarGetter(root_file, group, syst)
+                systNames = [systName.member("fName") for systName in f[groups[0]]["Systematics"]]
+                systNames = list(OrderedDict.fromkeys(systNames))
+                syst = systNames.index(self.systName)
+                for group in groups:
+                    if group not in arr_dict:
+                        arr_dict[group] = VarGetter(f, group, syst)
+                    else:
+                        arr_dict[group] += VarGetter(f, group, syst)
+        for key, val in arr_dict.items():
+            val.set_JEC(self.systName)
+
         return arr_dict
 
     def process_year(self, infile, outdir):

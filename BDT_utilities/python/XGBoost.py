@@ -106,7 +106,6 @@ class XGBoostMaker(MLHolder):
         fit_model.fit(x_train, y_train, sample_weight=w_train,
                       eval_set=[(x_train, y_train), (x_test, y_test)],
                       early_stopping_rounds=75, verbose=20)
-
         fit_model.save_model(f'{outdir}/model.bin')
 
 
@@ -114,3 +113,22 @@ class XGBoostMaker(MLHolder):
         fit_model = xgb.XGBClassifier({'nthread': 4})  # init model
         fit_model.load_model(str(directory / "model.bin"))  # load data
         return fit_model.predict_proba(use_set.drop(self._drop_vars, axis=1))
+
+    def get_importance(self, directory):
+        x_train = self.train_set.drop(self._drop_vars, axis=1)
+        fit_model = xgb.XGBClassifier({'nthread': 4})  # init model
+        fit_model.load_model(str(directory / "model.bin"))  # load data
+        impor = fit_model.get_booster().get_score(importance_type= "total_gain")
+        sorted_import = {x_train.columns[int(k[1:])]: v for k, v in sorted(impor.items(), key=lambda item: item[1]) if "Pt" not in x_train.columns[int(k[1:])]}
+        print(sorted_import)
+
+        from analysis_suite.commons.plot_utils import plot, color_options
+        with plot("{}/importance.png".format(directory)) as ax:
+            ax.barh(range(len(sorted_import)), list(sorted_import.values()),
+                    align='center',
+                    height=0.5,)
+            ax.set_yticks(range(len(sorted_import)))
+            ax.set_yticklabels(sorted_import.keys())
+            ax.set_xscale("log")
+            ax.set_xlabel("Total Gain")
+            ax.set_title("Variable Importance")

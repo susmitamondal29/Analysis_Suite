@@ -11,12 +11,10 @@ pd.options.mode.chained_assignment = None
 from pandas.api.types import is_numeric_dtype
 from pathlib import Path
 from random import randint
-import sys
-import uproot4
+import uproot4 as uproot
 import uproot as upwrite
-import json
+import operator
 from analysis_suite.commons.configs import setup_pandas
-from analysis_suite.commons.info import PlotInfo
 
 from sklearn.metrics import roc_auc_score, confusion_matrix
 from sklearn.model_selection import train_test_split
@@ -82,7 +80,7 @@ class MLHolder:
         test_set= setup_pandas(self.use_vars, self.all_vars)
         validation_set= setup_pandas(self.use_vars, self.all_vars)
 
-        with uproot4.open(directory / year / f'processed_{self.systName}.root') as f:
+        with uproot.open(directory / year / f'processed_{self.systName}.root') as f:
             allSet = set([name[:name.index(";")] for name in f.keys()])
             self.update_sample_map(allSet)
 
@@ -206,24 +204,26 @@ class MLHolder:
 
     # Private Functions
 
-    def _cut_frame(self, frame):
+    def _cut_mask(self, frame):
         """**Reduce frame using root style cut string**
 
         Args:
           frame(pandas.DataFrame): DataFrame to cut on
 
         """
+        mask = np.ones(len(frame))
         for cut in self.cuts:
             if cut.find("<") != -1:
-                tmp = cut.split("<")
-                frame = frame[frame[tmp[0]] < float(tmp[1])]
+                cutter= (operator.lt, *cut.split("<"))
             elif cut.find(">") != -1:
-                tmp = cut.split(">")
-                frame = frame[frame[tmp[0]] > float(tmp[1])]
+                cutter= (operator.gt, *cut.split(">"))
             elif cut.find("==") != -1:
-                tmp = cut.split("==")
-                frame = frame[frame[tmp[0]] == float(tmp[1])]
-        return frame
+                cutter= (operator.eq, *cut.split("=="))
+            else:
+                raise Exception(f'{cut} is not formatted correctly')
+            mask *= cutter[0](frame[cutter[1]], float(cutter[2]))
+
+        return mask
 
     def add_cut(self, cut_string):
         self.cuts = cut_string

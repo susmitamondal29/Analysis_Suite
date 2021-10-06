@@ -26,7 +26,7 @@ def setup(cli_args):
 def run(groupDict, workdir, trainType, applyModel, years, systName, save_train):
     print(f"Training for syst {systName}")
     if trainType == "XGB":
-        from .MvaMaker import XGBoostMaker
+        from .XGBoost import XGBoostMaker
         params = {"max_depth": 2, "colsample_by_tree": 0.65, "min_childweight": 1e-3,
                   "subsample": 0.75, "eta": 0.05, "eval_metric": "rmse"}
         mvaRunner = XGBoostMaker(mva_params.usevars, groupDict, systName=systName,
@@ -37,6 +37,10 @@ def run(groupDict, workdir, trainType, applyModel, years, systName, save_train):
     elif trainType == "TMVA":
         from .TMVA import TMVAMaker
         mvaRunner = TMVAMaker(mva_params.usevars, groupDict, systName=systName)
+    elif trainType == "CutBased":
+        from .CutBased import CutBasedMaker
+        mvaRunner = CutBasedMaker(mva_params.usevars, groupDict, systName=systName,
+                                  cuts=mva_params.cuts)
     else:
 
         return
@@ -49,6 +53,10 @@ def run(groupDict, workdir, trainType, applyModel, years, systName, save_train):
         mvaRunner.train(workdir)
 
     for year in years:
+        # if trainType == "XGB":
+        #     mvaRunner.get_importance(workdir)
+        # exit()
+
         mvaRunner.apply_model(workdir, year)
         # for i in np.linspace(0, 1, 11):
         #     mvaRunner.get_stats(year, i)
@@ -56,18 +64,6 @@ def run(groupDict, workdir, trainType, applyModel, years, systName, save_train):
         mvaRunner.output(workdir, year)
         # logging.info(f"Finished writing out for year {year} and syst {systName}")
 
-
-    # sorted_import = {k: v for k, v in sorted(impor.items(), key=lambda item: item[1])}
-    # import matplotlib.pyplot as plt
-    # plt.barh(range(len(sorted_import)), list(sorted_import.values()),
-    #                  align='center',
-    #                  height=0.5,)
-    # plt.yticks(range(len(sorted_import)), sorted_import.keys())
-    # plt.xlabel("Total Gain")
-    # plt.title("Variable Importance")
-    # plt.tight_layout()
-    # plt.savefig("{}/importance.png".format(outDir))
-    # plt.close()
 
 def cleanup(cli_args):
     if not cli_args.plot:
@@ -90,13 +86,22 @@ def cleanup(cli_args):
         cut = 0.6
         plot.apply_cut(f"Signal>{cut}", year)
 
+
+        plot_list = ["HT", "JetLep1_Cos", "NlooseBJets", "NtightBJets", "JetLep2_Cos",
+                     "NlooseMuons", "NBJets", "HT_b", "NJets", "lepDR"]
+        # for plot_name in plot_list:
+        #     bins = plot_info.get_binning(plot_name).edges
+        #     plot.plot_fom(plot_name, bins, "2016", xlabel=plot_info.get_label(plot_name))
+        #     print(f"{plot_name}: {plot.approx_likelihood(plot_name, bins, year)}")
+        #
+
         # for year in cli_args.years:
         #     plot.make_roc(year)
         #     # plot.group_shapes("Signal", np.linspace(0, 1, 26), year)
         #     plot.plot_fom("Signal", np.linspace(0, 1, 26), year)
 
         # plot.make_roc("2016")
-        plot.group_shapes("Signal", np.linspace(0, 1, 26), "2016")
+        # plot.group_shapes("Signal", np.linspace(0, 1, 26), "2016")
         # plot.plot_fom("Signal", np.linspace(0, 1, 26), "2016")
 
         # for plot_name in plot_list:

@@ -83,7 +83,7 @@ class MVAPlotter(object):
     def get_max_fom(self, var, bins, year, comb_bkg):
         return max(self.get_fom(var, bins, year, comb_bkg))
 
-    def plot_fom(self, var, bins, year, comb_bkg=True):
+    def plot_fom(self, var, bins, year, comb_bkg=True, xlabel="BDT value"):
         """**Plots Figure of Merits for variable scan**
 
         Plot figure of merit by creating a "signal region" by only
@@ -105,7 +105,7 @@ class MVAPlotter(object):
                     color = 'k')
             ax.plot(np.linspace(bins[0], bins[-1], 5), [max(fom)]*5,
                     linestyle=':', color='k')
-            ax.set_xlabel("BDT value", horizontalalignment='right', x=1.0)
+            ax.set_xlabel(xlabel, horizontalalignment='right', x=1.0)
             ax.set_ylabel("A.U.", horizontalalignment='right', y=1.0)
 
             ax2 = ax.twinx()
@@ -119,14 +119,14 @@ class MVAPlotter(object):
                     label=f'Background', histtype="stepfilled",
                     density=True, alpha=0.5, hatch="///",
                      **color_options(self.color_dict["Background"]))
-
+            ax2.set_ylabel("Events")
             lines, labels = ax2.get_legend_handles_labels()
             lines2, labels2 = ax.get_legend_handles_labels()
             ax2.legend(lines + lines2, labels + labels2, loc='center left')
 
         return (fom, fom_maxbin)
 
-    def approx_likelihood(self, bins, year, comb_bkg=True):
+    def approx_likelihood(self, var, bins, year, comb_bkg=True):
         """**Get Basic max Likelihood significance**
 
         Args:
@@ -135,11 +135,10 @@ class MVAPlotter(object):
         Returns:
           float: The Maximum Log Likelihood approximation (without errors)
         """
-        hists = self.get_hist("Signal", bins, year, comb_bkg)
+        hists = self.get_hist(var, bins, year, comb_bkg)
         sig, bkg = hists["Signal"], hists["Background"]
-
         value = (sig+bkg)*np.log(1+sig/bkg) - sig
-        return math.sqrt(np.sum(2*np.nan_to_num(0.0)))
+        return math.sqrt(np.sum(2*np.nan_to_num(value)))
 
 
     def make_roc(self, year, comb_bkg=True):

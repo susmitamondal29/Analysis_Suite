@@ -26,16 +26,15 @@ class VarGetter:
     def __init__(self, f, group, syst=0):
         self.syst = syst
         self.syst_bit = 2**self.syst
-
+        self.jec = None
         branches = [key for key, array in f[group]["Analyzed"].items()
                     if len(array.keys()) == 0]
         analysis = self.get_tlist_var(f[group]["MetaData"], "Analysis")
         year = self.get_tlist_var(f[group]["MetaData"], "Year")
-        print(branches)
-        exit()
         info = FileInfo(analysis=analysis, year=year)
         self.xsec = info.get_xsec(group)
         self.sumw = sum(f[group]["sumweight"].values())
+
         if f[group]["Analyzed"].num_entries != 0:
             analyzed = f[group]["Analyzed"]
             passMask = analyzed["PassEvent"].array()[:, self.syst]
@@ -56,7 +55,11 @@ class VarGetter:
         return len(self.scale)
 
     def set_JEC(self, systName):
-        pass
+        systNames = systName.lower().split('_')
+        if len(systNames) != 3 or systNames[1] not in ["jes", "jer"]:
+            return
+        updown = {"down": "first", "up": "second"}
+        self.jec = f'{systNames[1]}/{systNames[1]}.{updown[systNames[2]]}'
 
     def setup_scale(self):
         self.scale *= self.xsec/self.sumw
@@ -74,7 +77,11 @@ class VarGetter:
         return ak.to_numpy(ak.count(self.get_part_mask(part), axis=1))
 
     def pt(self, part, n, fill=-1):
-        return self.nth(part, "pt", n, fill)
+        if "Jet" in part and self.jec is not None:
+            return self.nth(part, "pt", n, fill)*self.nth(part, self.jec, n, fill)
+        else:
+            return self.nth(part, "pt", n, fill)
+
 
     def eta(self, part, n, fill=-1):
         return self.nth(part, "eta", n, fill)

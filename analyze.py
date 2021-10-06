@@ -81,6 +81,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="main")
     parser.add_argument("-i", "--infile", default = "blah.in")
     parser.add_argument("-o", "--outfile", default="output.root")
+    parser.add_argument("-v", "--verbose", default=0)
     args = parser.parse_args()
     inputfile = args.infile if (env := os.getenv("INPUT")) is None else env
     outputfile = args.outfile if (env := os.getenv("OUTPUT")) is None else env
@@ -112,10 +113,9 @@ if __name__ == "__main__":
         'Year': year,
         'isData': info.is_data(),
     }
-    inputs["Verbosity"] = 0
+    inputs["Verbosity"] = args.verbose
     inputs["Systematics"] = configs.get_shape_systs()
     rInputs = setInputs(inputs)
-    print(inputs)
 
     # Run Selection
     fChain = ROOT.TChain()
@@ -132,12 +132,12 @@ if __name__ == "__main__":
 
     ## Output
     for tree in selector.getTrees():
-        print(tree.tree.GetName())
         anaFolder = getattr(rOutput, tree.tree.GetName())
         anaFolder.WriteObject(sumweight, "sumweight")
+        tree.tree.SetName("Analyzed")
+        tree.tree.SetTitle("Analyzed")
         anaFolder.WriteObject(tree.tree, "Analyzed")
         for i in selector.GetOutputList():
-            print(i.GetName())
             anaFolder.WriteObject(i, i.GetName())
 
     rOutput.Close()
