@@ -86,8 +86,7 @@ def run(histName, file_info, plot_info, outpath, filename, signalName, year, sys
     error += stacker
 
     if signal:
-        # scale = config.findScale(stacker.integral() / signal.integral())
-        scale = stacker.integral() / signal.integral()
+        scale = config.findScale(stacker.integral() / signal.integral())
         signal.scale(scale, forPlot=True)
 
     # # ratio

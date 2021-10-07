@@ -88,7 +88,10 @@ def get_cli():
 
 def findScale(ratio):
     sigNum = 10**int(math.log10(ratio))
-    return int((ratio) / sigNum) * sigNum
+    tot = int((ratio) / sigNum) * sigNum
+    if ratio > tot + sigNum//2:
+        tot += sigNum//2
+    return tot
 
 
 def checkOrCreateDir(path):
