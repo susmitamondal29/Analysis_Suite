@@ -150,13 +150,13 @@ def cleanup(cli_args):
                                     cli_args.workdir)
     analysis = cli_args.analysis
     allSysts = config.get_list_systs(**vars(cli_args))
+    allSysts.remove("Nominal")
 
     # combined page
     writeHTML(basePath, analysis, plot_params.all_years)
     for year in cli_args.years:
         yearPath = basePath / year
         yearAnalysis = f'{analysis}/{year}'
-        allSysts.remove("Nominal")
         writeHTML(yearPath, yearAnalysis, allSysts)
         for syst in allSysts:
             writeHTML(yearPath/syst, f'{yearAnalysis}/{syst}')

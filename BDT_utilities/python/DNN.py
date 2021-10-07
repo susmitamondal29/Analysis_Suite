@@ -142,4 +142,5 @@ class KerasMaker(MLHolder):
 
     def predict(self, use_set, directory):
         fit_model = keras.models.load_model(directory / 'model.h5')
-        return fit_model.predict(use_set.drop(self._drop_vars, axis=1))
+        pred = fit_model.predict(use_set.drop(self._drop_vars, axis=1))
+        return np.column_stack((1-pred, pred))

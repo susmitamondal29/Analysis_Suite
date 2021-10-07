@@ -183,19 +183,6 @@ class MLHolder:
         matthew_coef = (tp/len(truth_vals)-s*p)/np.sqrt(p*s*(1-p)*(1-s))
         print(f'Cut {cut:0.3f} for year {year}: {precision:0.3f} {recall:0.3f} {f1_score:0.3f} {matthew_coef:0.3f} {fom:0.3f}')
 
-    def _get_stats(self, year, cut, directory):
-        work_set
-        truth_vals = work_set.classID.astype(int)
-        pred = self.predict(work_set, directory).T[1]
-        tn, fp, fn, tp = confusion_matrix(truth_vals, pred >cut).ravel()
-        precision = tp / (tp+fp)
-        recall = tp / (tp + fn)
-        f1_score = 2*(precision*recall)/(precision+recall)
-        s = (tp+fn)/len(truth_vals)
-        p = (tp+fp)/len(truth_vals)
-
-        matthew_coef = (tp/len(truth_vals)-s*p)/np.sqrt(p*s*(1-p)*(1-s))
-        print(f'Cut {cut:0.3f} for year {year}: {precision:0.3f} {recall:0.3f} {f1_score:0.3f} {matthew_coef:0.3f}')
 
     def predict(self, use_set, directory):
         print("Shouldn't be here")
