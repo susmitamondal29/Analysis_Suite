@@ -72,19 +72,17 @@ def run(histName, file_info, plot_info, outpath, filename, signalName, year, sys
     data = Histogram("Data", binning, color="black")
 
     stacker = Stack(binning)
-    print(histName, filename)
     groupHists = config.getNormedHistos(filename, file_info, plot_info,
                                         histName, year)
     for group, hist in groupHists.items():
         hist.set_plot_details(file_info)
 
-
     signal = groupHists.pop(signalName)
     if "data" in groupHists:
         data += groupHists.pop("data")
 
-    for groupHist in groupHists.values():
-        stacker += groupHist
+    for group, hist in groupHists.items():
+        stacker += hist
     error += stacker
 
     if signal:

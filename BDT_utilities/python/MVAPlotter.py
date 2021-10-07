@@ -76,6 +76,9 @@ class MVAPlotter(object):
         """
         hists = self.get_hist(var, bins, year, comb_bkg)
         cum_hists = {key: np.cumsum(vals[::-1])[::-1] for key, vals in hists.items()}
+        if "Pt" in var:
+            for key, val in self.get_hist(var, np.array([-10, 0]), year, comb_bkg).items():
+                cum_hists[key] += val[0]
         sig = cum_hists["Signal"]
         bkg = cum_hists["Background"]
         return sig/np.sqrt(sig + bkg)
@@ -83,7 +86,7 @@ class MVAPlotter(object):
     def get_max_fom(self, var, bins, year, comb_bkg):
         return max(self.get_fom(var, bins, year, comb_bkg))
 
-    def plot_fom(self, var, bins, year, comb_bkg=True, xlabel="BDT value"):
+    def plot_fom(self, var, bins, year, comb_bkg=True, xlabel="BDT value", isDisc=False):
         """**Plots Figure of Merits for variable scan**
 
         Plot figure of merit by creating a "signal region" by only
@@ -97,8 +100,11 @@ class MVAPlotter(object):
         Returns:
           list: List of (FOM, bin) for the max FOM
         """
-        fom_bins = np.linspace(bins[0], bins[-1], 101)
-        fom = self.get_fom(var, fom_bins, year, comb_bkg)
+        fom_bins = np.linspace(bins[0], bins[-1], 151)
+        if isDisc:
+            fom = self.get_fom(var, fom_bins+0.5, year, comb_bkg)
+        else:
+            fom = self.get_fom(var, fom_bins, year, comb_bkg)
         fom_maxbin = fom_bins[np.argmax(fom)]
         with plot(f'{self.fType}_fom_{var}_{year}.png') as ax:
             ax.plot(fom_bins[:-1], fom, label=f'$S/\sqrt{{S+B}}={max(fom):.3f}$\n cut={fom_maxbin:.2f}',

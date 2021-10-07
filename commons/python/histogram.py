@@ -1,6 +1,7 @@
 import awkward1 as ak
 import numpy as np
 import math
+from copy import copy
 import boost_histogram as bh
 from boost_histogram.accumulators import WeightedSum as bh_weights
 from scipy.stats import beta
@@ -18,7 +19,6 @@ class Histogram:
     def __add__(self, right):
         hist = Histogram(self.group, self.axis)
         hist.hist = self.hist + right.hist
-
         return hist
 
     def __iadd__(self, right):
@@ -31,13 +31,11 @@ class Histogram:
                 self.breakdown[mem] += info
         elif isinstance(right, bh.Histogram):
             self._set_hist(right)
-        else:
-            pass
         return self
 
     def _set_hist(self, hist):
         if not self:
-            self.hist = hist
+            self.hist = copy(hist)
         else:
             self.hist += hist
 
@@ -77,7 +75,7 @@ class Histogram:
     def fill(self, vals, weight, member=None):
         self.hist.fill(vals, weight=weight)
         if member is not None:
-            self.breakdown[member] = bh_weights().fill(sum(weight))
+            self.breakdown[member] = bh_weights().fill(weight)
 
     def set_plot_details(self, group_info):
         name = group_info.get_legend_name(self.group)
