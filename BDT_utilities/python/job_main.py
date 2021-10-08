@@ -2,6 +2,7 @@
 import logging
 import numpy as np
 import os
+from importlib import import_module
 
 from analysis_suite.commons import GroupInfo, PlotInfo
 from analysis_suite.commons.configs import getGroupDict, get_list_systs
@@ -23,28 +24,32 @@ def setup(cli_args):
     return argList
 
 
-def run(groupDict, workdir, trainType, applyModel, years, systName, save_train):
-    print(f"Training for syst {systName}")
+def get_mva_runner(trainType):
+    pkg = "analysis_suite.BDT_utilities"
     if trainType == "XGB":
-        from .XGBoost import XGBoostMaker
+        return import_module(".XGBoost", pkg).XGBoostMaker
+    elif trainType == "DNN":
+        return import_module(".DNN", pkg).KerasMaker
+    elif trainType == "TMVA":
+        return import_module(".TMVA", pkg).TMVAMaker
+    elif trainType == "CutBased":
+        return import_module(".CutBased", pkg).CutBasedMaker
+    else:
+        return lambda *args, **kwargs : None
+
+def run(groupDict, workdir, trainType, applyModel, years, systName, save_train):
+    mvaRunner = get_mva_runner(trainType)(mva_params.usevars, groupDict, systName=systName)
+    if mvaRunner is None:
+        return
+    elif trainType == "XGB":
         params = {"max_depth": 2, "colsample_by_tree": 0.65, "min_childweight": 1e-3,
                   "subsample": 0.75, "eta": 0.05, "eval_metric": "rmse"}
-        mvaRunner = XGBoostMaker(mva_params.usevars, groupDict, systName=systName,
-                                 params=params)
-    elif trainType == "DNN":
-        from .DNN import KerasMaker
-        mvaRunner = KerasMaker(mva_params.usevars, groupDict, systName=systName)
-    elif trainType == "TMVA":
-        from .TMVA import TMVAMaker
-        mvaRunner = TMVAMaker(mva_params.usevars, groupDict, systName=systName)
-    elif trainType == "CutBased":
-        from .CutBased import CutBasedMaker
-        mvaRunner = CutBasedMaker(mva_params.usevars, groupDict, systName=systName,
-                                  cuts=mva_params.cuts)
-    else:
+        mvaRunner.update_params(params)
 
-        return
-    # mvaRunner.add_cut(mva_params.cuts)
+    mvaRunner.add_cut(mva_params.cuts) # Only used in CutBased for now
+
+    print(f"Training for syst {systName}")
+
 
     for year in years:
         mvaRunner.setup_year(workdir, year, save_train)

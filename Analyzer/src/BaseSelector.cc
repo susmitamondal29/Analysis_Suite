@@ -93,7 +93,7 @@ Bool_t BaseSelector::Process(Long64_t entry)
 
         std::vector<eVar> vars = (syst != Systematic::Nominal) ? syst_vars : nominal_var;
         for (auto var : vars) {
-            LOG_EVENT << "Variation is: %s" << varName_by_var.at(var);
+            LOG_EVENT << "Variation is: " << varName_by_var.at(var);
             SetupEvent(syst, var, systNum);
             systPassSelection.push_back(passSelection());
             // if (syst == Systematic::Nominal) {

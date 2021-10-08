@@ -86,12 +86,17 @@ void ThreeTop::clearOutputs()
 void ThreeTop::ApplyScaleFactors()
 {
     LOG_FUNC << "Start of ApplyScaleFactors";
+    LOG_EVENT << "weight: " << (*weight);
     (*weight) *= sfMaker.getPileupSF(**Pileup_nTrueInt);
+    LOG_EVENT << "weight after pu scale: " << (*weight);
     (*weight) *= sfMaker.getLHESF();
-
+    LOG_EVENT << "weight after lhe scale: " << (*weight);
     (*weight) *= jet.getScaleFactor();
+    LOG_EVENT << "weight after jet scale: " << (*weight);
     (*weight) *= elec.getScaleFactor();
+    LOG_EVENT << "weight after elec scale: " << (*weight);
     (*weight) *= muon.getScaleFactor();
+    LOG_EVENT << "weight after muon scale: " << (*weight);
     // (*weight) *= rTop.getScaleFactor(rGen);
     LOG_FUNC << "End of ApplyScaleFactors";
 }
@@ -128,8 +133,13 @@ void ThreeTop::setupChannel()
             }
         } else if (nLep == 2) {
             (*currentChannel_) = (isSameSign()) ? Channel::SS : Channel::OS;
-        } else
+        } else if (nLep == 3) {
             (*currentChannel_) = (isSameSign()) ? Channel::Multi : Channel::MultiAllSame;
+        } else {
+            (*currentChannel_) = Channel::None;
+            return;
+        }
+
         setSubChannel();
     }
     LOG_FUNC << "End of setupChannel";

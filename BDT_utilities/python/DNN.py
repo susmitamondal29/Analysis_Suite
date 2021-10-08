@@ -52,11 +52,14 @@ class Params:
 class KerasMaker(MLHolder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.build = Params(params=kwargs.get("params"))
+        self.update_params(kwargs.get("params"))
 
+    def update_params(self, params):
+        self.build = Params(params=params)
         self.params = self.build["epochs", "batch_size", "shuffle", "validation_split"]
         self.early_stop = self.build["monitor", "patience"]
         self.checkpoint = self.build["save_best_only", "save_weights_only", "mode", "period"]
+
 
     def build_model(self, input_size="auto"):
         node_lengths = self.build.initial_nodes * np.ones(

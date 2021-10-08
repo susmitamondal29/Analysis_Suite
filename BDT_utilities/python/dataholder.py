@@ -65,6 +65,10 @@ class MLHolder:
         self.auc = dict()
         self.fom = dict()
 
+    def update_params(self, params):
+        print("Shouldn't be here")
+        raise Exception("Calling base function")
+
 
     def setup_year(self, directory, year="2018", save_train=False):
         """**Fill the dataframes with all info in the input files**

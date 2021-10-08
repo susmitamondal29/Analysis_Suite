@@ -79,7 +79,7 @@ def get_cli():
         pass
 
     # Combos
-    if sys.argv[1] == "plot" or sys.argv[1] == "combine":
+    if len(sys.argv) > 1 and (sys.argv[1] == "plot" or sys.argv[1] == "combine"):
         parser.add_argument("-sig", "--signal", type=str, default='', required=True,
                             help="Name of the group to be made into the Signal")
 
