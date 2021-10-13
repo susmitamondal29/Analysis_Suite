@@ -1,7 +1,9 @@
 #include "analysis_suite/Analyzer/interface/Output.h"
+#include"analysis_suite/Analyzer/interface/logging.h"
 
 void fillJet(const Jet& jet, Level level, JetOut& fillObject, size_t pass_bitmap)
 {
+    LOG_FUNC << "Start fillJet";
     fillObject.clear();
 
     for (size_t idx = 0; idx < jet.size(); ++idx) {
@@ -12,10 +14,12 @@ void fillJet(const Jet& jet, Level level, JetOut& fillObject, size_t pass_bitmap
             fillObject.jes.push_back(jet.get_JEC_pair(Systematic::Jet_JES, idx));
         }
     }
+    LOG_FUNC << "End of fillJet";
 }
 
 void fillBJet(const Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitmap)
 {
+    LOG_FUNC << "Start fillBJet";
     fillObject.clear();
     for (size_t syst = 0; syst < Particle::nSyst; ++syst) {
         if ((pass_bitmap >> syst) & 1) {
@@ -33,10 +37,12 @@ void fillBJet(const Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitm
             fillObject.jes.push_back(jet.get_JEC_pair(Systematic::Jet_JES, idx));
         }
     }
+    LOG_FUNC << "End of fillBJet";
 }
 
 void fillTop(const ResolvedTop& top, Level level, TopOut& fillObject, size_t pass_bitmap)
 {
+    LOG_FUNC << "Start of fillTop";
     fillObject.clear();
     for (size_t idx = 0; idx < top.size(); ++idx) {
         size_t final_bitmap = fillParticle(top, level, fillObject, idx, pass_bitmap);
@@ -44,10 +50,12 @@ void fillTop(const ResolvedTop& top, Level level, TopOut& fillObject, size_t pas
             fillObject.discriminator.push_back(top.discriminator->At(idx));
         }
     }
+    LOG_FUNC << "End of fillTop";
 }
 
 void fillLeptons(const Lepton& muon, const Lepton& elec, ParticleOut& fillObject, size_t pass_bitmap)
 {
+    LOG_FUNC << "Start of fillLeptons";
     fillObject.clear();
     size_t midx = 0;
     size_t eidx = 0;
@@ -60,4 +68,5 @@ void fillLeptons(const Lepton& muon, const Lepton& elec, ParticleOut& fillObject
             eidx++;
         }
     }
+    LOG_FUNC << "End of fillLeptons";
 }

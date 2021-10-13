@@ -39,7 +39,7 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
     setSF<TH2D>("btagEff_c", Systematic::BJet_Eff);
     setSF<TH2D>("btagEff_udsg", Systematic::BJet_Eff);
 
-    use_shape_btag = true;
+    // use_shape_btag = true;
     createBtagReaders();
 
     m_jet_scales[Systematic::Nominal] = {{eVar::Nominal, std::vector<float>()}};
@@ -119,7 +119,6 @@ float Jet::getTotalBTagWeight() {
         auto btagInfo = btagInfo_by_flav[std::abs(hadronFlavour->At(bidx))];
         weight *= getBWeight(btagInfo.flavor_type, bidx);
     }
-
     for (auto jidx : list(Level::Tight)) {
         if (std::find(goodBJets.begin(), goodBJets.end(), jidx) != goodBJets.end()) {
             continue; // is a bjet, weighting already taken care of
@@ -134,21 +133,14 @@ float Jet::getTotalBTagWeight() {
 
 float Jet::getTotalShapeWeight() {
     float weight = 1;
-    const auto bjets = list(Level::Bottom);
-    const auto jets = list(Level::Tight);
-    std::vector<size_t> jet_list;
-    jet_list.reserve(size());
-    std::merge(bjets.begin(), bjets.end(), jets.begin(), jets.end(), std::back_inserter(jet_list));
     bool charmSyst = charm_systs.find(currentSyst) != charm_systs.end();
-
-
-    for (auto idx : jet_list) {
-        switch (std::abs(hadronFlavour->At(idx))) {
-        case static_cast<Int_t>(PID::Bottom):
+    for (auto idx : list(Level::Tight);) {
+        auto flav = static_cast<PID>(std::abs(hadronFlavour->At(idx)));
+        if (flav == PID::Bottom) {
             if (!charmSyst) weight *= getShapeWeight(BTagEntry::FLAV_B, idx);
-        case static_cast<Int_t>(PID::Charm):
+        } else if (flav == PID::Charm) {
             if (charmSyst) weight *= getShapeWeight(BTagEntry::FLAV_C, idx);
-        default:
+        } else {
             if (!charmSyst) weight *= getShapeWeight(BTagEntry::FLAV_UDSG, idx);
         }
     }

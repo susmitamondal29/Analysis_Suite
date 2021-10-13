@@ -1,5 +1,7 @@
 #include "analysis_suite/Analyzer/interface/ThreeTop.h"
 
+#include"analysis_suite/Analyzer/interface/logging.h"
+
 #define getElec(var, i) (elec.var(elec.list(Level::Tight).at(i)))
 #define getMuon(var, i) (muon.var(muon.list(Level::Tight).at(i)))
 
@@ -51,9 +53,8 @@ void ThreeTop::SetupOutTreeBranches(TTree* tree)
     tree->Branch("LooseElectron", "ParticleOut", &o_looseElectrons);
     tree->Branch("TightElectron", "ParticleOut", &o_tightElectrons);
     tree->Branch("TightLeptons", "ParticleOut", &o_tightLeptons);
-    tree->Branch("Jets", "ParticleOut", &o_jets);
+    tree->Branch("Jets", "JetOut", &o_jets);
     tree->Branch("BJets", "BJetOut", &o_bJets);
-    tree->Branch("newJets", "JetOut", &o_Jets);
     tree->Branch("ResolvedTops", "TopOut", &o_resolvedTop);
 
     tree->Branch("HT", &o_ht);
@@ -264,9 +265,8 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
     fillParticle(muon, Level::Tight, *o_tightMuons, pass_bitmap);
     fillParticle(elec, Level::Loose, *o_looseElectrons, pass_bitmap);
     fillParticle(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
-    fillParticle(jet, Level::Tight, *o_jets, pass_bitmap);
+    fillJet(jet, Level::Tight, *o_jets, pass_bitmap);
     fillBJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
-    fillJet(jet, Level::Tight, *o_Jets, pass_bitmap);
     fillTop(rTop, Level::Loose, *o_resolvedTop, pass_bitmap);
     fillLeptons(muon, elec, *o_tightLeptons, pass_bitmap);
 

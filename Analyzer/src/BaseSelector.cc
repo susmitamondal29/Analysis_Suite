@@ -1,5 +1,7 @@
 #include "analysis_suite/Analyzer/interface/BaseSelector.h"
 
+#include"analysis_suite/Analyzer/interface/logging.h"
+
 #include "analysis_suite/Analyzer/interface/Systematic.h"
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
 #include "analysis_suite/Analyzer/interface/CommonFuncs.h"
@@ -80,8 +82,10 @@ void BaseSelector::Init(TTree* tree)
 
 Bool_t BaseSelector::Process(Long64_t entry)
 {
+    if (loguru::g_stderr_verbosity > 5 && entry > 10) return false;
     LOG_FUNC << "Start of Process";
     LOG_IF_S(INFO, entry % 10000 == 0) << "At entry " <<  entry;
+
 
     clearParticles();
     fReader.SetLocalEntry(entry);

@@ -1,8 +1,6 @@
 #ifndef THREETOP_H
 #define THREETOP_H
 
-#include"analysis_suite/Analyzer/interface/loguru.hpp"
-
 #include "analysis_suite/Analyzer/interface/BaseSelector.h"
 #include "analysis_suite/Analyzer/interface/Output.h"
 #include "analysis_suite/Analyzer/interface/ResolvedTop.h"
@@ -60,9 +58,8 @@ private:
     ParticleOut* o_looseElectrons;
     ParticleOut* o_tightElectrons;
     ParticleOut* o_tightLeptons;
-    ParticleOut* o_jets;
+    JetOut* o_jets;
     BJetOut* o_bJets;
-    JetOut* o_Jets;
     TopOut* o_resolvedTop;
 
     TTRValue<ULong64_t>* event;

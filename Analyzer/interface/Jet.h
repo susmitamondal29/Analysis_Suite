@@ -79,6 +79,10 @@ public:
     bool isJECSyst() {return jec_systs.find(currentSyst) != jec_systs.end(); }
     std::pair<Float_t, Float_t> get_JEC_pair(Systematic syst, size_t idx) const
     {
+        if (m_jet_scales.find(syst) == m_jet_scales.end() ||
+            m_jet_scales.at(syst).size() == 0) {
+            return std::make_pair(1., 1.);
+        }
         const auto scales = m_jet_scales.at(syst);
         return std::make_pair(scales.at(eVar::Down).at(idx), scales.at(eVar::Up).at(idx));
     }
