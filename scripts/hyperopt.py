@@ -17,7 +17,7 @@ sys.argv.insert(1, "mva")
 nVars = len(mva_params.usevars)
 # hyperParams = OrderedDict({
 #     "hidden_layers": np.array([1, 2]),
-#     "initial_nodes": np.array([nVars, nVars + 1]),
+#     "initial_nodes": np.array([nVars, 2*nVars ]),
 #     "node_pattern": np.array(["static", "dynamic"]),
 #     "batch_power": np.array([8, 11]),
 #     "learning_rate": np.array([0.001, 0.005, 0.01, 0.05]),

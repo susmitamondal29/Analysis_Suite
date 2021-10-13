@@ -134,7 +134,7 @@ float Jet::getTotalBTagWeight() {
 float Jet::getTotalShapeWeight() {
     float weight = 1;
     bool charmSyst = charm_systs.find(currentSyst) != charm_systs.end();
-    for (auto idx : list(Level::Tight);) {
+    for (auto idx : list(Level::Tight)) {
         auto flav = static_cast<PID>(std::abs(hadronFlavour->At(idx)));
         if (flav == PID::Bottom) {
             if (!charmSyst) weight *= getShapeWeight(BTagEntry::FLAV_B, idx);

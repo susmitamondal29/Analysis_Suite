@@ -65,6 +65,8 @@ class MLHolder:
         self.auc = dict()
         self.fom = dict()
 
+        self.best_iter = 0
+
     def update_params(self, params):
         print("Shouldn't be here")
         raise Exception("Calling base function")
