@@ -8,7 +8,7 @@ class CutBasedMaker(MLHolder):
         """
         super().__init__(*args, **kwargs)
         self.cuts = kwargs.get("cuts")
-
+        self.min_train_events = 1e10 # to not have train set
 
     def train(self, outdir):
         with open(f"{outdir}/cuts.txt", 'w') as f:
@@ -19,7 +19,6 @@ class CutBasedMaker(MLHolder):
     def predict(self, use_set, directory):
         self.get_cut_file(directory)
         signal = self._cut_mask(use_set)
-        print(np.array([[not i, i] for i in signal], dtype=float))
         return np.array([[not i, i] for i in signal], dtype=float)
 
     def get_cut_file(self, workdir):

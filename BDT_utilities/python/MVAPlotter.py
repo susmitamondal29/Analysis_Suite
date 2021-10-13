@@ -128,7 +128,7 @@ class MVAPlotter(object):
             ax2.set_ylabel("Events")
             lines, labels = ax2.get_legend_handles_labels()
             lines2, labels2 = ax.get_legend_handles_labels()
-            ax2.legend(lines + lines2, labels + labels2, loc='center left')
+            ax2.legend(lines + lines2, labels + labels2)
 
         return (fom, fom_maxbin)
 

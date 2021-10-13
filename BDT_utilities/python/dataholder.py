@@ -118,8 +118,8 @@ class MLHolder:
             self._output(validation_set, directory / year / f"validation_{self.systName}.root")
 
         self.train_set = pd.concat([self.class_reweight(train_set),
-                                    self.train_set,], ignore_index=True)
-        self.validation_set = pd.concat([validation, self.validation_set],
+                                    self.train_set], ignore_index=True)
+        self.validation_set = pd.concat([validation_set, self.validation_set],
                                         ignore_index=True)
         self.test_sets[year] = test_set
 
@@ -139,6 +139,8 @@ class MLHolder:
         for className, classID in self.classID_by_className.items():
             class_mask = workset["classID"] == classID
             class_set = workset[class_mask]
+            if not len(class_set):
+                continue
             scale = len(class_set)/sum(class_set.train_weight)
             workset.loc[class_mask, "train_weight"] *= scale
         return workset

@@ -15,22 +15,37 @@ sys.argv.insert(1, "mva")
 
 
 nVars = len(mva_params.usevars)
+# hyperParams = OrderedDict({
+#     "hidden_layers": np.array([1, 2]),
+#     "initial_nodes": np.array([nVars, nVars + 1]),
+#     "node_pattern": np.array(["static", "dynamic"]),
+#     "batch_power": np.array([8, 11]),
+#     "learning_rate": np.array([0.001, 0.005, 0.01, 0.05]),
+#     "regulator": np.array(["dropout", "none"]),
+#     "activation": np.array(["softplus", "elu"]),
+#     "epochs": np.array([1, 3]),
+# })
+# sqrtNVar = int(np.sqrt(nVars))
 hyperParams = OrderedDict({
-    "hidden_layers": np.array([1, 2]),
-    "initial_nodes": np.array([nVars, nVars + 1]),
-    "node_pattern": np.array(["static", "dynamic"]),
-    "batch_power": np.array([8, 11]),
-    "learning_rate": np.array([0.001, 0.005, 0.01, 0.05]),
-    "regulator": np.array(["dropout", "none"]),
-    "activation": np.array(["softplus", "elu"]),
-    "epochs": np.array([1, 3]),
+    "max_depth": np.array([1, 2]),
+    'colsample_bytree': np.array([0.5, 0.75, 1.0]),
+    'min_child_weight': np.geomspace(1e-6, 1, 5),
+    'subsample': np.linspace(0.5, 1, 5),
+    'eta': np.array([0.05, 0.1, 0.2, 0.3]),
+    "eval_metric": np.array(["logloss", "rmse", "auc", "error"]),
+    # "objective": np.array(["reg:squaredlogerror", "binary:logistic"]),
+
 })
 
 
-def write_line(filename, params, auc):
+
+
+def write_line(filename, params, other):
     with open(filename, "a") as logfile:
         writer = csv.writer(logfile)
-        writer.writerow(params + [auc])
+        if not isinstance(other, list):
+            other = list(other)
+        writer.writerow(params + other)
 
 
 # Determine optimization space
@@ -58,7 +73,7 @@ def run_mva(mvaRunner, **X):
 
     print(f"\n>> Obtained ROC-Integral value: {auc}")
     print(f">> Obtained FOM value: {fom}")
-    write_line(logfile_name, [X[i] for i in pNames], fom)
+    write_line(logfile_name, [X[i] for i in pNames], [mvaRunner.best_iter, fom])
 
     return -fom
 
@@ -68,7 +83,7 @@ if __name__ == "__main__":
     cli_args = get_cli()
     work_year = "2016"
     extraOptions = {"verbose": False}
-    number_calls = 3
+    number_calls = 200
 
     # Derived Variables
     pNames = list(hyperParams.keys())
@@ -88,7 +103,7 @@ if __name__ == "__main__":
 
     # Start the logfile
     with open(logfile_name,'w') as f: pass # clear file
-    write_line(logfile_name, list(hyperParams), "AUC")
+    write_line(logfile_name, list(hyperParams), ["iters", "AUC"])
 
     # Setup mva
     mvaRunner = get_mva_runner(cli_args.train)(mva_params.usevars, groupDict)
@@ -108,15 +123,14 @@ if __name__ == "__main__":
         verbose = True
     )
 
+    result = {key: res_gp.x[i] for i, key in enumerate(pNames)}
+    print("TTT DNN Hyper Parameter Optimization Parameters")
+    print(f"Static and Parameter Space stored in: {hyper_file}")
+    print("Optimized Parameters:")
+    for key, val in result.items():
+        print(f"    {key}: {val}")
     # Report results
-    with open(hyper_name, "a") as f:
-        result = {key: res_gp.x[i] for i, key in enumerate(pNames)}
-        print("TTT DNN Hyper Parameter Optimization Parameters")
-        print(f"Static and Parameter Space stored in: {config_file}")
-        print("Optimized Parameters:")
-        for key, val in result.items():
-            print(f"    {key}: {val}")
-
+    with open(hyper_file, "a") as f:
         varName = "best_params="
         config.write(varName)
         config.write(pprint.pformat(result, indent=len(varName)))

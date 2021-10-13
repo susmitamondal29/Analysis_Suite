@@ -105,7 +105,9 @@ class XGBoostMaker(MLHolder):
         fit_model = xgb.XGBRegressor(**asdict(self.param))
         fit_model.fit(x_train, y_train, sample_weight=w_train,
                       eval_set=[(x_train, y_train), (x_test, y_test)],
-                      early_stopping_rounds=75, verbose=20)
+                      early_stopping_rounds=30, verbose=20)
+
+        self.best_iter = fit_model.get_booster().best_iteration
         fit_model.save_model(f'{outdir}/model.bin')
 
 
@@ -120,7 +122,6 @@ class XGBoostMaker(MLHolder):
         fit_model.load_model(str(directory / "model.bin"))  # load data
         impor = fit_model.get_booster().get_score(importance_type= "total_gain")
         sorted_import = {x_train.columns[int(k[1:])]: v for k, v in sorted(impor.items(), key=lambda item: item[1]) if "Pt" not in x_train.columns[int(k[1:])]}
-        print(sorted_import)
 
         from analysis_suite.commons.plot_utils import plot, color_options
         with plot("{}/importance.png".format(directory)) as ax:
