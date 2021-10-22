@@ -31,6 +31,8 @@ struct TreeInfo {
     }
 };
 
+typedef std::vector<std::pair<std::string, bool>> cut_info;
+
 class BaseSelector : public TSelector {
     friend class ScaleFactors;
 
@@ -68,13 +70,25 @@ protected:
         SetupOutTreeBranches(tree);
     }
 
+    bool passCutFlow(cut_info cuts) {
+        for (auto& [cutName, pass] : cuts) {
+            if (!pass) return false;
+        }
+        return true;
+    }
+    bool setCut(cut_info& cuts, std::string name, bool pass) {
+        cuts.push_back(std::make_pair(name, pass));
+        return pass;
+    }
+
     // To be filled by Child class
-    virtual void fillCutFlow(){};
+    virtual void fillTriggerEff(bool passCuts, bool passTrigger) {};
     virtual void ApplyScaleFactors(){};
     virtual void FillValues(const std::vector<bool>& passVec) {}
     virtual void setupChannel(){};
     virtual void setOtherGoodParticles(size_t syst){};
-    virtual bool passSelection() { return true; }
+    virtual bool getCutFlow(cut_info& cuts) { return true; }
+    virtual bool getTriggerCut(cut_info& cuts) { return true; }
     virtual void SetupOutTreeBranches(TTree* tree);
 
     // Protected Variables
@@ -88,7 +102,6 @@ protected:
     JetCorrection jetCorrector;
 
     Year year_;
-    bool passTrigger;
     bool isMC_ = true;
     Channel channel_;
 
@@ -109,9 +122,13 @@ protected:
     GenParticle rGen;
     GenJet rGenJet;
 
+    TH1F *cutFlow, *cutFlow_individual;
+
+
 private:
     void SetupEvent(Systematic syst, eVar var, size_t systNum);
     void setupSystematicInfo();
+    void fillCutFlow(cut_info& cuts);
 
     std::vector<Systematic> systematics_ = { Systematic::Nominal };
     size_t passed_events = 0;

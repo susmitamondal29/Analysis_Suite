@@ -86,7 +86,6 @@ Bool_t BaseSelector::Process(Long64_t entry)
     LOG_FUNC << "Start of Process";
     LOG_IF_S(INFO, entry % 10000 == 0) << "At entry " <<  entry;
 
-
     clearParticles();
     fReader.SetLocalEntry(entry);
     std::vector<bool> systPassSelection;
@@ -99,11 +98,15 @@ Bool_t BaseSelector::Process(Long64_t entry)
         for (auto var : vars) {
             LOG_EVENT << "Variation is: " << varName_by_var.at(var);
             SetupEvent(syst, var, systNum);
-            systPassSelection.push_back(passSelection());
-            // if (syst == Systematic::Nominal) {
-            //     fillCutFlow();
-            // }
-            passAny |= systPassSelection.back();
+            cut_info cuts;
+            bool passCuts = getCutFlow(cuts);
+            bool passTrigger = getTriggerCut(cuts);
+            systPassSelection.push_back(passCuts && passTrigger);
+            if (syst == Systematic::Nominal) {
+                fillCutFlow(cuts);
+                fillTriggerEff(passCuts, cuts.back().second);
+            }
+            passAny |= passCuts && passTrigger;
             systNum++;
         }
     }
@@ -129,6 +132,32 @@ Bool_t BaseSelector::Process(Long64_t entry)
     LOG_FUNC << "End of Process";
     return kTRUE;
 }
+
+void BaseSelector::fillCutFlow(cut_info& cuts)
+{
+    LOG_FUNC << "Start of fillCutFlow";
+    // Setup cutflow histogram
+    if (!cutFlow) {
+        createObject(cutFlow, "cutFlow", 15, 0, 15);
+        createObject(cutFlow_individual, "cutFlow_individual", 15, 0, 15);
+
+        for (size_t i = 0; i < cuts.size(); ++i) {
+            cutFlow->GetXaxis()->SetBinLabel(i+1, cuts[i].first.c_str());
+            cutFlow_individual->GetXaxis()->SetBinLabel(i+1, cuts[i].first.c_str());
+        }
+    }
+
+    bool passAll = true;
+    for (auto& [cutName, truth] : cuts) {
+        passAll &= truth;
+        if (truth)
+            cutFlow_individual->Fill(cutName.c_str(), *weight);
+        if (passAll)
+            cutFlow->Fill(cutName.c_str(), *weight);
+    }
+    LOG_FUNC << "End of fillCutFlow";
+}
+
 
 void BaseSelector::SlaveTerminate()
 {

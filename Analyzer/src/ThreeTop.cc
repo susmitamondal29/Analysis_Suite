@@ -17,8 +17,6 @@ void ThreeTop::Init(TTree* tree)
 
     createObject(passTrigger_leadPt, "passTrigger", 4, 0, 4, 100, 0, 100);
     createObject(failTrigger_leadPt, "failTrigger", 4, 0, 4, 100, 0, 100);
-    createObject(cutFlow, "cutFlow", 15, 0, 15);
-    createObject(cutFlow_individual, "cutFlow_individual", 15, 0, 15);
 
     rTop.setup(fReader);
 
@@ -183,75 +181,79 @@ bool ThreeTop::isSameSign()
     return abs(q_total) == 1 || abs(q_total) == 2;
 }
 
-bool ThreeTop::passSelection()
+
+
+bool ThreeTop::getCutFlow(cut_info& cuts)
 {
-    LOG_FUNC << "Start of passSelection";
-    std::vector<std::pair<std::string, bool>> cuts;
-    cuts.push_back(std::make_pair("passPreselection", true));
+     LOG_FUNC << "Start of passSelection";
+     bool passCuts = true;
+     passCuts &= setCut(cuts, "passPreselection", true);
+     passCuts &= setCut(cuts, "passMETFilter", (**Flag_goodVertices && **Flag_globalSuperTightHalo2016Filter && **Flag_HBHENoiseFilter && **Flag_HBHENoiseIsoFilter && **Flag_EcalDeadCellTriggerPrimitiveFilter && **Flag_BadPFMuonFilter && **Flag_ecalBadCalibFilter));
+     passCuts &= setCut(cuts, "passZVeto", muon.passZVeto() && elec.passZVeto());
+     passCuts &= setCut(cuts, "passJetNumber", jet.size(Level::Tight) >= 2);
+     passCuts &= setCut(cuts, "passBJetNumber", jet.size(Level::Bottom) >= 1);
+     passCuts &= setCut(cuts, "passMetCut", **Met_pt > 25);
+     passCuts &= setCut(cuts, "passHTCut", jet.getHT(Level::Tight) > 300);
 
-    cuts.push_back(std::make_pair("passMETFilter",
-        (**Flag_goodVertices && **Flag_globalSuperTightHalo2016Filter && **Flag_HBHENoiseFilter && **Flag_HBHENoiseIsoFilter && **Flag_EcalDeadCellTriggerPrimitiveFilter && **Flag_BadPFMuonFilter && **Flag_ecalBadCalibFilter)));
-    cuts.push_back(std::make_pair("passZVeto", muon.passZVeto() && elec.passZVeto()));
-    cuts.push_back(std::make_pair("passJetNumber", jet.size(Level::Tight) >= 2));
-    cuts.push_back(std::make_pair("passBJetNumber", jet.size(Level::Bottom) >= 1));
-    cuts.push_back(std::make_pair("passMetCut", **Met_pt > 25));
-    cuts.push_back(std::make_pair("passHTCut", jet.getHT(Level::Tight) > 300));
-
-    // Trigger stuff
-    cuts.push_back(std::make_pair("passLeadPtCut", getLeadPt() > 25));
-    cuts.push_back(std::make_pair("passSubLeadPtCut", getLeadPt(1) > 15));
-
-    passTrigger = true;
-    // if (subChannel_ == Subchannel::MM)
-    //     passTrigger &= **HLT_MuMu;
-    // else if (subChannel_ == Subchannel::EM)
-    //     passTrigger &= **HLT_EleMu;
-    // else if (subChannel_ == Subchannel::ME)
-    //     passTrigger &= **HLT_MuEle;
-    // else if (subChannel_ == Subchannel::EE)
-    //     passTrigger &= **HLT_EleEle;
-
-    LOG_FUNC << "End of passSelection";
-    for (auto& cut : cuts) {
-        if (!cut.second)
-            return false;
-    }
-
-    return passTrigger;
+     LOG_FUNC << "End of passSelection";
+     return passCuts;
 }
 
-void ThreeTop::fillCutFlow()
-{
-    LOG_FUNC << "Start of fillCutFlow";
-    std::vector<std::pair<std::string, bool>> cuts;
-    // Setup cutflow histogram
-    if (!cutFlows_setBins) {
-        cutFlows_setBins = true;
-        int i = 1;
-        for (auto cut : cuts) {
-            cutFlow->GetXaxis()->SetBinLabel(i, cut.first.c_str());
-            cutFlow_individual->GetXaxis()->SetBinLabel(i, cut.first.c_str());
-            i++;
-        }
-    }
+bool ThreeTop::getTriggerCut(cut_info& cuts) {
+    bool passTriggerCuts = true;
+    passTriggerCuts &= setCut(cuts, "passLeadPtCut", getLeadPt() > 25);
+    passTriggerCuts &= setCut(cuts, "passSubLeadPtCut", getLeadPt(1) > 20);
 
-    bool passAll = true;
-    for (auto cut : cuts) {
-        bool truth = cut.second;
-        passAll &= truth;
-        if (truth)
-            cutFlow_individual->Fill(cut.first.c_str(), *weight);
-        if (passAll)
-            cutFlow->Fill(cut.first.c_str(), *weight);
-    }
+    bool passTrigger;
+    // if (subChannel_ == Subchannel::MM)
+    //     passTrigger = **HLT_MuMu_HT300 || **HLT_MuMu;
+    // else if (subChannel_ == Subchannel::EM)
+    //     passTrigger = **HLT_MuEle_HT300 || **HLT_EleMu;
+    // else if (subChannel_ == Subchannel::ME)
+    //     passTrigger = **HLT_MuEle_HT300 || **HLT_MuEle;
+    // else if (subChannel_ == Subchannel::EE)
+    //     passTrigger = **HLT_EleEle_HT300 || **HLT_EleEle;
+    // else
+    //     passTrigger = false;
 
-    if (passAll && passTrigger) {
+    passTriggerCuts &= setCut(cuts, "passTrigger", passTrigger);
+
+    return passTriggerCuts;
+
+
+    // if (totalCut && !passTrigger && subChannel_ == Subchannel::MM // && !**HLT_Mu17_Mu8
+    //     ) {
+    //     std::cout << **HLT_MuMu << " | " << **HLT_EleMu << " | " << **HLT_MuEle << " | " << **HLT_EleEle << std::endl;
+    //     std::cout << **HLT_Mu8 << " | " << **HLT_Mu20 << " | " << **HLT_Mu17_Mu8 << " | " << **HLT_Mu_Jet << " | " << **HLT_Mu17_Mu8_SameSign << " | " << **HLT_doubleMu << std::endl;
+    //     std::cout << subchan_to_name[subChannel_] << " : " << muon.size(Level::Loose) << " - " << muon.size(Level::Tight) << " : " << elec.size(Level::Loose)<< " - " << elec.size(Level::Tight) << std::endl;
+    //     std::cout << **Met_pt << " " << jet.getHT(Level::Tight) << std::endl;
+    //     for (auto midx : muon.list(Level::Loose)) {
+    //         std::cout << muon.pt(midx) << " " << muon.iso->At(midx) << " " << muon.charge(midx) << " | " << muon.looseId->At(midx) << " " << muon.triggerIdLoose->At(midx) << std::endl;
+    //     }
+    //     std::cout << std::endl;
+
+    // }
+
+}
+
+void ThreeTop::fillTriggerEff(bool passCuts, bool passTrigger) {
+    // if (subChannel_ == Subchannel::MM && passCuts && !**HLT_MuMu_HT300 && !**HLT_MuMu) {
+    //     std::cout << "Failed Both" << std::endl;
+    // } else if (subChannel_ == Subchannel::MM && passCuts && !**HLT_MuMu_HT300) {
+    //     std::cout << "HLT Failed: " << **HLT_Mu17_Mu8 << " " << **HLT_MuMu << std::endl;
+    // } else if (subChannel_ == Subchannel::MM && passCuts && !**HLT_MuMu) {
+    //     std::cout << "Double Failed:" << **HLT_MuMu_HT300 << " " << **HLT_Mu17_Mu8 << std::endl;
+    // }
+
+    if (passCuts && passTrigger) {
         passTrigger_leadPt->Fill(static_cast<int>(subChannel_), getLeadPt(), *weight);
-    } else if (passAll) {
+    } else if (passCuts) {
         failTrigger_leadPt->Fill(static_cast<int>(subChannel_), getLeadPt(), *weight);
     }
-    LOG_FUNC << "End of fillCutFlow";
 }
+
+
+
 
 void ThreeTop::FillValues(const std::vector<bool>& passVec)
 {

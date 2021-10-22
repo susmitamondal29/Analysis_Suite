@@ -27,10 +27,15 @@ enum class Subchannel {
     None,
 };
 
+
+
+
 class ThreeTop : public BaseSelector {
 public:
     virtual void Init(TTree* tree) override;
-    virtual bool passSelection() override;
+    virtual bool getCutFlow(cut_info& cuts) override;
+    virtual bool getTriggerCut(cut_info& cuts) override;
+    virtual void fillTriggerEff(bool passCuts, bool passTrigger) override;
     virtual void FillValues(const std::vector<bool>& passVec) override;
     virtual void SetupOutTreeBranches(TTree* tree) override;
     virtual void setupChannel() override;
@@ -38,7 +43,6 @@ public:
     virtual void clearParticles() override;
     virtual void clearOutputs() override;
     virtual void setOtherGoodParticles(size_t syst) override;
-    virtual void fillCutFlow() override;
     ClassDefOverride(ThreeTop, 0);
 
 private:
@@ -79,8 +83,6 @@ private:
     std::vector<Float_t> o_ht, o_htb, o_met, o_metphi, o_centrality;
 
     TH2F *passTrigger_leadPt, *failTrigger_leadPt;
-    TH1F *cutFlow, *cutFlow_individual;
-    bool cutFlows_setBins = false;
 };
 
 #endif
