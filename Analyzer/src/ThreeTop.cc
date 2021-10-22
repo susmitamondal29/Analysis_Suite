@@ -34,11 +34,16 @@ void ThreeTop::Init(TTree* tree)
         Pileup_nTrueInt = new TTRValue<Float_t>(fReader, "Pileup_nTrueInt");
     }
 
-    //HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8
-    HLT_MuMu = new TTRValue<Bool_t>(fReader, "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ");
-    HLT_MuEle = new TTRValue<Bool_t>(fReader, "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL");
-    HLT_EleMu = new TTRValue<Bool_t>(fReader, "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL");
-    HLT_EleEle = new TTRValue<Bool_t>(fReader, "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL");
+    setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
+                                  "HLT_DoubleMu8_Mass8_PFHT300"});
+    setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+                                  "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+    setupTrigger(Subchannel::EM, {"HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
+                                  "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+    setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                                  "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+    setupTrigger(Subchannel::None);
+
     LOG_FUNC << "End of Init";
 }
 
@@ -204,56 +209,22 @@ bool ThreeTop::getTriggerCut(cut_info& cuts) {
     passTriggerCuts &= setCut(cuts, "passLeadPtCut", getLeadPt() > 25);
     passTriggerCuts &= setCut(cuts, "passSubLeadPtCut", getLeadPt(1) > 20);
 
-    bool passTrigger;
-    // if (subChannel_ == Subchannel::MM)
-    //     passTrigger = **HLT_MuMu_HT300 || **HLT_MuMu;
-    // else if (subChannel_ == Subchannel::EM)
-    //     passTrigger = **HLT_MuEle_HT300 || **HLT_EleMu;
-    // else if (subChannel_ == Subchannel::ME)
-    //     passTrigger = **HLT_MuEle_HT300 || **HLT_MuEle;
-    // else if (subChannel_ == Subchannel::EE)
-    //     passTrigger = **HLT_EleEle_HT300 || **HLT_EleEle;
-    // else
-    //     passTrigger = false;
-
+    bool passTrigger = false;
+    for (auto trig: trig_cuts[subChannel_]) {
+        passTrigger |= **trig;
+    }
     passTriggerCuts &= setCut(cuts, "passTrigger", passTrigger);
 
     return passTriggerCuts;
-
-
-    // if (totalCut && !passTrigger && subChannel_ == Subchannel::MM // && !**HLT_Mu17_Mu8
-    //     ) {
-    //     std::cout << **HLT_MuMu << " | " << **HLT_EleMu << " | " << **HLT_MuEle << " | " << **HLT_EleEle << std::endl;
-    //     std::cout << **HLT_Mu8 << " | " << **HLT_Mu20 << " | " << **HLT_Mu17_Mu8 << " | " << **HLT_Mu_Jet << " | " << **HLT_Mu17_Mu8_SameSign << " | " << **HLT_doubleMu << std::endl;
-    //     std::cout << subchan_to_name[subChannel_] << " : " << muon.size(Level::Loose) << " - " << muon.size(Level::Tight) << " : " << elec.size(Level::Loose)<< " - " << elec.size(Level::Tight) << std::endl;
-    //     std::cout << **Met_pt << " " << jet.getHT(Level::Tight) << std::endl;
-    //     for (auto midx : muon.list(Level::Loose)) {
-    //         std::cout << muon.pt(midx) << " " << muon.iso->At(midx) << " " << muon.charge(midx) << " | " << muon.looseId->At(midx) << " " << muon.triggerIdLoose->At(midx) << std::endl;
-    //     }
-    //     std::cout << std::endl;
-
-    // }
-
 }
 
 void ThreeTop::fillTriggerEff(bool passCuts, bool passTrigger) {
-    // if (subChannel_ == Subchannel::MM && passCuts && !**HLT_MuMu_HT300 && !**HLT_MuMu) {
-    //     std::cout << "Failed Both" << std::endl;
-    // } else if (subChannel_ == Subchannel::MM && passCuts && !**HLT_MuMu_HT300) {
-    //     std::cout << "HLT Failed: " << **HLT_Mu17_Mu8 << " " << **HLT_MuMu << std::endl;
-    // } else if (subChannel_ == Subchannel::MM && passCuts && !**HLT_MuMu) {
-    //     std::cout << "Double Failed:" << **HLT_MuMu_HT300 << " " << **HLT_Mu17_Mu8 << std::endl;
-    // }
-
     if (passCuts && passTrigger) {
         passTrigger_leadPt->Fill(static_cast<int>(subChannel_), getLeadPt(), *weight);
     } else if (passCuts) {
         failTrigger_leadPt->Fill(static_cast<int>(subChannel_), getLeadPt(), *weight);
     }
 }
-
-
-
 
 void ThreeTop::FillValues(const std::vector<bool>& passVec)
 {

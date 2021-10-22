@@ -5,9 +5,6 @@
 #include "analysis_suite/Analyzer/interface/Output.h"
 #include "analysis_suite/Analyzer/interface/ResolvedTop.h"
 
-template <class T>
-using TTRValue = TTreeReaderValue<T>;
-
 enum class Channel {
     Hadronic,
     Single,
@@ -26,9 +23,6 @@ enum class Subchannel {
     EE,
     None,
 };
-
-
-
 
 class ThreeTop : public BaseSelector {
 public:
@@ -78,11 +72,19 @@ private:
     TTRValue<Float_t>* Met_phi;
     TTRValue<Float_t>* Pileup_nTrueInt;
 
-    TTRValue<Bool_t>*HLT_MuMu, *HLT_MuEle, *HLT_EleMu, *HLT_EleEle;
-
     std::vector<Float_t> o_ht, o_htb, o_met, o_metphi, o_centrality;
 
     TH2F *passTrigger_leadPt, *failTrigger_leadPt;
+
+
+    std::unordered_map<Subchannel, std::string> subchan_to_name = {
+        {Subchannel::MM, "MM"},
+        {Subchannel::EM, "EM"},
+        {Subchannel::ME, "ME"},
+        {Subchannel::EE, "EE"},
+        {Subchannel::None, "None"},
+
+    };
 };
 
 #endif

@@ -20,6 +20,7 @@
 #include "analysis_suite/Analyzer/interface/JetCorrection.h"
 
 enum class Channel;
+enum class Subchannel;
 
 struct TreeInfo {
     TTree* tree;
@@ -32,6 +33,8 @@ struct TreeInfo {
 };
 
 typedef std::vector<std::pair<std::string, bool>> cut_info;
+template <class T>
+using TTRValue = TTreeReaderValue<T>;
 
 class BaseSelector : public TSelector {
     friend class ScaleFactors;
@@ -80,6 +83,12 @@ protected:
         cuts.push_back(std::make_pair(name, pass));
         return pass;
     }
+    void setupTrigger(Subchannel sChan, std::vector<std::string> trigs = {}) {
+        trig_cuts[sChan] = std::vector<TTRValue<Bool_t>*>();
+        for (auto trig: trigs) {
+            trig_cuts[sChan].push_back(new TTRValue<Bool_t>(fReader, trig.c_str()));
+        }
+    }
 
     // To be filled by Child class
     virtual void fillTriggerEff(bool passCuts, bool passTrigger) {};
@@ -123,7 +132,7 @@ protected:
     GenJet rGenJet;
 
     TH1F *cutFlow, *cutFlow_individual;
-
+    std::unordered_map<Subchannel, std::vector<TTRValue<Bool_t>*>> trig_cuts;
 
 private:
     void SetupEvent(Systematic syst, eVar var, size_t systNum);
