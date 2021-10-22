@@ -9,7 +9,8 @@ void ThreeTop::Init(TTree* tree)
 {
     LOG_FUNC << "Start of Init";
     BaseSelector::Init(tree);
-    createTree(groupName_, { Channel::SS, Channel::Multi });
+    createTree("Analyzed", { Channel::SS, Channel::Multi });
+    createTree("CR_TTZ", {Channel::CR_Z});
 
     if (!isMC_) {
         createTree("Nonprompt_FR", { Channel::LooseToTightFake });
@@ -194,7 +195,12 @@ bool ThreeTop::getCutFlow(cut_info& cuts)
      bool passCuts = true;
      passCuts &= setCut(cuts, "passPreselection", true);
      passCuts &= setCut(cuts, "passMETFilter", (**Flag_goodVertices && **Flag_globalSuperTightHalo2016Filter && **Flag_HBHENoiseFilter && **Flag_HBHENoiseIsoFilter && **Flag_EcalDeadCellTriggerPrimitiveFilter && **Flag_BadPFMuonFilter && **Flag_ecalBadCalibFilter));
-     passCuts &= setCut(cuts, "passZVeto", muon.passZVeto() && elec.passZVeto());
+     if (muon.passZVeto() && elec.passZVeto()) {
+         passCuts &= setCut(cuts, "passZVeto", true);
+     } else if (chanInSR(*currentChannel_)) {
+         passCuts &= setCut(cuts, "failZVeto", true);
+         (*currentChannel_) = Channel::CR_Z;
+     }
      passCuts &= setCut(cuts, "passJetNumber", jet.size(Level::Tight) >= 2);
      passCuts &= setCut(cuts, "passBJetNumber", jet.size(Level::Bottom) >= 1);
      passCuts &= setCut(cuts, "passMetCut", **Met_pt > 25);

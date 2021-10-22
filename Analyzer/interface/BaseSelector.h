@@ -25,11 +25,7 @@ enum class Subchannel;
 struct TreeInfo {
     TTree* tree;
     std::set<Channel> goodChannels;
-
-    bool contains(Channel chan)
-    {
-        return goodChannels.count(chan);
-    }
+    bool contains(Channel chan) { return goodChannels.count(chan); }
 };
 
 typedef std::vector<std::pair<std::string, bool>> cut_info;
@@ -50,6 +46,7 @@ public:
 
     void setOutputFile(TFile* outfile_) { outfile = outfile_; }
     std::vector<TreeInfo> getTrees() { return trees; }
+    TDirectory* getOutdir() { return outdir; }
 
     ClassDef(BaseSelector, 0);
 
@@ -68,7 +65,7 @@ protected:
     void createTree(std::string name, std::set<Channel> chans)
     {
         TTree* tree = new TTree(name.c_str(), name.c_str());
-        tree->SetDirectory(outfile->mkdir(name.c_str()));
+        tree->SetDirectory(outdir);
         trees.push_back({ tree, chans });
         SetupOutTreeBranches(tree);
     }
@@ -89,6 +86,8 @@ protected:
             trig_cuts[sChan].push_back(new TTRValue<Bool_t>(fReader, trig.c_str()));
         }
     }
+    bool chanInSR(Channel chan) { return trees.at(0).contains(chan); }
+
 
     // To be filled by Child class
     virtual void fillTriggerEff(bool passCuts, bool passTrigger) {};
@@ -141,8 +140,7 @@ private:
 
     std::vector<Systematic> systematics_ = { Systematic::Nominal };
     size_t passed_events = 0;
-
-    float xsec_;
+    TDirectory* outdir;
 };
 
 #endif

@@ -13,6 +13,7 @@ enum class Channel {
     SS,
     Multi,
     MultiAllSame,
+    CR_Z,
     None,
 };
 

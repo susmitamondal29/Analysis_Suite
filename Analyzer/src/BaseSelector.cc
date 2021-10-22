@@ -55,6 +55,7 @@ void BaseSelector::Init(TTree* tree)
             loguru::g_stderr_verbosity = std::stoi(item->GetTitle());
         }
     }
+    outdir = outfile->mkdir(groupName_.c_str());
     fOutput->Add(rootSystList);
     LOG_POST << "Finished setting python inputs";
     setupSystematicInfo();
@@ -102,7 +103,7 @@ Bool_t BaseSelector::Process(Long64_t entry)
             bool passCuts = getCutFlow(cuts);
             bool passTrigger = getTriggerCut(cuts);
             systPassSelection.push_back(passCuts && passTrigger);
-            if (syst == Systematic::Nominal) {
+            if (syst == Systematic::Nominal && chanInSR(*currentChannel_)) {
                 fillCutFlow(cuts);
                 fillTriggerEff(passCuts, cuts.back().second);
             }
@@ -110,7 +111,7 @@ Bool_t BaseSelector::Process(Long64_t entry)
             systNum++;
         }
     }
-    if (systPassSelection[0] && trees.at(0).contains(o_channels[0])) {
+    if (systPassSelection[0] && chanInSR(o_channels[0])) {
         passed_events++;
     }
 

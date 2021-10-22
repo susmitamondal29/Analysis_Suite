@@ -8,6 +8,7 @@ import pkgutil
 import time
 import pandas as pd
 import logging
+from contextlib import contextmanager
 from pathlib import Path
 from collections import OrderedDict
 import analysis_suite.data.PlotGroups as PlotGroups
@@ -201,3 +202,11 @@ def setup_pandas(use_vars, all_vars):
 def get_shape_systs():
     from analysis_suite.data.inputs import systematics
     return [syst.name for syst in systematics if syst.syst_type == "shape"]
+
+
+@contextmanager
+def rOpen(filename, option=""):
+    import ROOT
+    rootfile = ROOT.TFile(filename, option)
+    yield rootfile
+    rootfile.Close()

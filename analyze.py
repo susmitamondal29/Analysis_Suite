@@ -51,18 +51,6 @@ def getSumW(infiles, isData):
         runChain.Draw("0>>sumweight",  "genEventSumw")
     return sumweight
 
-def run_jme(files, year, isMC):
-    from PhysicsTools.NanoAODTools.postprocessing.modules.jme.jetmetHelperRun2 import createJMECorrector
-    from PhysicsTools.NanoAODTools.postprocessing.framework.postprocessor import PostProcessor
-
-    # (isMC=True, dataYear=2016, runPeriod="B", jesUncert="Total", redojec=False, jetType = "AK4PFchs", noGroom=False)
-    jmeCorrections = createJMECorrector(isMC=isMC, dataYear=year, runPeriod="B",
-                                        jesUncert="Total", jetType="AK4PFchs")
-
-    # p=PostProcessor(".",fnames,"Jet_pt>150","",[jetmetUncertainties2016(),exampleModuleConstr()],provenance=True)
-    p = PostProcessor(outputDir=".", inputFiles=files,
-                      modules=[jmeCorrections()],)
-    p.run()
 
 def setup_jec(filename):
     jetType = "AK4PFchs"
@@ -123,21 +111,17 @@ if __name__ == "__main__":
         fChain.Add(f"{fname}/Events")
 
     selector = getattr(ROOT, "ThreeTop")()
-    rOutput = ROOT.TFile(outputfile, "RECREATE")
 
-    selector.SetInputList(rInputs)
-    selector.setOutputFile(rOutput)
-    fChain.Process(selector, "")
-    sumweight = getSumW(files, info.is_data())
 
-    ## Output
-    for tree in selector.getTrees():
-        anaFolder = getattr(rOutput, tree.tree.GetName())
-        anaFolder.WriteObject(sumweight, "sumweight")
-        tree.tree.SetName("Analyzed")
-        tree.tree.SetTitle("Analyzed")
-        anaFolder.WriteObject(tree.tree, "Analyzed")
+    with configs.rOpen(outputfile, "RECREATE") as rOutput:
+        selector.SetInputList(rInputs)
+        selector.setOutputFile(rOutput)
+        fChain.Process(selector, "")
+
+        ## Output
+        anaFolder = selector.getOutdir()
+        anaFolder.WriteObject(getSumW(files, info.is_data()), "sumweight")
+        for tree in [tree.tree for tree in selector.getTrees()]:
+            anaFolder.WriteObject(tree, tree.GetTitle())
         for i in selector.GetOutputList():
             anaFolder.WriteObject(i, i.GetName())
-
-    rOutput.Close()
