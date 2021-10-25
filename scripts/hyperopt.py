@@ -70,10 +70,13 @@ def run_mva(mvaRunner, **X):
     mvaRunner.apply_model(cli_args.workdir, "2016")
     fom = mvaRunner.fom["2016"]
     auc = mvaRunner.auc["2016"]
+    likely, cut = mvaRunner.approx_likelihood("NBJets", np.linspace(0, 6, 7), "2016")
 
     print(f"\n>> Obtained ROC-Integral value: {auc}")
     print(f">> Obtained FOM value: {fom}")
-    write_line(logfile_name, [X[i] for i in pNames], [mvaRunner.best_iter, fom])
+    print(f">> Obtained Likelihood value: {likely} at cut {cut}")
+
+    write_line(logfile_name, [X[i] for i in pNames], [mvaRunner.best_iter, fom, cut, likely])
 
     return -fom
 
@@ -132,6 +135,6 @@ if __name__ == "__main__":
     # Report results
     with open(hyper_file, "a") as f:
         varName = "best_params="
-        config.write(varName)
-        config.write(pprint.pformat(result, indent=len(varName)))
-        config.write("\n")
+        f.write(varName)
+        f.write(pprint.pformat(result, indent=len(varName)))
+        f.write("\n")
