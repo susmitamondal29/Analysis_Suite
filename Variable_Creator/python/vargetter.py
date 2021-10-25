@@ -23,11 +23,11 @@ class Variable:
         return "int" if isInt else "float"
 
 class VarGetter:
-    def __init__(self, f, group, syst=0):
+    def __init__(self, f, tree, group, syst=0):
         self.syst = syst
         self.syst_bit = 2**self.syst
         self.jec = None
-        branches = [key for key, array in f[group]["Analyzed"].items()
+        branches = [key for key, array in f[group][tree].items()
                     if len(array.keys()) == 0]
         analysis = self.get_tlist_var(f[group]["MetaData"], "Analysis")
         year = self.get_tlist_var(f[group]["MetaData"], "Year")
@@ -35,8 +35,8 @@ class VarGetter:
         self.xsec = info.get_xsec(group)
         self.sumw = sum(f[group]["sumweight"].values())
 
-        if f[group]["Analyzed"].num_entries != 0:
-            analyzed = f[group]["Analyzed"]
+        if f[group][tree].num_entries != 0:
+            analyzed = f[group][tree]
             passMask = analyzed["PassEvent"].array()[:, self.syst]
             self.arr = analyzed.arrays(branches)[passMask]
             self.scale = self.arr["weight"][:,self.syst]*self.xsec/self.sumw
@@ -89,7 +89,7 @@ class VarGetter:
     def phi(self, part, n, fill=-1):
         return self.nth(part, "phi", n, fill)
 
-    def mass(self, part, n, fill=-1):
+    def pmass(self, part, n, fill=-1):
         return self.nth(part, "mass", n, fill)
 
     def nth(self, part, name, n=0, fill=-1):
@@ -102,11 +102,23 @@ class VarGetter:
         return np.sqrt(eta2+phi2)
 
     def mass(self, part1, idx1, part2, idx2):
+        # This assumes E ~ p or p >> m (true for light particles)
         cosh_deta = np.cosh(self.eta(part1, idx1) - self.eta(part2, idx2))
         cos_dphi = np.cos(self.phi(part1, idx1) - self.phi(part2, idx2))
         pt = 2*self.pt(part1, idx1)*self.pt(part2, idx2)
-        return pt*(cosh_deta - cos_dphi)
+        return np.sqrt(pt*(cosh_deta - cos_dphi))
 
+    def true_mass(self, part1, idx1, part2, idx2):
+        m1 = self.pmass(part1, idx1)
+        m2 = self.pmass(part2, idx2)
+        e1 = np.sqrt(m1**2 + self.pt(part1, idx1)*np.cosh(self.eta(part1, idx1))**2)
+        e2 = np.sqrt(m2**2 + self.pt(part2, idx2)*np.cosh(self.eta(part2, idx2))**2)
+        pt_part = 2*self.pt(part1, idx1)*self.pt(part2, idx2)
+        phi_part = np.cos(self.phi(part1, idx1) - self.phi(part2, idx2)) +
+        eta_part = np.sinh(self.eta(part1, idx1))*np.sinh(self.eta(part2, idx2))
+
+        return np.sqrt(m1**2 + m2**2 + 2*e1*e2 - pt_part*(phi_part + eta_part))
+    
     def cosDtheta(self, part1, idx1, part2, idx2):
         cosh_eta = np.cosh(self.eta(part1, idx1))*np.cosh(self.eta(part2, idx2))
         sinh_eta = np.sinh(self.eta(part1, idx1))*np.sinh(self.eta(part2, idx2))

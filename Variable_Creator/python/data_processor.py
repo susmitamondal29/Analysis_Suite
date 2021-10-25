@@ -17,7 +17,7 @@ class DataProcessor:
         self.use_vars = use_vars
         self.all_vars = list(use_vars.keys()) + ["scale_factor"]
 
-    def get_final_dict(self, directory):
+    def get_final_dict(self, directory, tree):
         arr_dict = dict()
         path = Path(directory)
         root_files = path.rglob("*.root") if path.is_dir() else [path]
@@ -31,17 +31,17 @@ class DataProcessor:
                 syst = systNames.index(self.systName)
                 for group in groups:
                     if group not in arr_dict:
-                        arr_dict[group] = VarGetter(f, group, syst)
+                        arr_dict[group] = VarGetter(f, tree, group, syst)
                     else:
-                        arr_dict[group] += VarGetter(f, group, syst)
+                        arr_dict[group] += VarGetter(f, tree, group, syst)
         for key, val in arr_dict.items():
             val.set_JEC(self.systName)
 
         return arr_dict
 
-    def process_year(self, infile, outdir):
+    def process_year(self, infile, outdir, tree):
         # Process input file
-        arr_dict = self.get_final_dict(infile)
+        arr_dict = self.get_final_dict(infile, tree)
         final_set = dict()
 
         for sample, arr in arr_dict.items():
@@ -53,7 +53,8 @@ class DataProcessor:
             df = pd.DataFrame.from_dict(df_dict)
             final_set[sample] = df
 
-        self._write_out(outdir / f'processed_{self.systName}.root', final_set)
+        treename = "" if tree == "Analyzed" else f'_{tree}'
+        self._write_out(outdir / f'processed_{self.systName}{treename}.root', final_set)
 
     def _write_out(self, outfile, workSet):
         """**Write out pandas file as a compressed pickle file
