@@ -1,14 +1,7 @@
 #!/usr/bin/env python3
-from contextlib import contextmanager
 import ROOT
 from scale_info import info
-
-
-@contextmanager
-def rOpen(filename, option=""):
-    rootfile = ROOT.TFile(filename, option)
-    yield rootfile
-    rootfile.Close()
+from analysis_suite.commons.configs import rOpen
 
 def getInfo(info, name, year, keyName=""):
     if isinstance(info[name], dict):

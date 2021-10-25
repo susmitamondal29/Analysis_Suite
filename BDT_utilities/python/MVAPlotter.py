@@ -74,17 +74,17 @@ class MVAPlotter(object):
           list: histogram of the Figure of merit (only weights)
 
         """
-        hists = self.get_hist(var, bins, year, comb_bkg)
+        hists = self.get_hist(var, bins, year, comb_bkg=True)
         cum_hists = {key: np.cumsum(vals[::-1])[::-1] for key, vals in hists.items()}
         if "Pt" in var:
             for key, val in self.get_hist(var, np.array([-10, 0]), year, comb_bkg).items():
                 cum_hists[key] += val[0]
         sig = cum_hists["Signal"]
         bkg = cum_hists["Background"]
-        return sig/np.sqrt(sig + bkg)
+        return sig/np.sqrt(np.abs(sig + bkg))
 
-    def get_max_fom(self, var, bins, year, comb_bkg):
-        return max(self.get_fom(var, bins, year, comb_bkg))
+    def get_max_fom(self, var, bins, year, comb_bkg=True):
+        return max(self.get_fom(var, bins, year, comb_bkg)+1e-10)
 
     def plot_fom(self, var, bins, year, comb_bkg=True, xlabel="BDT value", isDisc=False):
         """**Plots Figure of Merits for variable scan**
@@ -100,32 +100,38 @@ class MVAPlotter(object):
         Returns:
           list: List of (FOM, bin) for the max FOM
         """
-        fom_bins = np.linspace(bins[0], bins[-1], 151)
-        if isDisc:
-            fom = self.get_fom(var, fom_bins+0.5, year, comb_bkg)
-        else:
-            fom = self.get_fom(var, fom_bins, year, comb_bkg)
+        fom_bins = bins if isDisc else np.linspace(bins[0], bins[-1], 151)
+        fom = self.get_fom(var, fom_bins, year, comb_bkg)
         fom_maxbin = fom_bins[np.argmax(fom)]
-        with plot(f'{self.fType}_fom_{var}_{year}.png') as ax:
-            ax.plot(fom_bins[:-1], fom, label=f'$S/\sqrt{{S+B}}={max(fom):.3f}$\n cut={fom_maxbin:.2f}',
-                    color = 'k')
-            ax.plot(np.linspace(bins[0], bins[-1], 5), [max(fom)]*5,
-                    linestyle=':', color='k')
-            ax.set_xlabel(xlabel, horizontalalignment='right', x=1.0)
-            ax.set_ylabel("A.U.", horizontalalignment='right', y=1.0)
 
-            ax2 = ax.twinx()
+        with plot(f'{self.fType}_fom_{var}_{year}.png') as ax:
             hists = self.get_hist(var, bins, year)
             scale = self._find_scales(hists)
-            ax2.hist(x=bins[:-1], weights=hists["Signal"]*scale, bins=bins,
+            ax.hist(x=bins[:-1], weights=hists["Signal"]*scale, bins=bins,
                     label=f'Signal x {scale}', histtype="stepfilled", linewidth=1.5,
-                     density=True, alpha=0.5,  hatch="///",
-                     **color_options(self.color_dict["Signal"]))
-            ax2.hist(x=bins[:-1], weights=hists["Background"], bins=bins, linewidth=1.5,
+                    density=True, alpha=0.5,  hatch="///",
+                    **color_options(self.color_dict["Signal"]))
+            ax.hist(x=bins[:-1], weights=hists["Background"], bins=bins, linewidth=1.5,
                     label=f'Background', histtype="stepfilled",
                     density=True, alpha=0.5, hatch="///",
                      **color_options(self.color_dict["Background"]))
-            ax2.set_ylabel("Events")
+            ax.set_ylabel("Normalized Events (A.U)")
+            ax.set_xlabel(xlabel, horizontalalignment='right', x=1.0)
+
+            ax2 = ax.twinx()
+            if isDisc:
+                ax2.hist(x=fom_bins[:-1], weights=fom, bins=bins,
+                         label=f'$S/\sqrt{{S+B}}={max(fom):.3f}$\n cut>{int(fom_maxbin)}',
+                         color='k', histtype="step")
+            else:
+                ax2.plot(fom_bins[:-1], fom, label=f'$S/\sqrt{{S+B}}={max(fom):.3f}$\n cut={fom_maxbin:.2f}',
+                         color = 'k')
+            ax2.plot(np.linspace(bins[0], bins[-1], 5), [max(fom)]*5,
+                    linestyle=':', color='k')
+
+            ax2.set_ylabel("FOM", horizontalalignment='right', y=1.0)
+
+
             lines, labels = ax2.get_legend_handles_labels()
             lines2, labels2 = ax.get_legend_handles_labels()
             ax2.legend(lines + lines2, labels + labels2)

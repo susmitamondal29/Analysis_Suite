@@ -121,7 +121,7 @@ class XGBoostMaker(MLHolder):
         fit_model = xgb.XGBClassifier({'nthread': 4})  # init model
         fit_model.load_model(str(directory / "model.bin"))  # load data
         impor = fit_model.get_booster().get_score(importance_type= "total_gain")
-        sorted_import = {x_train.columns[int(k[1:])]: v for k, v in sorted(impor.items(), key=lambda item: item[1]) if "Pt" not in x_train.columns[int(k[1:])]}
+        sorted_import = {x_train.columns[int(k[1:])]: v for k, v in sorted(impor.items(), key=lambda item: item[1]) }
 
         from analysis_suite.commons.plot_utils import plot, color_options
         with plot("{}/importance.png".format(directory)) as ax:
@@ -133,3 +133,28 @@ class XGBoostMaker(MLHolder):
             ax.set_xscale("log")
             ax.set_xlabel("Total Gain")
             ax.set_title("Variable Importance")
+
+    def approx_likelihood(self, var, bins, year, comb_bkg=True):
+        from analysis_suite.commons.info import PlotInfo
+
+        use_set = self.test_sets[year]
+        lumi = 1000*PlotInfo.lumi[year]
+
+        sig_mask = use_set.classID.astype(int) == 1
+        sig_wgt = use_set.scale_factor[sig_mask]*lumi
+        sig_var = use_set[var][sig_mask]
+        sig_pred = self.pred_test[year]["Signal"][sig_mask]
+
+        bkg_mask = use_set.classID.astype(int) != 1
+        bkg_wgt = use_set.scale_factor[bkg_mask]*lumi
+        bkg_var = use_set[var][bkg_mask]
+        bkg_pred = self.pred_test[year]["Signal"][bkg_mask]
+
+        max_fom = [0, -1]
+        for i in np.linspace(0, 1, 21):
+            sig = np.histogram(sig_var[sig_pred > i], bins=bins, weights=sig_wgt[sig_pred > i])[0]
+            bkg = np.histogram(bkg_var[bkg_pred > i], bins=bins, weights=bkg_wgt[bkg_pred > i])[0]
+            value = np.sqrt(np.sum(2*np.nan_to_num((sig+bkg)*np.log(1+sig/bkg) - sig)))
+            if max_fom[0] < value:
+                max_fom = [value, i]
+        return max_fom
