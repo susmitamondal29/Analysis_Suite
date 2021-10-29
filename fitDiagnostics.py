@@ -11,9 +11,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import logging
 logging.getLogger('matplotlib.font_manager').disabled = True
+import numpy as np
 import mplhep as hep
 plt.style.use([hep.style.CMS, hep.style.firamath])
 
+from analysis_suite.commons.plot_utils import plot, setup_mplhep, setup_ticks, axisSetup
 import analysis_suite.commons.configs as config
 from analysis_suite.commons import writeHTML, PlotInfo, GroupInfo
 from analysis_suite.commons.histogram import Histogram
@@ -23,24 +25,28 @@ from analysis_suite.Plotting.LogFile import LogFile
 
 file = up.open("fitDiagnosticsTest.root")
 
-
-histName = "NJets"
+histName = 'NJets'
+year = "2018"
 plot_info = PlotInfo('plotInfo_default')
 group_info = GroupInfo(plot_params.color_by_group, analysis="ThreeTop")
 binning = plot_info.get_binning(histName)
 signalName = "ttt"
 
+
 # Setup histograms
-ratio = Histogram("Ratio", binning)
-band = Histogram("Ratio", binning)
-error = Histogram("Stat Errors", binning)
-data = Histogram("Data", binning)
-signal = Histogram("Signal", binning)
+ratio = Histogram("Ratio", binning, color="black")
+band = Histogram("Ratio", binning, color="plum")
+error = Histogram("Stat Errors", binning, color='plum')
+data = Histogram("Data", binning, color='black')
+signal = Histogram("Signal", binning, color="crimson")
 stacker = Stack(binning)
 
 for key, hist in file["shapes_fit_s/yr2018"].items():
     key = key[:key.index(";")]
     # Need to deal with Data
+    if "data" in key:
+        x, y = hist.member("fX"), hist.member("fY")
+        data += data.fill(x,y)
     if "TH1" not in repr(hist):
         continue
     hist = hist.to_boost()
@@ -49,6 +55,7 @@ for key, hist in file["shapes_fit_s/yr2018"].items():
     elif key == signalName:
         signal += hist
 
+
     groupHist = Histogram(key, hist.axes[0])
     groupHist.set_plot_details(group_info)
     groupHist += hist
@@ -56,45 +63,50 @@ for key, hist in file["shapes_fit_s/yr2018"].items():
 
 error += stacker
 
-# # for sig, signal in signals.items():
-# if signal:
-#     # scale = config.findScale(stacker.integral() / signal.integral())
-#     scale = stacker.integral() / signal.integral()
-#     signal.scale(scale, forPlot=True)
+# for sig, signal in signals.items():
+if signal:
+    # scale = config.findScale(stacker.integral() / signal.integral())
+    scale = stacker.integral() / signal.integral()
+    signal.scale(scale, forPlot=True)
 
-# # # ratio
-# if data:
-#     ratio += data / stacker
-#     # ratio.scale(signal.draw_sc, forPlot=True)
-#     band += stacker/stacker
+# # ratio
+if data:
+    ratio += data / stacker
+    # ratio.scale(signal.draw_sc, forPlot=True)
+    band += stacker/stacker
 
 # # Extra options
 # stacker.setDrawType(args.drawStyle)
 
-# pad = pyPad(plt, ratio)
-# n, bins, patches = pad().hist(**stacker.getInputs())
-# stacker.applyPatches(plt, patches)
+plot_inputs = {"nrows": 1, "ncols": 1, "sharex": True, "gridspec_kw": {"hspace": 0.1}}
+if ratio:
+    plot_inputs["nrows"] = 2
+    plot_inputs["gridspec_kw"]["height_ratio"] = [3, 1]
 
-# # for signal in (s for s in signals.values() if s):
-# if signal:
-#     pad().hist(**signal.getInputsHist())
-#     pad().errorbar(**signal.getInputs())
-# if data:
-#     pad().errorbar(**data.getInputs())
-# if error:
-#     pad().hist(**error.getInputsError())
-# if ratio:
-#     pad(sub_pad=True).errorbar(**ratio.getInputs())
-#     pad(sub_pad=True).hist(**band.getInputsError())
+plotBase = 'plots/' +  histName
+with plot(f"{plotBase}.png", **plot_inputs) as pad:
+    if isinstance(pad, np.ndarray):
+        pad, subpad = pad
+    else:
+        subpad = None
+        setup_ticks(pad, subpad)
 
-# pad.setLegend(plot_info.at(histName))
-# pad.axisSetup(plot_info.at(histName), stacker.get_xrange())
-# hep.cms.label(ax=pad(), data=data, lumi=plot_info.get_lumi(year)) #year=year
-# fig = plt.gcf()
+    n, bins, patches = pad.hist(**stacker.getInputs())
+    stacker.applyPatches(patches)
 
+    if signal:
+        pad.hist(**signal.getInputsHist())
+        pad.errorbar(**signal.getInputs())
+    if data:
+        pad.errorbar(**data.getInputs())
+    if error:
+        pad.hist(**error.getInputsError())
+    if ratio:
+        subpad.errorbar(**ratio.getInputs())
+        subpad.hist(**band.getInputsError())
 
-# plotBase = outpath / f'plots/{histName}'
-# plt.savefig(f'{plotBase}.png', format="png", bbox_inches='tight')
-# subprocess.call('convert {0}.png -quality 0 {0}.pdf'.format(plotBase),
-#                 shell=True)
-# plt.close()
+    pad.legend(loc=plot_info.get_legend_loc(histName))
+    axisSetup(pad, subpad, xlabel=plot_info.get_label(histName), binning=stacker.get_xrange())
+    hep.cms.label(ax=pad, data=data, lumi=plot_info.get_lumi(year)) #year=year
+
+subprocess.call('convert {0}.png -quality 0 {0}.pdf'.format(plotBase), shell=True)
