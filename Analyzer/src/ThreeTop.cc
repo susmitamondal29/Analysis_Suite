@@ -37,9 +37,9 @@ void ThreeTop::Init(TTree* tree)
 
     setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
                                   "HLT_DoubleMu8_Mass8_PFHT300"});
-    setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+    setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL",
                                   "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
-    setupTrigger(Subchannel::EM, {"HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
+    setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
                                   "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
     setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
                                   "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});
@@ -235,6 +235,7 @@ void ThreeTop::fillTriggerEff(bool passCuts, bool passTrigger) {
 void ThreeTop::FillValues(const std::vector<bool>& passVec)
 {
     LOG_FUNC << "Start of FillValues";
+    BaseSelector::FillValues(passVec);
     size_t pass_bitmap = 0;
     for (size_t i = 0; i < passVec.size(); ++i) {
         pass_bitmap += passVec.at(i) << i;

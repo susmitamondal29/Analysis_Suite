@@ -15,6 +15,9 @@ void BaseSelector::SetupOutTreeBranches(TTree* tree)
 {
     tree->Branch("weight", &o_weight);
     tree->Branch("PassEvent", &o_pass_event);
+    tree->Branch("run", &o_run);
+    tree->Branch("lumiBlock", &o_lumiblock);
+    tree->Branch("event", &o_event);
 }
 
 void BaseSelector::Init(TTree* tree)
@@ -65,6 +68,10 @@ void BaseSelector::Init(TTree* tree)
     if (isMC_) {
         genWeight = new TTreeReaderValue<Float_t>(fReader, "genWeight");
     }
+    run = new TTRValue<UInt_t>(fReader, "run");
+    lumiblock = new TTRValue<UInt_t>(fReader, "luminosityBlock");
+    event = new TTRValue<ULong64_t>(fReader, "event");
+
 
     o_weight.resize(numSystematics());
     o_channels.resize(numSystematics());
@@ -215,4 +222,12 @@ void BaseSelector::setupSystematicInfo()
     SystematicWeights::scaleDir_ = scaleDir;
     SystematicWeights::f_scale_factors = new TFile((scaleDir + "/scale_factors/event_scalefactors.root").c_str());
     LOG_FUNC << "End of setupSystematicInfo";
+}
+
+
+void BaseSelector::FillValues(const std::vector<bool>& passVec) {
+    o_run = **run;
+    o_lumiblock = **lumiblock;
+    o_event = **event;
+
 }

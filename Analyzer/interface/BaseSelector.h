@@ -92,7 +92,7 @@ protected:
     // To be filled by Child class
     virtual void fillTriggerEff(bool passCuts, bool passTrigger) {};
     virtual void ApplyScaleFactors(){};
-    virtual void FillValues(const std::vector<bool>& passVec) {}
+    virtual void FillValues(const std::vector<bool>& passVec);
     virtual void setupChannel(){};
     virtual void setOtherGoodParticles(size_t syst){};
     virtual bool getCutFlow(cut_info& cuts) { return true; }
@@ -122,6 +122,10 @@ protected:
     std::vector<Channel> o_channels;
 
     std::vector<Bool_t> o_pass_event;
+    TTRValue<UInt_t> *run, *lumiblock;
+    UInt_t o_run, o_lumiblock;
+    TTRValue<ULong64_t> *event;
+    ULong64_t o_event;
 
     ScaleFactors sfMaker;
     Muon muon;
