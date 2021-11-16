@@ -30,6 +30,9 @@ class DataProcessor:
                 systNames = list(OrderedDict.fromkeys(systNames))
                 syst = systNames.index(self.systName)
                 for group in groups:
+                    if tree == "Analyzed" and group == "data":
+                        # blind SR
+                        continue
                     if group not in arr_dict:
                         arr_dict[group] = VarGetter(f, tree, group, syst)
                     else:

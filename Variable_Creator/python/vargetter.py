@@ -40,6 +40,8 @@ class VarGetter:
             passMask = analyzed["PassEvent"].array()[:, self.syst]
             self.arr = analyzed.arrays(branches)[passMask]
             self.scale = self.arr["weight"][:,self.syst]*self.xsec/self.sumw
+            if group == "data":
+                self.remove_dup()
         else:
             self.arr = ak.Array([])
             self.scale = ak.Array([])
@@ -53,6 +55,11 @@ class VarGetter:
 
     def __len__(self):
         return len(self.scale)
+
+    def remove_dup(self):
+        _, unique_idx = np.unique(ak.to_numpy(self.arr.event), return_index=True)
+        self.arr = self.arr[unique_idx]
+        self.scale = self.scale[unique_idx]
 
     def set_JEC(self, systName):
         systNames = systName.lower().split('_')
