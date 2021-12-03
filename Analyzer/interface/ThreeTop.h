@@ -5,26 +5,6 @@
 #include "analysis_suite/Analyzer/interface/Output.h"
 #include "analysis_suite/Analyzer/interface/ResolvedTop.h"
 
-enum class Channel {
-    Hadronic,
-    Single,
-    LooseToTightFake,
-    OS,
-    SS,
-    Multi,
-    MultiAllSame,
-    CR_Z,
-    None,
-};
-
-enum class Subchannel {
-    MM,
-    EM,
-    ME,
-    EE,
-    None,
-};
-
 class ThreeTop : public BaseSelector {
 public:
     virtual void Init(TTree* tree) override;
@@ -45,8 +25,6 @@ private:
     float getLeadPt(size_t idx = 0);
     void setSubChannel();
     bool isSameSign();
-
-    Subchannel subChannel_;
 
     TTree* treeFakeRate_;
 
@@ -76,16 +54,6 @@ private:
     std::vector<Float_t> o_ht, o_htb, o_met, o_metphi, o_centrality;
 
     TH2F *passTrigger_leadPt, *failTrigger_leadPt;
-
-
-    std::unordered_map<Subchannel, std::string> subchan_to_name = {
-        {Subchannel::MM, "MM"},
-        {Subchannel::EM, "EM"},
-        {Subchannel::ME, "ME"},
-        {Subchannel::EE, "EE"},
-        {Subchannel::None, "None"},
-
-    };
 };
 
 #endif

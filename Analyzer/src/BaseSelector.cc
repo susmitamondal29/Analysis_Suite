@@ -231,3 +231,12 @@ void BaseSelector::FillValues(const std::vector<bool>& passVec) {
     o_event = **event;
 
 }
+
+bool BaseSelector::getTriggerCut(cut_info& cuts)
+{
+    bool passTrigger = false;
+    for (auto trig: trig_cuts[subChannel_]) {
+        passTrigger |= **trig;
+    }
+    return setCut(cuts, "passTrigger", passTrigger);
+}

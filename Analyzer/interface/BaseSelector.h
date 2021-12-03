@@ -96,7 +96,7 @@ protected:
     virtual void setupChannel(){};
     virtual void setOtherGoodParticles(size_t syst){};
     virtual bool getCutFlow(cut_info& cuts) { return true; }
-    virtual bool getTriggerCut(cut_info& cuts) { return true; }
+    virtual bool getTriggerCut(cut_info& cuts);
     virtual void SetupOutTreeBranches(TTree* tree);
 
     // Protected Variables
@@ -112,6 +112,7 @@ protected:
     Year year_;
     bool isMC_ = true;
     Channel channel_;
+    Subchannel subChannel_;
 
     // Current weight and all weights
     float* weight;

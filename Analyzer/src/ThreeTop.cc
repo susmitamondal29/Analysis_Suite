@@ -2,6 +2,26 @@
 
 #include"analysis_suite/Analyzer/interface/logging.h"
 
+enum class Channel {
+    Hadronic,
+    Single,
+    LooseToTightFake,
+    OS,
+    SS,
+    Multi,
+    MultiAllSame,
+    CR_Z,
+    None,
+};
+
+enum class Subchannel {
+    MM,
+    EM,
+    ME,
+    EE,
+    None,
+};
+
 #define getElec(var, i) (elec.var(elec.list(Level::Tight).at(i)))
 #define getMuon(var, i) (muon.var(muon.list(Level::Tight).at(i)))
 
@@ -214,12 +234,7 @@ bool ThreeTop::getTriggerCut(cut_info& cuts) {
     bool passTriggerCuts = true;
     passTriggerCuts &= setCut(cuts, "passLeadPtCut", getLeadPt() > 25);
     passTriggerCuts &= setCut(cuts, "passSubLeadPtCut", getLeadPt(1) > 20);
-
-    bool passTrigger = false;
-    for (auto trig: trig_cuts[subChannel_]) {
-        passTrigger |= **trig;
-    }
-    passTriggerCuts &= setCut(cuts, "passTrigger", passTrigger);
+    passTriggerCuts &= BaseSelector::getTriggerCut(cuts); // apply trigger
 
     return passTriggerCuts;
 }
