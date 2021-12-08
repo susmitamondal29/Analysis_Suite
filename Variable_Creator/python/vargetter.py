@@ -114,7 +114,7 @@ class VarGetter:
         e1 = np.sqrt(m1**2 + self.pt(part1, idx1)*np.cosh(self.eta(part1, idx1))**2)
         e2 = np.sqrt(m2**2 + self.pt(part2, idx2)*np.cosh(self.eta(part2, idx2))**2)
         pt_part = 2*self.pt(part1, idx1)*self.pt(part2, idx2)
-        phi_part = np.cos(self.phi(part1, idx1) - self.phi(part2, idx2)) +
+        phi_part = np.cos(self.phi(part1, idx1) - self.phi(part2, idx2))
         eta_part = np.sinh(self.eta(part1, idx1))*np.sinh(self.eta(part2, idx2))
 
         return np.sqrt(m1**2 + m2**2 + 2*e1*e2 - pt_part*(phi_part + eta_part))
