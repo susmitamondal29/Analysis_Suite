@@ -41,7 +41,6 @@ void ThreeTop::Init(TTree* tree)
 
     rTop.setup(fReader);
 
-    event = new TTRValue<ULong64_t>(fReader, "event");
     Flag_goodVertices = new TTRValue<Bool_t>(fReader, "Flag_goodVertices");
     Flag_globalSuperTightHalo2016Filter = new TTRValue<Bool_t>(fReader, "Flag_globalSuperTightHalo2016Filter");
     Flag_HBHENoiseFilter = new TTRValue<Bool_t>(fReader, "Flag_HBHENoiseFilter");
@@ -263,7 +262,7 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
     fillJet(jet, Level::Tight, *o_jets, pass_bitmap);
     fillBJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
     fillTop(rTop, Level::Loose, *o_resolvedTop, pass_bitmap);
-    fillLeptons(muon, elec, *o_tightLeptons, pass_bitmap);
+    fillAllLeptons(muon, elec, *o_tightLeptons, pass_bitmap);
 
     for (size_t syst = 0; syst < numSystematics(); ++syst) {
         o_ht.push_back(jet.getHT(Level::Tight, syst));

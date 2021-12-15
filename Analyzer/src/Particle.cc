@@ -2,10 +2,10 @@
 
 void GenericParticle::setup(std::string name, TTreeReader& fReader)
 {
-    m_pt = new TTreeReaderArray<Float_t>(fReader, (name + "_pt").c_str());
-    m_eta = new TTreeReaderArray<Float_t>(fReader, (name + "_eta").c_str());
-    m_phi = new TTreeReaderArray<Float_t>(fReader, (name + "_phi").c_str());
-    m_mass = new TTreeReaderArray<Float_t>(fReader, (name + "_mass").c_str());
+    m_pt.setup(fReader, (name + "_pt").c_str());
+    m_eta.setup(fReader, (name + "_eta").c_str());
+    m_phi.setup(fReader, (name + "_phi").c_str());
+    m_mass.setup(fReader, (name + "_mass").c_str());
 }
 
 void GenericParticle::clear() {
@@ -16,6 +16,17 @@ void GenericParticle::clear() {
 
 void GenericParticle::setup_map(Level level) {
     m_partList[level] = new std::vector<size_t>(); // maybe try for virtual soon?
+}
+
+size_t GenericParticle::idx(Level level, size_t i) const
+{
+    if (i >= size(level)) {
+        throw std::out_of_range("Particle of level {} has size ("
+                                + std::to_string(size(level))
+                                + ") and not large enough to look at index ("
+                                + std::to_string(i) + ")" );
+    }
+    return list(level).at(i);
 }
 
 void Particle::clear()

@@ -11,15 +11,12 @@ public:
     virtual void createTightList(Particle& jets) override;
     virtual float getScaleFactor() override;
 
-    TTRArray<Bool_t>* isGlobal;
-    TTRArray<Bool_t>* isTracker;
-    TTRArray<Bool_t>* isPFcand;
-    TTRArray<Float_t>* iso;
-    TTRArray<Float_t>* dz;
-    TTRArray<Float_t>* dxy;
-    TTRArray<Int_t>* tightCharge;
-    TTRArray<Bool_t>* mediumId;
-    TTRArray<Float_t>* sip3d;
+    TRArray<Bool_t> isGlobal;
+    TRArray<Bool_t> isTracker;
+    TRArray<Bool_t> isPFcand;
+    TRArray<Int_t> tightCharge;
+    TRArray<Bool_t> mediumId;
+    TRArray<Float_t> sip3d;
 
     Float_t ptMax = 119;
     Float_t ptMin = 20;

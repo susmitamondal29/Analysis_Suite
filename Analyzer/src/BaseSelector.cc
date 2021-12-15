@@ -66,11 +66,11 @@ void BaseSelector::Init(TTree* tree)
 
     fReader.SetTree(tree);
     if (isMC_) {
-        genWeight = new TTreeReaderValue<Float_t>(fReader, "genWeight");
+        genWeight.setup(fReader, "genWeight");
     }
-    run = new TTRValue<UInt_t>(fReader, "run");
-    lumiblock = new TTRValue<UInt_t>(fReader, "luminosityBlock");
-    event = new TTRValue<ULong64_t>(fReader, "event");
+    run.setup(fReader, "run");
+    lumiblock.setup(fReader, "luminosityBlock");
+    event.setup(fReader, "event");
 
 
     o_weight.resize(numSystematics());
@@ -181,7 +181,7 @@ void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
     weight = &o_weight[systNum];
     currentChannel_ = &o_channels[systNum];
 
-    (*weight) = isMC_ ? **genWeight : 1.0;
+    (*weight) = isMC_ ? *genWeight : 1.0;
 
     if (isMC_) {
         rGen.createTopList();
@@ -226,14 +226,17 @@ void BaseSelector::setupSystematicInfo()
 
 
 void BaseSelector::FillValues(const std::vector<bool>& passVec) {
-    o_run = **run;
-    o_lumiblock = **lumiblock;
-    o_event = **event;
+    o_run = *run;
+    o_lumiblock = *lumiblock;
+    o_event = *event;
 
 }
 
 bool BaseSelector::getTriggerCut(cut_info& cuts)
 {
+    if (trig_cuts.find(subChannel_) == trig_cuts.end())
+        return setCut(cuts, "passTrigger", true);
+
     bool passTrigger = false;
     for (auto trig: trig_cuts[subChannel_]) {
         passTrigger |= **trig;

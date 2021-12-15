@@ -11,23 +11,20 @@ public:
     virtual void createTightList(Particle& jets) override;
     virtual float getScaleFactor() override;
 
-    Float_t pt(size_t idx) { return m_pt->At(idx) / eCorr->At(idx); };
+    Float_t pt(size_t idx) { return m_pt.at(idx) / eCorr.at(idx); };
 
-    TTRArray<Float_t>* eCorr;
-    TTRArray<UChar_t>* lostHits;
-    TTRArray<Bool_t>* convVeto;
-    TTRArray<Float_t>* iso;
-    TTRArray<Float_t>* dz;
-    TTRArray<Float_t>* dxy;
-    TTRArray<Float_t>* sieie;
-    TTRArray<Float_t>* hoe;
-    TTRArray<Float_t>* eInvMinusPInv;
-    TTRArray<Float_t>* sip3d;
-    TTRArray<Float_t>* mva;
-    TTRArray<Int_t>* tightCharge;
-    TTRArray<Float_t>* ecalSumEt;
-    TTRArray<Float_t>* hcalSumEt;
-    TTRArray<Float_t>* tkSumPt;
+    TRArray<Float_t> eCorr;
+    TRArray<UChar_t> lostHits;
+    TRArray<Bool_t> convVeto;
+    TRArray<Float_t> sieie;
+    TRArray<Float_t> hoe;
+    TRArray<Float_t> eInvMinusPInv;
+    TRArray<Float_t> sip3d;
+    TRArray<Float_t> mva;
+    TRArray<Int_t> tightCharge;
+    TRArray<Float_t> ecalSumEt;
+    TRArray<Float_t> hcalSumEt;
+    TRArray<Float_t> tkSumPt;
 
 private:
     const float BARREL_ETA = 1.479;

@@ -4,16 +4,15 @@
 void Muon::setup(TTreeReader& fReader)
 {
     Lepton::setup("Muon", fReader);
-    isGlobal = new TTRArray<Bool_t>(fReader, "Muon_isGlobal");
-    isTracker = new TTRArray<Bool_t>(fReader, "Muon_isTracker");
-    isPFcand = new TTRArray<Bool_t>(fReader, "Muon_isPFcand");
-    iso = new TTRArray<Float_t>(fReader, "Muon_miniPFRelIso_all");
-    dz = new TTRArray<Float_t>(fReader, "Muon_dz");
-    dxy = new TTRArray<Float_t>(fReader, "Muon_dxy");
-    tightCharge = new TTRArray<Int_t>(fReader, "Muon_tightCharge");
-    mediumId = new TTRArray<Bool_t>(fReader, "Muon_mediumId");
-    sip3d = new TTRArray<Float_t>(fReader, "Muon_sip3d");
+    isGlobal.setup(fReader, "Muon_isGlobal");
+    isTracker.setup(fReader, "Muon_isTracker");
+    isPFcand.setup(fReader, "Muon_isPFcand");
+    iso.setup(fReader, "Muon_miniPFRelIso_all");
+    tightCharge.setup(fReader, "Muon_tightCharge");
+    mediumId.setup(fReader, "Muon_mediumId");
+    sip3d.setup(fReader, "Muon_sip3d");
 
+    isoCut = 0.16;
     if (year_ == Year::yr2016) {
         ptRatioCut = 0.76;
         ptRelCut = pow(7.2, 2);
@@ -30,11 +29,11 @@ void Muon::createLooseList()
     for (size_t i = 0; i < size(); i++) {
         if (pt(i) > 5
             && fabs(eta(i)) < 2.4
-            && (isGlobal->At(i) || isTracker->At(i))
-            && isPFcand->At(i)
-            && iso->At(i) < 0.4
-            && fabs(dz->At(i)) < 0.1
-            && fabs(dxy->At(i)) < 0.05)
+            && (isGlobal.at(i) || isTracker.at(i))
+            && isPFcand.at(i)
+            && iso.at(i) < 0.4
+            && fabs(dz.at(i)) < 0.1
+            && fabs(dxy.at(i)) < 0.05)
             m_partList[Level::Loose]->push_back(i);
     }
 }
@@ -43,8 +42,8 @@ void Muon::createFakeList(Particle& jets)
 {
     for (auto i : list(Level::Loose)) {
         if (pt(i) > 10
-            && tightCharge->At(i) == 2
-            && mediumId->At(i) && sip3d->At(i) < 4) {
+            && tightCharge.at(i) == 2
+            && mediumId.at(i) && sip3d.at(i) < 4) {
             m_partList[Level::Fake]->push_back(i);
             dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(getCloseJet(i, jets));
         }
@@ -55,7 +54,7 @@ void Muon::createTightList(Particle& jets)
 {
     for (auto i : list(Level::Fake)) {
         if (pt(i) > 15
-            && iso->At(i) < 0.16
+            && iso.at(i) < isoCut
             && passJetIsolation(i, jets))
             m_partList[Level::Tight]->push_back(i);
     }

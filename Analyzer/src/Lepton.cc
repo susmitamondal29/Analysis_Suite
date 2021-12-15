@@ -4,7 +4,10 @@
 
 void Lepton::setup(std::string name, TTreeReader& fReader)
 {
-    m_charge = new TTreeReaderArray<Int_t>(fReader, (name + "_charge").c_str());
+    m_charge.setup(fReader, (name + "_charge").c_str());
+    dz.setup(fReader, (name + "_dz").c_str());
+    dxy.setup(fReader, (name + "_dxy").c_str());
+
     GenericParticle::setup(name, fReader);
     setup_map(Level::Loose);
     setup_map(Level::Fake);
@@ -62,4 +65,23 @@ bool Lepton::passJetIsolation(size_t idx, const Particle& jets)
     auto diff = jetV.Vect() - lepV.Vect();
     auto cross = diff.Cross(lepV.Vect());
     return cross.Mag2() / diff.Mag2() > ptRelCut;
+}
+
+float Lepton::fakePt(size_t idx, const Particle& jets) const
+{
+    if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
+        return pt(idx); /// no close jet (probably no jets)
+
+    size_t jidx = closeJet_by_lepton.at(idx);
+    LorentzVector lepV(pt(idx), eta(idx), phi(idx), mass(idx));
+    LorentzVector jetV(jets.pt(jidx), jets.eta(jidx), jets.phi(jidx), jets.mass(jidx));
+    auto diff = jetV.Vect() - lepV.Vect();
+    auto cross = diff.Cross(lepV.Vect());
+    if (cross.Mag2() / diff.Mag2() > ptRelCut && iso.at(idx) > isoCut) {
+        return pt(idx)*(1 + iso.at(idx)-isoCut);
+    } else if (pt(idx) < ptRatioCut * jets.pt(jidx)) {
+        return jets.pt(jidx)*ptRatioCut;
+    } else {
+        return pt(idx);
+    }
 }

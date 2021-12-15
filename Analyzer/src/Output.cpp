@@ -9,7 +9,7 @@ void fillJet(const Jet& jet, Level level, JetOut& fillObject, size_t pass_bitmap
     for (size_t idx = 0; idx < jet.size(); ++idx) {
         size_t final_bitmap = fillParticle(jet, level, fillObject, idx, pass_bitmap);
         if (final_bitmap != 0) {
-            fillObject.discriminator.push_back(jet.btag->At(idx));
+            fillObject.discriminator.push_back(jet.btag.at(idx));
             fillObject.jer.push_back(jet.get_JEC_pair(Systematic::Jet_JER, idx));
             fillObject.jes.push_back(jet.get_JEC_pair(Systematic::Jet_JES, idx));
         }
@@ -32,7 +32,7 @@ void fillBJet(const Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitm
     for (size_t idx = 0; idx < jet.size(); ++idx) {
         size_t final_bitmap = fillParticle(jet, level, fillObject, idx, pass_bitmap);
         if (final_bitmap != 0) {
-            fillObject.discriminator.push_back(jet.btag->At(idx));
+            fillObject.discriminator.push_back(jet.btag.at(idx));
             fillObject.jer.push_back(jet.get_JEC_pair(Systematic::Jet_JER, idx));
             fillObject.jes.push_back(jet.get_JEC_pair(Systematic::Jet_JES, idx));
         }
@@ -47,13 +47,13 @@ void fillTop(const ResolvedTop& top, Level level, TopOut& fillObject, size_t pas
     for (size_t idx = 0; idx < top.size(); ++idx) {
         size_t final_bitmap = fillParticle(top, level, fillObject, idx, pass_bitmap);
         if (final_bitmap != 0) {
-            fillObject.discriminator.push_back(top.discriminator->At(idx));
+            fillObject.discriminator.push_back(top.discriminator.at(idx));
         }
     }
     LOG_FUNC << "End of fillTop";
 }
 
-void fillLeptons(const Lepton& muon, const Lepton& elec, ParticleOut& fillObject, size_t pass_bitmap)
+void fillAllLeptons(const Lepton& muon, const Lepton& elec, ParticleOut& fillObject, size_t pass_bitmap)
 {
     LOG_FUNC << "Start of fillLeptons";
     fillObject.clear();
@@ -69,4 +69,18 @@ void fillLeptons(const Lepton& muon, const Lepton& elec, ParticleOut& fillObject
         }
     }
     LOG_FUNC << "End of fillLeptons";
+}
+
+void fillLepton(const Lepton& lep, Level level, LeptonOut& fillObject, size_t pass_bitmap, float met, float met_phi)
+{
+    LOG_FUNC << "Start fillLepton";
+    fillObject.clear();
+
+    for (size_t idx = 0; idx < lep.size(); ++idx) {
+        size_t final_bitmap = fillParticle(lep, level, fillObject, idx, pass_bitmap);
+        if (final_bitmap != 0) {
+            fillObject.mt.push_back(lep.getMT(idx, met, met_phi));
+        }
+    }
+    LOG_FUNC << "End of fillLepon";
 }

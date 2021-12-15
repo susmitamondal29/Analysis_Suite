@@ -18,6 +18,7 @@
 #include "analysis_suite/Analyzer/interface/GenParticle.h"
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
 #include "analysis_suite/Analyzer/interface/JetCorrection.h"
+#include "analysis_suite/Analyzer/interface/Variable.h"
 
 enum class Channel;
 enum class Subchannel;
@@ -106,7 +107,7 @@ protected:
 
     std::vector<TreeInfo> trees;
 
-    TTreeReaderValue<Float_t>* genWeight;
+    TRVariable<Float_t> genWeight;
     JetCorrection jetCorrector;
 
     Year year_;
@@ -123,9 +124,9 @@ protected:
     std::vector<Channel> o_channels;
 
     std::vector<Bool_t> o_pass_event;
-    TTRValue<UInt_t> *run, *lumiblock;
+    TRVariable<UInt_t> run, lumiblock;
     UInt_t o_run, o_lumiblock;
-    TTRValue<ULong64_t> *event;
+    TRVariable<ULong64_t> event;
     ULong64_t o_event;
 
     ScaleFactors sfMaker;

@@ -4,15 +4,15 @@
 void Jet::setup(TTreeReader& fReader, bool isMC)
 {
     GenericParticle::setup("Jet", fReader);
-    jetId = new TTRArray<Int_t>(fReader, "Jet_jetId");
-    btag = new TTRArray<Float_t>(fReader, "Jet_btagDeepB");
-    area = new TTRArray<Float_t>(fReader, "Jet_area");
-    puId = new TTRArray<Int_t>(fReader, "Jet_puId");
+    jetId.setup(fReader, "Jet_jetId");
+    btag.setup(fReader, "Jet_btagDeepB");
+    area.setup(fReader, "Jet_area");
+    puId.setup(fReader, "Jet_puId");
     if (isMC) {
-        hadronFlavour = new TTRArray<Int_t>(fReader, "Jet_hadronFlavour");
-        genJetIdx = new TTRArray<Int_t>(fReader, "Jet_genJetIdx");
-        rawFactor = new TTRArray<Float_t>(fReader, "Jet_rawFactor");
-        rho = new TTreeReaderValue<Float_t>(fReader, "fixedGridRhoFastjetAll");
+        hadronFlavour.setup(fReader, "Jet_hadronFlavour");
+        genJetIdx.setup(fReader, "Jet_genJetIdx");
+        rawFactor.setup(fReader, "Jet_rawFactor");
+        rho.setup(fReader, "fixedGridRhoFastjetAll");
     }
 
     setup_map(Level::Loose);
@@ -56,8 +56,8 @@ void Jet::createLooseList()
     for (size_t i = 0; i < size(); i++) {
         if (pt(i) > 5
             && fabs(eta(i)) < 2.4
-            && (jetId->At(i) & looseId) != 0
-            && (pt(i) > 50 || (puId->At(i) >> PU_Medium) & 1)
+            && (jetId.at(i) & looseId) != 0
+            && (pt(i) > 50 || (puId.at(i) >> PU_Medium) & 1)
             && (closeJetDr_by_index.find(i) == closeJetDr_by_index.end() || closeJetDr_by_index.at(i) >= pow(0.4, 2)))
             m_partList[Level::Loose]->push_back(i);
     }
@@ -67,11 +67,11 @@ void Jet::createBJetList()
 {
     for (auto i : list(Level::Loose)) {
         if (pt(i) > 25
-            && btag->At(i) > medium_bjet_cut)
+            && btag.at(i) > medium_bjet_cut)
             m_partList[Level::Bottom]->push_back(i);
-        n_loose_bjet.back() += (btag->At(i) > loose_bjet_cut) ? 1 : 0;
-        n_medium_bjet.back() += (btag->At(i) > medium_bjet_cut) ? 1 : 0;
-        n_tight_bjet.back() += (btag->At(i) > tight_bjet_cut) ? 1 : 0;
+        n_loose_bjet.back() += (btag.at(i) > loose_bjet_cut) ? 1 : 0;
+        n_medium_bjet.back() += (btag.at(i) > medium_bjet_cut) ? 1 : 0;
+        n_tight_bjet.back() += (btag.at(i) > tight_bjet_cut) ? 1 : 0;
     }
 }
 
@@ -116,14 +116,14 @@ float Jet::getTotalBTagWeight() {
     float weight = 1;
     const auto& goodBJets = list(Level::Bottom);
     for (auto bidx : goodBJets) {
-        auto btagInfo = btagInfo_by_flav[std::abs(hadronFlavour->At(bidx))];
+        auto btagInfo = btagInfo_by_flav[std::abs(hadronFlavour.at(bidx))];
         weight *= getBWeight(btagInfo.flavor_type, bidx);
     }
     for (auto jidx : list(Level::Tight)) {
         if (std::find(goodBJets.begin(), goodBJets.end(), jidx) != goodBJets.end()) {
             continue; // is a bjet, weighting already taken care of
         }
-        auto btagInfo = btagInfo_by_flav[std::abs(hadronFlavour->At(jidx))];
+        auto btagInfo = btagInfo_by_flav[std::abs(hadronFlavour.at(jidx))];
         float eff = getWeight(btagInfo.jet_type, pt(jidx), fabs(eta(jidx)));
         float bSF = getBWeight(btagInfo.flavor_type, jidx);
         weight *= (1 - bSF * eff) / (1 - eff);
@@ -135,7 +135,7 @@ float Jet::getTotalShapeWeight() {
     float weight = 1;
     bool charmSyst = charm_systs.find(currentSyst) != charm_systs.end();
     for (auto idx : list(Level::Tight)) {
-        auto flav = static_cast<PID>(std::abs(hadronFlavour->At(idx)));
+        auto flav = static_cast<PID>(std::abs(hadronFlavour.at(idx)));
         if (flav == PID::Bottom) {
             if (!charmSyst) weight *= getShapeWeight(BTagEntry::FLAV_B, idx);
         } else if (flav == PID::Charm) {
@@ -172,8 +172,8 @@ void Jet::setupJEC(JetCorrection& jecCorr, GenericParticle& genJet) {
         m_jec = &m_jet_scales[currentSyst][currentVar];
         for(size_t i = 0; i < size(); ++i) {
             float jes_scale = jecCorr.getJES(nompt(i), eta(i));
-            float genPt = (genJetIdx->At(i) != -1) ? genJet.pt(genJetIdx->At(i)) : -1.0;
-            float jer_scale = jecCorr.getJER(jes_scale*nompt(i), eta(i), **rho, genPt);
+            float genPt = (genJetIdx.at(i) != -1) ? genJet.pt(genJetIdx.at(i)) : -1.0;
+            float jer_scale = jecCorr.getJER(jes_scale*nompt(i), eta(i), *rho, genPt);
             m_jec->push_back(jes_scale*jer_scale);
         }
     } else {

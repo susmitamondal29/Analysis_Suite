@@ -3,7 +3,7 @@
 void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
 {
     isMC = isMC_;
-    if (isMC)
+    if (isMC && fReader.GetTree()->GetBranchStatus("LHEScaleWeight"))
         LHEScaleWeight = new TTreeReaderArray<Float_t>(fReader, "LHEScaleWeight");
 
     setSF<TH1D>("pileupSF", Systematic::Pileup, "", true);

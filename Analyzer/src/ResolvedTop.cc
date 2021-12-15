@@ -3,7 +3,7 @@
 void ResolvedTop::setup(TTreeReader& fReader)
 {
     GenericParticle::setup("ResolvedTop", fReader);
-    discriminator = new TTRArray<Float_t>(fReader, "ResolvedTop_discriminator");
+    discriminator.setup(fReader, "ResolvedTop_discriminator");
 
     setup_map(Level::Loose);
 
@@ -17,7 +17,7 @@ void ResolvedTop::setup(TTreeReader& fReader)
 void ResolvedTop::createLooseList()
 {
     for (size_t i = 0; i < size(); i++) {
-        if (discriminator->At(i) > wp)
+        if (discriminator.at(i) > wp)
             m_partList[Level::Loose]->push_back(i);
     }
 }

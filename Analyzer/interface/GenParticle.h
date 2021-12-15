@@ -8,7 +8,7 @@ public:
     void setup(TTreeReader& fReader);
     void createTopList();
 
-    TTRArray<Int_t>* pdgId;
+    TRArray<Int_t> pdgId;
 };
 
 class GenJet : public GenericParticle {

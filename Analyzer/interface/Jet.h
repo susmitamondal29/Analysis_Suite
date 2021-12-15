@@ -24,12 +24,12 @@ public:
     virtual float getScaleFactor() override;
 
     float pt(size_t idx) const {
-        return m_pt->At(idx)*m_jec->at(idx);
+        return m_pt.at(idx)*m_jec->at(idx);
     }
     float nompt(size_t idx) const {
-        return m_pt->At(idx);
+        return m_pt.at(idx);
     }
-    float rawPt(size_t idx) const { return (1-rawFactor->At(idx))*pt(idx); }
+    float rawPt(size_t idx) const { return (1-rawFactor.at(idx))*pt(idx); }
 
     float getHT(Level level, size_t syst) { return getHT(list(level, syst)); };
     float getHT(Level level) { return getHT(list(level)); };
@@ -65,14 +65,14 @@ public:
 
     std::vector<Int_t> n_loose_bjet, n_medium_bjet, n_tight_bjet;
 
-    TTRArray<Int_t>* jetId;
-    TTRArray<Int_t>* hadronFlavour;
-    TTRArray<Float_t>* btag;
-    TTRArray<Int_t>* genJetIdx;
-    TTRArray<Float_t>* area;
-    TTRArray<Float_t>* rawFactor;
-    TTRArray<Int_t>* puId;
-    TTreeReaderValue<Float_t>* rho;
+    TRArray<Int_t> jetId;
+    TRArray<Int_t> hadronFlavour;
+    TRArray<Float_t> btag;
+    TRArray<Int_t> genJetIdx;
+    TRArray<Float_t> area;
+    TRArray<Float_t> rawFactor;
+    TRArray<Int_t> puId;
+    TRVariable<Float_t> rho;
 
 
     void setupJEC(JetCorrection& jecCorr, GenericParticle& genJet);
@@ -155,7 +155,7 @@ private:
         if (systName_by_syst.find(currentSyst) != systName_by_syst.end()) {
             measType = varName_by_var.at(currentVar) + "_" + systName_by_syst.at(currentSyst);
         }
-        return btag_reader->eval_auto_bounds(measType, flav, eta(idx), pt(idx), btag->At(idx));
+        return btag_reader->eval_auto_bounds(measType, flav, eta(idx), pt(idx), btag.at(idx));
     }
 };
 

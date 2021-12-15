@@ -16,7 +16,7 @@ public:
         createLooseList();
     }
 
-    TTRArray<Float_t>* discriminator;
+    TRArray<Float_t> discriminator;
 
     const std::unordered_map<std::string, float> wp_by_name = {
         { "LWP", 0.75 }, // Loose 0.75

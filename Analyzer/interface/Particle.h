@@ -3,6 +3,7 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "analysis_suite/Analyzer/interface/Systematic.h"
+#include "analysis_suite/Analyzer/interface/Variable.h"
 
 #include <TTreeReader.h>
 #include <TTreeReaderArray.h>
@@ -13,9 +14,6 @@
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> LorentzVector;
 typedef std::vector<std::vector<size_t>> PartList;
 
-template <class T>
-using TTRArray = TTreeReaderArray<T>;
-
 class GenericParticle : public SystematicWeights {
 public:
     GenericParticle() {};
@@ -23,22 +21,27 @@ public:
 
     void setup(std::string name, TTreeReader& fReader);
 
-    size_t size() const { return (m_pt) ? m_pt->GetSize() : 0; }
+    size_t size() const { return m_pt.size(); }
     size_t size(Level level) const { return list(level).size(); }
-    Float_t pt(size_t idx) const { return m_pt->At(idx); }
-    Float_t eta(size_t idx) const { return m_eta->At(idx); }
-    Float_t phi(size_t idx) const { return m_phi->At(idx); }
-    Float_t mass(size_t idx) const { return m_mass->At(idx); }
+    size_t idx(Level level, size_t i) const;
+
+    Float_t pt(size_t idx) const { return m_pt.at(idx); }
+    Float_t pt(Level level, size_t i) const { return pt(idx(level, i)); }
+    Float_t eta(size_t idx) const { return m_eta.at(idx); }
+    Float_t eta(Level level, size_t i) const { return eta(idx(level, i)); }
+    Float_t phi(size_t idx) const { return m_phi.at(idx); }
+    Float_t phi(Level level, size_t i) const { return phi(idx(level, i)); }
+    Float_t mass(size_t idx) const { return m_mass.at(idx); }
+    Float_t mass(Level level, size_t i) const { return mass(idx(level, i)); }
 
     const std::vector<size_t>& list(Level level) const { return *m_partList.at(level); };
-
     virtual void clear();
 
 protected:
-    TTRArray<Float_t>* m_pt;
-    TTRArray<Float_t>* m_eta;
-    TTRArray<Float_t>* m_phi;
-    TTRArray<Float_t>* m_mass;
+    TRArray<Float_t> m_pt;
+    TRArray<Float_t> m_eta;
+    TRArray<Float_t> m_phi;
+    TRArray<Float_t> m_mass;
 
     std::unordered_map<Level, std::vector<size_t>*> m_partList;
 

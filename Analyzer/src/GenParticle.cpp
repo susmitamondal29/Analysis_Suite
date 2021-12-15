@@ -5,7 +5,7 @@
 void GenParticle::setup(TTreeReader& fReader)
 {
     GenericParticle::setup("GenPart", fReader);
-    pdgId = new TTRArray<Int_t>(fReader, "GenPart_pdgId");
+    pdgId.setup(fReader, "GenPart_pdgId");
 
     setup_map(Level::Top);
 }
@@ -13,7 +13,7 @@ void GenParticle::setup(TTreeReader& fReader)
 void GenParticle::createTopList()
 {
     for (size_t i = 0; i < size(); i++) {
-        if (abs(pdgId->At(i)) == static_cast<Int_t>(PID::Top)) {
+        if (abs(pdgId.at(i)) == static_cast<Int_t>(PID::Top)) {
             m_partList[Level::Top]->push_back(i);
         }
     }
