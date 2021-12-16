@@ -51,6 +51,39 @@ def getSumW(infiles, isData):
         runChain.Draw("0>>sumweight",  "genEventSumw")
     return sumweight
 
+# Use for file in hdfs area
+def get_info_local(filename):
+    sampleName = filename.split('/')
+    analysisName = sampleName[sampleName.index("user")+2]
+
+    analysis, year, selection = analysisName.split("_")
+    isUL = 'UL' in analysis
+    return {"analysis": analysis, "year": year, "selection": selection,
+            "sampleName": sampleName, "isUL": isUL}
+
+def get_info_general(filename):
+    sampleName = filename.split('/')
+    analysis = "FakeRate"
+    yearDict = {"Summer16": "2016",
+                "Fall17": "2017",
+                "Autumn18" : "2018",
+                "UL16": "2016",
+                "UL17": "2017",
+                "UL18": "2018",
+                "Run2016" : "2016",
+                "Run2017" : "2017",
+                "Run2018" : "2018",
+                }
+    year = None
+    for yearName in yearDict.keys():
+        if yearName in filename:
+            year = yearDict[yearName]
+            break
+
+    isUL = "UL"  in filename
+    return {"analysis": analysis, "year": year, "selection": "From_DAS",
+            "sampleName": sampleName, "isUL": isUL}
+
 
 def setup_jec(filename):
     jetType = "AK4PFchs"
@@ -69,7 +102,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="main")
     parser.add_argument("-i", "--infile", default = "blah.in")
     parser.add_argument("-o", "--outfile", default="output.root")
-    parser.add_argument("-v", "--verbose", default=0)
+    parser.add_argument("-v", "--verbose", default=-1)
     args = parser.parse_args()
     inputfile = args.infile if (env := os.getenv("INPUT")) is None else env
     outputfile = args.outfile if (env := os.getenv("OUTPUT")) is None else env
@@ -79,30 +112,31 @@ if __name__ == "__main__":
         for line in f:
             files.append(line.strip())
 
-    print(files)
-    sampleName = files[0].split('/')
-    analysisName = sampleName[sampleName.index("user")+2]
+    testfile = files[0]
+    if "root://" in testfile:
+                details = get_info_general(testfile)
+    else:
+        details = get_info_local(testfile)
+    info = FileInfo(**details)
+    groupName = info.get_group(details["sampleName"])
 
-    analysis, year, selection = analysisName.split("_")
-    info = FileInfo(analysis=analysis, year=year, selection=selection)
-    groupName = info.get_group(sampleName)
-
-    setup_jec(jecTagsMC[year])
-    setup_jec(jerTagsMC[year])
+    setup_jec(jecTagsMC[details["year"]])
+    setup_jec(jerTagsMC[details["year"]])
 
     # Setup inputs
     inputs = dict()
     inputs["MetaData"] = {
-        "DAS_Name": ''.join(sampleName),
+        "DAS_Name": '/'.join(details["sampleName"]),
         "Group": groupName,
-        'Analysis': analysis,
-        'Selection': selection,
+        'Analysis': details["analysis"],
+        'Selection': details["selection"],
         'Xsec': info.get_xsec(groupName),
-        'Year': year,
-        'isData': info.is_data(),
+        'Year': details["year"],
+        'isData': info.is_data(groupName),
     }
     inputs["Verbosity"] = args.verbose
     inputs["Systematics"] = configs.get_shape_systs()
+    # Possibly need to fix for fakefactor stuff
     rInputs = setInputs(inputs)
 
     # Run Selection
@@ -110,7 +144,7 @@ if __name__ == "__main__":
     for fname in files:
         fChain.Add(f"{fname}/Events")
 
-    selector = getattr(ROOT, "ThreeTop")()
+    selector = getattr(ROOT, details["analysis"])()
 
 
     with configs.rOpen(outputfile, "RECREATE") as rOutput:
@@ -120,7 +154,7 @@ if __name__ == "__main__":
 
         ## Output
         anaFolder = selector.getOutdir()
-        anaFolder.WriteObject(getSumW(files, info.is_data()), "sumweight")
+        anaFolder.WriteObject(getSumW(files, info.is_data(groupName)), "sumweight")
         for tree in [tree.tree for tree in selector.getTrees()]:
             anaFolder.WriteObject(tree, tree.GetTitle())
         for i in selector.GetOutputList():

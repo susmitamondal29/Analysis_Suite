@@ -3,8 +3,7 @@ import importlib
 import numpy as np
 
 class BasicInfo:
-    def __init__(self, analysis="", selection="", **kwargs):
-        self.analysis = analysis
+    def __init__(self, selection="", **kwargs):
         self.selection = selection
         self.base_path = "analysis_suite.data"
 
@@ -57,7 +56,7 @@ class PlotInfo(BasicInfo):
 class GroupInfo(BasicInfo):
     def __init__(self, group2color=None, **kwargs):
         super().__init__(**kwargs)
-        group_path = f'{self.base_path}.PlotGroups.{self.analysis}'
+        group_path = f'{self.base_path}.PlotGroups'
         self.groupInfo = importlib.import_module(group_path).info
         self.group2color = group2color if group2color is not None else {}
         self.group2MemberMap = self.get_memberMap()
@@ -88,18 +87,20 @@ class GroupInfo(BasicInfo):
         return final
 
 class FileInfo(BasicInfo):
-    def __init__(self, year="2018", **kwargs):
+    def __init__(self, year="2018", isUL=False, **kwargs):
         super().__init__(**kwargs)
         self.year = int(year)
-        file_path = f'{self.base_path}.FileInfo.{self.analysis}'
+        file_name = "UL" if isUL else "Legacy"
+        file_path = f'{self.base_path}.FileInfo.{file_name}'
         self.fileInfo = importlib.import_module(file_path).info
         self.dasNames = {info["DAS"][self.year]: key for key, info in self.fileInfo.items()}
 
     def get_group(self, splitname):
-        if self.is_data():
-            return "data"
-        elif isinstance(splitname, str) and splitname in self.dasNames:
+        if isinstance(splitname, str) and splitname in self.dasNames:
             return self.dasNames[splitname]
+        elif self.is_data(splitname):
+            return "data"
+
         for name in splitname:
             if name in self.dasNames:
                 return self.dasNames[name]
@@ -109,7 +110,7 @@ class FileInfo(BasicInfo):
         return self.fileInfo[alias]
 
     def get_xsec(self, group):
-        if self.is_data():
+        if self.is_data(group):
             return 1.
         info = self.get_info(group)
         scale = info['cross_section']
@@ -117,5 +118,5 @@ class FileInfo(BasicInfo):
             scale *= info["kfactor"]
         return scale
 
-    def is_data(self):
-        return "data" in self.selection.lower()
+    def is_data(self, group):
+        return group == "data" or "data" in map(str.lower, group)
