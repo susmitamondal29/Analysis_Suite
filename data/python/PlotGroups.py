@@ -100,6 +100,32 @@ info ={
             "st_twll",
 	        "ggh2zz",
         ]
-    }
+    },
 
+    "qcd_mu" : {
+        "Name": r"QCD",
+        "Members": [
+            "qcd_mu_pt15-20",
+            "qcd_mu_pt20-30",
+            "qcd_mu_pt30-50",
+            "qcd_mu_pt50-80",
+            "qcd_mu_pt80-120",
+            "qcd_mu_pt120-170",
+            "qcd_mu_pt170-300",
+            "qcd_mu_pt300-470",
+            "qcd_mu_pt470-600",
+            "qcd_mu_pt600-800",
+            "qcd_mu_pt800-1000",
+            "qcd_mu_pt1000-Inf",
+        ]
+    },
+    "ewk" : {
+        "Name": r"EWK",
+        "Members": [
+            # "ttbar",
+            "DYm50",
+            "DYm10-50",
+            "wjets",
+        ]
+    }
 }
