@@ -58,6 +58,9 @@ def get_cli():
         parser.add_argument("--save", action='store_true')
         parser.add_argument("--plot", action='store_true')
     elif sys.argv[1] == "plot":
+        parser.add_argument("--trees", default="Analyzed",
+                            type=lambda x : [i for i in x.split(',')])
+        parser.add_argument("--no_mva", action="store_true")
         parser.add_argument("--hists", default="all",
                             type=lambda x : ["all"] if x == "all" \
                             else [i.strip() for i in x.split(',')],
@@ -118,10 +121,11 @@ def getNormedHistos(infilename, file_info, plot_info, histName, year):
                     logging.warning(f'Could not find sample {mem} in file for year {year}')
                     continue
                 if ak_col not in f[mem]:
-                    logging.error(f"Could not find variable {histName} in file for year {year}")
+                    print(f[mem][ak_col])
+                    logging.error(f"Could not find variable {ak_col} in file for year {year}")
                     raise ValueError()
                 array = f[mem].arrays([ak_col, "scale_factor"], cut=cut)
-                groupHists[group].fill(array[ak_col], array["scale_factor"], mem)
+                groupHists[group].fill(array[ak_col], weight=array["scale_factor"], member=mem)
             groupHists[group].scale(plot_info.get_lumi(year)*1000)
 
     return groupHists
@@ -156,12 +160,6 @@ def get_list_systs(systs=["all"], tool="", **kwargs):
                 allSysts.append(set(np.unique([syst.member("fName") for syst in f[syst_loc]])))
     elif tool == "mva":
         name="processed_"
-        allSets = list()
-        for year in kwargs["years"]:
-            d = kwargs["workdir"] / year
-            allSysts.append({syst.stem[len(name):] for syst in d.glob(f"{name}*.root")})
-    else:
-        name="test_"
         allSets = list()
         for year in kwargs["years"]:
             d = kwargs["workdir"] / year
@@ -210,6 +208,12 @@ def setup_pandas(use_vars, all_vars):
 def get_shape_systs():
     from analysis_suite.data.inputs import systematics
     return [syst.name for syst in systematics if syst.syst_type == "shape"]
+
+def get_metadata(tlist, varName):
+    for item in tlist:
+        if item.member('fName') == varName:
+            return item.member('fTitle')
+    return None
 
 
 @contextmanager

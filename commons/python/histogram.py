@@ -21,6 +21,11 @@ class Histogram:
         hist.hist = self.hist + right.hist
         return hist
 
+    def __sub__(self, right):
+        hist = Histogram(self.group, self.axis)
+        hist.hist = self.hist + (-1)*right.hist
+        return hist
+
     def __iadd__(self, right):
         if isinstance(right, Histogram):
             self._set_hist(right.hist)
@@ -71,8 +76,13 @@ class Histogram:
         else:
             raise Exception()
 
-    def fill(self, vals, weight, member=None):
-        self.hist.fill(vals, weight=weight)
+    def project(self, ax):
+        new_hist = Histogram(self.group, self.hist.axes[0])
+        new_hist.hist = self.hist.project(ax)
+        return new_hist
+
+    def fill(self, *vals, weight, member=None):
+        self.hist.fill(*vals, weight=weight)
         if member is not None:
             self.breakdown[member] = bh_weights().fill(weight)
 
@@ -93,8 +103,8 @@ class Histogram:
             for mem, info in self.breakdown.items():
                 self.breakdown[mem] *= scale
 
-    def integral(self):
-        return self.hist.sum(flow=True).value
+    def integral(self, flow=True):
+        return self.hist.sum(flow=flow).value
 
     def getInputs(self, **kwargs):
         return dict({"x": self.axis.centers, "xerr": self.axis.widths/2,

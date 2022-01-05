@@ -127,5 +127,11 @@ info ={
             "DYm10-50",
             "wjets",
         ]
-    }
+    },
+    "data" : {
+        "Name": r"Data",
+        "Members": [
+            "data"
+        ],
+    },
 }

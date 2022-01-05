@@ -111,7 +111,7 @@ if __name__ == "__main__":
     with open(inputfile) as f:
         for line in f:
             files.append(line.strip())
-
+    print(files)
     testfile = files[0]
     if "root://" in testfile:
                 details = get_info_general(testfile)
