@@ -96,8 +96,7 @@ float Jet::getCentrality(const std::vector<size_t>& jet_list)
 {
     float etot = 0;
     for (auto i : jet_list) {
-        LorentzVector jet(pt(i), eta(i), phi(i), mass(i));
-        etot += jet.E();
+        etot += p4(i).E();
     }
     return getHT(jet_list) / etot;
 }

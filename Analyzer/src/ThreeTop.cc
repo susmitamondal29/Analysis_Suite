@@ -35,23 +35,28 @@ void ThreeTop::Init(TTree* tree)
     if (!isMC_) {
         createTree("Nonprompt_FR", { Channel::LooseToTightFake });
     }
+    if (chargeMis_list.find(groupName_) != chargeMis_list.end()) {
+        createTree("OS", { Channel::OS });
+    }
+
 
     createObject(passTrigger_leadPt, "passTrigger", 4, 0, 4, 100, 0, 100);
     createObject(failTrigger_leadPt, "failTrigger", 4, 0, 4, 100, 0, 100);
 
     rTop.setup(fReader);
+    rGen.setup(fReader);
 
-    Flag_goodVertices = new TTRValue<Bool_t>(fReader, "Flag_goodVertices");
-    Flag_globalSuperTightHalo2016Filter = new TTRValue<Bool_t>(fReader, "Flag_globalSuperTightHalo2016Filter");
-    Flag_HBHENoiseFilter = new TTRValue<Bool_t>(fReader, "Flag_HBHENoiseFilter");
-    Flag_HBHENoiseIsoFilter = new TTRValue<Bool_t>(fReader, "Flag_HBHENoiseIsoFilter");
-    Flag_EcalDeadCellTriggerPrimitiveFilter = new TTRValue<Bool_t>(fReader, "Flag_EcalDeadCellTriggerPrimitiveFilter");
-    Flag_BadPFMuonFilter = new TTRValue<Bool_t>(fReader, "Flag_BadPFMuonFilter");
-    Flag_ecalBadCalibFilter = new TTRValue<Bool_t>(fReader, "Flag_ecalBadCalibFilter");
-    Met_pt = new TTRValue<Float_t>(fReader, "MET_pt");
-    Met_phi = new TTRValue<Float_t>(fReader, "MET_phi");
+    Flag_goodVertices.setup(fReader, "Flag_goodVertices");
+    Flag_globalSuperTightHalo2016Filter.setup(fReader, "Flag_globalSuperTightHalo2016Filter");
+    Flag_HBHENoiseFilter.setup(fReader, "Flag_HBHENoiseFilter");
+    Flag_HBHENoiseIsoFilter.setup(fReader, "Flag_HBHENoiseIsoFilter");
+    Flag_EcalDeadCellTriggerPrimitiveFilter.setup(fReader, "Flag_EcalDeadCellTriggerPrimitiveFilter");
+    Flag_BadPFMuonFilter.setup(fReader, "Flag_BadPFMuonFilter");
+    Flag_ecalBadCalibFilter.setup(fReader, "Flag_ecalBadCalibFilter");
+    Met_pt.setup(fReader, "MET_pt");
+    Met_phi.setup(fReader, "MET_phi");
     if (isMC_) {
-        Pileup_nTrueInt = new TTRValue<Float_t>(fReader, "Pileup_nTrueInt");
+        Pileup_nTrueInt.setup(fReader, "Pileup_nTrueInt");
     }
 
     setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
@@ -72,9 +77,9 @@ void ThreeTop::SetupOutTreeBranches(TTree* tree)
     LOG_FUNC << "Start of SetupOutTreeBranches";
     BaseSelector::SetupOutTreeBranches(tree);
     tree->Branch("LooseMuon", "ParticleOut", &o_looseMuons);
-    tree->Branch("TightMuon", "ParticleOut", &o_tightMuons);
     tree->Branch("LooseElectron", "ParticleOut", &o_looseElectrons);
-    tree->Branch("TightElectron", "ParticleOut", &o_tightElectrons);
+    tree->Branch("TightMuon", "LeptonOut", &o_tightMuons);
+    tree->Branch("TightElectron", "LeptonOut", &o_tightElectrons);
     tree->Branch("TightLeptons", "ParticleOut", &o_tightLeptons);
     tree->Branch("Jets", "JetOut", &o_jets);
     tree->Branch("BJets", "BJetOut", &o_bJets);
@@ -111,7 +116,7 @@ void ThreeTop::ApplyScaleFactors()
 {
     LOG_FUNC << "Start of ApplyScaleFactors";
     LOG_EVENT << "weight: " << (*weight);
-    (*weight) *= sfMaker.getPileupSF(**Pileup_nTrueInt);
+    (*weight) *= sfMaker.getPileupSF(*Pileup_nTrueInt);
     LOG_EVENT << "weight after pu scale: " << (*weight);
     (*weight) *= sfMaker.getLHESF();
     LOG_EVENT << "weight after lhe scale: " << (*weight);
@@ -213,7 +218,7 @@ bool ThreeTop::getCutFlow(cut_info& cuts)
      LOG_FUNC << "Start of passSelection";
      bool passCuts = true;
      passCuts &= setCut(cuts, "passPreselection", true);
-     passCuts &= setCut(cuts, "passMETFilter", (**Flag_goodVertices && **Flag_globalSuperTightHalo2016Filter && **Flag_HBHENoiseFilter && **Flag_HBHENoiseIsoFilter && **Flag_EcalDeadCellTriggerPrimitiveFilter && **Flag_BadPFMuonFilter && **Flag_ecalBadCalibFilter));
+     passCuts &= setCut(cuts, "passMETFilter", (*Flag_goodVertices && *Flag_globalSuperTightHalo2016Filter && *Flag_HBHENoiseFilter && *Flag_HBHENoiseIsoFilter && *Flag_EcalDeadCellTriggerPrimitiveFilter && *Flag_BadPFMuonFilter && *Flag_ecalBadCalibFilter));
      if (muon.passZVeto() && elec.passZVeto()) {
          passCuts &= setCut(cuts, "passZVeto", true);
      } else if (chanInSR(*currentChannel_)) {
@@ -222,7 +227,7 @@ bool ThreeTop::getCutFlow(cut_info& cuts)
      }
      passCuts &= setCut(cuts, "passJetNumber", jet.size(Level::Tight) >= 2);
      passCuts &= setCut(cuts, "passBJetNumber", jet.size(Level::Bottom) >= 1);
-     passCuts &= setCut(cuts, "passMetCut", **Met_pt > 25);
+     passCuts &= setCut(cuts, "passMetCut", *Met_pt > 25);
      passCuts &= setCut(cuts, "passHTCut", jet.getHT(Level::Tight) > 300);
 
      LOG_FUNC << "End of passSelection";
@@ -256,9 +261,9 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
     }
 
     fillParticle(muon, Level::Loose, *o_looseMuons, pass_bitmap);
-    fillParticle(muon, Level::Tight, *o_tightMuons, pass_bitmap);
     fillParticle(elec, Level::Loose, *o_looseElectrons, pass_bitmap);
-    fillParticle(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
+    fillLepton(muon, Level::Tight, *o_tightMuons, pass_bitmap);
+    fillLepton(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
     fillJet(jet, Level::Tight, *o_jets, pass_bitmap);
     fillBJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
     fillTop(rTop, Level::Loose, *o_resolvedTop, pass_bitmap);
@@ -267,8 +272,8 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
     for (size_t syst = 0; syst < numSystematics(); ++syst) {
         o_ht.push_back(jet.getHT(Level::Tight, syst));
         o_htb.push_back(jet.getHT(Level::Bottom, syst));
-        o_met.push_back(**Met_pt);
-        o_metphi.push_back(**Met_phi);
+        o_met.push_back(*Met_pt);
+        o_metphi.push_back(*Met_phi);
         o_centrality.push_back(jet.getCentrality(Level::Tight, syst));
     }
     LOG_FUNC << "End of FillValues";
@@ -296,8 +301,8 @@ float ThreeTop::getLeadPt(size_t idx)
 void ThreeTop::printStuff()
 {
     LOG_FUNC << "Start of printStuff";
-    std::cout << "Event: " << **event << std::endl;
-    std::cout << "Met: " << **Met_pt << std::endl;
+    std::cout << "Event: " << *event << std::endl;
+    std::cout << "Met: " << *Met_pt << std::endl;
     std::cout << "HT: " << jet.getHT(Level::Tight, 0) << std::endl;
     std::cout << "njet: " << jet.size(Level::Tight) << std::endl;
     std::cout << "nbjet: " << jet.size(Level::Bottom) << std::endl;
@@ -307,3 +312,4 @@ void ThreeTop::printStuff()
     std::cout << std::endl;
     LOG_FUNC << "End of printStuff";
 }
+

@@ -41,11 +41,14 @@ void Muon::createLooseList()
 void Muon::createFakeList(Particle& jets)
 {
     for (auto i : list(Level::Loose)) {
-        if (pt(i) > 10
-            && tightCharge.at(i) == 2
+        if (tightCharge.at(i) == 2
             && mediumId.at(i) && sip3d.at(i) < 4) {
-            m_partList[Level::Fake]->push_back(i);
-            dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(getCloseJet(i, jets));
+            auto closejet_info = getCloseJet(i, jets);
+            fakePtFactor[i] = fillFakePt(i, jets);
+            if (getModPt(i) > 10) {
+                m_partList[Level::Fake]->push_back(i);
+                dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(closejet_info);
+            }
         }
     }
 }

@@ -26,11 +26,10 @@ private:
 
     TTree* treeFakeRate_;
 
-
-    LeptonOut* o_looseMuons;
-    LeptonOut* o_tightMuons;
-    LeptonOut* o_looseElectrons;
-    LeptonOut* o_tightElectrons;
+    ParticleOut* o_looseMuons;
+    ParticleOut* o_tightMuons;
+    ParticleOut* o_looseElectrons;
+    ParticleOut* o_tightElectrons;
     JetOut* o_jets;
     BJetOut* o_bJets;
 

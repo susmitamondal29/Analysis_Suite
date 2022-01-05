@@ -187,8 +187,8 @@ void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
         rGen.createTopList();
     }
     jet.setupJEC(jetCorrector, rGenJet);
-    muon.setGoodParticles(systNum, jet);
-    elec.setGoodParticles(systNum, jet);
+    muon.setGoodParticles(systNum, jet, rGen);
+    elec.setGoodParticles(systNum, jet, rGen);
     jet.setGoodParticles(systNum);
     setOtherGoodParticles(systNum);
     setupChannel();

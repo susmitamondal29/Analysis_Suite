@@ -52,10 +52,10 @@ void FakeRate::SetupOutTreeBranches(TTree* tree)
 {
     LOG_FUNC << "Start of SetupOutTreeBranches";
     BaseSelector::SetupOutTreeBranches(tree);
-    tree->Branch("LooseMuon", "LeptonOut", &o_looseMuons);
-    tree->Branch("TightMuon", "LeptonOut", &o_tightMuons);
-    tree->Branch("LooseElectron", "LeptonOut", &o_looseElectrons);
-    tree->Branch("TightElectron", "LeptonOut", &o_tightElectrons);
+    tree->Branch("LooseMuon", "ParticleOut", &o_looseMuons);
+    tree->Branch("TightMuon", "ParticleOut", &o_tightMuons);
+    tree->Branch("LooseElectron", "ParticleOut", &o_looseElectrons);
+    tree->Branch("TightElectron", "ParticleOut", &o_tightElectrons);
     tree->Branch("Jets", "JetOut", &o_jets);
     tree->Branch("BJets", "BJetOut", &o_bJets);
 
@@ -112,14 +112,13 @@ void FakeRate::setupChannel()
     LOG_FUNC << "Start of setupChannel";
     (*currentChannel_) = Channel::None;
     (subChannel_) = Subchannel::None;
-    size_t nLep = muon.size(Level::Tight) + elec.size(Level::Tight);
+    // size_t nLep = muon.size(Level::Tight) + elec.size(Level::Tight);
     size_t nFakeLep = muon.size(Level::Fake) + elec.size(Level::Fake);
 
     if (nFakeLep == 1) {
         subChannel_ = muon.size(Level::Fake) ? Subchannel::M : Subchannel::E;
         Lepton lepton = (subChannel_ == Subchannel::M) ? static_cast<Lepton>(muon) : static_cast<Lepton>(elec);
-        float mt = mt_f(lepton.fakePt(Level::Fake, 0, jet), *Met_pt, lepton.phi(Level::Fake, 0), *Met_phi);
-        size_t close_jet = lepton.closeJet_by_lepton[lepton.idx(Level::Fake, 0)];
+        float mt = lepton.getMT(Level::Fake, 0, *Met_pt, *Met_phi);
         if (*Met_pt < 20 && mt < 20) {
             (*currentChannel_) = Channel::NP_FR;
         } else if (*Met_pt > 30 && lepton.pt(0) > 20) {
@@ -142,6 +141,7 @@ bool FakeRate::getCutFlow(cut_info& cuts)
     LOG_FUNC << "Start of passSelection";
     bool passCuts = true;
     passCuts &= setCut(cuts, "passPreselection", true);
+    passCuts &= setCut(cuts, "passMETFilter", (*Flag_goodVertices && *Flag_globalSuperTightHalo2016Filter && *Flag_HBHENoiseFilter && *Flag_HBHENoiseIsoFilter && *Flag_EcalDeadCellTriggerPrimitiveFilter && *Flag_BadPFMuonFilter && *Flag_ecalBadCalibFilter));
     size_t nFakeLep = muon.size(Level::Fake) + elec.size(Level::Fake);
     passCuts &= setCut(cuts, "passFakeLep", nFakeLep == 1);
     bool haveFarJet = false;
@@ -149,7 +149,7 @@ bool FakeRate::getCutFlow(cut_info& cuts)
         Lepton lepton = (subChannel_ == Subchannel::M) ? static_cast<Lepton>(muon) : static_cast<Lepton>(elec);
         float lphi = lepton.phi(Level::Fake, 0);
         float leta = lepton.eta(Level::Fake, 0);
-        for (auto jidx: jet.list(Level::Loose)) {
+        for (auto jidx: jet.list(Level::Tight)) {
             float jphi = jet.phi(jidx);
             float jeta = jet.eta(jidx);
             float dr = pow((lphi-jphi), 2) + pow((leta-jeta), 2);
@@ -160,13 +160,6 @@ bool FakeRate::getCutFlow(cut_info& cuts)
         }
     }
     passCuts &= setCut(cuts, "passHasFarJet", haveFarJet);
-    // passCuts &= setCut(cuts, "passMETFilter", (*Flag_goodVertices && *Flag_globalSuperTightHalo2016Filter && *Flag_HBHENoiseFilter && *Flag_HBHENoiseIsoFilter && *Flag_EcalDeadCellTriggerPrimitiveFilter && *Flag_BadPFMuonFilter && *Flag_ecalBadCalibFilter));
-    // if (muon.passZVeto() && elec.passZVeto()) {
-    //     passCuts &= setCut(cuts, "passZVeto", true);
-    // } else if (chanInSR(*currentChannel_)) {
-    //     passCuts &= setCut(cuts, "failZVeto", true);
-    //     (*currentChannel_) = Channel::CR_Z;
-    // }
     // passCuts &= setCut(cuts, "passJetNumber", jet.size(Level::Tight) >= 2);
     // passCuts &= setCut(cuts, "passBJetNumber", jet.size(Level::Bottom) >= 1);
     // passCuts &= setCut(cuts, "passMetCut", *Met_pt > 25);
@@ -180,7 +173,7 @@ bool FakeRate::getTriggerCut(cut_info& cuts) {
     bool passTriggerCuts = true;
     // passTriggerCuts &= setCut(cuts, "passLeadPtCut", getLeadPt() > 25);
     // passTriggerCuts &= setCut(cuts, "passSubLeadPtCut", getLeadPt(1) > 20);
-    return BaseSelector::getTriggerCut(cuts);
+    return BaseSelector::getTriggerCut(cuts) && passTriggerCuts;
 }
 
 void FakeRate::FillValues(const std::vector<bool>& passVec)
@@ -192,10 +185,10 @@ void FakeRate::FillValues(const std::vector<bool>& passVec)
         pass_bitmap += passVec.at(i) << i;
     }
 
-    fillLepton(muon, Level::Fake, *o_looseMuons, pass_bitmap, *Met_pt, *Met_phi);
-    fillLepton(muon, Level::Tight, *o_tightMuons, pass_bitmap, *Met_pt, *Met_phi);
-    fillLepton(elec, Level::Fake, *o_looseElectrons, pass_bitmap, *Met_pt, *Met_phi);
-    fillLepton(elec, Level::Tight, *o_tightElectrons, pass_bitmap, *Met_pt, *Met_phi);
+    fillParticle(muon, Level::Fake, *o_looseMuons, pass_bitmap);
+    fillParticle(muon, Level::Tight, *o_tightMuons, pass_bitmap);
+    fillParticle(elec, Level::Fake, *o_looseElectrons, pass_bitmap);
+    fillParticle(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
     fillJet(jet, Level::Tight, *o_jets, pass_bitmap);
     fillBJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
 

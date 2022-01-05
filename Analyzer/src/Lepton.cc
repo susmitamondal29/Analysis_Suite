@@ -2,11 +2,14 @@
 
 #include <limits>
 
+bool Lepton::useFakePt = false;
+
 void Lepton::setup(std::string name, TTreeReader& fReader)
 {
-    m_charge.setup(fReader, (name + "_charge").c_str());
-    dz.setup(fReader, (name + "_dz").c_str());
-    dxy.setup(fReader, (name + "_dxy").c_str());
+    m_charge.setup(fReader, name + "_charge");
+    dz.setup(fReader, name + "_dz");
+    dxy.setup(fReader, name + "_dxy");
+    genPartIdx.setup(fReader, name+"_genPartIdx");
 
     GenericParticle::setup(name, fReader);
     setup_map(Level::Loose);
@@ -37,14 +40,11 @@ std::pair<size_t, float> Lepton::getCloseJet(size_t lidx, const Particle& jet)
 bool Lepton::passZVeto()
 {
     for (auto tidx : list(Level::Loose)) { //tightList
-        LorentzVector tlep(pt(tidx), eta(tidx), phi(tidx),
-            mass(tidx));
+        LorentzVector tlep = p4(tidx);
         for (auto lidx : list(Level::Loose)) {
             if (tidx >= lidx || charge(tidx) * charge(lidx) > 0)
                 continue;
-            LorentzVector llep(pt(lidx), eta(lidx), phi(lidx),
-                mass(lidx));
-            float mass = (llep + tlep).M();
+            float mass = (p4(lidx) + tlep).M();
             if (mass < LOW_ENERGY_CUT || (fabs(mass - ZMASS) < ZWINDOW))
                 return false;
         }
@@ -56,32 +56,32 @@ bool Lepton::passJetIsolation(size_t idx, const Particle& jets)
 {
     if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
         return true; /// no close jet (probably no jets)
-    size_t jidx = closeJet_by_lepton[idx];
-    if (pt(idx) / jets.pt(jidx) > ptRatioCut)
-        return true;
+    auto jetV = jets.p3(closeJet_by_lepton.at(idx));
 
-    LorentzVector lepV(pt(idx), eta(idx), phi(idx), mass(idx));
-    LorentzVector jetV(jets.pt(jidx), jets.eta(jidx), jets.phi(jidx), jets.mass(jidx));
-    auto diff = jetV.Vect() - lepV.Vect();
-    auto cross = diff.Cross(lepV.Vect());
-    return cross.Mag2() / diff.Mag2() > ptRelCut;
+    return passRatioCut(pt(idx)/jetV.rho()) || passRelCut(idx, jetV);
 }
 
-float Lepton::fakePt(size_t idx, const Particle& jets) const
+float Lepton::fillFakePt(size_t idx, const Particle& jets) const
 {
     if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
-        return pt(idx); /// no close jet (probably no jets)
+        return 1.; /// no close jet (probably no jets)
+    auto jetV = jets.p3(closeJet_by_lepton.at(idx));
 
-    size_t jidx = closeJet_by_lepton.at(idx);
-    LorentzVector lepV(pt(idx), eta(idx), phi(idx), mass(idx));
-    LorentzVector jetV(jets.pt(jidx), jets.eta(jidx), jets.phi(jidx), jets.mass(jidx));
-    auto diff = jetV.Vect() - lepV.Vect();
-    auto cross = diff.Cross(lepV.Vect());
-    if (cross.Mag2() / diff.Mag2() > ptRelCut && iso.at(idx) > isoCut) {
-        return pt(idx)*(1 + iso.at(idx)-isoCut);
-    } else if (pt(idx) < ptRatioCut * jets.pt(jidx)) {
-        return jets.pt(jidx)*ptRatioCut;
+    if (passRelCut(idx, jetV)) {
+        if (iso.at(idx) > isoCut)
+            return (1 + iso.at(idx)-isoCut);
     } else {
-        return pt(idx);
+        if (!passRatioCut(pt(idx)))
+            return jetV.rho()*ptRatioCut/pt(idx);
+    }
+    return 1.;
+}
+
+void Lepton::fillFlippedCharge(GenParticle& gen)
+{
+    for (size_t i = 0; i < size(); i++) {
+        int pdg = gen.pdgId.at(genPartIdx.at(i));
+        // remember, pdg is postive for electron, negative for positron
+        flips.push_back(pdg*charge(i) > 0);
     }
 }

@@ -2,6 +2,7 @@
 #define __PARTICLE_H_
 
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 #include "analysis_suite/Analyzer/interface/Systematic.h"
 #include "analysis_suite/Analyzer/interface/Variable.h"
 
@@ -12,6 +13,7 @@
 #include <vector>
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> LorentzVector;
+typedef math::RhoEtaPhiVector Vector3D;
 typedef std::vector<std::vector<size_t>> PartList;
 
 class GenericParticle : public SystematicWeights {
@@ -34,6 +36,9 @@ public:
     Float_t mass(size_t idx) const { return m_mass.at(idx); }
     Float_t mass(Level level, size_t i) const { return mass(idx(level, i)); }
 
+    LorentzVector p4(size_t idx) const {return LorentzVector(pt(idx), eta(idx), phi(idx), mass(idx));}
+    Vector3D p3(size_t idx) const { return Vector3D(pt(idx), eta(idx), phi(idx)); }
+
     const std::vector<size_t>& list(Level level) const { return *m_partList.at(level); };
     virtual void clear();
 
@@ -48,6 +53,8 @@ protected:
     virtual void setup_map(Level level);
 };
 
+class GenParticle;
+
 class Particle : public GenericParticle {
 public:
     Particle(){};
@@ -55,6 +62,8 @@ public:
 
     virtual void setupGoodLists() {std::cout << "SHOULDN'T BE CALLED" << std::endl;}
     virtual void setupGoodLists(Particle&) {std::cout << "SHOULDN'T BE CALLED (with jet)" << std::endl;}
+    virtual void setupGoodLists(Particle&, GenParticle&) {std::cout << "SHOULDN'T BE CALLED (with jet)" << std::endl;}
+
 
     template <class... Args>
     void setGoodParticles(size_t syst, Args&&... args);

@@ -95,7 +95,7 @@ struct LeptonOut {
     std::vector<Float_t> eta;
     std::vector<Float_t> phi;
     std::vector<Float_t> mass;
-    std::vector<Float_t> mt;
+    std::vector<Bool_t> flip;
     std::vector<Int_t> syst_bitMap;
     void clear()
     {
@@ -103,7 +103,7 @@ struct LeptonOut {
         eta.clear();
         phi.clear();
         mass.clear();
-        mt.clear();
+        flip.clear();
         syst_bitMap.clear();
     }
 };
@@ -123,7 +123,7 @@ void fillTop(const ResolvedTop& top, Level level, TopOut& fillObject, size_t pas
 
 void fillAllLeptons(const Lepton& muon, const Lepton& elec, ParticleOut& fillObject, size_t pass_bitmap);
 
-void fillLepton(const Lepton& lep, Level level, LeptonOut& fillObject, size_t pass_bitmap, float met, float met_phi);
+void fillLepton(const Lepton& lep, Level level, LeptonOut& fillObject, size_t pass_bitmap, bool useFakept = false);
 
 #include "analysis_suite/Analyzer/interface/Output.hxx"
 

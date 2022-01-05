@@ -31,29 +31,31 @@ private:
     ResolvedTop rTop;
 
     ParticleOut* o_looseMuons;
-    ParticleOut* o_tightMuons;
     ParticleOut* o_looseElectrons;
-    ParticleOut* o_tightElectrons;
+    LeptonOut* o_tightMuons;
+    LeptonOut* o_tightElectrons;
     ParticleOut* o_tightLeptons;
     JetOut* o_jets;
     BJetOut* o_bJets;
     TopOut* o_resolvedTop;
 
-    TTRValue<ULong64_t>* event;
-    TTRValue<Bool_t>* Flag_goodVertices;
-    TTRValue<Bool_t>* Flag_globalSuperTightHalo2016Filter;
-    TTRValue<Bool_t>* Flag_HBHENoiseFilter;
-    TTRValue<Bool_t>* Flag_HBHENoiseIsoFilter;
-    TTRValue<Bool_t>* Flag_EcalDeadCellTriggerPrimitiveFilter;
-    TTRValue<Bool_t>* Flag_BadPFMuonFilter;
-    TTRValue<Bool_t>* Flag_ecalBadCalibFilter;
-    TTRValue<Float_t>* Met_pt;
-    TTRValue<Float_t>* Met_phi;
-    TTRValue<Float_t>* Pileup_nTrueInt;
+    TRVariable<ULong64_t> event;
+    TRVariable<Bool_t> Flag_goodVertices;
+    TRVariable<Bool_t> Flag_globalSuperTightHalo2016Filter;
+    TRVariable<Bool_t> Flag_HBHENoiseFilter;
+    TRVariable<Bool_t> Flag_HBHENoiseIsoFilter;
+    TRVariable<Bool_t> Flag_EcalDeadCellTriggerPrimitiveFilter;
+    TRVariable<Bool_t> Flag_BadPFMuonFilter;
+    TRVariable<Bool_t> Flag_ecalBadCalibFilter;
+    TRVariable<Float_t> Met_pt;
+    TRVariable<Float_t> Met_phi;
+    TRVariable<Float_t> Pileup_nTrueInt;
 
     std::vector<Float_t> o_ht, o_htb, o_met, o_metphi, o_centrality;
 
     TH2F *passTrigger_leadPt, *failTrigger_leadPt;
+
+    std::set<std::string> chargeMis_list = {"DYm50", "DY10-50", "ttbar"};
 };
 
 #endif
