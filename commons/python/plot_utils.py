@@ -3,7 +3,8 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import colors as clr
-
+import logging
+logging.getLogger('matplotlib.font_manager').disabled = True
 from contextlib import contextmanager
 
 @contextmanager

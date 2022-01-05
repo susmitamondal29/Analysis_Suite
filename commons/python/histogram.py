@@ -51,10 +51,9 @@ class Histogram:
         errLo = hist - ratio*lo/(1-lo)
         errHi = ratio*hi/(1-hi) - hist
         hist[np.isnan(hist)], errLo[np.isnan(errLo)], errHi[np.isnan(errHi)] = 0, 0, 0
-
         return_obj = Histogram("", self.hist.axes[0])
-        return_obj.vals = hist
-        return_obj.sumw2 = (errLo**2 + errHi**2)/2
+        return_obj.hist.values()[:] = hist
+        return_obj.hist.variances()[:] = (errLo**2 + errHi**2)/2
         return return_obj
 
     def __bool__(self):

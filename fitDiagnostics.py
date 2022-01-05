@@ -5,15 +5,7 @@ import datetime
 from pathlib import Path
 import socket
 import subprocess
-import matplotlib
-matplotlib.use('Agg')
 import numpy as np
-import matplotlib.pyplot as plt
-import logging
-logging.getLogger('matplotlib.font_manager').disabled = True
-import numpy as np
-import mplhep as hep
-plt.style.use([hep.style.CMS, hep.style.firamath])
 
 from analysis_suite.commons.plot_utils import plot, setup_mplhep, setup_ticks, axisSetup
 import analysis_suite.commons.configs as config
@@ -22,6 +14,8 @@ from analysis_suite.commons.histogram import Histogram
 import analysis_suite.data.inputs as plot_params
 from analysis_suite.Plotting.stack import Stack
 from analysis_suite.Plotting.LogFile import LogFile
+
+hep = setup_mplhep()
 
 file = up.open("fitDiagnosticsTest.root")
 
@@ -70,6 +64,7 @@ if signal:
     signal.scale(scale, forPlot=True)
 
 # # ratio
+
 if data:
     ratio += data / stacker
     # ratio.scale(signal.draw_sc, forPlot=True)
@@ -81,7 +76,7 @@ if data:
 plot_inputs = {"nrows": 1, "ncols": 1, "sharex": True, "gridspec_kw": {"hspace": 0.1}}
 if ratio:
     plot_inputs["nrows"] = 2
-    plot_inputs["gridspec_kw"]["height_ratio"] = [3, 1]
+    plot_inputs["gridspec_kw"]["height_ratios"] = [3, 1]
 
 plotBase = 'plots/' +  histName
 with plot(f"{plotBase}.png", **plot_inputs) as pad:
@@ -90,6 +85,7 @@ with plot(f"{plotBase}.png", **plot_inputs) as pad:
     else:
         subpad = None
         setup_ticks(pad, subpad)
+
 
     n, bins, patches = pad.hist(**stacker.getInputs())
     stacker.applyPatches(patches)
