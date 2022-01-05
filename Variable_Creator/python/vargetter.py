@@ -3,6 +3,7 @@ import math
 import awkward1 as ak
 import uproot4 as uproot
 import numpy as np
+from analysis_suite.commons.configs import get_metadata
 from analysis_suite.commons.info import FileInfo
 from dataclasses import dataclass
 from typing import Callable
@@ -23,16 +24,20 @@ class Variable:
         return "int" if isInt else "float"
 
 class VarGetter:
+    branch_names = None
     def __init__(self, f, tree, group, syst=0):
         self.syst = syst
         self.syst_bit = 2**self.syst
         self.jec = None
-        branches = [key for key, array in f[group][tree].items()
-                    if len(array.keys()) == 0]
-        analysis = self.get_tlist_var(f[group]["MetaData"], "Analysis")
-        year = self.get_tlist_var(f[group]["MetaData"], "Year")
-        info = FileInfo(analysis=analysis, year=year)
-        self.xsec = info.get_xsec(group)
+        if self.branch_names is None:
+            branches = [key for key, array in f[group][tree].items()
+                        if len(array.keys()) == 0]
+        else:
+            branches = [key for key in f[group][tree].keys()
+                        if key in self.branch_names] + ["weight"]
+        analysis = get_metadata(f[group]["MetaData"], "Analysis")
+        year = get_metadata(f[group]["MetaData"], "Year")
+        self.xsec = float(get_metadata(f[group]["MetaData"], "Xsec"))
         self.sumw = sum(f[group]["sumweight"].values())
 
         if f[group][tree].num_entries != 0:
@@ -71,12 +76,6 @@ class VarGetter:
     def setup_scale(self):
         self.scale *= self.xsec/self.sumw
 
-    def get_tlist_var(self, tlist, varName):
-        for item in tlist:
-            if item.member('fName') == varName:
-                return item.member('fTitle')
-        return None
-
     def get_part_mask(self, part):
         return np.bitwise_and(self.arr["{}/syst_bitMap".format(part)], self.syst_bit) != 0
 
@@ -89,15 +88,27 @@ class VarGetter:
         else:
             return self.nth(part, "pt", n, fill)
 
-
     def eta(self, part, n, fill=-1):
         return self.nth(part, "eta", n, fill)
+
+    def abseta(self, part, n, fill=-1):
+        abseta = np.nan_to_num(np.abs(self.nth(part, "eta", n, np.nan)), nan=-1)
+        return abseta
 
     def phi(self, part, n, fill=-1):
         return self.nth(part, "phi", n, fill)
 
     def pmass(self, part, n, fill=-1):
         return self.nth(part, "mass", n, fill)
+
+    def mt(self, part, n, fill=-1):
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            angle_part = (1-np.cos(self.phi(part, n)-self.var("Met_phi")))
+            total = np.sqrt(2*self.pt(part, n)*self.var("Met")*angle_part)
+        return np.nan_to_num(total, nan=-1)
+
 
     def nth(self, part, name, n=0, fill=-1):
         var = self.arr[f'{part}/{name}'][self.get_part_mask(part)]
