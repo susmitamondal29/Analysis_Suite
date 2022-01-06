@@ -106,29 +106,24 @@ class Histogram:
     def integral(self, flow=True):
         return self.hist.sum(flow=flow).value
 
-    def getInputs(self, **kwargs):
-        return dict({"x": self.axis.centers, "xerr": self.axis.widths/2,
-                "y": self.draw_sc*self.vals, "ecolor": self.color,
-                "yerr": self.draw_sc*self.err, 'fmt': 'o',
-                "color": self.color, "barsabove": True, "label": self.name,
-                'markersize': 4}, **kwargs)
+    def plot_points(self, pad, **kwargs):
+        if not self or pad is None:
+            return
+        pad.errorbar(x=self.axis.centers, xerr= self.axis.widths/2,
+                     y=self.draw_sc*self.vals, ecolor=self.color,
+                     yerr=self.draw_sc*self.err, fmt='o',
+                     color=self.color, barsabove=True, label=self.name,
+                     markersize=4, **kwargs)
 
-    def getInputsHist(self, **kwargs):
-        # bins = self.bins - 0.5 if self.isMult else self.bins
-        return dict({"weights": self.draw_sc*self.vals,
-                     "bins": self.axis.edges, "x": self.axis.centers,
-                     "color": self.color, # 'align': "mid"
-                     "histtype": "step"},
-                    **kwargs)
-
-    def getInputsError(self, **kwargs):
-        # bins = self.bins - 0.5 if self.isMult else self.bins
-        bottom = self.vals - self.err
-        return dict({"weights": 2*self.err, "x": self.axis.centers,
-                "bins": self.axis.edges, 'bottom': bottom,
-                "histtype": 'stepfilled', "color": self.color,
-                'align': 'mid', 'stacked': True, "hatch": '//',
-                "alpha": 0.4, "label":self.name}, **kwargs)
+    def plot_band(self, pad, **kwargs):
+        if not self or pad is None:
+            return
+        pad.hist(weights=2*self.err, x=self.axis.centers,
+                 bins=self.axis.edges,
+                 bottom=self.vals - self.err,
+                 histtype='stepfilled', color=self.color,
+                 align='mid', stacked=True, hatch='//',
+                 alpha=0.4, label=self.name, **kwargs)
 
     def get_int_err(self, sqrt_err=False, roundDigit=2):
         tot = self.hist.sum()

@@ -20,24 +20,15 @@ class Stack(Histogram):
         else:
             return np.argmax(np.array([s.integral() for s in self.stack]) < integral)
 
-    def applyPatches(self, patches):
+    def plot_stack(self, pad, **kwargs):
+        n, bins, patches = pad.hist(
+            weights=np.array([h.vals for h in self.stack]).T, bins=self.axis.edges,
+            x=np.tile(self.axis.centers, (len(self.stack), 1)).T,
+            color=[h.color for h in self.stack],
+            label=[h.name for h in self.stack],
+            **self.options, **kwargs
+        )
+        # Apply patch to edge colors
         edgecolors = [darkenColor(h.color) for h in self.stack]
         for p, ec in zip(patches, edgecolors):
             p[0].set_ec(ec)
-
-    def getInputs(self, **kwargs):
-        stack = [h.vals for h in self.stack]
-        base_vals = [self.axis.centers for _ in range(len(stack))]
-        fancyNames = [h.name for h in self.stack]
-        colors = [h.color for h in self.stack]
-        rDict = dict({"weights": stack, "bins": self.axis.edges,
-                      "x": base_vals, "color": colors, "label": fancyNames,
-                      }, **self.options)
-        rDict.update(kwargs)
-        return rDict
-
-#     def setDrawType(self, drawtype):
-#         if drawtype == "compare":
-#             self.options["stacked"] = False
-#             self.options["histtype"] = "step"
-#             self.edgecolors = self.colors

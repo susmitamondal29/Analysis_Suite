@@ -40,7 +40,7 @@ for key, hist in file["shapes_fit_s/yr2018"].items():
     # Need to deal with Data
     if "data" in key:
         x, y = hist.member("fX"), hist.member("fY")
-        data += data.fill(x,y)
+        data += data.fill(x, weight=y)
     if "TH1" not in repr(hist):
         continue
     hist = hist.to_boost()
@@ -80,27 +80,20 @@ if ratio:
 
 plotBase = 'plots/' +  histName
 with plot(f"{plotBase}.png", **plot_inputs) as pad:
-    if isinstance(pad, np.ndarray):
-        pad, subpad = pad
-    else:
-        subpad = None
-        setup_ticks(pad, subpad)
+    pad, subpad = pad if isinstance(pad, np.ndarray) else (pad, None)
+    setup_ticks(pad, subpad)
 
+    # Upper pad stuff
+    stacker.plot_stack(pad)
+    signal.plot_points(pad)
+    data.plot_points(pad)
+    error.plot_band(pad)
 
-    n, bins, patches = pad.hist(**stacker.getInputs())
-    stacker.applyPatches(patches)
+    # Lower pad stuff
+    ratio.plot_points(subpad)
+    band.plot_band(subpad)
 
-    if signal:
-        pad.hist(**signal.getInputsHist())
-        pad.errorbar(**signal.getInputs())
-    if data:
-        pad.errorbar(**data.getInputs())
-    if error:
-        pad.hist(**error.getInputsError())
-    if ratio:
-        subpad.errorbar(**ratio.getInputs())
-        subpad.hist(**band.getInputsError())
-
+    # Finishing Touches
     pad.legend(loc=plot_info.get_legend_loc(histName))
     axisSetup(pad, subpad, xlabel=plot_info.get_label(histName), binning=stacker.get_xrange())
     hep.cms.label(ax=pad, data=data, lumi=plot_info.get_lumi(year)) #year=year

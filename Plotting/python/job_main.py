@@ -105,26 +105,20 @@ def run(histName, file_info, plot_info, outpath, filename, signalName, year, sys
 
     plotBase = outpath / 'plots' / histName
     with plot(f"{plotBase}.png", **plot_inputs) as pad:
-        if isinstance(pad, np.ndarray):
-            pad, subpad = pad
-        else:
-            subpad = None
+        pad, subpad = pad if isinstance(pad, np.ndarray) else (pad, None)
         setup_ticks(pad, subpad)
 
-        n, bins, patches = pad.hist(**stacker.getInputs())
-        stacker.applyPatches(patches)
+        # Upper pad stuff
+        stacker.plot_stack(pad)
+        signal.plot_points(pad)
+        data.plot_points(pad)
+        error.plot_band(pad)
 
-        if signal:
-            pad.hist(**signal.getInputsHist())
-            pad.errorbar(**signal.getInputs())
-        if data:
-            pad.errorbar(**data.getInputs())
-        if error:
-            pad.hist(**error.getInputsError())
-        if ratio:
-            subpad.errorbar(**ratio.getInputs())
-            subpad.hist(**band.getInputsError())
+        # Lower pad stuff
+        ratio.plot_points(subpad)
+        band.plot_band(subpad)
 
+        # Finishing Touches
         pad.legend(loc=plot_info.get_legend_loc(histName))
         axisSetup(pad, subpad, xlabel=plot_info.get_label(histName), binning=stacker.get_xrange())
         hep.cms.label(ax=pad, data=data, lumi=plot_info.get_lumi(year)) #year=year
