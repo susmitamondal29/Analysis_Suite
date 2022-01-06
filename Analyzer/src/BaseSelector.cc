@@ -78,8 +78,8 @@ void BaseSelector::Init(TTree* tree)
     o_pass_event.resize(numSystematics());
 
     sfMaker.init(isMC_, fReader);
-    muon.setup(fReader);
-    elec.setup(fReader);
+    muon.setup(fReader, isMC_);
+    elec.setup(fReader, isMC_);
     jet.setup(fReader, isMC_);
     if (isMC_) {
         rGen.setup(fReader);

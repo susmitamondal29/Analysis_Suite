@@ -5,7 +5,7 @@
 
 class Muon : public Lepton {
 public:
-    void setup(TTreeReader& fReader);
+    void setup(TTreeReader& fReader, bool isMC);
     virtual void createLooseList() override;
     virtual void createFakeList(Particle& jets) override;
     virtual void createTightList(Particle& jets) override;

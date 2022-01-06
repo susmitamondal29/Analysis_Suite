@@ -4,12 +4,14 @@
 
 bool Lepton::useFakePt = false;
 
-void Lepton::setup(std::string name, TTreeReader& fReader)
+void Lepton::setup(std::string name, TTreeReader& fReader, bool isMC)
 {
     m_charge.setup(fReader, name + "_charge");
     dz.setup(fReader, name + "_dz");
     dxy.setup(fReader, name + "_dxy");
-    genPartIdx.setup(fReader, name+"_genPartIdx");
+    if (isMC) {
+        genPartIdx.setup(fReader, name+"_genPartIdx");
+    }
 
     GenericParticle::setup(name, fReader);
     setup_map(Level::Loose);

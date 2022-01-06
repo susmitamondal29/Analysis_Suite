@@ -1,9 +1,9 @@
 #include "analysis_suite/Analyzer/interface/Muon.h"
 #include "analysis_suite/Analyzer/interface/Jet.h"
 
-void Muon::setup(TTreeReader& fReader)
+void Muon::setup(TTreeReader& fReader, bool isMC)
 {
-    Lepton::setup("Muon", fReader);
+    Lepton::setup("Muon", fReader, isMC);
     isGlobal.setup(fReader, "Muon_isGlobal");
     isTracker.setup(fReader, "Muon_isTracker");
     isPFcand.setup(fReader, "Muon_isPFcand");
