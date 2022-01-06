@@ -98,7 +98,7 @@
 <p>Bases: <code class="xref py py-class docutils literal notranslate">object</code></p>
 <dl class="py method code-definition">
 <dt class="sig sig-object py" id="analysis_suite.commons.histogram.Histogram.fill">
-<code class="sig-name descname">fill</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vals</span></em>, <em class="sig-param"><span class="n">weight</span></em>, <em class="sig-param"><span class="n">member</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/commons/histogram.html#Histogram.fill"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.commons.histogram.Histogram.fill">¶</a></dt>
+<code class="sig-name descname">fill</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">vals</span></em>, <em class="sig-param"><span class="n">weight</span></em>, <em class="sig-param"><span class="n">member</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/commons/histogram.html#Histogram.fill"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.commons.histogram.Histogram.fill">¶</a></dt>
 <dd>
 </dd></dl>
 <dl class="py method code-definition">
@@ -128,7 +128,12 @@
 </dd></dl>
 <dl class="py method code-definition">
 <dt class="sig sig-object py" id="analysis_suite.commons.histogram.Histogram.integral">
-<code class="sig-name descname">integral</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/commons/histogram.html#Histogram.integral"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.commons.histogram.Histogram.integral">¶</a></dt>
+<code class="sig-name descname">integral</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/commons/histogram.html#Histogram.integral"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.commons.histogram.Histogram.integral">¶</a></dt>
+<dd>
+</dd></dl>
+<dl class="py method code-definition">
+<dt class="sig sig-object py" id="analysis_suite.commons.histogram.Histogram.project">
+<code class="sig-name descname">project</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/commons/histogram.html#Histogram.project"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.commons.histogram.Histogram.project">¶</a></dt>
 <dd>
 </dd></dl>
 <dl class="py method code-definition">
@@ -147,13 +152,13 @@
 <span id="commons-info"></span><h2><code class="docutils literal notranslate">commons.info</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#module-analysis_suite.commons.info">¶</a></h2>
 <dl class="py class code-definition">
 <dt class="sig sig-object py" id="analysis_suite.commons.info.BasicInfo">
-<em class="property">class<span class="w"> </span></em><code class="sig-prename descclassname">analysis_suite.commons.info.</code><code class="sig-name descname">BasicInfo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">analysis</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">selection</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/commons/info.html#BasicInfo"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.commons.info.BasicInfo">¶</a></dt>
+<em class="property">class<span class="w"> </span></em><code class="sig-prename descclassname">analysis_suite.commons.info.</code><code class="sig-name descname">BasicInfo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">selection</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/commons/info.html#BasicInfo"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.commons.info.BasicInfo">¶</a></dt>
 <dd>
 <p>Bases: <code class="xref py py-class docutils literal notranslate">object</code></p>
 </dd></dl>
 <dl class="py class code-definition">
 <dt class="sig sig-object py" id="analysis_suite.commons.info.FileInfo">
-<em class="property">class<span class="w"> </span></em><code class="sig-prename descclassname">analysis_suite.commons.info.</code><code class="sig-name descname">FileInfo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">year</span><span class="o">=</span><span class="default_value">'2018'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/commons/info.html#FileInfo"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.commons.info.FileInfo">¶</a></dt>
+<em class="property">class<span class="w"> </span></em><code class="sig-prename descclassname">analysis_suite.commons.info.</code><code class="sig-name descname">FileInfo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">year</span><span class="o">=</span><span class="default_value">'2018'</span></em>, <em class="sig-param"><span class="n">isUL</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/commons/info.html#FileInfo"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.commons.info.FileInfo">¶</a></dt>
 <dd>
 <p>Bases: <a class="reference internal" href="#analysis_suite.commons.info.BasicInfo" title="analysis_suite.commons.info.BasicInfo"><code class="xref py py-class docutils literal notranslate">analysis_suite.commons.info.BasicInfo</code></a></p>
 <dl class="py method code-definition">
@@ -173,7 +178,7 @@
 </dd></dl>
 <dl class="py method code-definition">
 <dt class="sig sig-object py" id="analysis_suite.commons.info.FileInfo.is_data">
-<code class="sig-name descname">is_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/commons/info.html#FileInfo.is_data"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.commons.info.FileInfo.is_data">¶</a></dt>
+<code class="sig-name descname">is_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">group</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/commons/info.html#FileInfo.is_data"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.commons.info.FileInfo.is_data">¶</a></dt>
 <dd>
 </dd></dl>
 </dd></dl>
