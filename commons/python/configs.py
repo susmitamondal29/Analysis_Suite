@@ -30,9 +30,6 @@ def get_cli():
     ##################
     parser.add_argument("-d", "--workdir", required=True, type=lambda x : Path(x),
                         help="Working Directory")
-    analyses = [ f.name for f in pkgutil.iter_modules(PlotGroups.__path__) if not f.ispkg]
-    parser.add_argument("-a", "--analysis", type=str, required=True,
-                        choices=analyses, help="Specificy analysis used")
     parser.add_argument("-j", type=int, default=1, help="Number of cores")
     parser.add_argument("--log", type=str, default="ERROR",
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],

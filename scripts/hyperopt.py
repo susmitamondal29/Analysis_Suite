@@ -15,27 +15,27 @@ sys.argv.insert(1, "mva")
 
 
 nVars = len(mva_params.usevars)
-# hyperParams = OrderedDict({
-#     "hidden_layers": np.array([1, 2]),
-#     "initial_nodes": np.array([nVars, 2*nVars ]),
-#     "node_pattern": np.array(["static", "dynamic"]),
-#     "batch_power": np.array([8, 11]),
-#     "learning_rate": np.array([0.001, 0.005, 0.01, 0.05]),
-#     "regulator": np.array(["dropout", "none"]),
-#     "activation": np.array(["softplus", "elu"]),
-#     "epochs": np.array([1, 3]),
-# })
-# sqrtNVar = int(np.sqrt(nVars))
 hyperParams = OrderedDict({
-    "max_depth": np.array([1, 2]),
-    'colsample_bytree': np.array([0.5, 0.75, 1.0]),
-    'min_child_weight': np.geomspace(1e-6, 1, 5),
-    'subsample': np.linspace(0.5, 1, 5),
-    'eta': np.array([0.05, 0.1, 0.2, 0.3]),
-    "eval_metric": np.array(["logloss", "rmse", "auc", "error"]),
-    # "objective": np.array(["reg:squaredlogerror", "binary:logistic"]),
-
+    "hidden_layers": np.array([1, 2]),
+    "initial_nodes": np.array([nVars, 2*nVars ]),
+    "node_pattern": np.array(["static", "dynamic"]),
+    "batch_power": np.array([8, 11]), # 8, 9, 10, 11
+    "learning_rate": np.array([0.001, 0.005, 0.01, 0.05]),
+    "regulator": np.array(["dropout", "none"]),
+    "activation": np.array(["softplus", "elu"]),
+    "epochs": np.array([100, 200, 300, 400, 500]),
 })
+# sqrtNVar = int(np.sqrt(nVars))
+# hyperParams = OrderedDict({
+#     "max_depth": np.array([1, 2]),
+#     'colsample_bytree': np.array([0.5, 0.75, 1.0]),
+#     'min_child_weight': np.geomspace(1e-6, 1, 5),
+#     'subsample': np.linspace(0.5, 1, 5),
+#     'eta': np.array([0.05, 0.1, 0.2, 0.3]),
+#     "eval_metric": np.array(["logloss", "rmse", "auc", "error"]),
+#     # "objective": np.array(["reg:squaredlogerror", "binary:logistic"]),
+
+# })
 
 
 
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     pNames = list(hyperParams.keys())
     logfile_name = cli_args.workdir / "minimize_results.csv"
     hyper_file = cli_args.workdir / "hyperParams.py"
-    group_info = GroupInfo(analysis=cli_args.analysis)
+    group_info = GroupInfo(**vars(cli_args))
     groupDict = getGroupDict(mva_params.groups, group_info)
     opt_space = create_opt_space(hyperParams)
 
