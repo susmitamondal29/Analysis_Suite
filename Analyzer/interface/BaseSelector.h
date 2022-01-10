@@ -147,6 +147,9 @@ private:
     std::vector<Systematic> systematics_ = { Systematic::Nominal };
     size_t passed_events = 0;
     TDirectory* outdir;
+    size_t total_events = 0;
+    size_t current_event = 0;
+    const size_t barWidth  = 75;
 };
 
 #endif

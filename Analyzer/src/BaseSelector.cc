@@ -85,6 +85,9 @@ void BaseSelector::Init(TTree* tree)
         rGen.setup(fReader);
         rGenJet.setup(fReader);
     }
+    total_events = tree->GetEntries();
+    LOG_S(INFO) << "Total number of events: " << total_events;
+
     LOG_FUNC << "End of Init";
 }
 
@@ -92,7 +95,23 @@ Bool_t BaseSelector::Process(Long64_t entry)
 {
     if (loguru::g_stderr_verbosity > 5 && entry > 10) return false;
     LOG_FUNC << "Start of Process";
-    LOG_IF_S(INFO, entry % 10000 == 0) << "At entry " <<  entry;
+    if (entry % 10000 == 0 && loguru::g_stderr_verbosity > 0) {
+        current_event += 10000;
+        LOG_S(INFO) << "At entry " <<  current_event;
+
+        // Setup progress bar
+        float progress = float(current_event)/total_events;
+        
+        std::string bar = "[";
+        bar += std::string(int(floor(progress*barWidth)), '=');
+        if (bar.size() < barWidth) bar += ">";
+        if (bar.size() < barWidth)
+            bar += std::string(int((barWidth+1)-bar.size()), ' ');
+        bar += "] ";
+        bar += std::to_string(progress * 100.0) + " %";
+        std::cout << bar << std::endl;
+
+    }
 
     clearParticles();
     fReader.SetLocalEntry(entry);
