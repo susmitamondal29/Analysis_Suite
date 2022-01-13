@@ -6,6 +6,8 @@
 
 #include "analysis_suite/Analyzer/interface/Systematic.h"
 
+class PrescaleProvider;
+
 class ScaleFactors : public SystematicWeights {
 public:
     ScaleFactors() {}
@@ -16,9 +18,13 @@ public:
 
     float getLHESF();
 
+    float getPrescale(std::string trigger, UInt_t run, UInt_t lumi);
+
 private:
 
     TTreeReaderArray<Float_t>* LHEScaleWeight;
+
+    PrescaleProvider* prescaler;
 
     bool isMC;
 };

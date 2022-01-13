@@ -1,11 +1,15 @@
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
+#include "analysis_suite/Analyzer/interface/CommonEnums.h"
+#include "analysis_suite/Analyzer/interface/PrescaleProvider.h"
 
 void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
 {
     isMC = isMC_;
     if (isMC && fReader.GetTree()->GetBranchStatus("LHEScaleWeight"))
         LHEScaleWeight = new TTreeReaderArray<Float_t>(fReader, "LHEScaleWeight");
-
+    else if (!isMC) {
+        prescaler = new PrescaleProvider(scaleDir_ + "/prescale/triggerData" + yearMap.at(year_));
+    }
     setSF<TH1D>("pileupSF", Systematic::Pileup, "", true);
 }
 
@@ -32,6 +36,14 @@ float ScaleFactors::getLHESF()
             varIdx = (currentVar == eVar::Up) ? 7 : 1;
         }
         return LHEScaleWeight->At(varIdx);
+    }
+    return 1.;
+}
+
+float ScaleFactors::getPrescale(std::string trigger, UInt_t run, UInt_t lumi)
+{
+    if (!isMC) {
+
     }
     return 1.;
 }
