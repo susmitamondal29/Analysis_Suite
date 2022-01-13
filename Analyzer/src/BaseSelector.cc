@@ -174,6 +174,10 @@ void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
     setupChannel();
     if (isMC_) {
         ApplyScaleFactors();
+    } else {
+        (*weight) = sfMaker.getPrescale(trig_cuts.l1_by_trig,
+                                        trig_cuts.get_pass_list(subChannel_),
+                                        *run, *lumiblock);
     }
     LOG_FUNC << "End of SetupEvent";
 }

@@ -36,16 +36,15 @@ void FakeRate::Init(TTree* tree)
         Pileup_nTrueInt.setup(fReader, "Pileup_nTrueInt");
     }
 
-
-
-    // setupTrigger(Subchannel::M, {"HLT_Mu8",
-        //                              "HLT_Mu17"});
     setupTrigger(Subchannel::M, {"HLT_Mu8",
                                  "HLT_Mu8_TrkIsoVVL",
                                  "HLT_Mu17",
                                  "HLT_Mu17_TrkIsoVVL"});
+    trig_cuts.add_l1seeds({"HLT_Mu8", "HLT_Mu8_TrkIsoVVL"}, "L1_SingleMu7");
+    trig_cuts.add_l1seeds({"HLT_Mu17", "HLT_Mu17_TrkIsoVVL"}, "L1_SingleMu10_LowQ");
+
     setupTrigger(Subchannel::E, {"HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30",
-                                 "HLT_Ele17_CaloIdL_TrackIdL_IsoVL"});
+                                     "HLT_Ele17_CaloIdL_TrackIdL_IsoVL"});
 
     // setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
     //                               "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});

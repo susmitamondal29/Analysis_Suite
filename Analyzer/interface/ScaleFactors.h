@@ -18,7 +18,8 @@ public:
 
     float getLHESF();
 
-    float getPrescale(std::string trigger, UInt_t run, UInt_t lumi);
+    float getPrescale(std::unordered_map<std::string, std::string>& l1_map,
+                      std::vector<std::string> hlts, UInt_t run, UInt_t lumi);
 
 private:
 

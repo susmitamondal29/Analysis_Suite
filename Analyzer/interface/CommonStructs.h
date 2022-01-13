@@ -14,6 +14,7 @@ enum class Subchannel;
 struct TriggerInfo {
     std::unordered_map<Subchannel, std::vector<std::string>> trigger_names;
     std::unordered_map<Subchannel, std::vector<TRVariable<Bool_t>>> trigs;
+    std::unordered_map<std::string, std::string> l1_by_trig;
 
     void setup_channel(Subchannel chan, TTreeReader& fReader, std::vector<std::string> trigger_names_ = {}) {
         trigger_names[chan] = trigger_names_;
@@ -32,6 +33,16 @@ struct TriggerInfo {
             if (*trig) return true;
         }
         return false;
+    }
+
+    void add_l1seed(std::string trigname, std::string l1seed) {
+        l1_by_trig[trigname] = l1seed;
+    }
+
+    void add_l1seeds(std::vector<std::string> trignames, std::string l1seed) {
+        for (auto trigname: trignames) {
+            l1_by_trig[trigname] = l1seed;
+        }
     }
 
     std::vector<std::string> get_pass_list(Subchannel chan) {
