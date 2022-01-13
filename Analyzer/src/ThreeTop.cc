@@ -1,6 +1,7 @@
 #include "analysis_suite/Analyzer/interface/ThreeTop.h"
 
 #include"analysis_suite/Analyzer/interface/logging.h"
+#include"analysis_suite/Analyzer/interface/CommonFuncs.h"
 
 enum class Channel {
     Hadronic,
@@ -40,8 +41,8 @@ void ThreeTop::Init(TTree* tree)
     }
 
 
-    createObject(passTrigger_leadPt, "passTrigger", 4, 0, 4, 100, 0, 100);
-    createObject(failTrigger_leadPt, "failTrigger", 4, 0, 4, 100, 0, 100);
+    passTrigger_leadPt = createObject<TH2F>(fOutput, "passTrigger", 4, 0, 4, 100, 0, 100);
+    failTrigger_leadPt = createObject<TH2F>(fOutput, "failTrigger", 4, 0, 4, 100, 0, 100);
 
     rTop.setup(fReader);
     rGen.setup(fReader);
@@ -213,32 +214,32 @@ bool ThreeTop::isSameSign()
 
 
 
-bool ThreeTop::getCutFlow(cut_info& cuts)
+bool ThreeTop::getCutFlow(CutInfo& cuts)
 {
      LOG_FUNC << "Start of passSelection";
      bool passCuts = true;
-     passCuts &= setCut(cuts, "passPreselection", true);
-     passCuts &= setCut(cuts, "passMETFilter", (*Flag_goodVertices && *Flag_globalSuperTightHalo2016Filter && *Flag_HBHENoiseFilter && *Flag_HBHENoiseIsoFilter && *Flag_EcalDeadCellTriggerPrimitiveFilter && *Flag_BadPFMuonFilter && *Flag_ecalBadCalibFilter));
+     passCuts &= cuts.setCut("passPreselection", true);
+     passCuts &= cuts.setCut("passMETFilter", (*Flag_goodVertices && *Flag_globalSuperTightHalo2016Filter && *Flag_HBHENoiseFilter && *Flag_HBHENoiseIsoFilter && *Flag_EcalDeadCellTriggerPrimitiveFilter && *Flag_BadPFMuonFilter && *Flag_ecalBadCalibFilter));
      if (muon.passZVeto() && elec.passZVeto()) {
-         passCuts &= setCut(cuts, "passZVeto", true);
+         passCuts &= cuts.setCut("passZVeto", true);
      } else if (chanInSR(*currentChannel_)) {
-         passCuts &= setCut(cuts, "failZVeto", true);
+         passCuts &= cuts.setCut("failZVeto", true);
          (*currentChannel_) = Channel::CR_Z;
      }
-     passCuts &= setCut(cuts, "passJetNumber", jet.size(Level::Tight) >= 2);
-     passCuts &= setCut(cuts, "passBJetNumber", jet.size(Level::Bottom) >= 1);
-     passCuts &= setCut(cuts, "passMetCut", *Met_pt > 25);
-     passCuts &= setCut(cuts, "passHTCut", jet.getHT(Level::Tight) > 300);
+     passCuts &= cuts.setCut("passJetNumber", jet.size(Level::Tight) >= 2);
+     passCuts &= cuts.setCut("passBJetNumber", jet.size(Level::Bottom) >= 1);
+     passCuts &= cuts.setCut("passMetCut", *Met_pt > 25);
+     passCuts &= cuts.setCut("passHTCut", jet.getHT(Level::Tight) > 300);
 
      LOG_FUNC << "End of passSelection";
      return passCuts;
 }
 
-bool ThreeTop::getTriggerCut(cut_info& cuts) {
+bool ThreeTop::getTriggerCut(CutInfo& cuts) {
     bool passTriggerCuts = true;
-    passTriggerCuts &= setCut(cuts, "passLeadPtCut", getLeadPt() > 25);
-    passTriggerCuts &= setCut(cuts, "passSubLeadPtCut", getLeadPt(1) > 20);
-    passTriggerCuts &= BaseSelector::getTriggerCut(cuts); // apply trigger
+    passTriggerCuts &= cuts.setCut("passLeadPtCut", getLeadPt() > 25);
+    passTriggerCuts &= cuts.setCut("passSubLeadPtCut", getLeadPt(1) > 20);
+    passTriggerCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
 
     return passTriggerCuts;
 }

@@ -7,8 +7,8 @@
 class FakeRate : public BaseSelector {
 public:
     virtual void Init(TTree* tree) override;
-    virtual bool getCutFlow(cut_info& cuts) override;
-    virtual bool getTriggerCut(cut_info& cuts) override;
+    virtual bool getCutFlow(CutInfo& cuts) override;
+    virtual bool getTriggerCut(CutInfo& cuts) override;
     virtual void FillValues(const std::vector<bool>& passVec) override;
     virtual void SetupOutTreeBranches(TTree* tree) override;
     virtual void setupChannel() override;

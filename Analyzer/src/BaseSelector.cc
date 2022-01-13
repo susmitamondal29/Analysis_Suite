@@ -6,10 +6,6 @@
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
 #include "analysis_suite/Analyzer/interface/CommonFuncs.h"
 
-size_t BaseSelector::numSystematics()
-{
-    return systematics_.size()*2 - 1; // up/down for each, but nominal only 1
-};
 
 void BaseSelector::SetupOutTreeBranches(TTree* tree)
 {
@@ -95,22 +91,11 @@ Bool_t BaseSelector::Process(Long64_t entry)
 {
     if (loguru::g_stderr_verbosity > 5 && entry > 10) return false;
     LOG_FUNC << "Start of Process";
-    if (entry % 10000 == 0 && loguru::g_stderr_verbosity > 0) {
-        current_event += 10000;
+    current_event++;
+    if ((current_event % 10000 == 0 || current_event == total_events)
+        && loguru::g_stderr_verbosity > 0) {
         LOG_S(INFO) << "At entry " <<  current_event;
-
-        // Setup progress bar
-        float progress = float(current_event)/total_events;
-        
-        std::string bar = "[";
-        bar += std::string(int(floor(progress*barWidth)), '=');
-        if (bar.size() < barWidth) bar += ">";
-        if (bar.size() < barWidth)
-            bar += std::string(int((barWidth+1)-bar.size()), ' ');
-        bar += "] ";
-        bar += std::to_string(progress * 100.0) + " %";
-        std::cout << bar << std::endl;
-
+        print_bar();
     }
 
     clearParticles();
@@ -125,13 +110,15 @@ Bool_t BaseSelector::Process(Long64_t entry)
         for (auto var : vars) {
             LOG_EVENT << "Variation is: " << varName_by_var.at(var);
             SetupEvent(syst, var, systNum);
-            cut_info cuts;
+            CutInfo cuts;
             bool passCuts = getCutFlow(cuts);
             bool passTrigger = getTriggerCut(cuts);
             systPassSelection.push_back(passCuts && passTrigger);
-            if (syst == Systematic::Nominal && chanInSR(*currentChannel_)) {
-                fillCutFlow(cuts);
-                fillTriggerEff(passCuts, cuts.back().second);
+            if (syst == Systematic::Nominal) {
+                for (auto tree: trees) {
+                    tree.fillCutFlow(cuts, *currentChannel_, *weight);
+                }
+                // fillTriggerEff(passCuts, cuts.back().second);
             }
             passAny |= passCuts && passTrigger;
             systNum++;
@@ -159,32 +146,6 @@ Bool_t BaseSelector::Process(Long64_t entry)
     LOG_FUNC << "End of Process";
     return kTRUE;
 }
-
-void BaseSelector::fillCutFlow(cut_info& cuts)
-{
-    LOG_FUNC << "Start of fillCutFlow";
-    // Setup cutflow histogram
-    if (!cutFlow) {
-        createObject(cutFlow, "cutFlow", 15, 0, 15);
-        createObject(cutFlow_individual, "cutFlow_individual", 15, 0, 15);
-
-        for (size_t i = 0; i < cuts.size(); ++i) {
-            cutFlow->GetXaxis()->SetBinLabel(i+1, cuts[i].first.c_str());
-            cutFlow_individual->GetXaxis()->SetBinLabel(i+1, cuts[i].first.c_str());
-        }
-    }
-
-    bool passAll = true;
-    for (auto& [cutName, truth] : cuts) {
-        passAll &= truth;
-        if (truth)
-            cutFlow_individual->Fill(cutName.c_str(), *weight);
-        if (passAll)
-            cutFlow->Fill(cutName.c_str(), *weight);
-    }
-    LOG_FUNC << "End of fillCutFlow";
-}
-
 
 void BaseSelector::SlaveTerminate()
 {
@@ -251,14 +212,18 @@ void BaseSelector::FillValues(const std::vector<bool>& passVec) {
 
 }
 
-bool BaseSelector::getTriggerCut(cut_info& cuts)
+void BaseSelector::print_bar()
 {
-    if (trig_cuts.find(subChannel_) == trig_cuts.end())
-        return setCut(cuts, "passTrigger", true);
+    // Setup progress bar
+    float progress = float(current_event)/total_events;
 
-    bool passTrigger = false;
-    for (auto trig: trig_cuts[subChannel_]) {
-        passTrigger |= **trig;
-    }
-    return setCut(cuts, "passTrigger", passTrigger);
+    std::string bar = "[";
+    bar += std::string(int(floor(progress*barWidth)), '=');
+    if (bar.size() < barWidth) bar += ">";
+    if (bar.size() < barWidth)
+        bar += std::string(int((barWidth+1)-bar.size()), ' ');
+    bar += "] ";
+    bar += std::to_string(progress * 100.0) + " %";
+    std::cout << bar << std::endl;
+
 }

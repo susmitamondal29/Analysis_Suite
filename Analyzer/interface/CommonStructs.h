@@ -3,6 +3,11 @@
 
 #include "analysis_suite/Analyzer/interface/Variable.h"
 
+#include "TSelectorList.h"
+#include "TH1.h"
+
+#include <set>
+
 enum class Channel;
 enum class Subchannel;
 
@@ -69,45 +74,10 @@ struct TreeInfo {
     TH1F *cutflow, *cutflow_ind;
     bool initialize_axis = false;
 
-    TreeInfo(TTree* tree_, std::set<Channel> goodChannels_, TSelectorList* fOutput) :
-        tree(tree_), goodChannels(goodChannels_)
-    {
-        std::string treeName = tree->GetName();
-        cutflow = new TH1F(("cutFlow_"+treeName).c_str(), ("cutFlow_"+treeName).c_str(),
-                           15, 0, 15);
-        fOutput->Add(cutflow);
-        cutflow_ind = new TH1F(("cutFlow_ind_"+treeName).c_str(), ("cutFlow_ind_"+treeName).c_str(),
-                               15, 0, 15);
-        fOutput->Add(cutflow_ind);
-    }
+    TreeInfo(std::string name, std::set<Channel> goodChannels_, TDirectory* outdir, TSelectorList* fOutput);
+
+    void fillCutFlow(CutInfo& cuts, Channel chan, float weight);
     bool contains(Channel chan) { return goodChannels.count(chan); }
-
-    void fillCutFlow(CutInfo& cuts, Channel chan, float weight) {
-        // Setup cutflow histogram
-        if (!initialize_axis) {
-            initialize_axis = true;
-            for (size_t i = 0; i < cuts.size(); ++i) {
-                cutflow->GetXaxis()->SetBinLabel(i+1, cuts.name(i).c_str());
-                cutflow_ind->GetXaxis()->SetBinLabel(i+1, cuts.name(i).c_str());
-            }
-            cutflow->GetXaxis()->SetBinLabel(cuts.size()+1, "PassChannel");
-            cutflow_ind->GetXaxis()->SetBinLabel(cuts.size()+1, "PassChannel");
-        }
-
-        bool passAll = true;
-        for (auto& [cutName, truth] : cuts.cuts) {
-            passAll &= truth;
-            if (truth)
-                cutflow_ind->Fill(cutName.c_str(), weight);
-            if (passAll)
-                cutflow->Fill(cutName.c_str(), weight);
-        }
-        if (contains(chan)) {
-            cutflow_ind->Fill("PassChannel", weight);
-            if (passAll)
-                cutflow->Fill("PassChannel", weight);
-        }
-    }
 };
 
 

@@ -36,8 +36,14 @@ void FakeRate::Init(TTree* tree)
         Pileup_nTrueInt.setup(fReader, "Pileup_nTrueInt");
     }
 
+
+
+    // setupTrigger(Subchannel::M, {"HLT_Mu8",
+        //                              "HLT_Mu17"});
     setupTrigger(Subchannel::M, {"HLT_Mu8",
-                                 "HLT_Mu17"});
+                                 "HLT_Mu8_TrkIsoVVL",
+                                 "HLT_Mu17",
+                                 "HLT_Mu17_TrkIsoVVL"});
     setupTrigger(Subchannel::E, {"HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30",
                                  "HLT_Ele17_CaloIdL_TrackIdL_IsoVL"});
 
@@ -136,44 +142,46 @@ void FakeRate::setSubChannel()
 
 }
 
-bool FakeRate::getCutFlow(cut_info& cuts)
+bool FakeRate::getCutFlow(CutInfo& cuts)
 {
     LOG_FUNC << "Start of passSelection";
     bool passCuts = true;
-    passCuts &= setCut(cuts, "passPreselection", true);
-    passCuts &= setCut(cuts, "passMETFilter", (*Flag_goodVertices && *Flag_globalSuperTightHalo2016Filter && *Flag_HBHENoiseFilter && *Flag_HBHENoiseIsoFilter && *Flag_EcalDeadCellTriggerPrimitiveFilter && *Flag_BadPFMuonFilter && *Flag_ecalBadCalibFilter));
+    passCuts &= cuts.setCut("passPreselection", true);
+    passCuts &= cuts.setCut("passMETFilter", (*Flag_goodVertices && *Flag_globalSuperTightHalo2016Filter && *Flag_HBHENoiseFilter && *Flag_HBHENoiseIsoFilter && *Flag_EcalDeadCellTriggerPrimitiveFilter && *Flag_BadPFMuonFilter && *Flag_ecalBadCalibFilter));
     size_t nFakeLep = muon.size(Level::Fake) + elec.size(Level::Fake);
-    passCuts &= setCut(cuts, "passFakeLep", nFakeLep == 1);
+    passCuts &= cuts.setCut("passFakeLep", nFakeLep == 1);
     bool haveFarJet = false;
     if (nFakeLep == 1) {
         Lepton lepton = (subChannel_ == Subchannel::M) ? static_cast<Lepton>(muon) : static_cast<Lepton>(elec);
         float lphi = lepton.phi(Level::Fake, 0);
         float leta = lepton.eta(Level::Fake, 0);
-        for (auto jidx: jet.list(Level::Tight)) {
+        // std::cout << leta << " " << lphi << " | " << jet.size() << " " << jet.size(Level::Loose) << " " << jet.size(Level::Tight) << std::endl;
+        // std::cout << "------------------------------" << std::endl;
+        for (auto jidx: jet.list(Level::Loose)) {
             float jphi = jet.phi(jidx);
             float jeta = jet.eta(jidx);
+            // std::cout << jeta << " " << jphi << std::endl;
             float dr = pow((lphi-jphi), 2) + pow((leta-jeta), 2);
             if (dr > 1) {
                 haveFarJet = true;
                 break;
             }
         }
+        // std::cout << "===========================" << std::endl;
     }
-    passCuts &= setCut(cuts, "passHasFarJet", haveFarJet);
-    // passCuts &= setCut(cuts, "passJetNumber", jet.size(Level::Tight) >= 2);
-    // passCuts &= setCut(cuts, "passBJetNumber", jet.size(Level::Bottom) >= 1);
-    // passCuts &= setCut(cuts, "passMetCut", *Met_pt > 25);
-    // passCuts &= setCut(cuts, "passHTCut", jet.getHT(Level::Tight) > 300);
+
+    passCuts &= cuts.setCut("passHasFarJet", haveFarJet);
 
     LOG_FUNC << "End of passSelection";
     return passCuts;
 }
 
-bool FakeRate::getTriggerCut(cut_info& cuts) {
+bool FakeRate::getTriggerCut(CutInfo& cuts) {
     bool passTriggerCuts = true;
     // passTriggerCuts &= setCut(cuts, "passLeadPtCut", getLeadPt() > 25);
     // passTriggerCuts &= setCut(cuts, "passSubLeadPtCut", getLeadPt(1) > 20);
-    return BaseSelector::getTriggerCut(cuts) && passTriggerCuts;
+    passTriggerCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
+    return passTriggerCuts;
 }
 
 void FakeRate::FillValues(const std::vector<bool>& passVec)

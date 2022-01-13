@@ -10,6 +10,12 @@
 template <class T>
 class TRVariable {
 public:
+    TRVariable() {}
+
+    TRVariable(TTreeReader& fReader, std::string branch) {
+        setup(fReader, branch);
+    }
+
     void setup(TTreeReader& fReader, std::string branch) {
         if (fReader.GetTree()->GetBranchStatus(branch.c_str())) {
             val = new TTreeReaderValue<T>(fReader, branch.c_str());
@@ -36,6 +42,12 @@ template <class T>
 class TRArray {
 
 public:
+    TRArray() {}
+
+    TRArray(TTreeReader& fReader, std::string branch) {
+        setup(fReader, branch);
+    }
+
     void setup(TTreeReader& fReader, std::string branch) {
         if (fReader.GetTree()->GetBranchStatus(branch.c_str())) {
             array = new TTreeReaderArray<T>(fReader, branch.c_str());
