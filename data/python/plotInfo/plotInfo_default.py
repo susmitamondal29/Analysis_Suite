@@ -24,9 +24,8 @@ info = {
         "Label": "$N_{b}$",
         "Binning"     :  [6, 0, 6],
         "Discrete": True,
-        "Cuts" : ["Signal>0.65"]
+        "Cuts" : ["Signal>0.76"]
     },
-
 
     "NResolvedTops" : {
         "Column": "NResolvedTops",
@@ -55,7 +54,7 @@ info = {
         "Discrete": True,
     },
     "NlooseElectrons" : {
-        "Column": "NtightElectrons",
+        "Column": "NlooseElectrons",
         "Label": "$N_{loose}(e)$",
         "Binning"     :  [4, 0, 4],
         "Discrete": True,

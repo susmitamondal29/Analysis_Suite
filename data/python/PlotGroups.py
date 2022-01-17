@@ -122,7 +122,7 @@ info ={
     "ewk" : {
         "Name": r"EWK",
         "Members": [
-            # "ttbar",
+            "ttbar",
             "DYm50",
             "DYm10-50",
             "wjets",

@@ -139,18 +139,14 @@ def run(histName, file_info, plot_info, outpath, filename, signalName, year, sys
 def cleanup(cli_args):
     basePath = config.get_plot_area(cli_args.analysis, cli_args.drawStyle,
                                     cli_args.workdir)
-    analysis = cli_args.analysis
-    allSysts = config.get_list_systs(**vars(cli_args))
-    allSysts.remove("Nominal")
-
     # combined page
-    writeHTML(basePath, analysis, plot_params.all_years)
+    writeHTML(basePath, cli_args.analysis, plot_params.all_years)
     for year in cli_args.years:
-        yearPath = basePath / year
-        yearAnalysis = f'{analysis}/{year}'
-        writeHTML(yearPath, yearAnalysis, allSysts)
-        for syst in allSysts:
-            writeHTML(yearPath/syst, f'{yearAnalysis}/{syst}')
+        systs = [i[1] for i in get_files(cli_args, year) if i[1] != "Nominal"]
+        yearAnalysis = f'{cli_args.analysis}/{year}'
+        writeHTML(basePath / year, yearAnalysis, systs)
+        for syst in systs:
+            writeHTML(basePath / year / syst, f'{yearAnalysis}/{syst}')
 
     userName = Path.home().owner()
     htmlPath = str(basePath).split(userName)[1]
@@ -158,3 +154,13 @@ def cleanup(cli_args):
         logging.critical(f'https://www.hep.wisc.edu/~{userName}/{htmlPath[13:]}')
     else:
         logging.critical(f'https://{userName}.web.cern.ch/{userName}/{htmlPath[4:]}')
+
+
+def get_files(cli_args, year):
+    name = "processed_" if cli_args.no_mva else "test_"
+    allSets = list()
+    d = cli_args.workdir / year
+    for filename in d.glob(f"{name}*.root"):
+        syst = filename.stem[len(name):]
+        allSets.append((filename, syst))
+    return allSets

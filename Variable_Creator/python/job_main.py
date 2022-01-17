@@ -15,8 +15,7 @@ def setup(cli_args):
     for year in cli_args.years:
         outdir = cli_args.workdir / year
         config.checkOrCreateDir(outdir)
-        # infile = Path(f'result_{year}.root')
-        infile = Path(f'test.root')
+        infile = Path(f'result_{year}.root')
         for tree in trees:
             if tree == "Analyzed":
                 for syst in allSysts:
