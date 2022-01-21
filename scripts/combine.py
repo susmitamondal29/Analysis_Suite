@@ -8,9 +8,13 @@ from analysis_suite.commons.plot_utils import plot
 import uproot4 as uproot
 
 def runCombine(command, output=True, error=subprocess.DEVNULL):
-    helper = Path("./scripts/helper_functions.sh")
-    with subprocess.Popen([ f"{helper.resolve()} run_combine {command}"], shell=True,
-                          cwd=runCombine.work_dir, stdout=subprocess.PIPE, stderr=error) as process:
+    setup = [
+        "pushd ~/combine_area/ &>/dev/null",
+        "eval $(scramv1 runtime -sh 2>/dev/null)",
+        "popd &>/dev/null",
+    ]
+    with subprocess.Popen([';'.join(setup+[command])], shell=True, stderr=error,
+                          cwd=runCombine.work_dir, stdout=subprocess.PIPE) as process:
         for line in process.stdout:
             if output:
                 print(line.decode('utf8'), end="")
