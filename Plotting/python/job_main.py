@@ -101,7 +101,7 @@ def run(histName, file_info, plot_info, outpath, filename, signalName, year, sys
     plot_inputs = {"nrows": 1, "ncols": 1, "sharex": True, "gridspec_kw": {"hspace": 0.1}}
     if ratio:
         plot_inputs["nrows"] = 2
-        plot_inputs["gridspec_kw"]["height_ratio"] = [3, 1]
+        plot_inputs["gridspec_kw"]["height_ratios"] = [3, 1]
 
     plotBase = outpath / 'plots' / histName
     with plot(f"{plotBase}.png", **plot_inputs) as pad:

@@ -122,8 +122,8 @@ def main(year, args):
         fill_histograms(f"fr_mc_{year}.root", year, group, info, get_mt, mt_shape)
 
     mt_stack = Stack(mtbins)
-    for group, mt in mt_shape.items():
-        mt_stack += mt
+    for group in mc_groups:
+        mt_stack += mt_shape[group]
 
     with ratio_plot("mt_unfit", '$M_{T}(\mu)$', mt_stack.get_xrange()) as ax:
         ratio = Histogram("Ratio", mtbins, color="black")
@@ -152,7 +152,7 @@ def main(year, args):
         qcd_f, ewk_f = fit_template(mt_data.vals, mt_shape["qcd_mu"].vals, mt_shape["ewk"].vals)
         mt_stack["qcd_mu"].scale(qcd_f, changeName=True)
         mt_stack["ewk"].scale(ewk_f, changeName=True)
-
+        mt_stack.recalculate_stack()
 
         ratio = Histogram("Ratio", mtbins, color="black")
         band = Histogram("Ratio", mtbins, color="plum")

@@ -20,6 +20,21 @@ class Stack(Histogram):
         else:
             return np.argmax(np.array([s.integral() for s in self.stack]) < integral)
 
+    def __getitem__(self, item):
+        for hist in self.stack:
+            if hist.group == item:
+                return hist
+
+    def recalculate_stack(self):
+        vals = np.zeros(len(self.axis))
+        sumw2 = np.zeros(len(self.axis))
+        for hist in self.stack:
+            vals += hist.vals
+            sumw2 += hist.sumw2
+        self.hist.view().value = vals
+        self.hist.view().variance = sumw2
+
+
     def plot_stack(self, pad, **kwargs):
         n, bins, patches = pad.hist(
             weights=np.array([h.vals for h in self.stack]).T, bins=self.axis.edges,
