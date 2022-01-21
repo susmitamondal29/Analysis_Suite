@@ -4,6 +4,8 @@
 #include <TTreeReader.h>
 #include <TTreeReaderArray.h>
 
+#include <nlohmann/json.hpp>
+
 #include "analysis_suite/Analyzer/interface/Systematic.h"
 
 class PrescaleProvider;
@@ -21,6 +23,8 @@ public:
     float getPrescale(std::unordered_map<std::string, std::string>& l1_map,
                       std::vector<std::string> hlts, UInt_t run, UInt_t lumi);
 
+    bool inGoldenLumi(UInt_t run, UInt_t lumi);
+
 private:
 
     TTreeReaderArray<Float_t>* LHEScaleWeight;
@@ -28,6 +32,8 @@ private:
     PrescaleProvider* prescaler;
 
     bool isMC;
+
+    nlohmann::json golden_json;
 };
 
 #endif // __SCALEFACTORS_H_

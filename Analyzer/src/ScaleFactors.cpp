@@ -9,6 +9,8 @@ void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
         LHEScaleWeight = new TTreeReaderArray<Float_t>(fReader, "LHEScaleWeight");
     else if (!isMC) {
         prescaler = new PrescaleProvider(scaleDir_ + "/prescale/triggerData" + yearMap.at(year_));
+        std::ifstream golden_json_file(scaleDir_ + "/golden_json/golden_json_" + yearMap.at(year_) + ".json");
+        golden_json_file >> golden_json;
     }
     setSF<TH1D>("pileupSF", Systematic::Pileup, "", true);
 }
@@ -59,4 +61,18 @@ float ScaleFactors::getPrescale(std::unordered_map<std::string, std::string>& l1
         }
     }
     return 1.;
+}
+
+bool ScaleFactors::inGoldenLumi(UInt_t run, UInt_t lumi)
+{
+    if (golden_json.contains(std::to_string(run))) {
+        for (auto lumi_pair : golden_json[std::to_string(run)]) {
+            if (lumi < lumi_pair[0]) {
+                return false;
+            } else if (lumi <= lumi_pair[1]) {
+                return true;
+            }
+        }
+    }
+    return false;
 }

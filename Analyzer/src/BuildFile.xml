@@ -1,5 +1,6 @@
 <use name="boost"/>
 <use name="root"/>
+<use name="json"/>
 <use name="rootgraphics"/>
 <use name="DataFormats/Math"/>
 <use name="CondFormats/BTauObjects"/>
@@ -10,4 +11,4 @@
   <lib name="1"/>
 </export>
 
-<Flags CXXFLAGS="-DLOGURU_WITH_STREAMS=1">
+<Flags CXXFLAGS="-DLOGURU_WITH_STREAMS=1"/>
