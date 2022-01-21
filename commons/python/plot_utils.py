@@ -8,6 +8,23 @@ logging.getLogger('matplotlib.font_manager').disabled = True
 from contextlib import contextmanager
 
 @contextmanager
+def ratio_plot(filename, xlabel, binning):
+    plot_inputs = {"nrows": 2, "ncols": 1, "sharex": True,
+                   "gridspec_kw": {"hspace": 0.1, "height_ratios": [3,1]}}
+    fig, ax = plt.subplots(**plot_inputs)
+    yield ax
+    setup_ticks(*ax)
+    axisSetup(ax[0], ax[1], xlabel=xlabel, binning=binning)
+    ax[0].legend()
+    fig.tight_layout()
+    if hasattr(plot, "workdir"):
+        filename = f"{plot.workdir}/{filename}"
+    fig.savefig(filename, bbox_inches="tight")
+    plt.close(fig)
+
+
+
+@contextmanager
 def plot(filename, *args, **kwargs):
     fig, ax = plt.subplots(*args, **kwargs)
     yield ax
