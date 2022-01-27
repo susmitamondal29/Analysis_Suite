@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import importlib
 import numpy as np
+import re
 
 class BasicInfo:
     def __init__(self, selection="", **kwargs):
@@ -93,17 +94,18 @@ class FileInfo(BasicInfo):
         file_name = "UL" if isUL else "Legacy"
         file_path = f'{self.base_path}.FileInfo.{file_name}'
         self.fileInfo = importlib.import_module(file_path).info
-        self.dasNames = {info["DAS"][self.year]: key for key, info in self.fileInfo.items()}
+        self.dasNames = {key: info["DAS"] for key, info in self.fileInfo.items()}
 
     def get_group(self, splitname):
         if isinstance(splitname, str) and splitname in self.dasNames:
             return self.dasNames[splitname]
         elif self.is_data(splitname):
-            return "data"
+            return 'data'
 
-        for name in splitname:
-            if name in self.dasNames:
-                return self.dasNames[name]
+        sample_name = next(filter(lambda x: "13TeV" in x, splitname), None)
+        for name, reName in self.test.items():
+            if re.match(reName, sample_name) is not None:
+                return name
         return None
 
     def get_info(self, alias):
