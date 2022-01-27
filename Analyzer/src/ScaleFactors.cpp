@@ -45,21 +45,24 @@ float ScaleFactors::getLHESF()
 float ScaleFactors::getPrescale(std::unordered_map<std::string, std::string>& l1_map,
                                 std::vector<std::string> hlts, UInt_t run, UInt_t lumi)
 {
-    if (!isMC) {
-        int ps_factor = -1;
-        for (auto hlt : hlts) {
-            int l1factor = prescaler->l1Prescale(l1_map[hlt], run, lumi);
-            int hltfactor = prescaler->hltPrescale(hlt+"_v", run, lumi);
-            if (ps_factor < 0) {
-                ps_factor = hltfactor*l1factor;
-            } else if(hltfactor > 0) {
-                ps_factor = std::min(ps_factor, hltfactor*l1factor);
-            }
-        }
-        if (ps_factor > 0) {
-            return ps_factor;
+    // std::cout << run << " " << lumi <<  std::endl;
+    int ps_factor = -1;
+    for (auto hlt : hlts) {
+        int l1factor = prescaler->l1Prescale(l1_map[hlt], run, lumi);
+        int hltfactor = prescaler->hltPrescale(hlt+"_v", run, lumi);
+        // std::cout << hlt << " "<< l1_map[hlt] << " " << l1factor << " " << hltfactor << std::endl;
+        if (ps_factor < 0) {
+            ps_factor = hltfactor*l1factor;
+        } else if(hltfactor > 0) {
+            ps_factor = std::min(ps_factor, hltfactor*l1factor);
         }
     }
+    // std::cout << ps_factor <<  "-------" << std::endl;
+    if (ps_factor > 0) {
+        return ps_factor;
+    }
+
+
     return 1.;
 }
 

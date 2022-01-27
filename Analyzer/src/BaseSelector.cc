@@ -106,6 +106,12 @@ Bool_t BaseSelector::Process(Long64_t entry)
     for (auto syst : systematics_) {
         LOG_EVENT_IF(syst != Systematic::Nominal) << "Systematic is " << get_by_val(syst_by_name, syst);
 
+        // Remove non-golden lumi stuff
+        if (!isMC_ && !sfMaker.inGoldenLumi(*run, *lumiblock)) {
+            // std::cout << "bad run/lumi " << *run << " : " << *lumiblock << std::endl;
+            break;
+        }
+
         std::vector<eVar> vars = (syst != Systematic::Nominal) ? syst_vars : nominal_var;
         for (auto var : vars) {
             LOG_EVENT << "Variation is: " << varName_by_var.at(var);
@@ -124,7 +130,7 @@ Bool_t BaseSelector::Process(Long64_t entry)
             systNum++;
         }
     }
-    if (systPassSelection[0] && chanInSR(o_channels[0])) {
+    if (systPassSelection.size() > 0 && systPassSelection[0] && chanInSR(o_channels[0])) {
         passed_events++;
     }
 
