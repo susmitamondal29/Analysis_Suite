@@ -1,4 +1,5 @@
 #include "analysis_suite/Analyzer/interface/Lepton.h"
+#include "analysis_suite/Analyzer/interface/CommonFuncs.h"
 
 #include <limits>
 
@@ -26,7 +27,7 @@ std::pair<size_t, float> Lepton::getCloseJet(size_t lidx, const Particle& jet)
     float lphi = phi(lidx);
     float leta = eta(lidx);
     for (size_t jidx = 0; jidx < jet.size(); jidx++) {
-        float dr2 = pow(jet.eta(jidx) - leta, 2) + pow(jet.phi(jidx) - lphi, 2);
+        float dr2 = deltaR(jet.eta(jidx), leta, jet.phi(jidx), lphi);
         if (minDr > dr2) {
             minIdx = jidx;
             minDr = dr2;

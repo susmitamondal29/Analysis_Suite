@@ -1,4 +1,5 @@
 #include "analysis_suite/Analyzer/interface/ResolvedTop.h"
+#include "analysis_suite/Analyzer/interface/CommonFuncs.h"
 
 void ResolvedTop::setup(TTreeReader& fReader)
 {
@@ -29,8 +30,7 @@ float ResolvedTop::getScaleFactor(const Particle& genPart)
         bool foundMatch = false;
         float minDR = 0.1;
         for (auto gidx : genPart.list(Level::Top)) {
-            float dr2 = pow(genPart.eta(gidx) - eta(tidx), 2)
-                + pow(genPart.phi(gidx) - phi(tidx), 2);
+            float dr2 = deltaR(genPart.eta(gidx), eta(tidx), genPart.phi(gidx), phi(tidx));
             if (dr2 < minDR) {
                 foundMatch = true;
                 weight *= getWeight("topSF", pt(tidx));
