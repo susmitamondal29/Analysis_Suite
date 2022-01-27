@@ -44,10 +44,9 @@ void FakeRate::Init(TTree* tree)
     trig_cuts.add_l1seeds({"HLT_Mu17", "HLT_Mu17_TrkIsoVVL"}, "L1_SingleMu10_LowQ");
 
     setupTrigger(Subchannel::E, {"HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30",
-                                     "HLT_Ele17_CaloIdL_TrackIdL_IsoVL"});
-
-    // setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
-    //                               "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+                                 "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30"});
+    trig_cuts.add_l1seed("HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30", "L1_SingleEG10");
+    trig_cuts.add_l1seed("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30" , "L1_SingleEG15");
     setupTrigger(Subchannel::None);
 
     LOG_FUNC << "End of Init";
@@ -117,19 +116,19 @@ void FakeRate::setupChannel()
     LOG_FUNC << "Start of setupChannel";
     (*currentChannel_) = Channel::None;
     (subChannel_) = Subchannel::None;
-    // size_t nLep = muon.size(Level::Tight) + elec.size(Level::Tight);
+    size_t nLep = muon.size(Level::Tight) + elec.size(Level::Tight);
     size_t nFakeLep = muon.size(Level::Fake) + elec.size(Level::Fake);
 
     if (nFakeLep == 1) {
         subChannel_ = muon.size(Level::Fake) ? Subchannel::M : Subchannel::E;
         Lepton lepton = (subChannel_ == Subchannel::M) ? static_cast<Lepton>(muon) : static_cast<Lepton>(elec);
+        lead_lep = lepton.p4(lepton.idx(Level::Fake, 0));
         float mt = lepton.getMT(Level::Fake, 0, *Met_pt, *Met_phi);
         if (*Met_pt < 20 && mt < 20) {
             (*currentChannel_) = Channel::NP_FR;
-        } else if (*Met_pt > 30 && lepton.pt(0) > 20) {
+        } else if (nLep == 1 && *Met_pt > 30 && lead_lep.Pt() > 20) {
             (*currentChannel_) = Channel::NP_FullMt;
         }
-
     }
     LOG_FUNC << "End of setupChannel";
 }
@@ -151,22 +150,13 @@ bool FakeRate::getCutFlow(CutInfo& cuts)
     passCuts &= cuts.setCut("passFakeLep", nFakeLep == 1);
     bool haveFarJet = false;
     if (nFakeLep == 1) {
-        Lepton lepton = (subChannel_ == Subchannel::M) ? static_cast<Lepton>(muon) : static_cast<Lepton>(elec);
-        float lphi = lepton.phi(Level::Fake, 0);
-        float leta = lepton.eta(Level::Fake, 0);
-        // std::cout << leta << " " << lphi << " | " << jet.size() << " " << jet.size(Level::Loose) << " " << jet.size(Level::Tight) << std::endl;
-        // std::cout << "------------------------------" << std::endl;
-        for (auto jidx: jet.list(Level::Loose)) {
-            float jphi = jet.phi(jidx);
-            float jeta = jet.eta(jidx);
-            // std::cout << jeta << " " << jphi << std::endl;
-            float dr = pow((lphi-jphi), 2) + pow((leta-jeta), 2);
+        for (auto jidx: jet.list(Level::Tight)) {
+            float dr = deltaR(lead_lep.Eta(), jet.eta(jidx), lead_lep.Phi(), jet.phi(jidx));
             if (dr > 1) {
                 haveFarJet = true;
                 break;
             }
         }
-        // std::cout << "===========================" << std::endl;
     }
 
     passCuts &= cuts.setCut("passHasFarJet", haveFarJet);
@@ -177,9 +167,20 @@ bool FakeRate::getCutFlow(CutInfo& cuts)
 
 bool FakeRate::getTriggerCut(CutInfo& cuts) {
     bool passTriggerCuts = true;
-    // passTriggerCuts &= setCut(cuts, "passLeadPtCut", getLeadPt() > 25);
-    // passTriggerCuts &= setCut(cuts, "passSubLeadPtCut", getLeadPt(1) > 20);
     passTriggerCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
+    if ((*currentChannel_) != Channel::None && lead_lep.Pt() > 10 && lead_lep.Pt() < 25) {
+        if (subChannel_ == Subchannel::M) {
+            passTriggerCuts &= cuts.setCut("passTriggerPt", trig_cuts.pass_ind_cut(Subchannel::M,"HLT_Mu8_TrkIsoVVL"));
+        } else if (subChannel_ == Subchannel::E) {
+            passTriggerCuts &= cuts.setCut("passTriggerPt", trig_cuts.pass_ind_cut(Subchannel::E, "HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30"));
+        }
+    } else if ((*currentChannel_) != Channel::None && lead_lep.Pt() > 25) {
+        if (subChannel_ == Subchannel::M) {
+            passTriggerCuts &= cuts.setCut("passTriggerPt", trig_cuts.pass_ind_cut(Subchannel::M,"HLT_Mu17_TrkIsoVVL"));
+        } else if (subChannel_ == Subchannel::E) {
+            passTriggerCuts &= cuts.setCut("passTriggerPt", trig_cuts.pass_ind_cut(Subchannel::E, "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30"));
+        }
+    }
     return passTriggerCuts;
 }
 
@@ -204,8 +205,6 @@ void FakeRate::FillValues(const std::vector<bool>& passVec)
         o_htb.push_back(jet.getHT(Level::Bottom, syst));
         o_met.push_back(*Met_pt);
         o_metphi.push_back(*Met_phi);
-        Lepton lepton = (subChannel_ == Subchannel::M) ? static_cast<Lepton>(muon) : static_cast<Lepton>(elec);
-        o_mt.push_back(lepton.getMT(Level::Fake, 0, *Met_pt, *Met_phi));
     }
     LOG_FUNC << "End of FillValues";
 }

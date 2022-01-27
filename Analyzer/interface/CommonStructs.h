@@ -35,6 +35,15 @@ struct TriggerInfo {
         return false;
     }
 
+    bool pass_ind_cut(Subchannel chan, std::string trig_name) {
+        for (size_t i=0; i < trigger_names[chan].size(); ++i) {
+            if (trigger_names[chan][i] == trig_name) {
+                return *trigs[chan][i];
+            }
+        }
+        return false;
+    }
+
     void add_l1seed(std::string trigname, std::string l1seed) {
         l1_by_trig[trigname] = l1seed;
     }

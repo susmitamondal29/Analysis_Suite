@@ -45,8 +45,9 @@ private:
     TRVariable<Float_t> Met_phi;
     TRVariable<Float_t> Pileup_nTrueInt;
 
-    std::vector<Float_t> o_ht, o_htb, o_met, o_metphi, o_mt;
+    std::vector<Float_t> o_ht, o_htb, o_met, o_metphi;
 
+    LorentzVector lead_lep;
 };
 
 
