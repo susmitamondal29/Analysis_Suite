@@ -119,10 +119,29 @@ info ={
             "qcd_mu_pt1000-Inf",
         ]
     },
+    "qcd_em" : {
+        "Name": r"QCD",
+        "Members": [
+            "qcd_em_pt15-20",
+            "qcd_em_pt20-30",
+            "qcd_em_pt30-50",
+            "qcd_em_pt50-80",
+            "qcd_em_pt80-120",
+            "qcd_em_pt120-170",
+            "qcd_em_pt170-300",
+            "qcd_em_pt300-Inf",
+            "qcd_bcToE_pt15-20",
+            "qcd_bcToE_pt20-30",
+            "qcd_bcToE_pt30-80",
+            "qcd_bcToE_pt80-170",
+            "qcd_bcToE_pt170-250",
+            "qcd_bcToE_pt250-Inf",
+        ]
+    },
     "ewk" : {
         "Name": r"EWK",
         "Members": [
-            "ttbar",
+            "ttjet",
             "DYm50",
             "DYm10-50",
             "wjets",

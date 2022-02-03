@@ -212,7 +212,7 @@ info = {
         "cross_section" : 1,
         "DAS": "dummy",
     },
-
+    #
     "qcd_mu_pt15-20" : {
         "cross_section" : 3678000,
         "Source of cross section" : "XSDB",
@@ -272,5 +272,77 @@ info = {
         "cross_section" : 1.62,
         "Source of cross section" : "XSDB",
         "DAS": 'QCD_Pt-1000toInf_MuEnrichedPt5_Tune.*',
+    },
+    # electron enriched
+    "qcd_em_pt15-20" : {
+        "cross_section" : 1327000,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-15to20_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt20-30" : {
+        "cross_section" : 4897000,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-20to30_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt30-50" : {
+        "cross_section" : 6379000,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-30to50_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt50-80" : {
+        "cross_section" : 1984000,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-50to80_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt80-120" : {
+        "cross_section" : 366500,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-80to120_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt120-170" : {
+        "cross_section" : 66490,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-120to170_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt170-300" : {
+        "cross_section" : 16480,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-170to300_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt300-Inf" : {
+        "cross_section" : 1097,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-300toInf_EMEnriched_Tune.*",
+    },
+    # QCD bc
+    "qcd_bcToE_pt15-20" : {
+        "cross_section" : 186200,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt_15to20_bcToE_Tune.*",
+    },
+    "qcd_bcToE_pt20-30" : {
+        "cross_section" : 303800,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt_20to30_bcToE_Tune.*",
+    },
+    "qcd_bcToE_pt30-80" : {
+        "cross_section" : 362300,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt_30to80_bcToE_Tune.*",
+    },
+    "qcd_bcToE_pt80-170" : {
+        "cross_section" : 33700,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt_80to170_bcToE_Tune.*",
+    },
+    "qcd_bcToE_pt170-250" : {
+        "cross_section" : 2125,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt_170to250_bcToE_Tune.*",
+    },
+    "qcd_bcToE_pt250-Inf" : {
+        "cross_section" : 562.5,
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt_250toInf_bcToE_Tune.*",
     },
 }

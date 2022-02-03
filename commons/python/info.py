@@ -103,7 +103,7 @@ class FileInfo(BasicInfo):
             return 'data'
 
         sample_name = next(filter(lambda x: "13TeV" in x, splitname), None)
-        for name, reName in self.test.items():
+        for name, reName in self.dasNames.items():
             if re.match(reName, sample_name) is not None:
                 return name
         return None
