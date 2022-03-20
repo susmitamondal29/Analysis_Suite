@@ -17,11 +17,13 @@ void Electron::setup(TTreeReader& fReader, bool isMC)
     hcalSumEt.setup(fReader, "Electron_dr03HcalDepth1TowerSumEt");
     tkSumPt.setup(fReader, "Electron_dr03TkSumPt");
 
+    // 2017/2018 values
     ptRatioCut = 0.78;
     ptRelCut = pow(8.0, 2);
-    isoCut = 0.12;
+    isoCut = 0.07;
 
     if (year_ == Year::yr2016) {
+        isoCut = 0.12;
         ptRatioCut = 0.8;
         ptRelCut = pow(7.2, 2);
         mva.setup(fReader, "Electron_mvaSpring16GP");
@@ -85,7 +87,7 @@ void Electron::createFakeList(Particle& jets)
             && tightCharge.at(i) == 2) {
             auto closejet_info = getCloseJet(i, jets);
             fakePtFactor[i] = fillFakePt(i, jets);
-            if (getModPt(i) > 10) {
+            if (getModPt(i) > 15) {
                 m_partList[Level::Fake]->push_back(i);
                 dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(closejet_info);
             }

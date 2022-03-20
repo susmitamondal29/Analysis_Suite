@@ -7,8 +7,6 @@
 #include "analysis_suite/Analyzer/interface/Variable.h"
 
 #include <TTreeReader.h>
-#include <TTreeReaderArray.h>
-#include <TTreeReaderValue.h>
 
 #include <vector>
 
@@ -37,7 +35,9 @@ public:
     Float_t mass(Level level, size_t i) const { return mass(idx(level, i)); }
 
     LorentzVector p4(size_t idx) const {return LorentzVector(pt(idx), eta(idx), phi(idx), mass(idx));}
+    LorentzVector p4(Level level, size_t i) const { return p4(idx(level, i)); }
     Vector3D p3(size_t idx) const { return Vector3D(pt(idx), eta(idx), phi(idx)); }
+    Vector3D p3(Level level, size_t i) const { return p3(idx(level, i)); }
 
     const std::vector<size_t>& list(Level level) const { return *m_partList.at(level); };
     virtual void clear();
@@ -75,13 +75,13 @@ public:
 
     void moveLevel(Level level_start, Level level_end);
 
+    virtual void setup_map(Level level) override;
     virtual void clear() override;
+    void xorLevel(Level big, Level small, Level target);
 
 protected:
     std::unordered_map<Level, PartList> m_partArray;
     std::unordered_map<Level, std::vector<size_t>> m_bitArray;
-
-    virtual void setup_map(Level level) override;
 };
 
 template <class... Args>

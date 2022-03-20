@@ -27,7 +27,7 @@ public:
         if (val) {
             return **val;
         } else if (std::is_same<T, bool>::value) {
-            return true;
+            return false;
         } else {
             return 0.;
         }
@@ -59,7 +59,7 @@ public:
         if (array) {
             return array->At(idx);
         } else if (std::is_same<T, bool>::value) {
-            return true;
+            return false;
         } else {
             return 0.;
         }

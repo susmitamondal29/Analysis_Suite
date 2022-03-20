@@ -51,3 +51,15 @@ void Particle::moveLevel(Level level_start, Level level_end)
     m_partList[level_end] = m_partList[level_start];
     m_bitArray[level_end] = m_bitArray[level_start];
 }
+
+void Particle::xorLevel(Level big, Level small, Level target)
+{
+    auto small_list = list(small);
+    for (auto idx: list(big)) {
+        if (std::find(small_list.begin(), small_list.end(), idx) != small_list.end()) {
+            continue;
+        }
+        m_partList[target]->push_back(idx);
+        m_bitArray[target][idx] = m_bitArray[big][idx];
+    }
+}

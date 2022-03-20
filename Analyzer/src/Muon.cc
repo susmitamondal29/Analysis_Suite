@@ -12,11 +12,13 @@ void Muon::setup(TTreeReader& fReader, bool isMC)
     mediumId.setup(fReader, "Muon_mediumId");
     sip3d.setup(fReader, "Muon_sip3d");
 
-    isoCut = 0.16;
+
     if (year_ == Year::yr2016) {
+        isoCut = 0.16;
         ptRatioCut = 0.76;
         ptRelCut = pow(7.2, 2);
     } else {
+        isoCut = 0.11;
         ptRatioCut = 0.74;
         ptRelCut = pow(6.8, 2);
     }
@@ -45,7 +47,7 @@ void Muon::createFakeList(Particle& jets)
             && mediumId.at(i) && sip3d.at(i) < 4) {
             auto closejet_info = getCloseJet(i, jets);
             fakePtFactor[i] = fillFakePt(i, jets);
-            if (getModPt(i) > 10) {
+            if (getModPt(i) > 15) {
                 m_partList[Level::Fake]->push_back(i);
                 dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(closejet_info);
             }

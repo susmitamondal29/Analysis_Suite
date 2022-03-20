@@ -55,6 +55,22 @@ bool Lepton::passZVeto()
     return true;
 }
 
+bool Lepton::passZCut(float low, float high)
+{
+    for (auto tidx : list(Level::Fake)) { //tightList
+        LorentzVector tlep = p4(tidx);
+        for (auto lidx : list(Level::Fake)) {
+            if (tidx >= lidx || charge(tidx) * charge(lidx) > 0)
+                continue;
+            float mass = (p4(lidx) + tlep).M();
+            if (mass > low && mass < high)
+                return true;
+        }
+    }
+    return false;
+}
+
+
 bool Lepton::passJetIsolation(size_t idx, const Particle& jets)
 {
     if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
@@ -73,9 +89,8 @@ float Lepton::fillFakePt(size_t idx, const Particle& jets) const
     if (passRelCut(idx, jetV)) {
         if (iso.at(idx) > isoCut)
             return (1 + iso.at(idx)-isoCut);
-    } else {
-        if (!passRatioCut(pt(idx)))
-            return jetV.rho()*ptRatioCut/pt(idx);
+    } else if (!passRatioCut(pt(idx)/jetV.rho())) {
+        return jetV.rho()*ptRatioCut/pt(idx);
     }
     return 1.;
 }
