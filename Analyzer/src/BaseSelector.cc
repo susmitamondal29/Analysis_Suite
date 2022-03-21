@@ -68,6 +68,13 @@ void BaseSelector::Init(TTree* tree)
     lumiblock.setup(fReader, "luminosityBlock");
     event.setup(fReader, "event");
 
+    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_goodVertices"));
+    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_globalSuperTightHalo2016Filter"));
+    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_HBHENoiseFilter"));
+    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_HBHENoiseIsoFilter"));
+    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_EcalDeadCellTriggerPrimitiveFilter"));
+    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_BadPFMuonFilter"));
+    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_ecalBadCalibFilter"));
 
     o_weight.resize(numSystematics());
     o_channels.resize(numSystematics());
@@ -89,7 +96,8 @@ void BaseSelector::Init(TTree* tree)
 
 Bool_t BaseSelector::Process(Long64_t entry)
 {
-    if (loguru::g_stderr_verbosity > 5 && entry > 10) return false;
+    if (loguru::g_stderr_verbosity > 5 && entry > 1000) return false;
+    else if (loguru::g_stderr_verbosity > 2 && entry > 100000) return false;
     LOG_FUNC << "Start of Process";
     current_event++;
     if ((current_event % 10000 == 0 || current_event == total_events)
@@ -97,9 +105,9 @@ Bool_t BaseSelector::Process(Long64_t entry)
         LOG_S(INFO) << "At entry " <<  current_event;
         print_bar();
     }
-
     clearParticles();
     fReader.SetLocalEntry(entry);
+
     std::vector<bool> systPassSelection;
     bool passAny = false;
     size_t systNum = 0;
@@ -116,29 +124,20 @@ Bool_t BaseSelector::Process(Long64_t entry)
         for (auto var : vars) {
             LOG_EVENT << "Variation is: " << varName_by_var.at(var);
             SetupEvent(syst, var, systNum);
-            CutInfo cuts;
-            bool passCuts = getCutFlow(cuts);
-            bool passTrigger = getTriggerCut(cuts);
-            systPassSelection.push_back(passCuts && passTrigger);
-            if (syst == Systematic::Nominal) {
-                for (auto tree: trees) {
-                    tree.fillCutFlow(cuts, *currentChannel_, *weight);
-                }
-                // fillTriggerEff(passCuts, cuts.back().second);
-            }
-            passAny |= passCuts && passTrigger;
+            systPassSelection.push_back(getCutFlow());
+            passAny |= systPassSelection.back();
             systNum++;
         }
     }
-    if (systPassSelection.size() > 0 && systPassSelection[0] && chanInSR(o_channels[0])) {
+    if (systPassSelection.size() > 0 && systPassSelection[0]) {
         passed_events++;
     }
 
     if (passAny) {
-        for (auto tree : trees) {
+        for (auto& [chan, tree] : trees) {
             bool passedChannel = false;
             for (size_t syst = 0; syst < numSystematics(); ++syst) {
-                o_pass_event[syst] = systPassSelection[syst] && tree.contains(o_channels[syst]);
+                o_pass_event[syst] = systPassSelection[syst] && chan == o_channels[syst];
                 passedChannel |= o_pass_event[syst];
             }
 
@@ -178,13 +177,14 @@ void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
     jet.setGoodParticles(systNum);
     setOtherGoodParticles(systNum);
     setupChannel();
+
     if (isMC_) {
         ApplyScaleFactors();
-    } else {
-        (*weight) = sfMaker.getPrescale(trig_cuts.l1_by_trig,
-                                        trig_cuts.get_pass_list(subChannel_),
-                                        *run, *lumiblock);
-    }
+    } // else {
+    //     (*weight) = sfMaker.getPrescale(trig_cuts.l1_by_trig,
+    //                                     trig_cuts.get_pass_list(subChannel_),
+    //                                     *run, *lumiblock);
+    // }
     LOG_FUNC << "End of SetupEvent";
 }
 
