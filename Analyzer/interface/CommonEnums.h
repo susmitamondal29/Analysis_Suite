@@ -32,6 +32,7 @@ enum class Level {
     Loose,
     Fake,
     Tight,
+    FakeNotTight,
     Top,
     Bottom,
     Jet,

@@ -15,6 +15,7 @@ struct TriggerInfo {
     std::unordered_map<Subchannel, std::vector<std::string>> trigger_names;
     std::unordered_map<Subchannel, std::vector<TRVariable<Bool_t>>> trigs;
     std::unordered_map<std::string, std::string> l1_by_trig;
+    std::vector<Int_t> trig_output;
 
     void setup_channel(Subchannel chan, TTreeReader& fReader, std::vector<std::string> trigger_names_ = {}) {
         trigger_names[chan] = trigger_names_;
@@ -33,35 +34,6 @@ struct TriggerInfo {
             if (*trig) return true;
         }
         return false;
-    }
-
-    bool pass_ind_cut(Subchannel chan, std::string trig_name) {
-        for (size_t i=0; i < trigger_names[chan].size(); ++i) {
-            if (trigger_names[chan][i] == trig_name) {
-                return *trigs[chan][i];
-            }
-        }
-        return false;
-    }
-
-    void add_l1seed(std::string trigname, std::string l1seed) {
-        l1_by_trig[trigname] = l1seed;
-    }
-
-    void add_l1seeds(std::vector<std::string> trignames, std::string l1seed) {
-        for (auto trigname: trignames) {
-            l1_by_trig[trigname] = l1seed;
-        }
-    }
-
-    std::vector<std::string> get_pass_list(Subchannel chan) {
-        std::vector<std::string> trig_list;
-        for (size_t i=0; i < trigger_names[chan].size(); ++i) {
-            if (*trigs[chan].at(i)) {
-                trig_list.push_back(trigger_names[chan].at(i));
-            }
-        }
-        return trig_list;
     }
 };
 
@@ -82,6 +54,8 @@ struct CutInfo {
 
     size_t size() { return cuts.size(); }
 
+    void clear() { cuts.clear(); }
+
     std::string name(size_t i) { return cuts.at(i).first; }
 
 };
@@ -90,14 +64,29 @@ struct CutInfo {
 
 struct TreeInfo {
     TTree* tree;
-    std::set<Channel> goodChannels;
     TH1F *cutflow, *cutflow_ind;
     bool initialize_axis = false;
 
-    TreeInfo(std::string name, std::set<Channel> goodChannels_, TDirectory* outdir, TSelectorList* fOutput);
+    TreeInfo(std::string name,  TDirectory* outdir, TSelectorList* fOutput);
 
-    void fillCutFlow(CutInfo& cuts, Channel chan, float weight);
-    bool contains(Channel chan) { return goodChannels.count(chan); }
+    void fillCutFlow(CutInfo& cuts, float weight);
+};
+
+struct TrigEff {
+    TH2F* passEvents;
+    TH2F* allEvents;
+
+    void setup(TSelectorList* fOutput, std::string name, int nChans, int bins, float low, float high) {
+        passEvents = new TH2F((name+"_pass").c_str(), (name+"_pass").c_str(), nChans, 0, nChans, bins, low, high);
+        fOutput->Add(passEvents);
+        allEvents = new TH2F((name+"_all").c_str(), (name+"_all").c_str(), nChans, 0, nChans, bins, low, high);
+        fOutput->Add(allEvents);
+    }
+
+    void fill(float val, bool passTrig, Subchannel chan, float weight) {
+        allEvents->Fill(static_cast<int>(chan), val, weight);
+        if (passTrig) passEvents->Fill(static_cast<int>(chan), val, weight);
+    }
 };
 
 
