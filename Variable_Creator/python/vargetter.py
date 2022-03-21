@@ -3,10 +3,13 @@ import math
 import awkward1 as ak
 import uproot4 as uproot
 import numpy as np
+import itertools
 from analysis_suite.commons.configs import get_metadata
 from analysis_suite.commons.info import FileInfo
 from dataclasses import dataclass
 from typing import Callable
+
+
 
 @dataclass
 class Variable:
@@ -25,6 +28,22 @@ class Variable:
 
 class VarGetter:
     branch_names = None
+
+    @staticmethod
+    def add_part_branches(particles, variables):
+        if VarGetter.branch_names is None:
+            VarGetter.branch_names = list()
+        if isinstance(particles, list):
+            VarGetter.branch_names += ["/".join(el) for el in itertools.product(particles, variables)]
+        else:
+            VarGetter.branch_names += [f"{particles}/{var}" for var in variables]
+
+    @staticmethod
+    def add_var_branches(variables):
+        if VarGetter.branch_names is None:
+           VarGetter.branch_names = list()
+        VarGetter.branch_names += variables
+
     def __init__(self, f, tree, group, syst=0):
         self.syst = syst
         self.syst_bit = 2**self.syst
@@ -44,9 +63,12 @@ class VarGetter:
             analyzed = f[group][tree]
             passMask = analyzed["PassEvent"].array()[:, self.syst]
             self.arr = analyzed.arrays(branches)[passMask]
-            self.scale = self.arr["weight"][:,self.syst]*self.xsec/self.sumw
             if group == "data":
+                self.scale = np.ones(len(self.arr))
                 self.remove_dup()
+            else:
+                self.scale = self.arr["weight"][:,self.syst]
+                self.scale = self.xsec/self.sumw*self.scale
         else:
             self.arr = ak.Array([])
             self.scale = ak.Array([])
@@ -60,6 +82,9 @@ class VarGetter:
 
     def __len__(self):
         return len(self.scale)
+
+    def exists(self, branch):
+        return branch in self.arr.fields
 
     def remove_dup(self):
         _, unique_idx = np.unique(ak.to_numpy(self.arr.event), return_index=True)
@@ -78,6 +103,10 @@ class VarGetter:
 
     def get_part_mask(self, part):
         return np.bitwise_and(self.arr["{}/syst_bitMap".format(part)], self.syst_bit) != 0
+
+    def mask(self, mask):
+        self.arr = self.arr[mask]
+        self.scale = self.scale[mask]
 
     def num(self, part):
         return ak.to_numpy(ak.count(self.get_part_mask(part), axis=1))
@@ -98,6 +127,12 @@ class VarGetter:
     def phi(self, part, n, fill=-1):
         return self.nth(part, "phi", n, fill)
 
+    def dphi(self, part1, idx1, part2, idx2):
+        dphi = self.phi(part1, idx1) - self.phi(part2, idx2)
+        dphi[dphi > np.pi] = dphi[dphi > np.pi] - np.pi
+        dphi[dphi < np.pi] = dphi[dphi < np.pi] + np.pi
+        return dphi
+
     def pmass(self, part, n, fill=-1):
         return self.nth(part, "mass", n, fill)
 
@@ -106,17 +141,27 @@ class VarGetter:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             angle_part = (1-np.cos(self.phi(part, n)-self.var("Met_phi")))
+            # print(np.histogram(np.cos(self.phi(part, n)-self.var("Met_phi"))))
+            # print(angle_part)
+            # print(self.pt(part, n))
+            # print(self.var("Met"))
             total = np.sqrt(2*self.pt(part, n)*self.var("Met")*angle_part)
+            # exit()
         return np.nan_to_num(total, nan=-1)
 
+    def pvar(self, part, name, flat=True):
+        if flat:
+            return ak.flatten(self.arr[f'{part}/{name}'][self.get_part_mask(part)])
+        else:
+            return self.arr[f'{part}/{name}'][self.get_part_mask(part)]
 
     def nth(self, part, name, n=0, fill=-1):
         var = self.arr[f'{part}/{name}'][self.get_part_mask(part)]
         return ak.to_numpy(ak.fill_none(ak.pad_none(var, n+1, axis=1, clip=True)[:,n], fill))
 
     def dr(self, part1, idx1, part2, idx2):
-        eta2 = self.eta(part1, idx1)**2 + self.eta(part2, idx2)**2
-        phi2 = self.phi(part1, idx1)**2 + self.phi(part2, idx2)**2
+        eta2 = (self.eta(part1, idx1) - self.eta(part2, idx2))**2
+        phi2 = self.dphi(part1, idx1,part2, idx2)**2
         return np.sqrt(eta2+phi2)
 
     def mass(self, part1, idx1, part2, idx2):
@@ -146,6 +191,12 @@ class VarGetter:
 
     def var(self, name):
         return ak.to_numpy(self.arr[name][:,self.syst])
+
+    def var_s(self, name):
+        return ak.to_numpy(self.arr[name])
+
+    def trig(self, idx):
+        return ak.to_numpy(self.arr["HLT_trigs"][:, idx])
 
     ##### Need to fix
 
