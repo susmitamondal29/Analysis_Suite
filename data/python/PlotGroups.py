@@ -102,6 +102,11 @@ info ={
         ]
     },
 
+    "qcd" : {
+        "Name": r"QCD",
+        "Members": [],
+    },
+
     "qcd_mu" : {
         "Name": r"QCD",
         "Members": [
@@ -141,10 +146,28 @@ info ={
     "ewk" : {
         "Name": r"EWK",
         "Members": [
-            "ttjet",
+            # "ttjet",
+            'ttbar',
             "DYm50",
             "DYm10-50",
             "wjets",
+        ]
+    },
+    "ewk_mis" : {
+        "Name": r"EWK",
+        "Members": [
+            "DYm50_ht40-70",
+            "DYm50_ht70-100",
+            "DYm50_ht100-200",
+            "DYm50_ht200-400",
+            "DYm50_ht400-600",
+            "DYm50_ht600-800",
+            "DYm50_ht800-1200",
+            "DYm50_ht1200-2500",
+            "DYm50_ht2500-Inf",
+            # "ttjets_dilep",
+            "ttjet",
+            "DYm50",
         ]
     },
     "data" : {

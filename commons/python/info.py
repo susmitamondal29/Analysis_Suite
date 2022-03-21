@@ -121,4 +121,9 @@ class FileInfo(BasicInfo):
         return scale
 
     def is_data(self, group):
-        return group == "data" or "data" in map(str.lower, group)
+        if group == 'data':
+            return True
+        for split in map(str.lower, group):
+            if "data" in split:
+                return True
+        return False

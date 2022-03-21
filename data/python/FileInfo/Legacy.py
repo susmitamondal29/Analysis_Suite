@@ -213,6 +213,52 @@ info = {
         "DAS": "dummy",
     },
     #
+    "ttjets_dilep": {
+        "cross_section" : 54.17,
+        "DAS" : "TTJets_DiLept_Tune.*",
+    },
+    "DYm50_ht40-70" : {
+        "cross_section": 311.4,
+        "DAS" : "DYJetsToLL_M-50_HT-40to70_Tune.*",
+    },
+    "DYm50_ht70-100" : {
+        "cross_section": 146.7,
+        "DAS" : "DYJetsToLL_M-50_HT-70to100_Tune.*",
+    },
+    "DYm50_ht100-200" : {
+        "cross_section": 161.1,
+        "DAS" : "DYJetsToLL_M-50_HT-100to200_Tune.*",
+    },
+    "DYm50_ht200-400" : {
+        "cross_section": 48.66,
+        "DAS" : "DYJetsToLL_M-50_HT-200to400_Tune.*",
+    },
+    "DYm50_ht400-600" : {
+        "cross_section": 6.968,
+        "DAS" : "DYJetsToLL_M-50_HT-400to600_Tune.*",
+    },
+    "DYm50_ht600-800" : {
+        "cross_section": 1.743,
+        "DAS" : "DYJetsToLL_M-50_HT-600to800_Tune.*",
+    },
+    "DYm50_ht800-1200" : {
+        "cross_section": 0.8052,
+        "DAS" : "DYJetsToLL_M-50_HT-800to1200_Tune.*",
+    },
+    "DYm50_ht1200-2500" : {
+        "cross_section": 0.1933,
+        "DAS" : "DYJetsToLL_M-50_HT-1200to2500_Tune.*",
+    },
+    "DYm50_ht2500-Inf" : {
+        "cross_section": 0.003468,
+        "DAS" : "DYJetsToLL_M-50_HT-2500toInf_Tune.*",
+    },
+
+    "qcd_mu15_pt20-Inf" : {
+        "cross_section" : 239400,
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-20toInf_MuEnrichedPt15_Tune.*',
+    },
     "qcd_mu_pt15-20" : {
         "cross_section" : 3678000,
         "Source of cross section" : "XSDB",
