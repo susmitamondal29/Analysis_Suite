@@ -3,16 +3,22 @@ import argparse
 import shutil
 from pathlib import Path
 import subprocess
+from xml.dom.minidom import parse
 
 analysis = "ThreeTop"
 user = Path().home().owner()
-runfile_dir = Path(__file__).parent / ".." / "runfiles"
+base_dir = (Path(__file__).parent / "..").resolve()
+runfile_dir = base_dir / "runfiles"
 if not runfile_dir.exists():
     runfile_dir.mkdir()
 
 runfile_options = set()
 for f in runfile_dir.glob("*.dat"):
     runfile_options.add(f.stem[:-5])
+
+xml_filename = str((base_dir/'Analyzer/src/classes_def.xml').resolve())
+xml_classes = parse(xml_filename)
+analysis_choices = [c.getAttribute("name") for c in xml_classes.getElementsByTagName('class')]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", "--filename", required=True,
@@ -22,8 +28,11 @@ parser.add_argument("-y", "--years", required=True,
                     type=lambda x : ["2016", "2017", "2018"] if x == "all" \
                                else [i.strip() for i in x.split(',')],
                     help="Year to use")
+parser.add_argument('-a', '--analysis', required=True, choices=analysis_choices)
 args = parser.parse_args()
 
+with open(base_dir/'data'/'.analyze_info', 'w') as f:
+    f.write(args.analysis)
 
 for year in args.years:
     runfile = runfile_dir / f'{args.filename}_{year}.dat'
