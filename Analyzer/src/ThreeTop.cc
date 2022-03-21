@@ -4,14 +4,11 @@
 #include"analysis_suite/Analyzer/interface/CommonFuncs.h"
 
 enum class Channel {
-    Hadronic,
-    Single,
-    LooseToTightFake,
-    OS,
-    SS,
-    Multi,
-    MultiAllSame,
-    CR_Z,
+    SS_Dilepton,
+    SS_Multi,
+    TightFake_Nonprompt,
+    OS_MisId,
+    TTZ_CR,
     None,
 };
 
@@ -30,30 +27,21 @@ void ThreeTop::Init(TTree* tree)
 {
     LOG_FUNC << "Start of Init";
     BaseSelector::Init(tree);
-    createTree("Analyzed", { Channel::SS, Channel::Multi });
-    createTree("CR_TTZ", {Channel::CR_Z});
 
+    createTree("Signal_Dilepton", Channel::SS_Dilepton);
+    createTree("Signal_Multi", Channel::SS_Multi);
+    // Charge Mis-id Fake Rate
     if (!isMC_) {
-        createTree("Nonprompt_FR", { Channel::LooseToTightFake });
-    }
-    if (chargeMis_list.find(groupName_) != chargeMis_list.end()) {
-        createTree("OS", { Channel::OS });
+        createTree("TightFake_Nonprompt", Channel::TightFake_Nonprompt);
+        createTree("OS_Charge_MisId", Channel::OS_MisId);
+    } else {
+        rGen.setup(fReader);
     }
 
-
-    passTrigger_leadPt = createObject<TH2F>(fOutput, "passTrigger", 4, 0, 4, 100, 0, 100);
-    failTrigger_leadPt = createObject<TH2F>(fOutput, "failTrigger", 4, 0, 4, 100, 0, 100);
+    trigEff_leadPt.setup(fOutput, "leadPt", 4, 100, 0, 100);
 
     rTop.setup(fReader);
-    rGen.setup(fReader);
 
-    Flag_goodVertices.setup(fReader, "Flag_goodVertices");
-    Flag_globalSuperTightHalo2016Filter.setup(fReader, "Flag_globalSuperTightHalo2016Filter");
-    Flag_HBHENoiseFilter.setup(fReader, "Flag_HBHENoiseFilter");
-    Flag_HBHENoiseIsoFilter.setup(fReader, "Flag_HBHENoiseIsoFilter");
-    Flag_EcalDeadCellTriggerPrimitiveFilter.setup(fReader, "Flag_EcalDeadCellTriggerPrimitiveFilter");
-    Flag_BadPFMuonFilter.setup(fReader, "Flag_BadPFMuonFilter");
-    Flag_ecalBadCalibFilter.setup(fReader, "Flag_ecalBadCalibFilter");
     Met_pt.setup(fReader, "MET_pt");
     Met_phi.setup(fReader, "MET_phi");
     if (isMC_) {
@@ -62,7 +50,7 @@ void ThreeTop::Init(TTree* tree)
 
     setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
                                   "HLT_DoubleMu8_Mass8_PFHT300"});
-    setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL",
+    setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
                                   "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
     setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
                                   "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
@@ -138,75 +126,37 @@ void ThreeTop::setOtherGoodParticles(size_t syst)
     LOG_FUNC << "End of setOtherGoodParticles";
 }
 
-void ThreeTop::setupChannel()
-{
-    LOG_FUNC << "Start of setupChannel";
-    (*currentChannel_) = Channel::None;
-    (subChannel_) = Subchannel::None;
-    size_t nLep = muon.size(Level::Tight) + elec.size(Level::Tight);
-    size_t nFakeLep = muon.size(Level::Fake) + elec.size(Level::Fake);
-
-    if (nLep == 0) {
-        (*currentChannel_) = Channel::Hadronic;
-    } else if (nLep == 1 && nFakeLep != 2) {
-        (*currentChannel_) = Channel::Single;
-    } else {
-        /// Channels we care about
-        if (nLep == 1 && nFakeLep == 2) {
-            muon.moveLevel(Level::Fake, Level::Tight);
-            elec.moveLevel(Level::Fake, Level::Tight);
-            if (isSameSign()) {
-                (*currentChannel_) = Channel::LooseToTightFake;
-            } else {
-                (*currentChannel_) = Channel::Single;
-                return; // don't want to set subchannel (not valid channel)
-            }
-        } else if (nLep == 2) {
-            (*currentChannel_) = (isSameSign()) ? Channel::SS : Channel::OS;
-        } else if (nLep == 3) {
-            (*currentChannel_) = (isSameSign()) ? Channel::Multi : Channel::MultiAllSame;
-        } else {
-            (*currentChannel_) = Channel::None;
-            return;
-        }
-
-        setSubChannel();
-    }
-    LOG_FUNC << "End of setupChannel";
-}
-
 void ThreeTop::setSubChannel()
 {
     LOG_FUNC << "Start of setSubChannel";
-    if (!elec.size(Level::Tight)) {
-        subChannel_ = Subchannel::MM;
-    } else if (!muon.size(Level::Tight)) {
-        subChannel_ = Subchannel::EE;
-    } else {
-        if (getMuon(pt, 0) > getElec(pt, 0)) {
-            if (muon.size(Level::Tight) > 1 && getMuon(pt, 1) > getElec(pt, 0)) {
-                subChannel_ = Subchannel::MM;
-            } else {
-                subChannel_ = Subchannel::ME;
-            }
-        } else {
-            if (elec.size(Level::Tight) > 1 && getElec(pt, 1) > getMuon(pt, 0)) {
-                subChannel_ = Subchannel::EE;
-            } else {
-                subChannel_ = Subchannel::EM;
-            }
-        }
+    subChannel_ = Subchannel::None;
+
+    if (nLeps(Level::Tight) == 1 && nLeps(Level::Fake) == 2) {
+        if (muon.size(Level::Fake) == 2) subChannel_ = Subchannel::MM;
+        else if (elec.size(Level::Fake) == 2) subChannel_ = Subchannel::EE;
+        else if (muon.pt(Level::Fake, 0) > elec.pt(Level::Fake, 0)) subChannel_ = Subchannel::ME;
+        else subChannel_ = Subchannel::EM;
+    } else if (nLeps(Level::Tight) == 2) {
+        if (muon.size(Level::Tight) == 2) subChannel_ = Subchannel::MM;
+        else if (elec.size(Level::Tight) == 2) subChannel_ = Subchannel::EE;
+        else if (muon.pt(Level::Tight, 0) > elec.pt(Level::Tight, 0)) subChannel_ = Subchannel::ME;
+        else subChannel_ = Subchannel::EM;
+    } else if (nLeps(Level::Tight) == 3) {
+        if (muPt(0) > elPt(0) && muPt(1) > elPt(0)) subChannel_ = Subchannel::MM;
+        else if (muPt(0) > elPt(0) && elPt(0) > muPt(1)) subChannel_ = Subchannel::ME;
+        else if (elPt(0) > muPt(0) && elPt(1) > muPt(0)) subChannel_ = Subchannel::EE;
+        else if (elPt(0) > muPt(0) && muPt(0) > elPt(1)) subChannel_ = Subchannel::EM;
     }
     LOG_FUNC << "End of setSubChannel";
 }
 
-bool ThreeTop::isSameSign()
+bool ThreeTop::isSameSign(Level level)
 {
     int q_total = 0;
-    for (size_t idx : muon.list(Level::Tight)) {
+    for (size_t idx : muon.list(level)) {
         q_total += muon.charge(idx);
     }
-    for (size_t idx : elec.list(Level::Tight)) {
+    for (size_t idx : elec.list(level)) {
         q_total += elec.charge(idx);
     }
     return abs(q_total) == 1 || abs(q_total) == 2;
@@ -214,42 +164,124 @@ bool ThreeTop::isSameSign()
 
 
 
-bool ThreeTop::getCutFlow(CutInfo& cuts)
+bool ThreeTop::getCutFlow()
 {
-     LOG_FUNC << "Start of passSelection";
-     bool passCuts = true;
-     passCuts &= cuts.setCut("passPreselection", true);
-     passCuts &= cuts.setCut("passMETFilter", (*Flag_goodVertices && *Flag_globalSuperTightHalo2016Filter && *Flag_HBHENoiseFilter && *Flag_HBHENoiseIsoFilter && *Flag_EcalDeadCellTriggerPrimitiveFilter && *Flag_BadPFMuonFilter && *Flag_ecalBadCalibFilter));
-     if (muon.passZVeto() && elec.passZVeto()) {
-         passCuts &= cuts.setCut("passZVeto", true);
-     } else if (chanInSR(*currentChannel_)) {
-         passCuts &= cuts.setCut("failZVeto", true);
-         (*currentChannel_) = Channel::CR_Z;
-     }
-     passCuts &= cuts.setCut("passJetNumber", jet.size(Level::Tight) >= 2);
-     passCuts &= cuts.setCut("passBJetNumber", jet.size(Level::Bottom) >= 1);
-     passCuts &= cuts.setCut("passMetCut", *Met_pt > 25);
-     passCuts &= cuts.setCut("passHTCut", jet.getHT(Level::Tight) > 300);
+    LOG_FUNC << "Start of passSelection";
+    (*currentChannel_) = Channel::None;
+    setSubChannel();
 
-     LOG_FUNC << "End of passSelection";
-     return passCuts;
-}
-
-bool ThreeTop::getTriggerCut(CutInfo& cuts) {
-    bool passTriggerCuts = true;
-    passTriggerCuts &= cuts.setCut("passLeadPtCut", getLeadPt() > 25);
-    passTriggerCuts &= cuts.setCut("passSubLeadPtCut", getLeadPt(1) > 20);
-    passTriggerCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
-
-    return passTriggerCuts;
-}
-
-void ThreeTop::fillTriggerEff(bool passCuts, bool passTrigger) {
-    if (passCuts && passTrigger) {
-        passTrigger_leadPt->Fill(static_cast<int>(subChannel_), getLeadPt(), *weight);
-    } else if (passCuts) {
-        failTrigger_leadPt->Fill(static_cast<int>(subChannel_), getLeadPt(), *weight);
+    if (signal_cuts()) {
+        (*currentChannel_) = (nLeps(Level::Tight) == 2) ? Channel::SS_Dilepton : Channel::SS_Multi;
     }
+
+    if (nonprompt_cuts()) (*currentChannel_) = Channel::TightFake_Nonprompt;
+
+    if (charge_misid_cuts()) (*currentChannel_) = Channel::OS_MisId;
+
+    if (ttz_CR_cuts()) (*currentChannel_) = Channel::TTZ_CR;
+
+    if (*currentChannel_ == Channel::None) {
+        return false;
+    }
+
+    LOG_FUNC << "End of passSelection";
+    return true;
+}
+
+bool ThreeTop::baseline_cuts(CutInfo& cuts)
+{
+    LOG_FUNC << "Start of baseline_cuts";
+    bool passCuts = true;
+
+    passCuts &= cuts.setCut("passPreselection", true);
+    passCuts &= cuts.setCut("passMETFilter", passMetFilters());
+
+    if (passCuts) trigEff_leadPt.fill(getLeadPt(), trig_cuts.pass_cut(subChannel_), subChannel_, *weight);
+    passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
+    passCuts &= cuts.setCut("passLeadPt", getLeadPt() > 25);
+
+    passCuts &= cuts.setCut("passJetNumber", jet.size(Level::Tight) >= 2);
+    passCuts &= cuts.setCut("passBJetNumber", jet.size(Level::Bottom) >= 1);
+    passCuts &= cuts.setCut("passMetCut", *Met_pt > 25);
+    passCuts &= cuts.setCut("passHTCut", jet.getHT(Level::Tight) > 300);
+
+    LOG_FUNC << "End of baseline_cuts";
+    return passCuts;
+}
+
+bool ThreeTop::signal_cuts()
+{
+    LOG_FUNC << "Start of signal_cuts";
+    bool passCuts = true;
+    CutInfo cuts;
+
+    passCuts = baseline_cuts(cuts);
+    passCuts &= cuts.setCut("passZVeto", muon.passZVeto() && elec.passZVeto());
+    passCuts &= cuts.setCut("pass2Or3Leptons", nLeps(Level::Tight) == 2 || nLeps(Level::Tight) == 3);
+    passCuts &= cuts.setCut("passSameSign;", isSameSign(Level::Tight));
+
+    // Fill Cut flow
+    cuts.setCut("pass2TightLeps", nLeps(Level::Tight) == 2);
+    fillCutFlow(Channel::SS_Dilepton, cuts);
+    cuts.cuts.pop_back();
+    cuts.setCut("pass3TightLeps", nLeps(Level::Tight) == 3);
+    fillCutFlow(Channel::SS_Multi, cuts);
+
+    LOG_FUNC << "End of signal_cuts";
+    return passCuts;
+}
+
+bool ThreeTop::ttz_CR_cuts()
+{
+    LOG_FUNC << "Start of ttz_CR_cuts";
+    bool passCuts = true;
+    CutInfo cuts;
+
+    passCuts = baseline_cuts(cuts);
+    passCuts &= cuts.setCut("failZVeto", !muon.passZVeto() || !elec.passZVeto());
+    passCuts &= cuts.setCut("pass2Leptons", nLeps(Level::Tight) == 3);
+    passCuts &= cuts.setCut("passSameSign;", isSameSign(Level::Tight));
+
+    // Fill Cut flow
+    fillCutFlow(Channel::TTZ_CR, cuts);
+
+    LOG_FUNC << "End of ttz_CR_cuts";
+    return passCuts;
+}
+
+bool ThreeTop::nonprompt_cuts()
+{
+    LOG_FUNC << "Start of nonprompt_cuts";
+    bool passCuts = true;
+    CutInfo cuts;
+
+    passCuts = baseline_cuts(cuts);
+    passCuts &= cuts.setCut("pass1TightLeptons", nLeps(Level::Tight) == 1);
+    passCuts &= cuts.setCut("pass2FakeLeptons", nLeps(Level::Fake) == 2);
+    passCuts &= cuts.setCut("passSameSign;", isSameSign(Level::Fake));
+
+    // Fill Cut flow
+    fillCutFlow(Channel::TightFake_Nonprompt, cuts);
+
+    LOG_FUNC << "End of nonprompt_cuts";
+    return passCuts;
+}
+
+bool ThreeTop::charge_misid_cuts()
+{
+    LOG_FUNC << "Start of charge_misid_cuts";
+    bool passCuts = true;
+    CutInfo cuts;
+
+    passCuts &= cuts.setCut("passZVeto", muon.passZVeto() && elec.passZVeto());
+    passCuts &= cuts.setCut("pass2Leptons", nLeps(Level::Tight) == 2);
+    passCuts &= cuts.setCut("passOppositeSign;", !isSameSign(Level::Tight));
+
+    // Fill Cut flow
+    fillCutFlow(Channel::OS_MisId, cuts);
+
+    LOG_FUNC << "End of charge_misid_cuts";
+    return passCuts;
 }
 
 void ThreeTop::FillValues(const std::vector<bool>& passVec)
@@ -285,16 +317,16 @@ float ThreeTop::getLeadPt(size_t idx)
     if (subChannel_ == Subchannel::None) {
         return 0.;
     } else if (idx == 0) {
-        return (static_cast<int>(subChannel_) % 2 == 0) ? getMuon(pt, 0) : getElec(pt, 0);
+        return (static_cast<int>(subChannel_) % 2 == 0) ? muPt(0) : elPt(0);
     } else if (idx == 1) {
         if (subChannel_ == Subchannel::MM)
-            return getMuon(pt, 1);
+            return muPt(0);
         else if (subChannel_ == Subchannel::EM)
-            return getMuon(pt, 0);
+            return muPt(1);
         else if (subChannel_ == Subchannel::ME)
-            return getElec(pt, 0);
+            return elPt(0);
         else if (subChannel_ == Subchannel::EE)
-            return getElec(pt, 1);
+            return elPt(1);
     }
     return 0;
 }
