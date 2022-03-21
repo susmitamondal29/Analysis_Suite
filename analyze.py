@@ -87,11 +87,11 @@ def get_info_general(filename):
 
 def setup_jec(filename):
     jetType = "AK4PFchs"
-    scaledir = Path(os.getenv("CMSSW_BASE"))/"src"/"analysis_suite"/"data"/"JEC"
+    datadir = Path(os.getenv("CMSSW_BASE"))/"src"/"analysis_suite"/"data"
     outdir = Path("jec_files")
     outdir.mkdir(exist_ok=True)
 
-    with tarfile.open(scaledir / f"{filename}.tgz") as tar:
+    with tarfile.open(datadir / 'JEC' / f"{filename}.tgz") as tar:
         for member in [name for name in tar.getnames() if jetType in name]:
             if (outdir/member).exists():
                 continue
@@ -104,21 +104,28 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--outfile", default="output.root")
     parser.add_argument("-v", "--verbose", default=-1)
     args = parser.parse_args()
+
     inputfile = args.infile if (env := os.getenv("INPUT")) is None else env
     outputfile = args.outfile if (env := os.getenv("OUTPUT")) is None else env
 
-    files = list()
-    with open(inputfile) as f:
-        for line in f:
-            files.append(line.strip())
+    if "root" == inputfile[inputfile.rindex(".")+1:]:
+        files = [inputfile]
+    else:
+        with open(inputfile) as f:
+            files = [line.strip() for line in f]
+
     print(files)
     testfile = files[0]
-    if "root://" in testfile:
-                details = get_info_general(testfile)
+    if "root://" in testfile and "user" not in testfile:
+        details = get_info_general(testfile)
     else:
         details = get_info_local(testfile)
     info = FileInfo(**details)
     groupName = info.get_group(details["sampleName"])
+    datadir = Path(os.getenv("CMSSW_BASE"))/"src"/"analysis_suite"/"data"
+    with open(datadir /".analyze_info") as f:
+        analysis = f.readline().strip()
+    print(groupName)
 
     setup_jec(jecTagsMC[details["year"]])
     setup_jec(jerTagsMC[details["year"]])
@@ -128,7 +135,7 @@ if __name__ == "__main__":
     inputs["MetaData"] = {
         "DAS_Name": '/'.join(details["sampleName"]),
         "Group": groupName,
-        'Analysis': details["analysis"],
+        'Analysis': analysis,
         'Selection': details["selection"],
         'Xsec': info.get_xsec(groupName),
         'Year': details["year"],
@@ -144,8 +151,7 @@ if __name__ == "__main__":
     for fname in files:
         fChain.Add(f"{fname}/Events")
 
-    selector = getattr(ROOT, details["analysis"])()
-
+    selector = getattr(ROOT, analysis)()
 
     with configs.rOpen(outputfile, "RECREATE") as rOutput:
         selector.SetInputList(rInputs)
