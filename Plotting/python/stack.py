@@ -46,4 +46,7 @@ class Stack(Histogram):
         # Apply patch to edge colors
         edgecolors = [darkenColor(h.color) for h in self.stack]
         for p, ec in zip(patches, edgecolors):
-            p[0].set_ec(ec)
+            if isinstance(p, list):
+                p[0].set_ec(ec)
+            else:
+                p.set(ec=ec)

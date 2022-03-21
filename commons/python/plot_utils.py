@@ -5,7 +5,9 @@ import matplotlib.pyplot as plt
 from matplotlib import colors as clr
 import logging
 logging.getLogger('matplotlib.font_manager').disabled = True
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from contextlib import contextmanager
+import warnings
 
 @contextmanager
 def ratio_plot(filename, xlabel, binning):
@@ -16,7 +18,9 @@ def ratio_plot(filename, xlabel, binning):
     setup_ticks(*ax)
     axisSetup(ax[0], ax[1], xlabel=xlabel, binning=binning)
     ax[0].legend()
-    fig.tight_layout()
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        fig.tight_layout()
     if hasattr(plot, "workdir"):
         filename = f"{plot.workdir}/{filename}"
     fig.savefig(filename, bbox_inches="tight")
@@ -28,11 +32,18 @@ def ratio_plot(filename, xlabel, binning):
 def plot(filename, *args, **kwargs):
     fig, ax = plt.subplots(*args, **kwargs)
     yield ax
-    fig.tight_layout()
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        fig.tight_layout()
     if hasattr(plot, "workdir"):
         filename = f"{plot.workdir}/{filename}"
     fig.savefig(filename, bbox_inches="tight")
     plt.close(fig)
+
+def plot_colorbar(cf, ax, barpercent=5):
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size=f"{barpercent}%", pad=0.05)
+    plt.gcf().colorbar(cf, ax=cax, cax=cax)
 
 def color_options(color):
     cvec = clr.to_rgb(color)
