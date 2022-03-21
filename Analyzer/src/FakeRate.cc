@@ -3,15 +3,21 @@
 #include "analysis_suite/Analyzer/interface/logging.h"
 
 enum class Channel {
-    NP_FR,
-    NP_FullMt,
-    NP_ZCR,
+    Measurement,
+    SideBand,
+    FullMet,
+    TightTight,
+    TightFake,
     None,
 };
 
 enum class Subchannel {
     M,
     E,
+    MM,
+    EM,
+    ME,
+    EE,
     None,
 };
 
@@ -19,34 +25,42 @@ void FakeRate::Init(TTree* tree)
 {
     LOG_FUNC << "Start of Init";
     BaseSelector::Init(tree);
-    createTree("Nonprompt_FR", { Channel::NP_FR });
-    createTree("Nonprompt_FullMt", { Channel::NP_FullMt });
-    // createTree("Nonprompt_ZCR", { Channel::NP_ZCR});
 
-    Flag_goodVertices.setup(fReader, "Flag_goodVertices");
-    Flag_globalSuperTightHalo2016Filter.setup(fReader, "Flag_globalSuperTightHalo2016Filter");
-    Flag_HBHENoiseFilter.setup(fReader, "Flag_HBHENoiseFilter");
-    Flag_HBHENoiseIsoFilter.setup(fReader, "Flag_HBHENoiseIsoFilter");
-    Flag_EcalDeadCellTriggerPrimitiveFilter.setup(fReader, "Flag_EcalDeadCellTriggerPrimitiveFilter");
-    Flag_BadPFMuonFilter.setup(fReader, "Flag_BadPFMuonFilter");
-    Flag_ecalBadCalibFilter.setup(fReader, "Flag_ecalBadCalibFilter");
-    Met_pt.setup(fReader, "MET_pt");
-    Met_phi.setup(fReader, "MET_phi");
+    createTree("Measurement", Channel::Measurement);
+    createTree("SideBand", Channel::SideBand);
+    if (isMC_) {
+        createTree("Closure", Channel::TightTight);
+    } else {
+        createTree("Closure", Channel::TightFake);
+    }
+
+    muon.setup_map(Level::FakeNotTight);
+    elec.setup_map(Level::FakeNotTight);
+
+    std::string met_name = (year_ == Year::yr2017) ? "METFixEE2017" : "MET";
+    Met_pt.setup(fReader, (met_name+"_pt").c_str());
+    Met_phi.setup(fReader, (met_name+"_phi").c_str());
+
     if (isMC_) {
         Pileup_nTrueInt.setup(fReader, "Pileup_nTrueInt");
     }
 
-    setupTrigger(Subchannel::M, {// "HLT_Mu8",
-            "HLT_Mu8_TrkIsoVVL",
-                                 // "HLT_Mu17",
-            "HLT_Mu17_TrkIsoVVL"});
-    trig_cuts.add_l1seeds({"HLT_Mu8", "HLT_Mu8_TrkIsoVVL"}, "L1_SingleMu7");
-    trig_cuts.add_l1seeds({"HLT_Mu17", "HLT_Mu17_TrkIsoVVL"}, "L1_SingleMu10_LowQ");
+    sfMaker.setup_prescale();
 
+    // Single Lepton Triggers
+    setupTrigger(Subchannel::M, {"HLT_Mu8_TrkIsoVVL",
+                                 "HLT_Mu17_TrkIsoVVL"});
     setupTrigger(Subchannel::E, {"HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30",
                                  "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30"});
-    trig_cuts.add_l1seed("HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30", "L1_SingleEG10");
-    trig_cuts.add_l1seed("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30" , "L1_SingleEG15");
+    // Dilepton triggers
+    setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
+                                  "HLT_DoubleMu8_Mass8_PFHT300"});
+    setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+                                  "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+    setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
+                                  "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+    setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                                  "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});
     setupTrigger(Subchannel::None);
 
     LOG_FUNC << "End of Init";
@@ -93,95 +107,177 @@ void FakeRate::ApplyScaleFactors()
     LOG_EVENT << "weight: " << (*weight);
     (*weight) *= sfMaker.getPileupSF(*Pileup_nTrueInt);
     LOG_EVENT << "weight after pu scale: " << (*weight);
-    // (*weight) *= sfMaker.getLHESF();
-    // LOG_EVENT << "weight after lhe scale: " << (*weight);
+    (*weight) *= sfMaker.getLHESF();
+    LOG_EVENT << "weight after lhe scale: " << (*weight);
     (*weight) *= jet.getScaleFactor();
     LOG_EVENT << "weight after jet scale: " << (*weight);
     (*weight) *= elec.getScaleFactor();
     LOG_EVENT << "weight after elec scale: " << (*weight);
     (*weight) *= muon.getScaleFactor();
     LOG_EVENT << "weight after muon scale: " << (*weight);
-    // (*weight) *= rTop.getScaleFactor(rGen);
     LOG_FUNC << "End of ApplyScaleFactors";
 }
 
 void FakeRate::setOtherGoodParticles(size_t syst)
 {
     LOG_FUNC << "Start of setOtherGoodParticles";
+    muon.xorLevel(Level::Fake, Level::Tight, Level::FakeNotTight);
+    elec.xorLevel(Level::Fake, Level::Tight, Level::FakeNotTight);
     LOG_FUNC << "End of setOtherGoodParticles";
-}
-
-void FakeRate::setupChannel()
-{
-    LOG_FUNC << "Start of setupChannel";
-    (*currentChannel_) = Channel::None;
-    (subChannel_) = Subchannel::None;
-    size_t nLep = muon.size(Level::Tight) + elec.size(Level::Tight);
-    size_t nFakeLep = muon.size(Level::Fake) + elec.size(Level::Fake);
-
-    if (nFakeLep == 1) {
-        subChannel_ = muon.size(Level::Fake) ? Subchannel::M : Subchannel::E;
-        Lepton lepton = (subChannel_ == Subchannel::M) ? static_cast<Lepton>(muon) : static_cast<Lepton>(elec);
-        lead_lep = lepton.p4(lepton.idx(Level::Fake, 0));
-        float mt = lepton.getMT(Level::Fake, 0, *Met_pt, *Met_phi);
-        if (*Met_pt < 20 && mt < 20) {
-            (*currentChannel_) = Channel::NP_FR;
-        } else if (nLep == 1 && *Met_pt > 30 && lead_lep.Pt() > 20) {
-            (*currentChannel_) = Channel::NP_FullMt;
-        }
-    }
-    LOG_FUNC << "End of setupChannel";
 }
 
 void FakeRate::setSubChannel()
 {
     LOG_FUNC << "Start of setSubChannel";
+    subChannel_ = Subchannel::None;
 
-
+    if (nLeps(Level::Fake) == 1) {
+        subChannel_ = muon.size(Level::Fake) == 1 ? Subchannel::M : Subchannel::E;
+    } else if (nLeps(Level::Fake) == 2) {
+        if (muon.size(Level::Fake) == 2) {
+            subChannel_ = Subchannel::MM;
+        } else if (elec.size(Level::Fake) == 2) {
+            subChannel_ = Subchannel::EE;
+        } else if (muon.pt(Level::Fake, 0) > elec.pt(Level::Fake, 0)) {
+            subChannel_ = Subchannel::ME;
+        } else {
+            subChannel_ = Subchannel::EM;
+        }
+    }
+    LOG_FUNC << "End of setSubChannel";
 }
 
-bool FakeRate::getCutFlow(CutInfo& cuts)
+bool FakeRate::getCutFlow()
 {
     LOG_FUNC << "Start of passSelection";
+    (*currentChannel_) = Channel::None;
+    setSubChannel();
+    set_leadlep();
+
+    if (measurement_cuts()) (*currentChannel_) = Channel::Measurement;
+
+    if (sideband_cuts()) (*currentChannel_) = Channel::SideBand;
+
+    if (closure_cuts()) {
+        if (nLeps(Level::Tight) == 2) (*currentChannel_) = Channel::TightTight;
+        else (*currentChannel_) = Channel::TightFake;
+    }
+
+    if (*currentChannel_ == Channel::None) {
+        return false;
+    }
+
+    LOG_FUNC << "End of passSelection";
+    return true;
+}
+
+bool FakeRate::single_lep_cuts(CutInfo& cuts)
+{
     bool passCuts = true;
+
     passCuts &= cuts.setCut("passPreselection", true);
-    passCuts &= cuts.setCut("passMETFilter", (*Flag_goodVertices && *Flag_globalSuperTightHalo2016Filter && *Flag_HBHENoiseFilter && *Flag_HBHENoiseIsoFilter && *Flag_EcalDeadCellTriggerPrimitiveFilter && *Flag_BadPFMuonFilter && *Flag_ecalBadCalibFilter));
-    size_t nFakeLep = muon.size(Level::Fake) + elec.size(Level::Fake);
-    passCuts &= cuts.setCut("passFakeLep", nFakeLep == 1);
-    bool haveFarJet = false;
-    if (nFakeLep == 1) {
+    passCuts &= cuts.setCut("passMETFilter", passMetFilters());
+    passCuts &= cuts.setCut("pass1FakeLep", nLeps(Level::Fake) == 1);
+    // TriggerCuts
+    bool trig_match = false;
+    if (nLeps(Level::Fake) == 1) {
+        trig_match =(lead_lep.Pt() < 25 && *trig_cuts.trigs[subChannel_].at(0)) || ( lead_lep.Pt() >= 25 && *trig_cuts.trigs[subChannel_].at(1));
+    }
+    passCuts &= cuts.setCut("passLeadPtCut", trig_match);
+    passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
+
+    bool hasFarJet = false;
+    if (nLeps(Level::Fake) == 1) {
         for (auto jidx: jet.list(Level::Tight)) {
-            float dr = deltaR(lead_lep.Eta(), jet.eta(jidx), lead_lep.Phi(), jet.phi(jidx));
-            if (dr > 1) {
-                haveFarJet = true;
+            if (deltaR(lead_lep.Eta(), jet.eta(jidx), lead_lep.Phi(), jet.phi(jidx)) > 1) {
+                hasFarJet = true;
                 break;
             }
         }
     }
+    passCuts &= cuts.setCut("passHasFarJet", hasFarJet);
 
-    passCuts &= cuts.setCut("passHasFarJet", haveFarJet);
-
-    LOG_FUNC << "End of passSelection";
     return passCuts;
 }
 
-bool FakeRate::getTriggerCut(CutInfo& cuts) {
-    bool passTriggerCuts = true;
-    passTriggerCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
-    if ((*currentChannel_) != Channel::None && lead_lep.Pt() > 10 && lead_lep.Pt() < 25) {
-        if (subChannel_ == Subchannel::M) {
-            passTriggerCuts &= cuts.setCut("passTriggerPt", trig_cuts.pass_ind_cut(Subchannel::M,"HLT_Mu8_TrkIsoVVL"));
-        } else if (subChannel_ == Subchannel::E) {
-            passTriggerCuts &= cuts.setCut("passTriggerPt", trig_cuts.pass_ind_cut(Subchannel::E, "HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30"));
-        }
-    } else if ((*currentChannel_) != Channel::None && lead_lep.Pt() > 25) {
-        if (subChannel_ == Subchannel::M) {
-            passTriggerCuts &= cuts.setCut("passTriggerPt", trig_cuts.pass_ind_cut(Subchannel::M,"HLT_Mu17_TrkIsoVVL"));
-        } else if (subChannel_ == Subchannel::E) {
-            passTriggerCuts &= cuts.setCut("passTriggerPt", trig_cuts.pass_ind_cut(Subchannel::E, "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30"));
-        }
+bool FakeRate::measurement_cuts()
+{
+    bool passCuts = true;
+    CutInfo cuts;
+
+    passCuts &= single_lep_cuts(cuts);
+    passCuts &= cuts.setCut("passMetCut", *Met_pt < 20);
+    passCuts &= cuts.setCut("passMtCut", mt_f(lead_lep.Pt(), *Met_pt, lead_lep.Phi(), *Met_phi) < 20);
+
+    // Fill Cut flow
+    fillCutFlow(Channel::Measurement, cuts);
+
+    return passCuts;
+}
+
+bool FakeRate::sideband_cuts()
+{
+    bool passCuts = true;
+    CutInfo cuts;
+
+    passCuts &= single_lep_cuts(cuts);
+    passCuts &= cuts.setCut("passMetCut", *Met_pt > 30);
+    passCuts &= cuts.setCut("passTightLep", nLeps(Level::Tight) == 1);
+    passCuts &= cuts.setCut("passLeadLepPt", lead_lep.Pt() > 20);
+
+    // Fill Cut flow
+    fillCutFlow(Channel::SideBand, cuts);
+
+    return passCuts;
+}
+
+bool FakeRate::closure_cuts()
+{
+    bool passCuts = true;
+    CutInfo cuts;
+
+    passCuts &= cuts.setCut("passPreselection", true);
+    passCuts &= cuts.setCut("passMETFilter", passMetFilters());
+    passCuts &= cuts.setCut("pass2FakeLep",  nLeps(Level::Fake) == 2);
+    passCuts &= cuts.setCut("passTightLep", nLeps(Level::Tight) > 0);
+    // Trigger Cuts
+    passCuts &= cuts.setCut("passLeadPtCut", getLeadPt() > 25);
+    passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
+
+    passCuts &= cuts.setCut("passZVeto", muon.passZVeto() && elec.passZVeto());
+    passCuts &= cuts.setCut("passJetNumber", jet.size(Level::Tight) >= 2);
+    passCuts &= cuts.setCut("passMetCut", *Met_pt > 50);
+    passCuts &= cuts.setCut("passHTCut", jet.getHT(Level::Tight) > 100);
+
+    // Fill Cut flow
+    cuts.setCut("pass2TightLeps", nLeps(Level::Tight) == 2);
+    fillCutFlow(Channel::TightTight, cuts);
+    cuts.cuts.pop_back();
+    cuts.setCut("pass1TightLeps", nLeps(Level::Tight) == 1);
+    fillCutFlow(Channel::TightFake, cuts);
+
+    return passCuts;
+}
+
+void FakeRate::set_leadlep()
+{
+    if (nLeps(Level::Fake) != 1) {
+        return;
+    } else if (muon.size(Level::Fake) == 1) {
+        lead_lep = muon.p4(Level::Fake, 0);
+    } else {
+        lead_lep = elec.p4(Level::Fake, 0);
     }
-    return passTriggerCuts;
+}
+
+float FakeRate::getLeadPt()
+{
+    if (subChannel_ == Subchannel::MM || subChannel_ == Subchannel::ME) {
+        return muon.pt(Level::Fake, 0);
+    } else if (subChannel_ == Subchannel::EE || subChannel_ == Subchannel::EM) {
+        return elec.pt(Level::Fake, 0);
+    }
+    return 0.;
 }
 
 void FakeRate::FillValues(const std::vector<bool>& passVec)

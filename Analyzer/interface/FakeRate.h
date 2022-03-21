@@ -7,11 +7,9 @@
 class FakeRate : public BaseSelector {
 public:
     virtual void Init(TTree* tree) override;
-    virtual bool getCutFlow(CutInfo& cuts) override;
-    virtual bool getTriggerCut(CutInfo& cuts) override;
+    virtual bool getCutFlow() override;
     virtual void FillValues(const std::vector<bool>& passVec) override;
     virtual void SetupOutTreeBranches(TTree* tree) override;
-    virtual void setupChannel() override;
     virtual void ApplyScaleFactors() override;
     virtual void clearParticles() override;
     virtual void clearOutputs() override;
@@ -19,10 +17,14 @@ public:
     ClassDefOverride(FakeRate, 0);
 
 private:
-    float getLeadPt(size_t idx = 0);
     void setSubChannel();
+    void set_leadlep();
+    bool measurement_cuts();
+    bool sideband_cuts();
+    bool closure_cuts();
+    bool single_lep_cuts(CutInfo& cuts);
 
-    Subchannel subChannel_;
+    float getLeadPt();
 
     TTree* treeFakeRate_;
 
@@ -33,19 +35,12 @@ private:
     JetOut* o_jets;
     BJetOut* o_bJets;
 
-    TRVariable<ULong64_t> event;
-    TRVariable<Bool_t> Flag_goodVertices;
-    TRVariable<Bool_t> Flag_globalSuperTightHalo2016Filter;
-    TRVariable<Bool_t> Flag_HBHENoiseFilter;
-    TRVariable<Bool_t> Flag_HBHENoiseIsoFilter;
-    TRVariable<Bool_t> Flag_EcalDeadCellTriggerPrimitiveFilter;
-    TRVariable<Bool_t> Flag_BadPFMuonFilter;
-    TRVariable<Bool_t> Flag_ecalBadCalibFilter;
     TRVariable<Float_t> Met_pt;
     TRVariable<Float_t> Met_phi;
     TRVariable<Float_t> Pileup_nTrueInt;
 
     std::vector<Float_t> o_ht, o_htb, o_met, o_metphi;
+
 
     LorentzVector lead_lep;
 };
