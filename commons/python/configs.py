@@ -101,8 +101,8 @@ def checkOrCreateDir(path):
 
 
 def getNormedHistos(infilename, file_info, plot_info, histName, year):
-    import awkward1 as ak
-    import uproot4 as uproot
+    import awkward as ak
+    import uproot
     from analysis_suite.commons.histogram import Histogram
 
     groupHists = dict()
@@ -149,7 +149,7 @@ def get_list_systs(systs=["all"], tool="", **kwargs):
 
     if tool == "analyze":
         import numpy as np
-        import uproot4 as uproot
+        import uproot
         for year in kwargs["years"]:
             filename = Path(f'result_{year}.root')
             with uproot.open(filename) as f:
@@ -169,7 +169,7 @@ def get_list_systs(systs=["all"], tool="", **kwargs):
                 if clean_syst(syst) in systs]
 
 def get_trees(years):
-    import uproot4 as uproot
+    import uproot
     for year in years:
         filename = Path(f'result_{year}.root')
         with uproot.open(filename) as f:

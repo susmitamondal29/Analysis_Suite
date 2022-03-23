@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_curve, roc_auc_score
 import xgboost as xgb
-import uproot4 as uproot
+import uproot
 import operator
 
 from analysis_suite.commons.plot_utils import plot, color_options

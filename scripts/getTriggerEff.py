@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import uproot4 as uproot
+import uproot
 import numpy as np
 from scipy.stats import beta
 import boost_histogram as bh

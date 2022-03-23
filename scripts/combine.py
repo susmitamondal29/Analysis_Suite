@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 import numpy as np
 from analysis_suite.commons.plot_utils import plot
-import uproot4 as uproot
+import uproot
 
 def runCombine(command, output=True, error=subprocess.DEVNULL):
     setup = [

@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 import logging
 from .vargetter import VarGetter
-import awkward1 as ak
+import awkward as ak
 from pathlib import Path
-import uproot4
+import uproot
 import uproot as upwrite
 
 class DataProcessor:
@@ -24,7 +24,7 @@ class DataProcessor:
         for root_file in root_files:
             groups = list()
             syst = 0
-            with uproot4.open(root_file) as f:
+            with uproot.open(root_file) as f:
                 groups = [key.strip(";1") for key in f.keys() if "/" not in key]
                 systNames = [systName.member("fName") for systName in f[groups[0]]["Systematics"]]
                 systNames = list(OrderedDict.fromkeys(systNames))

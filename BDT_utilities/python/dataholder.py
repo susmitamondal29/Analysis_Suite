@@ -11,7 +11,7 @@ pd.options.mode.chained_assignment = None
 from pandas.api.types import is_numeric_dtype
 from pathlib import Path
 from random import randint
-import uproot4 as uproot
+import uproot
 import uproot as upwrite
 import operator
 from analysis_suite.commons.configs import setup_pandas

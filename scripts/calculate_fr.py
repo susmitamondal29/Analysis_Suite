@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import uproot4 as uproot
-import awkward1 as ak
+import uproot
+import awkward as ak
 import boost_histogram as bh
 import argparse
 from collections import OrderedDict

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import uproot4 as uproot
+import uproot
 from analysis_suite.commons.histogram import Histogram
 import boost_histogram as bh
 import numpy as np

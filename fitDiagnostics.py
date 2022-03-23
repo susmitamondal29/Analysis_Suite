@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import uproot4 as up
+import uproot
 import sys
 import datetime
 from pathlib import Path
@@ -17,7 +17,7 @@ from analysis_suite.Plotting.LogFile import LogFile
 
 hep = setup_mplhep()
 
-file = up.open("fitDiagnosticsTest.root")
+file = uproot.open("fitDiagnosticsTest.root")
 
 histName = 'NJets'
 year = "2018"

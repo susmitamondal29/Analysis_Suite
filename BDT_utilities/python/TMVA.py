@@ -3,7 +3,7 @@
 from ROOT import TMVA, TFile, TTree, TCut
 
 import pandas as pd
-import awkward1 as ak
+import awkward as ak
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation

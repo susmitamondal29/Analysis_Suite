@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import math
-import awkward1 as ak
-import uproot4 as uproot
+import awkward as ak
+import uproot as uproot
 import numpy as np
 import itertools
 from analysis_suite.commons.configs import get_metadata
