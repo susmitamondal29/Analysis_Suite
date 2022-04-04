@@ -11,7 +11,7 @@ void Muon::setup(TTreeReader& fReader, bool isMC)
     tightCharge.setup(fReader, "Muon_tightCharge");
     mediumId.setup(fReader, "Muon_mediumId");
     sip3d.setup(fReader, "Muon_sip3d");
-
+    id = PID::Muon;
 
     if (year_ == Year::yr2016) {
         isoCut = 0.16;

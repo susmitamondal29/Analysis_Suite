@@ -68,6 +68,8 @@ protected:
     const float ZWINDOW = 15;
     const float LOW_ENERGY_CUT = 12;
 
+    PID id;
+
     bool passRatioCut(float val) const { return val > ptRatioCut; }
     bool passRelCut(size_t idx, Vector3D& jet) const
     {

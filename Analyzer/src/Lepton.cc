@@ -100,6 +100,7 @@ void Lepton::fillFlippedCharge(GenParticle& gen)
     for (size_t i = 0; i < size(); i++) {
         int pdg = gen.pdgId.at(genPartIdx.at(i));
         // remember, pdg is postive for electron, negative for positron
-        flips.push_back(pdg*charge(i) > 0);
+
+        flips.push_back(abs(pdg) == static_cast<int>(id) && pdg*charge(i) > 0);
     }
 }

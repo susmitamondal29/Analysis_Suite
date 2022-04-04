@@ -16,6 +16,7 @@ void Electron::setup(TTreeReader& fReader, bool isMC)
     ecalSumEt.setup(fReader, "Electron_dr03EcalRecHitSumEt");
     hcalSumEt.setup(fReader, "Electron_dr03HcalDepth1TowerSumEt");
     tkSumPt.setup(fReader, "Electron_dr03TkSumPt");
+    id = PID::Electron;
 
     // 2017/2018 values
     ptRatioCut = 0.78;
