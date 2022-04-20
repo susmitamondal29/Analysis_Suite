@@ -26,8 +26,5 @@ poetry.lock
 !Variable_Creator/*
 !data/*
 
-data/python/inputs*
-!data/python/inputs_default.py
-
 data/python/plotInfo/*py
 !data/python/plotInfo/plotInfo_default.py

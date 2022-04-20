@@ -14,13 +14,6 @@ from collections import OrderedDict
 import analysis_suite.data.PlotGroups as PlotGroups
 import analysis_suite.data.plotInfo as plotInfo
 
-def first_time_actions():
-    data_dir = Path("data/python")
-    if not (data_dir / "inputs.py").exists():
-        shutil.copy(data_dir / "inputs_default.py", data_dir / "inputs.py")
-        logging.error("Please run \n\n  scram b\n\nto initialize inputs file")
-        exit()
-
 def get_cli():
     parser = argparse.ArgumentParser(prog="main", description="Central script for running tools in the Analysis suite")
     parser.add_argument('tool', type=str, help="Tool to run",

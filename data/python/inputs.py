@@ -24,6 +24,14 @@ allvar = {
     "j6Pt":             Variable(vg.pt, ("Jets", 5)),
     "j7Pt":             Variable(vg.pt, ("Jets", 6)),
     "j8Pt":             Variable(vg.pt, ("Jets", 7)),
+    "j1Disc":           Variable(vg.nth, ("Jets", "discriminator", 0)),
+    "j2Disc":           Variable(vg.nth, ("Jets", "discriminator", 1)),
+    "j3Disc":           Variable(vg.nth, ("Jets", "discriminator", 2)),
+    "j4Disc":           Variable(vg.nth, ("Jets", "discriminator", 3)),
+    "j5Disc":           Variable(vg.nth, ("Jets", "discriminator", 4)),
+    "j6Disc":           Variable(vg.nth, ("Jets", "discriminator", 5)),
+    "j7Disc":           Variable(vg.nth, ("Jets", "discriminator", 6)),
+    "j8Disc":           Variable(vg.nth, ("Jets", "discriminator", 7)),
     "b1Pt":             Variable(vg.pt, ("BJets", 0)),
     "b2Pt":             Variable(vg.pt, ("BJets", 1)),
     "b3Pt":             Variable(vg.pt, ("BJets", 2)),
@@ -33,7 +41,7 @@ allvar = {
     "lepMass" :         Variable(vg.mass, ("TightLeptons", 0, "TightLeptons", 1)),
     "lepDR" :           Variable(vg.dr, ("TightLeptons", 0, "TightLeptons", 1)),
     "jetDR" :           Variable(vg.dr, ("Jets", 0, "Jets", 1)),
-    "jetMass" :         Variable(vg.mass, ("Jets", 0, "Jets", 1)),
+    "jetMass" :         Variable(vg.true_mass, ("Jets", 0, "Jets", 1)),
     "LepCos" :          Variable(vg.cosDtheta, ("TightLeptons", 0, "TightLeptons", 1)),
     "JetLep1_Cos" :     Variable(vg.cosDtheta, ("TightLeptons", 0, "Jets", 0)),
     "JetLep2_Cos" :     Variable(vg.cosDtheta, ("TightLeptons", 1, "Jets", 0)),
@@ -53,19 +61,23 @@ usevars = {var : allvar[var] for var in [
     "Met",
     "centrality",
     "j1Pt", "j2Pt", "j3Pt", "j4Pt", "j5Pt", "j6Pt", "j7Pt", "j8Pt",
-    "b1Pt", "b2Pt", "b3Pt", "b4Pt",
+    "j1Disc", "j2Disc", "j3Disc", "j4Disc", "j5Disc", "j6Disc", "j7Disc", "j8Disc",
+    # "b1Pt", "b2Pt", "b3Pt", "b4Pt",
     "l1Pt", "l2Pt",
-#    "lepMass", "jetMass",
+    #    "lepMass", "jetMass",
     "lepDR",
     "jetDR",
     "LepCos", "JetLep1_Cos", "JetLep2_Cos",
     "mwT",
 ]}
 
-
-
-
-cuts = ["l1Pt>25", "l2Pt>20"]
+cuts = [
+    # "NBJets>1",
+    # "HT>345",
+    "NJets>3",
+    "HT_b>130",
+    "NlooseBJets>2",
+]
 
 # Sampels and the groups they are a part of
 groups = OrderedDict({
@@ -75,9 +87,10 @@ groups = OrderedDict({
                    "vvv", "vv", "xg",
                    "other",],
     "NotTrained": ["tttt",
-                   "ttXY",
-                   "vvv", "vv", "xg",
-                   "other",]
+                   # "ttXY",
+                   # "vvv", "vv", "xg",
+                   # "other",
+                   ]
 })
 
 
@@ -100,18 +113,28 @@ color_by_group = {
 
 systematics = [
     # Systematic("lumi", "lnN").add(1.012, year=2016)
-    #                          .add(1.023, year=2017)
-    #                          .add(1.025, year=2018),
-    Systematic("LHE_muF", "shape").add(1),
-    Systematic("LHE_muR", "shape").add(1),
-    Systematic("BJet_BTagging", "shape").add(1),
-    Systematic("BJet_Eff", "shape").add(1),
-    Systematic("Muon_ID", "shape").add(1),
-    Systematic("Muon_Iso", "shape").add(1),
-    Systematic("Electron_SF", "shape").add(1),
-    Systematic("Electron_Susy", "shape").add(1),
-    Systematic("Pileup", "shape").add(1),
-    Systematic("Top_SF", "shape").add(1),
+    # .add(1.023, year=2017)
+    # .add(1.025, year=2018),
+    # Systematic("LHE_muF", "shape").add(1),
+    # Systematic("LHE_muR", "shape").add(1),
+
+    # Systematic("BJet_BTagging", "shape").add(1),
+    # Systematic("BJet_Shape_hf", "shape").add(1),
+    # Systematic("BJet_Shape_hfstats1", "shape").add(1),
+    # Systematic("BJet_Shape_hfstats2", "shape").add(1),
+    # Systematic("BJet_Shape_lf", "shape").add(1),
+    # Systematic("BJet_Shape_lfstats1", "shape").add(1),
+    # Systematic("BJet_Shape_lfstats2", "shape").add(1),
+    # Systematic("BJet_Shape_cferr1", "shape").add(1),
+    # Systematic("BJet_Shape_cferr2", "shape").add(1),
+
+    # Systematic("BJet_Eff", "shape").add(1),
+    # Systematic("Muon_ID", "shape").add(1),
+    # Systematic("Muon_Iso", "shape").add(1),
+    # Systematic("Electron_SF", "shape").add(1),
+    # Systematic("Electron_Susy", "shape").add(1),
+    # Systematic("Pileup", "shape").add(1),
+    # Systematic("Top_SF", "shape").add(1),
     # Systematic("Jet_JER", "shape").add(1),
     # Systematic("Jet_JES", "shape").add(1),
 
