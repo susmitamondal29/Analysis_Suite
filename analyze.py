@@ -40,15 +40,16 @@ def setInputs(inputs):
     return root_inputs
 
 
-def getSumW(infiles, isData):
+def getSumW(infiles):
     runChain = ROOT.TChain()
     sumweight = ROOT.TH1F("sumweight", "sumweight", 1, 0, 1)
-    if isData:
-        sumweight.SetBinContent(1, -1);
-    else:
-        for fname in infiles:
-            runChain.Add(f"{fname}/Runs")
+    for fname in infiles:
+        runChain.Add(f"{fname}/Runs")
+
+    if runChain.GetBranchStatus("genEventSumw"):
         runChain.Draw("0>>sumweight",  "genEventSumw")
+    else:
+        pass
     return sumweight
 
 # Use for file in hdfs area
@@ -102,6 +103,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="main")
     parser.add_argument("-i", "--infile", default = "blah.in")
     parser.add_argument("-o", "--outfile", default="output.root")
+    parser.add_argument("--test", action='store_true')
     parser.add_argument("-v", "--verbose", default=-1)
     args = parser.parse_args()
 
@@ -137,10 +139,14 @@ if __name__ == "__main__":
         "Group": groupName,
         'Analysis': analysis,
         'Selection': details["selection"],
-        'Xsec': info.get_xsec(groupName),
         'Year': details["year"],
-        'isData': info.is_data(groupName),
     }
+    if args.test:
+        inputs['Xsec'] = 1
+        inputs['isData'] = False
+    else:
+        inputs['Xsec'] = info.get_xsec(groupName)
+        inputs['isData'] = info.is_data(groupName)
     inputs["Verbosity"] = args.verbose
     inputs["Systematics"] = configs.get_shape_systs()
     # Possibly need to fix for fakefactor stuff
@@ -160,7 +166,7 @@ if __name__ == "__main__":
 
         ## Output
         anaFolder = selector.getOutdir()
-        anaFolder.WriteObject(getSumW(files, info.is_data(groupName)), "sumweight")
+        anaFolder.WriteObject(getSumW(files), "sumweight")
         for tree in [tree.tree for tree in selector.getTrees()]:
             anaFolder.WriteObject(tree, tree.GetTitle())
         for i in selector.GetOutputList():
