@@ -43,15 +43,29 @@ void Closure_MisId::Init(TTree* tree)
         LHE_pdgId.setup(fReader, "LHEPart_pdgId");
     }
 
+    if (year_ == Year::yr2016) {
+        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"});
+        setupTrigger(Subchannel::ME, {"HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+                                      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL"});
+        setupTrigger(Subchannel::EM, {"HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL",
+                                      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL"});
+        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
+    } else if(year_ == Year::yr2017) {
+        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"});
+        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"});
+    } else if (year_ == Year::yr2018) {
+        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"});
+        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"});
+    }
 
-    setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
-                                  "HLT_DoubleMu8_Mass8_PFHT300"});
-    setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
-                                  "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
-    setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
-                                  "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
-    setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
-                                  "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});
     setupTrigger(Subchannel::None);
 
     LOG_FUNC << "End of Init";
@@ -136,17 +150,19 @@ void Closure_MisId::setSubChannel()
     LOG_FUNC << "Start of setSubChannel";
     subChannel_ = Subchannel::None;
 
-    if (muon.size(Level::Tight) == 2) {
-        subChannel_ = Subchannel::MM;
-    } else if (elec.size(Level::Tight) == 2) {
-        subChannel_ = Subchannel::EE;
-    } else if (nLeps(Level::Tight) == 2){
-        if (muon.pt(Level::Tight, 0) > elec.pt(Level::Tight, 0)) {
+    if(nLeps(Level::Tight) == 2) {
+        if (muon.size(Level::Tight) == 2) {
+            subChannel_ = Subchannel::MM;
+        } else if (elec.size(Level::Tight) == 2) {
+            subChannel_ = Subchannel::EE;
+        } else if (muon.pt(Level::Tight, 0) > elec.pt(Level::Tight, 0)) {
             subChannel_ = Subchannel::ME;
         } else {
             subChannel_ = Subchannel::EM;
         }
     }
+
+
     LOG_FUNC << "End of setSubChannel";
 }
 
@@ -183,12 +199,8 @@ bool Closure_MisId::closure_cuts() {
     passCuts &= cuts.setCut("passLeadPtCut", getLeadPt() > 25);
     passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
 
-    bool passZcut = false;
-    if (elec.size(Level::Tight) == 2) {
-        float mass = (elec.p4(Level::Tight, 0) + elec.p4(Level::Tight, 1)).M();
-        passZcut = mass > 70. && mass < 115.;
-    }
-    passCuts &= cuts.setCut("passZCut", passZcut);
+    float mass = get_mass();
+    passCuts &= cuts.setCut("passZCut", mass > 70. && mass < 115);
     passCuts &= cuts.setCut("passMetCut", *Met_pt < 50);
     passCuts &= cuts.setCut("passHTCut", jet.getHT(Level::Tight) < 250);
 
@@ -216,7 +228,9 @@ bool Closure_MisId::measurement_cuts() {
     passCuts &= cuts.setCut("passLeadPtCut", getLeadPt() > 25);
     passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
 
-    passCuts &= cuts.setCut("passOppositeSign;", !isSameSign());
+    float mass = get_mass();
+    passCuts &= cuts.setCut("passZCut", mass > 50);
+    // passCuts &= cuts.setCut("passOppositeSign", !isSameSign());
     // passCuts &= cuts.setCut("passHasElectron", elec.size(Level::Tight) > 0);
     passCuts &= cuts.setCut("passJetNumber", jet.size(Level::Tight) >= 2);
     passCuts &= cuts.setCut("passMetCut", *Met_pt > 25);
@@ -237,12 +251,24 @@ float Closure_MisId::getLeadPt()
     return 0.;
 }
 
+float Closure_MisId::get_mass() {
+    if (subChannel_ == Subchannel::None) {
+        return -1;
+    } else if (subChannel_ == Subchannel::MM) {
+        return (muon.p4(Level::Tight, 0) + muon.p4(Level::Tight, 1)).M();
+    } else if (subChannel_ == Subchannel::EE) {
+        return (elec.p4(Level::Tight, 0) + elec.p4(Level::Tight, 1)).M();
+    } else {
+        return (muon.p4(Level::Tight, 0) + elec.p4(Level::Tight, 0)).M();
+    }
+}
+
 void Closure_MisId::set_LHELeps()
 {
     nLHE_leps = 0;
     for (size_t i = 0; i < LHE_pdgId.size(); ++i) {
-        if (abs(LHE_pdgId.at(i)) == 11 || abs(LHE_pdgId.at(i)) == 13) {
-                nLHE_leps++;
+        if (abs(LHE_pdgId.at(i)) == 11 || abs(LHE_pdgId.at(i)) == 13 || abs(LHE_pdgId.at(i)) == 15) {
+            nLHE_leps++;
         }
     }
 }

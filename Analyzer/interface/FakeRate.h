@@ -4,6 +4,8 @@
 #include "analysis_suite/Analyzer/interface/BaseSelector.h"
 #include "analysis_suite/Analyzer/interface/Output.h"
 
+#include <set>
+
 class FakeRate : public BaseSelector {
 public:
     virtual void Init(TTree* tree) override;
@@ -11,6 +13,7 @@ public:
     virtual void FillValues(const std::vector<bool>& passVec) override;
     virtual void SetupOutTreeBranches(TTree* tree) override;
     virtual void ApplyScaleFactors() override;
+    void ApplyDataSpecifics();
     virtual void clearParticles() override;
     virtual void clearOutputs() override;
     virtual void setOtherGoodParticles(size_t syst) override;
@@ -23,14 +26,12 @@ private:
     bool sideband_cuts();
     bool closure_cuts();
     bool single_lep_cuts(CutInfo& cuts);
-
     float getLeadPt();
+    bool isSameSign();
 
-    TTree* treeFakeRate_;
-
-    ParticleOut* o_looseMuons;
+    ParticleOut* o_fakeMuons;
     ParticleOut* o_tightMuons;
-    ParticleOut* o_looseElectrons;
+    ParticleOut* o_fakeElectrons;
     ParticleOut* o_tightElectrons;
     JetOut* o_jets;
     BJetOut* o_bJets;
@@ -41,6 +42,7 @@ private:
 
     std::vector<Float_t> o_ht, o_htb, o_met, o_metphi;
 
+    std::set<std::string> ewk_sets = {"ttjet", "ttbar", "wjets", "DYm50", "DYm10-50"};
 
     LorentzVector lead_lep;
 };

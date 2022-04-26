@@ -22,6 +22,7 @@ class Closure_MisId : public BaseSelector {
     bool closure_cuts();
     void setSubChannel();
     float getLeadPt();
+    float get_mass();
     void set_LHELeps();
 
     TTree* treeFakeRate_;

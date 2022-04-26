@@ -26,14 +26,18 @@ void FakeRate::Init(TTree* tree)
     LOG_FUNC << "Start of Init";
     BaseSelector::Init(tree);
 
-    createTree("Measurement", Channel::Measurement);
-    createTree("SideBand", Channel::SideBand);
-    if (isMC_) {
-        createTree("Closure", Channel::TightTight);
-    } else {
-        createTree("Closure", Channel::TightFake);
+    // Only process for QCD, data, ewk
+    if (groupName_.find("qcd") != std::string::npos || !isMC_
+        || ewk_sets.find(groupName_) != ewk_sets.end()) {
+        createTree("Measurement", Channel::Measurement);
+        createTree("SideBand", Channel::SideBand);
     }
-
+    if (groupName_.find("qcd") == std::string::npos) {
+        createTree("Closure_TF", Channel::TightFake);
+        if (isMC_) {
+            createTree("Closure_TT", Channel::TightTight);
+        }
+    }
     muon.setup_map(Level::FakeNotTight);
     elec.setup_map(Level::FakeNotTight);
 
@@ -53,14 +57,29 @@ void FakeRate::Init(TTree* tree)
     setupTrigger(Subchannel::E, {"HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30",
                                  "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30"});
     // Dilepton triggers
-    setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
-                                  "HLT_DoubleMu8_Mass8_PFHT300"});
-    setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
-                                  "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
-    setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
-                                  "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
-    setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
-                                  "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+    if (year_ == Year::yr2016) {
+        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"});
+        setupTrigger(Subchannel::ME, {"HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+                                      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL"});
+        setupTrigger(Subchannel::EM, {"HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL",
+                                      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL"});
+        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
+    } else if(year_ == Year::yr2017) {
+        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"});
+        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"});
+    } else if (year_ == Year::yr2018) {
+        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"});
+        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"});
+    }
+
     setupTrigger(Subchannel::None);
 
     LOG_FUNC << "End of Init";
@@ -70,9 +89,9 @@ void FakeRate::SetupOutTreeBranches(TTree* tree)
 {
     LOG_FUNC << "Start of SetupOutTreeBranches";
     BaseSelector::SetupOutTreeBranches(tree);
-    tree->Branch("LooseMuon", "ParticleOut", &o_looseMuons);
+    tree->Branch("FakeMuon", "ParticleOut", &o_fakeMuons);
     tree->Branch("TightMuon", "ParticleOut", &o_tightMuons);
-    tree->Branch("LooseElectron", "ParticleOut", &o_looseElectrons);
+    tree->Branch("FakeElectron", "ParticleOut", &o_fakeElectrons);
     tree->Branch("TightElectron", "ParticleOut", &o_tightElectrons);
     tree->Branch("Jets", "JetOut", &o_jets);
     tree->Branch("BJets", "BJetOut", &o_bJets);
@@ -118,6 +137,16 @@ void FakeRate::ApplyScaleFactors()
     LOG_FUNC << "End of ApplyScaleFactors";
 }
 
+void FakeRate::ApplyDataSpecifics()
+{
+    if (nLeps(Level::Fake) == 1) {
+        std::string trig_string;
+        if (lead_lep.Pt() < 25) trig_string = trig_cuts.trigger_names[subChannel_].at(0);
+        else trig_string = trig_cuts.trigger_names[subChannel_].at(1);
+        (*weight) *= sfMaker.getPScale(*run, *lumiblock, trig_string);
+    }
+}
+
 void FakeRate::setOtherGoodParticles(size_t syst)
 {
     LOG_FUNC << "Start of setOtherGoodParticles";
@@ -147,6 +176,21 @@ void FakeRate::setSubChannel()
     LOG_FUNC << "End of setSubChannel";
 }
 
+bool FakeRate::isSameSign()
+{
+    int q_total = 0;
+    for (size_t idx : muon.list(Level::Fake)) {
+        q_total += muon.charge(idx);
+    }
+    for (size_t idx : elec.list(Level::Fake)) {
+        q_total += elec.charge(idx);
+    }
+    // if 2 leptons, SS -> +1 +1 / -1 -1 -> abs(q) == 2
+    // OS cases are 0 and 3, so no overlap
+    return abs(q_total) == 1 || abs(q_total) == 2;
+}
+
+
 bool FakeRate::getCutFlow()
 {
     LOG_FUNC << "Start of passSelection";
@@ -167,6 +211,10 @@ bool FakeRate::getCutFlow()
         return false;
     }
 
+    if (!isMC_) {
+        ApplyDataSpecifics();
+    }
+
     LOG_FUNC << "End of passSelection";
     return true;
 }
@@ -174,20 +222,21 @@ bool FakeRate::getCutFlow()
 bool FakeRate::single_lep_cuts(CutInfo& cuts)
 {
     bool passCuts = true;
+    bool haveOneFake = nLeps(Level::Fake) == 1;
 
     passCuts &= cuts.setCut("passPreselection", true);
     passCuts &= cuts.setCut("passMETFilter", passMetFilters());
-    passCuts &= cuts.setCut("pass1FakeLep", nLeps(Level::Fake) == 1);
+    passCuts &= cuts.setCut("pass1FakeLep", haveOneFake);
     // TriggerCuts
     bool trig_match = false;
-    if (nLeps(Level::Fake) == 1) {
-        trig_match =(lead_lep.Pt() < 25 && *trig_cuts.trigs[subChannel_].at(0)) || ( lead_lep.Pt() >= 25 && *trig_cuts.trigs[subChannel_].at(1));
+    if (haveOneFake) {
+        trig_match = (lead_lep.Pt() < 25 && *trig_cuts.trigs[subChannel_].at(0)) || ( lead_lep.Pt() >= 25 && *trig_cuts.trigs[subChannel_].at(1));
     }
     passCuts &= cuts.setCut("passLeadPtCut", trig_match);
     passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
 
     bool hasFarJet = false;
-    if (nLeps(Level::Fake) == 1) {
+    if (haveOneFake) {
         for (auto jidx: jet.list(Level::Tight)) {
             if (deltaR(lead_lep.Eta(), jet.eta(jidx), lead_lep.Phi(), jet.phi(jidx)) > 1) {
                 hasFarJet = true;
@@ -206,7 +255,7 @@ bool FakeRate::measurement_cuts()
     CutInfo cuts;
 
     passCuts &= single_lep_cuts(cuts);
-    passCuts &= cuts.setCut("passMetCut", *Met_pt < 20);
+    passCuts &= cuts.setCut("passMetCut", *Met_pt < 30);
     passCuts &= cuts.setCut("passMtCut", mt_f(lead_lep.Pt(), *Met_pt, lead_lep.Phi(), *Met_phi) < 20);
 
     // Fill Cut flow
@@ -239,11 +288,12 @@ bool FakeRate::closure_cuts()
     passCuts &= cuts.setCut("passPreselection", true);
     passCuts &= cuts.setCut("passMETFilter", passMetFilters());
     passCuts &= cuts.setCut("pass2FakeLep",  nLeps(Level::Fake) == 2);
-    passCuts &= cuts.setCut("passTightLep", nLeps(Level::Tight) > 0);
+    passCuts &= cuts.setCut("passTightLep", nLeps(Level::Tight) >= 1);
     // Trigger Cuts
     passCuts &= cuts.setCut("passLeadPtCut", getLeadPt() > 25);
     passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
 
+    passCuts &= cuts.setCut("passSSLeptons", isSameSign());
     passCuts &= cuts.setCut("passZVeto", muon.passZVeto() && elec.passZVeto());
     passCuts &= cuts.setCut("passJetNumber", jet.size(Level::Tight) >= 2);
     passCuts &= cuts.setCut("passMetCut", *Met_pt > 50);
@@ -289,9 +339,9 @@ void FakeRate::FillValues(const std::vector<bool>& passVec)
         pass_bitmap += passVec.at(i) << i;
     }
 
-    fillParticle(muon, Level::Fake, *o_looseMuons, pass_bitmap);
+    fillParticle(muon, Level::FakeNotTight, *o_fakeMuons, pass_bitmap);
     fillParticle(muon, Level::Tight, *o_tightMuons, pass_bitmap);
-    fillParticle(elec, Level::Fake, *o_looseElectrons, pass_bitmap);
+    fillParticle(elec, Level::FakeNotTight, *o_fakeElectrons, pass_bitmap);
     fillParticle(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
     fillJet(jet, Level::Tight, *o_jets, pass_bitmap);
     fillBJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
