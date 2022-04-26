@@ -4,14 +4,18 @@ from analysis_suite.commons.plot_utils import darkenColor
 import numpy as np
 
 class Stack(Histogram):
-    def __init__(self, bin_info):
+    def __init__(self, bin_info, stack_by_int=False):
         super().__init__("", bin_info)
         self.stack = list()
         self.options = {"stacked": True, "histtype": "stepfilled"}
+        self.stack_by_int = stack_by_int
 
     def __iadd__(self, right):
-        idx = self._get_index(right.integral())
-        self.stack.insert(idx, right)
+        if self.stack_by_int:
+            idx = self._get_index(right.integral())
+            self.stack.insert(idx, right)
+        else:
+            self.stack.append(right)
         return super().__iadd__(right)
 
     def _get_index(self, integral):

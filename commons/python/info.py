@@ -116,6 +116,11 @@ class FileInfo(BasicInfo):
             return 1.
         info = self.get_info(group)
         scale = info['cross_section']
+        if isinstance(scale, dict):
+            if self.year == 2016:
+                scale = scale[f"{self.year}"]
+            else:
+                scale = scale["2017/2018"]
         if "kfactor" in info:
             scale *= info["kfactor"]
         return scale

@@ -9,7 +9,7 @@ info ={
 	        "ttg_singleLept",
 	        "ttg_dilep",
 	        "zg",
-            # "wg",
+            "wg",
             "tg"
         ]
     },
@@ -103,8 +103,9 @@ info ={
     },
 
     "qcd" : {
+        "Composite": True,
         "Name": r"QCD",
-        "Members": [],
+        "Members": ["qcd_mu", "qcd_em"],
     },
 
     "qcd_mu" : {
@@ -143,6 +144,34 @@ info ={
             "qcd_bcToE_pt250-Inf",
         ]
     },
+    "ttjets_lep": {
+        "Name": r"t\bar{t}",
+        "Members": [
+            "ttjets_dilep",
+            "ttjets_single_t",
+            "ttjets_single_tbar",
+        ],
+    },
+    "ttbar_lep": {
+        "Name": r"t\bar{t}",
+        "Members" : [
+            "ttbar_2l2n",
+            "ttbar_semilep",
+        ],
+    },
+    "wjet_ht": {
+        "Name": r"W+jets",
+        "Members": [
+            "wjets_ht70-100",
+            "wjets_ht100-200",
+            "wjets_ht200-400",
+            "wjets_ht400-600",
+            "wjets_ht600-800",
+            "wjets_ht800-1200",
+            "wjets_ht1200-2500",
+            "wjets_ht2500-Inf"
+        ],
+    },
     "ewk" : {
         "Name": r"EWK",
         "Members": [
@@ -165,7 +194,7 @@ info ={
             "DYm50_ht800-1200",
             "DYm50_ht1200-2500",
             "DYm50_ht2500-Inf",
-            # "ttjets_dilep",
+            "ttjets_dilep",
             "ttjet",
             "DYm50",
         ]
