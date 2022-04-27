@@ -87,6 +87,9 @@ class GroupInfo(BasicInfo):
             final[key] = members
         return final
 
+    def get_members(self, group):
+        return self.get_memberMap()[group]
+
 class FileInfo(BasicInfo):
     def __init__(self, year="2018", isUL=False, **kwargs):
         super().__init__(**kwargs)
