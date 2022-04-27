@@ -40,7 +40,7 @@ private:
     LeptonOut* o_tightElectrons;
     ParticleOut* o_tightLeptons;
     JetOut* o_jets;
-    BJetOut* o_bJets;
+    JetOut* o_bJets;
     TopOut* o_resolvedTop;
 
     TRVariable<ULong64_t> event;
@@ -48,7 +48,7 @@ private:
     TRVariable<Float_t> Met_phi;
     TRVariable<Float_t> Pileup_nTrueInt;
 
-    std::vector<Float_t> o_ht, o_htb, o_met, o_metphi, o_centrality;
+    std::vector<Float_t> o_ht, o_htb, o_met, o_metphi, o_centrality, o_nb_loose, o_nb_tight;
 
     TrigEff trigEff_leadPt;
 

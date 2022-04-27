@@ -28,11 +28,8 @@ class Closure_MisId : public BaseSelector {
     TTree* treeFakeRate_;
 
     LeptonOut* o_tightMuons;
-    LeptonOut* o_looseElectrons;
     LeptonOut* o_tightElectrons;
     JetOut* o_jets;
-    BJetOut* o_bJets;
-    TopOut* o_resolvedTop;
 
     TRVariable<ULong64_t> event;
     TRVariable<Float_t> Met_pt;

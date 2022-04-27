@@ -94,12 +94,14 @@ void FakeRate::SetupOutTreeBranches(TTree* tree)
     tree->Branch("FakeElectron", "ParticleOut", &o_fakeElectrons);
     tree->Branch("TightElectron", "ParticleOut", &o_tightElectrons);
     tree->Branch("Jets", "JetOut", &o_jets);
-    tree->Branch("BJets", "BJetOut", &o_bJets);
+    tree->Branch("BJets", "JetOut", &o_bJets);
 
     tree->Branch("HT", &o_ht);
     tree->Branch("HT_b", &o_htb);
     tree->Branch("Met", &o_met);
     tree->Branch("Met_phi", &o_metphi);
+    tree->Branch("N_bloose", &o_nb_loose);
+    tree->Branch("N_btight", &o_nb_tight);
     LOG_FUNC << "End of SetupOutTreeBranches";
 }
 
@@ -117,6 +119,8 @@ void FakeRate::clearOutputs()
     o_htb.clear();
     o_met.clear();
     o_metphi.clear();
+    o_nb_loose.clear();
+    o_nb_tight.clear();
     LOG_FUNC << "End of clearOutputs";
 }
 
@@ -344,13 +348,15 @@ void FakeRate::FillValues(const std::vector<bool>& passVec)
     fillParticle(elec, Level::FakeNotTight, *o_fakeElectrons, pass_bitmap);
     fillParticle(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
     fillJet(jet, Level::Tight, *o_jets, pass_bitmap);
-    fillBJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
+    fillJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
 
     for (size_t syst = 0; syst < numSystematics(); ++syst) {
         o_ht.push_back(jet.getHT(Level::Tight, syst));
         o_htb.push_back(jet.getHT(Level::Bottom, syst));
         o_met.push_back(*Met_pt);
         o_metphi.push_back(*Met_phi);
+        o_nb_loose.push_back(jet.n_loose_bjet.at(syst));
+        o_nb_tight.push_back(jet.n_tight_bjet.at(syst));
     }
     LOG_FUNC << "End of FillValues";
 }

@@ -71,7 +71,7 @@ void ThreeTop::SetupOutTreeBranches(TTree* tree)
     tree->Branch("TightElectron", "LeptonOut", &o_tightElectrons);
     tree->Branch("TightLeptons", "ParticleOut", &o_tightLeptons);
     tree->Branch("Jets", "JetOut", &o_jets);
-    tree->Branch("BJets", "BJetOut", &o_bJets);
+    tree->Branch("BJets", "JetOut", &o_bJets);
     tree->Branch("ResolvedTops", "TopOut", &o_resolvedTop);
 
     tree->Branch("HT", &o_ht);
@@ -79,6 +79,8 @@ void ThreeTop::SetupOutTreeBranches(TTree* tree)
     tree->Branch("Met", &o_met);
     tree->Branch("Met_phi", &o_metphi);
     tree->Branch("Centrality", &o_centrality);
+    tree->Branch("N_bloose", &o_nb_loose);
+    tree->Branch("N_btight", &o_nb_tight);
     LOG_FUNC << "End of SetupOutTreeBranches";
 }
 
@@ -98,6 +100,8 @@ void ThreeTop::clearOutputs()
     o_met.clear();
     o_metphi.clear();
     o_centrality.clear();
+    o_nb_loose.clear();
+    o_nb_tight.clear();
     LOG_FUNC << "End of clearOutputs";
 }
 
@@ -298,7 +302,7 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
     fillLepton(muon, Level::Tight, *o_tightMuons, pass_bitmap);
     fillLepton(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
     fillJet(jet, Level::Tight, *o_jets, pass_bitmap);
-    fillBJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
+    fillJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
     fillTop(rTop, Level::Loose, *o_resolvedTop, pass_bitmap);
     fillAllLeptons(muon, elec, *o_tightLeptons, pass_bitmap);
 
@@ -308,6 +312,8 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
         o_met.push_back(*Met_pt);
         o_metphi.push_back(*Met_phi);
         o_centrality.push_back(jet.getCentrality(Level::Tight, syst));
+        o_nb_loose.push_back(jet.n_loose_bjet.at(syst));
+        o_nb_tight.push_back(jet.n_tight_bjet.at(syst));
     }
     LOG_FUNC << "End of FillValues";
 }

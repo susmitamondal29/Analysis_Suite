@@ -17,29 +17,6 @@ void fillJet(const Jet& jet, Level level, JetOut& fillObject, size_t pass_bitmap
     LOG_FUNC << "End of fillJet";
 }
 
-void fillBJet(const Jet& jet, Level level, BJetOut& fillObject, size_t pass_bitmap)
-{
-    LOG_FUNC << "Start fillBJet";
-    fillObject.clear();
-    for (size_t syst = 0; syst < Particle::nSyst; ++syst) {
-        if ((pass_bitmap >> syst) & 1) {
-            fillObject.n_loose.push_back(jet.n_loose_bjet.at(syst));
-            fillObject.n_medium.push_back(jet.n_medium_bjet.at(syst));
-            fillObject.n_tight.push_back(jet.n_tight_bjet.at(syst));
-        }
-    }
-
-    for (size_t idx = 0; idx < jet.size(); ++idx) {
-        size_t final_bitmap = fillParticle(jet, level, fillObject, idx, pass_bitmap);
-        if (final_bitmap != 0) {
-            fillObject.discriminator.push_back(jet.btag.at(idx));
-            fillObject.jer.push_back(jet.get_JEC_pair(Systematic::Jet_JER, idx));
-            fillObject.jes.push_back(jet.get_JEC_pair(Systematic::Jet_JES, idx));
-        }
-    }
-    LOG_FUNC << "End of fillBJet";
-}
-
 void fillTop(const ResolvedTop& top, Level level, TopOut& fillObject, size_t pass_bitmap)
 {
     LOG_FUNC << "Start of fillTop";

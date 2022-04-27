@@ -76,7 +76,6 @@ void Closure_MisId::SetupOutTreeBranches(TTree* tree)
     LOG_FUNC << "Start of SetupOutTreeBranches";
     BaseSelector::SetupOutTreeBranches(tree);
     tree->Branch("TightMuon", "LeptonOut", &o_tightMuons);
-    // tree->Branch("LooseElectron", "LeptonOut", &o_looseElectrons);
     tree->Branch("TightElectron", "LeptonOut", &o_tightElectrons);
     tree->Branch("Jets", "JetOut", &o_jets);
 
@@ -282,7 +281,6 @@ void Closure_MisId::FillValues(const std::vector<bool>& passVec)
         pass_bitmap += passVec.at(i) << i;
     }
 
-    // fillLepton(elec, Level::Loose, *o_looseElectrons, pass_bitmap);
     fillLepton(muon, Level::Tight, *o_tightMuons, pass_bitmap);
     fillLepton(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
     fillJet(jet, Level::Tight, *o_jets, pass_bitmap);

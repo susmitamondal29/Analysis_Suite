@@ -34,13 +34,13 @@ private:
     ParticleOut* o_fakeElectrons;
     ParticleOut* o_tightElectrons;
     JetOut* o_jets;
-    BJetOut* o_bJets;
+    JetOut* o_bJets;
 
     TRVariable<Float_t> Met_pt;
     TRVariable<Float_t> Met_phi;
     TRVariable<Float_t> Pileup_nTrueInt;
 
-    std::vector<Float_t> o_ht, o_htb, o_met, o_metphi;
+    std::vector<Float_t> o_ht, o_htb, o_met, o_metphi, o_nb_loose, o_nb_tight;
 
     std::set<std::string> ewk_sets = {"ttjet", "ttbar", "wjets", "DYm50", "DYm10-50"};
 
