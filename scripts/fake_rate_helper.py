@@ -12,7 +12,8 @@ hep = setup_mplhep()
 
 def setup_histogram(group, vg_dict, chan, graph_info):
     output = Histogram(group, *graph_info.bins())
-    output.set_plot_details(graph_info.info)
+    if group != "":
+        output.set_plot_details(graph_info.info)
 
     for mem, vg in vg_dict.items():
         vals, scale = graph_info.func(vg, chan)
@@ -45,11 +46,12 @@ def make_stack(hist_dict, scales=None):
     return stack
 
 def mask_vg(vgs, mask_func):
-    for vg_groups in vgs.values():
-        for vg in vg_groups.values():
+    for vg in vgs.values():
+        if isinstance(vg, VarGetter):
             vg.clear_mask()
             vg.mask = mask_func(vg)
-
+        else:
+            mask_vg(vg, mask_func)
 
 def plot_ratio1d(stack, data, plot_name, axis_name, lumi, channel=None):
     with ratio_plot(plot_name, axis_name, stack.get_xrange()) as ax:

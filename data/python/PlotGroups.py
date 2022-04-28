@@ -182,9 +182,9 @@ info ={
             "wjets",
         ]
     },
-    "ewk_mis" : {
-        "Name": r"EWK",
-        "Members": [
+    "DY_ht": {
+        "Name": r"DY",
+        "Members" : [
             "DYm50_ht40-70",
             "DYm50_ht70-100",
             "DYm50_ht100-200",
@@ -194,15 +194,30 @@ info ={
             "DYm50_ht800-1200",
             "DYm50_ht1200-2500",
             "DYm50_ht2500-Inf",
-            "ttjets_dilep",
-            "ttjet",
-            "DYm50",
+            "DYm10-50"
         ]
     },
+    "DY": {
+        "Name": r"DY",
+        "Members" : [
+            "DYm50",
+            "DYm10-50"
+        ]
+    },
+
+
     "data" : {
         "Name": r"Data",
         "Members": [
             "data"
         ],
     },
+    'charge_flip': {
+        "Name": r"Charge Misid",
+        "Members": ['data']
+    },
+    'nonprompt': {
+        "Name": r"Nonprompt",
+        "Members": ['data']
+    }
 }

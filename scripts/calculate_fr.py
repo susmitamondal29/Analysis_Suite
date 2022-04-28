@@ -115,8 +115,7 @@ def np_sideband(year, lumi, ginfo, finfo, args):
         # Masking
         chan_mask = lambda vg : (vg[f'Tight{chan}'].num() == 1)
         mask_vg(side_mc, chan_mask)
-        side_data['data'].clear_mask()
-        side_data['data'].mask = chan_mask(side_data['data'])
+        mask_vg(side_data, chan_mask)
 
         for graph in [pt_tight, mt_tight, met, met_phi]:
             setup_plot(side_mc, side_data, chan, graph, name+"_notrig", "SB")
@@ -180,8 +179,7 @@ def np_fake_rate(year, lumi, ginfo, finfo, args):
         # Masking
         chan_mask = lambda vg : (vg[f'Tight{chan}'].num() == 1)+(vg[f'Fake{chan}'].num() == 1)
         mask_vg(measure_mc, chan_mask)
-        measure_data['data'].clear_mask()
-        measure_data['data'].mask = chan_mask(measure_data['data'])
+        mask_vg(measure_data, chan_mask)
 
         for graph in [pt_loose, pt_tight, mt_loose, mt_tight, met, met_phi]:
             setup_plot(measure_mc, measure_data, chan, graph, name+"_notrig", "MR")
@@ -260,8 +258,7 @@ def np_closure(year, lumi, ginfo, finfo, args):
     # TF control region
     for chan in args.close_chan:
         mask_vg(mc_tf, tf_masks[chan])
-        data_tf['data'].clear_mask()
-        data_tf['data'].mask = tf_masks[chan](data_tf['data'])
+        mask_vg(data_tf, tf_masks[chan])
 
         name = f'CR_{year}/{chan}_{year}'
 
@@ -273,11 +270,11 @@ def np_closure(year, lumi, ginfo, finfo, args):
         fake_rates = pickle.load(f)
     scale_fake(data_tf['data'], "Muon", fake_rates["Muon"]['qcd'])
     scale_fake(data_tf['data'], "Electron", fake_rates['Electron']['qcd'])
+    nonprompt = {"nonprompt", data_tf}
 
     for chan in args.close_chan:
         mask_vg(mc_tt, tt_masks[chan])
-        data_tf['data'].clear_mask()
-        data_tf['data'].mask = tf_masks[chan](data_tf['data'])
+        mask_vg(data_tf, tf_masks[chan])
 
         name = f'CR_{year}/{chan}_{year}'
 
@@ -314,6 +311,7 @@ if __name__ == "__main__":
         "ewk": "orange",
         "wjet_ht": "olive",
         "ttbar_lep": "royalblue",
+        'nonprompt': 'lightgrey'
     }
     ginfo = GroupInfo(color_by_group)
     GraphInfo.info = ginfo

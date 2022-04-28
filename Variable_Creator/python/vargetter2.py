@@ -33,7 +33,8 @@ class VarGetter:
         self.syst_bit = 2**self.syst
         f = uproot.open(filename)
         if group not in f:
-            exit()
+            self._mask = None
+            return
         self.tree = f[group][treename]
         self.branches = [key for key, array in self.tree.items()
                          if len(array.keys()) == 0]
@@ -149,7 +150,10 @@ class Particle:
         return self._mask[self.vg.mask]
 
     def scale(self, n):
-        return self.vg.scale[self.num() > n]
+        if n == -1:
+            return ak.broadcast_arrays(self.vg.scale, self.pt)[0]
+        else:
+            return self.vg.scale[self.num() > n]
 
     def abseta(self, idx):
         return np.abs(self['eta', idx])
