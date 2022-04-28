@@ -1,100 +1,150 @@
 
-<!DOCTYPE html>
+  
 
+<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta charset="utf-8"/>
-<title>analysis_suite.commons.histogram | Analysis Suite  documentation</title>
-<link href="../../../_static/pygments.css" rel="stylesheet"/>
-<link href="../../../_static/theme.313ea551d1799b2102b1.css" rel="stylesheet"/>
-<link href="../../../_static/style.css" rel="stylesheet"/>
-<link href="../../../search.html" rel="search" title="Search"/>
-<link href="../../../genindex.html" rel="index" title="Index"/>
-</head>
-<body class="antialiased text-gray">
-<div class="h-screen xl:grid xl:grid-layout" data-action="keydown@window-&gt;search#focus" data-controller="sidebar search" id="page">
-<a class="block text-xl bg-white py-4 z-20 absolute top-0 h-18 inset-x-0 text-center transform -translate-y-full focus:translate-y-0 focus:outline-none transition-transform duration-75" href="#analysis-suite-commons-histogram" title="Skip navigation links">Skip to content</a>
-<header class="grid-area-header z-10 h-14 sm:h-18">
-<div class="bg-gray-dark shadow-md flex items-center h-full xl:px-2 relative"><div class="flex items-center">
-<button class="xl:hidden h-14 w-14 sm:h-18 sm:w-18 leading-14 sm:leading-18 text-gray-100 hover:bg-gray-700 hover:text-brand focus:outline-none focus:bg-gray-700 focus:text-brand" data-action="sidebar#open" data-sidebar-target="hamburger">
-<span class="sr-only">Open navigation menu</span>
-<svg aria-hidden="true" class="fill-current h-8 w-8" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
-</button><a aria-label="Back to homepage" class="hover:bg-gray-700 focus:bg-gray-700 focus:outline-none tooltipped tooltipped-sw" href="../../../index.html"><span class="hidden lg:inline-block shrink-0 font-medium text-gray-100 mx-5 leading-14 sm:leading-18 tracking-wider">Analysis Suite  documentation</span>
-</a></div><div class="flex justify-end items-center flex-1"><form action="../../../search.html" class="flex print:hidden justify-between items-center leading-14 sm:leading-18 md:ml-4 bg-gray-dark text-gray-300 focus-within:bg-gray-50 focus-within:text-gray-800 focus-within:absolute focus-within:inset-x-0 focus-within:top-0 md:focus-within:w-full md:focus-within:static" data-action="click-&gt;search#focusSearchInput" id="searchbox" method="get">
-<button aria-label="Get search results" class="text-inherit h-14 w-14 sm:h-18 sm:w-18" tabindex="-1">
-<svg aria-hidden="true" class="fill-current stroke-current h-8 w-8" stroke-width="0.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
-</button>
-<input aria-label="Search the docs" class="pr-2 bg-transparent text-inherit focus:outline-none w-0 md:w-auto focus:w-full transition-all duration-100" data-search-target="searchInput" id="search-input" name="q" placeholder="Search the docs" type="search"/>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    
+      <title>analysis_suite.commons.histogram | Analysis Suite  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" href="../../../_static/theme.33684ae9923d01874503.css" />
+      <link rel="stylesheet" href="../../../_static/style.css" />
+        <link rel="search" title="Search" href="../../../search.html" />
+        <link rel="index" title="Index" href="../../../genindex.html" />
+  </head>
+
+  <body class="antialiased text-gray scroll-smooth">
+    <div
+      id="page"
+      data-controller="sidebar search"
+      data-action="keydown@window->search#focus"
+      class="h-screen xl:grid xl:grid-layout"
+    >
+      <a class="block text-xl bg-white py-4 z-20 absolute top-0 h-14 inset-x-0 text-center transform -translate-y-full focus:translate-y-0 focus:outline-none transition-transform duration-75" href="#analysis-suite-commons-histogram" title="Skip navigation links">Skip to content</a>
+
+      <header class="grid-area-header z-10 h-14">
+        <div class="bg-gray-dark shadow-md flex items-center h-full xl:px-2 relative"><div class="flex items-center">
+      <button
+    data-action="sidebar#open"
+    data-sidebar-target="hamburger"
+    class="xl:hidden h-14 w-14 leading-14 text-gray-100 hover:bg-gray-700 hover:text-brand focus:outline-none focus:bg-gray-700 focus:text-brand">
+  <span class="sr-only">Open navigation menu</span>
+  <svg aria-hidden="true" class="fill-current h-8 w-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+</button><a class="hover:bg-gray-700 focus:bg-gray-700 focus:outline-none tooltipped tooltipped-sw"
+   href="../../../index.html"
+   aria-label="Back to homepage"><span class="hidden lg:inline-block shrink-0 font-medium text-gray-100 mx-5 leading-14 tracking-wider">Analysis Suite  documentation</span>
+</a></div><div class="flex justify-end items-center flex-1"><form
+  id="searchbox"
+  action="../../../search.html"
+  data-action="click->search#focusSearchInput"
+  method="get"
+  class="flex print:hidden justify-between items-center leading-14 md:ml-4 bg-gray-dark text-gray-300 focus-within:bg-gray-50 focus-within:text-gray-800 focus-within:absolute focus-within:inset-x-0 focus-within:top-0 md:focus-within:w-full md:focus-within:static">
+
+  <button
+    class="text-inherit h-14 w-14"
+    aria-label="Get search results"
+    tabindex="-1"
+  >
+    <svg aria-hidden="true" class="fill-current stroke-current h-8 w-8" stroke-width="0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+  </button>
+
+  <input
+    name="q"
+    id="search-input"
+    data-search-target="searchInput"
+    type="search"
+    aria-label="Search the docs"
+    placeholder="Search the docs"
+    class="pr-2 bg-transparent text-inherit focus:outline-none w-0 md:w-auto focus:w-full transition-all duration-100"
+  />
 </form></div>
 </div>
-</header>
-<aside class="grid-area-sidebar h-full fixed xl:relative inset-y-0 left-0 z-20 xl:z-0 print:hidden overflow-y-auto transition-all transform transform-gpu -translate-x-full opacity-0 duration-300 xl:translate-x-0 xl:opacity-100" data-sidebar-target="sidebar">
-<nav class="h-full overflow-y-auto bg-white text-gray-600 pt-8 flex flex-col" role="navigation">
-<div class="nav-toc flex-1 pl-6"><p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+      </header>
+
+      
+  <aside data-sidebar-target="sidebar" class="grid-area-sidebar h-full fixed xl:relative inset-y-0 left-0 z-20 xl:z-0 print:hidden overflow-y-auto transition-all transform transform-gpu -translate-x-full opacity-0 duration-300 xl:translate-x-0 xl:opacity-100">
+    <nav
+  role="navigation"
+  class="h-full overflow-y-auto bg-white text-gray-600 pt-8 flex flex-col"
+>
+  <div class="nav-toc flex-1 pl-6"><p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../index.html">Main Page</a></div></li>
-<li class="toctree-l1"><div class="nav-link"><svg class="expand" data-action="click-&gt;sidebar#expand keydown-&gt;sidebar#expandKeyPressed" tabindex="0" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../running.html">Basic running</a></div><ul>
-<li class="toctree-l2"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../running.html#analysis-analyze">Analysis (<code class="docutils literal notranslate">analyze</code>)</a></div></li>
-<li class="toctree-l2"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../running.html#bdt-runner-mva">BDT runner (<code class="docutils literal notranslate">mva</code>)</a></div></li>
-<li class="toctree-l2"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../running.html#plotting-plot">Plotting (<code class="docutils literal notranslate">plot</code>)</a></div></li>
-<li class="toctree-l2"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../running.html#setup-combine-combine">Setup Combine (<code class="docutils literal notranslate">combine</code>)</a></div></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Main Page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../running.html">Basic running</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../running.html#analysis-analyze">Analysis (<code class="docutils literal notranslate"><span class="pre">analyze</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../running.html#bdt-runner-mva">BDT runner (<code class="docutils literal notranslate"><span class="pre">mva</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../running.html#plotting-plot">Plotting (<code class="docutils literal notranslate"><span class="pre">plot</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../running.html#setup-combine-combine">Setup Combine (<code class="docutils literal notranslate"><span class="pre">combine</span></code>)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><div class="nav-link"><svg class="expand" data-action="click-&gt;sidebar#expand keydown-&gt;sidebar#expandKeyPressed" tabindex="0" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.html">Analysis Suite Documentation</a></div><ul>
-<li class="toctree-l2"><div class="nav-link"><svg class="expand" data-action="click-&gt;sidebar#expand keydown-&gt;sidebar#expandKeyPressed" tabindex="0" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.commons.html"><code class="docutils literal notranslate">commons</code></a></div><ul>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.commons.html#commons-awkward-commons"><code class="docutils literal notranslate">commons.awkward_commons</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.commons.html#commons-configs"><code class="docutils literal notranslate">commons.configs</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.commons.html#commons-histogram"><code class="docutils literal notranslate">commons.histogram</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.commons.html#module-analysis_suite.commons.info"><code class="docutils literal notranslate">commons.info</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.commons.html#module-analysis_suite.commons.makeSimpleHtml"><code class="docutils literal notranslate">commons.makeSimpleHtml</code></a></div></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analysis_suite.html">Analysis Suite Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../analysis_suite.commons.html"><code class="docutils literal notranslate"><span class="pre">commons</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../analysis_suite.commons.html#commons-awkward-commons"><code class="docutils literal notranslate"><span class="pre">commons.awkward_commons</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../analysis_suite.commons.html#commons-configs"><code class="docutils literal notranslate"><span class="pre">commons.configs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../analysis_suite.commons.html#commons-histogram"><code class="docutils literal notranslate"><span class="pre">commons.histogram</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../analysis_suite.commons.html#module-analysis_suite.commons.info"><code class="docutils literal notranslate"><span class="pre">commons.info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../analysis_suite.commons.html#module-analysis_suite.commons.makeSimpleHtml"><code class="docutils literal notranslate"><span class="pre">commons.makeSimpleHtml</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><div class="nav-link"><svg class="expand" data-action="click-&gt;sidebar#expand keydown-&gt;sidebar#expandKeyPressed" tabindex="0" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.BDT_utilities.html"><code class="docutils literal notranslate">BDT_utilities</code></a></div><ul>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.BDT_utilities.html#bdt-utilities-mvaplotter"><code class="docutils literal notranslate">BDT_utilities.MVAPlotter</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.BDT_utilities.html#bdt-utilities-mvamaker"><code class="docutils literal notranslate">BDT_utilities.MvaMaker</code></a></div></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../analysis_suite.BDT_utilities.html"><code class="docutils literal notranslate"><span class="pre">BDT_utilities</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../analysis_suite.BDT_utilities.html#bdt-utilities-mvaplotter"><code class="docutils literal notranslate"><span class="pre">BDT_utilities.MVAPlotter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../analysis_suite.BDT_utilities.html#bdt-utilities-mvamaker"><code class="docutils literal notranslate"><span class="pre">BDT_utilities.MvaMaker</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><div class="nav-link"><svg class="expand" data-action="click-&gt;sidebar#expand keydown-&gt;sidebar#expandKeyPressed" tabindex="0" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.Plotting.html"><code class="docutils literal notranslate">Plotting</code></a></div><ul>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.Plotting.html#plotting-logfile"><code class="docutils literal notranslate">Plotting.LogFile</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.Plotting.html#plotting-confighelper"><code class="docutils literal notranslate">Plotting.configHelper</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.Plotting.html#plotting-pypad"><code class="docutils literal notranslate">Plotting.pyPad</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="../../../analysis_suite.Plotting.html#plotting-stack"><code class="docutils literal notranslate">Plotting.stack</code></a></div></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../analysis_suite.Plotting.html"><code class="docutils literal notranslate"><span class="pre">Plotting</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../analysis_suite.Plotting.html#plotting-logfile"><code class="docutils literal notranslate"><span class="pre">Plotting.LogFile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../analysis_suite.Plotting.html#plotting-confighelper"><code class="docutils literal notranslate"><span class="pre">Plotting.configHelper</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../analysis_suite.Plotting.html#plotting-pypad"><code class="docutils literal notranslate"><span class="pre">Plotting.pyPad</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../analysis_suite.Plotting.html#plotting-stack"><code class="docutils literal notranslate"><span class="pre">Plotting.stack</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 </div>
-<button class="text-4xl text-gray-800 p-4 bottom-0 hover:text-brand xl:hidden focus:text-brand self-center" data-action="" title="Close navigation menu">
-<span class="sr-only">Close navigation menu</span>
-<svg aria-hidden="true" class="fill-current stroke-current h-6 w-6" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
-</button>
+
+  <button
+      data-action=""
+      title="Close navigation menu"
+      class="text-4xl text-gray-800 p-4 bottom-0 hover:text-brand xl:hidden focus:text-brand self-center">
+    <span class="sr-only">Close navigation menu</span>
+    <svg aria-hidden="true" class="fill-current stroke-current h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+  </button>
 </nav>
-</aside>
-<main class="px-10 xl:ml-fluid grid-area-main overflow-y-auto flex flex-col h-full mx-0 md:mx-auto xl:mr-0" data-action="scroll-&gt;scroll#showButton" data-controller="scroll"><nav aria-label="breadcrumbs" class="print:hidden mt-12 text-sm text-gray-light" role="navigation">
-<a class="text-gray-light text-sm hover:text-gray-dark font-medium focus:text-gray-dark" href="../../../index.html">Analysis Suite  documentation</a>
-<span class="mr-1">/</span><a class="text-gray-light text-sm hover:text-gray-dark" href="../../index.html">Module code</a>
-<span class="mr-1">/</span><span aria-current="page">analysis_suite.commons.histogram</span>
+  </aside>
+
+  <main
+    data-controller="scroll"
+    data-action="scroll->scroll#showButton"
+    class="px-4 xl:ml-fluid grid-area-main overflow-y-auto flex flex-col h-full mx-0 md:mx-auto xl:mr-0"
+  ><nav role="navigation"
+     aria-label="breadcrumbs"
+     class="print:hidden mt-12 text-sm text-gray-light">
+  <a class="text-gray-light text-sm hover:text-gray-dark font-medium focus:text-gray-dark" href="../../../index.html">Analysis Suite  documentation</a>
+  <span class="mr-1">/</span><a class="text-gray-light text-sm hover:text-gray-dark" href="../../index.html">Module code</a>
+    <span class="mr-1">/</span><span aria-current="page">analysis_suite.commons.histogram</span>
 </nav>
-<article class="flex-1" role="main">
-<h1>Source code for analysis_suite.commons.histogram</h1><div class="highlight"><pre>
-<code><span class="kn">import</span> <span class="nn">awkward1</span> <span class="k">as</span> <span class="nn">ak</span>
+    <article role="main" class="flex-1">
+      
+  <h1>Source code for analysis_suite.commons.histogram</h1><div class="highlight"><pre>
+<code><span class="kn">import</span> <span class="nn">awkward</span> <span class="k">as</span> <span class="nn">ak</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
 <span class="kn">import</span> <span class="nn">boost_histogram</span> <span class="k">as</span> <span class="nn">bh</span>
 <span class="kn">from</span> <span class="nn">boost_histogram.accumulators</span> <span class="kn">import</span> <span class="n">WeightedSum</span> <span class="k">as</span> <span class="n">bh_weights</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">beta</span>
-
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <div class="viewcode-block" id="Histogram"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram">[docs]</a><span class="k">class</span> <span class="nc">Histogram</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hist</span> <span class="o">=</span> <span class="n">bh</span><span class="o">.</span><span class="n">Histogram</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">storage</span><span class="o">=</span><span class="n">bh</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">Weight</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">breakdown</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="n">group</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="s2">"k"</span> <span class="k">if</span> <span class="s2">"color"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"color"</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;k&quot;</span> <span class="k">if</span> <span class="s2">&quot;color&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draw_sc</span> <span class="o">=</span> <span class="mf">1.</span>
 
     <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
@@ -105,6 +155,16 @@
     <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
         <span class="n">hist</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">)</span>
         <span class="n">hist</span><span class="o">.</span><span class="n">hist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hist</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">right</span><span class="o">.</span><span class="n">hist</span>
+        <span class="k">return</span> <span class="n">hist</span>
+
+    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+        <span class="n">hist</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
+        <span class="n">hist</span><span class="o">.</span><span class="n">hist</span> <span class="o">=</span> <span class="n">right</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">hist</span>
+        <span class="k">return</span> <span class="n">hist</span>
+
+    <span class="k">def</span> <span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+        <span class="n">hist</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
+        <span class="n">hist</span><span class="o">.</span><span class="n">hist</span> <span class="o">=</span> <span class="n">right</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">hist</span>
         <span class="k">return</span> <span class="n">hist</span>
 
     <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
@@ -126,40 +186,76 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">hist</span> <span class="o">+=</span> <span class="n">hist</span>
 
     <span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">denom</span><span class="p">):</span>
-        <span class="n">p_raw</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">sumw2</span><span class="p">)</span>
-        <span class="n">t_raw</span> <span class="o">=</span> <span class="p">(</span><span class="n">denom</span><span class="o">.</span><span class="n">vals</span><span class="o">*</span><span class="n">denom</span><span class="o">.</span><span class="n">vals</span><span class="o">/</span><span class="n">denom</span><span class="o">.</span><span class="n">sumw2</span><span class="p">)</span>
-        <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sumw2</span><span class="o">*</span><span class="n">denom</span><span class="o">.</span><span class="n">vals</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="o">*</span><span class="n">denom</span><span class="o">.</span><span class="n">sumw2</span><span class="p">))</span>
-        <span class="n">hist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="o">/</span><span class="n">denom</span><span class="o">.</span><span class="n">vals</span>
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+            <span class="n">ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="o">/</span><span class="n">denom</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
+            <span class="n">error2</span> <span class="o">=</span> <span class="n">ratio</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">err_ratio</span> <span class="o">+</span> <span class="n">denom</span><span class="o">.</span><span class="n">err_ratio</span><span class="p">)</span>
 
-        <span class="n">alf</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mf">0.682689492137</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
-        <span class="n">lo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">beta</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">alf</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p_raw</span><span class="p">,</span> <span class="n">t_raw</span><span class="p">)])</span>
-        <span class="n">hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">beta</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alf</span><span class="p">,</span> <span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p_raw</span><span class="p">,</span> <span class="n">t_raw</span><span class="p">)])</span>
-        <span class="n">errLo</span> <span class="o">=</span> <span class="n">hist</span> <span class="o">-</span> <span class="n">ratio</span><span class="o">*</span><span class="n">lo</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">lo</span><span class="p">)</span>
-        <span class="n">errHi</span> <span class="o">=</span> <span class="n">ratio</span><span class="o">*</span><span class="n">hi</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">hi</span><span class="p">)</span> <span class="o">-</span> <span class="n">hist</span>
-        <span class="n">hist</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">hist</span><span class="p">)],</span> <span class="n">errLo</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">errLo</span><span class="p">)],</span> <span class="n">errHi</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">errHi</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
-        <span class="n">return_obj</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">return_obj</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">values</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">hist</span>
-        <span class="n">return_obj</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">variances</span><span class="p">()[:]</span> <span class="o">=</span> <span class="p">(</span><span class="n">errLo</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">errHi</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">return_obj</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
+        <span class="n">return_obj</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">values</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">ratio</span>
+        <span class="n">return_obj</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">variances</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">error2</span>
         <span class="k">return</span> <span class="n">return_obj</span>
 
     <span class="k">def</span> <span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span>
 
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;hist&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span>
+                <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;breakdown&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">breakdown</span><span class="p">,</span> <span class="s2">&quot;draw_sc&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">draw_sc</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hist</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;hist&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;group&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">breakdown</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;breakdown&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">draw_sc</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;draw_sc&quot;</span><span class="p">]</span>
+
     <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">'axis'</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">&#39;axis&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">'vals'</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">&#39;axes&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">axes</span>
+        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">&#39;vals&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
-        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">'err'</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">&#39;err&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">variance</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">'sumw2'</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">&#39;sumw2&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">variance</span>
+        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">&#39;err_ratio&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sumw2</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Histogram.efficiency"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram.efficiency">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">efficiency</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">bot</span><span class="p">):</span>
+        <span class="n">alf</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mf">0.682689492137</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">aa</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">vals</span><span class="o">*</span><span class="n">bot</span><span class="o">.</span><span class="n">vals</span><span class="o">/</span><span class="n">bot</span><span class="o">.</span><span class="n">sumw2</span><span class="o">+</span><span class="mi">1</span>
+        <span class="n">bb</span> <span class="o">=</span> <span class="p">(</span><span class="n">bot</span><span class="o">.</span><span class="n">vals</span><span class="o">-</span><span class="n">top</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span><span class="o">*</span><span class="n">bot</span><span class="o">.</span><span class="n">vals</span><span class="o">/</span><span class="n">bot</span><span class="o">.</span><span class="n">sumw2</span><span class="o">+</span><span class="mi">1</span>
+
+        <span class="n">eff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">beta</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">aa</span><span class="p">,</span> <span class="n">bb</span><span class="p">)])</span>
+
+        <span class="n">lo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">beta</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">alf</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">aa</span><span class="p">,</span> <span class="n">bb</span><span class="p">)])</span>
+        <span class="n">hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">beta</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alf</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">aa</span><span class="p">,</span> <span class="n">bb</span><span class="p">)])</span>
+        <span class="n">error2</span> <span class="o">=</span> <span class="p">(</span><span class="n">eff</span><span class="o">-</span><span class="n">lo</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">hi</span><span class="o">-</span><span class="n">eff</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+        <span class="n">return_obj</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">top</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
+        <span class="n">return_obj</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">values</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">eff</span>
+        <span class="n">return_obj</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">variances</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">error2</span>
+        <span class="k">return</span> <span class="n">return_obj</span></div>
+
+
+<div class="viewcode-block" id="Histogram.set_metadata"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram.set_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">set_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">group</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">draw_sc</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">draw_sc</span></div>
 
 <div class="viewcode-block" id="Histogram.project"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram.project">[docs]</a>    <span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
         <span class="n">new_hist</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">new_hist</span><span class="o">.</span><span class="n">hist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+        <span class="n">new_hist</span><span class="o">.</span><span class="n">set_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_hist</span></div>
 
 <div class="viewcode-block" id="Histogram.fill"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram.fill">[docs]</a>    <span class="k">def</span> <span class="nf">fill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">vals</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">member</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -168,17 +264,23 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">breakdown</span><span class="p">[</span><span class="n">member</span><span class="p">]</span> <span class="o">=</span> <span class="n">bh_weights</span><span class="p">()</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Histogram.set_plot_details"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram.set_plot_details">[docs]</a>    <span class="k">def</span> <span class="nf">set_plot_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_info</span><span class="p">):</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">group_info</span><span class="o">.</span><span class="n">get_legend_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'$</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">$'</span> <span class="k">if</span> <span class="s1">'</span><span class="se">\\</span><span class="s1">'</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">else</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">group_info</span><span class="o">.</span><span class="n">get_color</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group_info</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">group_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">group_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">group_info</span><span class="o">.</span><span class="n">get_legend_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;$</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">$&#39;</span> <span class="k">if</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">else</span> <span class="n">name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">group_info</span><span class="o">.</span><span class="n">get_color</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Histogram.get_xrange"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram.get_xrange">[docs]</a>    <span class="k">def</span> <span class="nf">get_xrange</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span></div>
 
-<div class="viewcode-block" id="Histogram.scale"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram.scale">[docs]</a>    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">forPlot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Histogram.scale"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram.scale">[docs]</a>    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">changeName</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">forPlot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">changeName</span><span class="p">:</span>
+            <span class="n">str_scale</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">scale</span><span class="si">:</span><span class="s1">0.2f</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; x&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; x </span><span class="si">{</span><span class="n">str_scale</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="n">forPlot</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">draw_sc</span> <span class="o">*=</span> <span class="n">scale</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">" x"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">" x </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">draw_sc</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">hist</span> <span class="o">*=</span> <span class="n">scale</span>
             <span class="k">for</span> <span class="n">mem</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">breakdown</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -192,9 +294,38 @@
             <span class="k">return</span>
         <span class="n">pad</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">centers</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">widths</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
                      <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">draw_sc</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="p">,</span> <span class="n">ecolor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">,</span>
-                     <span class="n">yerr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">draw_sc</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">err</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">'o'</span><span class="p">,</span>
+                     <span class="n">yerr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">draw_sc</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">err</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
                      <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">,</span> <span class="n">barsabove</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                      <span class="n">markersize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Histogram.plot_2d"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram.plot_2d">[docs]</a>    <span class="k">def</span> <span class="nf">plot_2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span> <span class="ow">or</span> <span class="n">pad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">color_plot</span> <span class="o">=</span> <span class="n">pad</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">shading</span><span class="o">=</span><span class="s1">&#39;flat&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">xstart</span><span class="p">,</span> <span class="n">xend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_xrange</span><span class="p">()</span>
+        <span class="n">min_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">xend</span><span class="o">-</span><span class="n">xstart</span><span class="p">)</span><span class="o">/</span><span class="mi">9</span>
+        <span class="n">min_ysize</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">14</span>
+
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">centers</span><span class="p">):</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">centers</span><span class="p">):</span>
+                <span class="n">ha</span> <span class="o">=</span> <span class="s1">&#39;center&#39;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;left&#39;</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">xstart</span>
+                <span class="k">elif</span> <span class="n">offset</span><span class="p">:</span>
+                    <span class="n">offset</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">widths</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_size</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">widths</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_size</span><span class="p">:</span>
+                    <span class="n">offset</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="n">ytot</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">offset</span><span class="o">*</span><span class="n">min_ysize</span>
+                <span class="n">val_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="se">\n</span><span class="s1">$\pm$</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">err</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">pad</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ytot</span><span class="p">,</span> <span class="n">val_str</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;x-small&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="n">ha</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">color_plot</span></div>
+
 
 <div class="viewcode-block" id="Histogram.plot_band"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram.plot_band">[docs]</a>    <span class="k">def</span> <span class="nf">plot_band</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span> <span class="ow">or</span> <span class="n">pad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -202,8 +333,8 @@
         <span class="n">pad</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">err</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">centers</span><span class="p">,</span>
                  <span class="n">bins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span>
                  <span class="n">bottom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">err</span><span class="p">,</span>
-                 <span class="n">histtype</span><span class="o">=</span><span class="s1">'stepfilled'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">,</span>
-                 <span class="n">align</span><span class="o">=</span><span class="s1">'mid'</span><span class="p">,</span> <span class="n">stacked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hatch</span><span class="o">=</span><span class="s1">'//'</span><span class="p">,</span>
+                 <span class="n">histtype</span><span class="o">=</span><span class="s1">&#39;stepfilled&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">,</span>
+                 <span class="n">align</span><span class="o">=</span><span class="s1">&#39;mid&#39;</span><span class="p">,</span> <span class="n">stacked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hatch</span><span class="o">=</span><span class="s1">&#39;//&#39;</span><span class="p">,</span>
                  <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Histogram.get_int_err"><a class="viewcode-back" href="../../../analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram.get_int_err">[docs]</a>    <span class="k">def</span> <span class="nf">get_int_err</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sqrt_err</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">roundDigit</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
@@ -211,19 +342,35 @@
         <span class="n">err</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">tot</span><span class="o">.</span><span class="n">variance</span><span class="p">)</span> <span class="k">if</span> <span class="n">sqrt_err</span> <span class="k">else</span> <span class="n">tot</span><span class="o">.</span><span class="n">variance</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">tot</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">err</span><span class="p">]),</span> <span class="n">roundDigit</span><span class="p">)</span></div></div>
 </code></pre></div>
-</article>
-<footer>
-<div class="mt-20 mb-4 text-sm text-gray-700">© 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.4.0</a></div>
-</footer></main>
-<button class="fixed bottom-0 right-0 z-20 opacity-0 p-4 m-4 tracking-wide bg-gray-900 text-gray-100 transition transform transform-gpu duration-500 translate-y-full" data-action="search#hideSnackbar" data-search-target="snackbar">
+
+    </article>
+
+    <footer>
+      
+        <div class="mt-20 mb-4 text-sm text-gray-700">&copy; 2021, Dylan Teague&nbsp;Made with <a href="https://www.sphinx-doc.org">Sphinx 4.5.0</a></div>
+      
+    </footer></main>
+
+
+      <button
+  data-search-target="snackbar"
+  data-action="search#hideSnackbar"
+  class="fixed bottom-0 right-0 z-20 opacity-0 p-4 m-4 tracking-wide bg-gray-900 text-gray-100 transition transform transform-gpu duration-500 translate-y-full"
+>
   Clear highlights
-</button><div class="fixed hidden inset-0 bg-black bg-opacity-50" data-action="click-&gt;sidebar#close" data-sidebar-target="screen">
+</button><div
+  data-sidebar-target="screen"
+  data-action="click->sidebar#close"
+  class="fixed hidden inset-0 bg-black bg-opacity-50">
 </div>
-</div>
-<script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-<script src="../../../_static/jquery.js"></script>
-<script src="../../../_static/underscore.js"></script>
-<script src="../../../_static/doctools.js"></script>
-<script src="../../../_static/theme.3666d2347a4c66e5d7a8.js"></script>
-</body>
+    </div>
+    
+      
+  <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+  <script src="../../../_static/jquery.js"></script>
+  <script src="../../../_static/underscore.js"></script>
+  <script src="../../../_static/doctools.js"></script>
+<script src="../../../_static/theme.1ba02c30758e6036ba31.js"></script>
+    
+  </body>
 </html>

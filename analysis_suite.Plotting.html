@@ -1,155 +1,203 @@
 
-<!DOCTYPE html>
+  
 
+<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta charset="utf-8"/>
-<meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
-<title>Plotting | Analysis Suite  documentation</title>
-<link href="_static/pygments.css" rel="stylesheet"/>
-<link href="_static/theme.313ea551d1799b2102b1.css" rel="stylesheet"/>
-<link href="_static/style.css" rel="stylesheet"/>
-<link href="search.html" rel="search" title="Search"/>
-<link href="genindex.html" rel="index" title="Index"/>
-<link href="analysis_suite.BDT_utilities.html" rel="prev" title="BDT_utilities"/>
-</head>
-<body class="antialiased text-gray">
-<div class="h-screen xl:grid xl:grid-layout" data-action="keydown@window-&gt;search#focus" data-controller="sidebar search" id="page">
-<a class="block text-xl bg-white py-4 z-20 absolute top-0 h-18 inset-x-0 text-center transform -translate-y-full focus:translate-y-0 focus:outline-none transition-transform duration-75" href="#code-class-docutils-literal-notranslate-span-class-pre-plotting-span-code" title="Skip navigation links">Skip to content</a>
-<header class="grid-area-header z-10 h-14 sm:h-18">
-<div class="bg-gray-dark shadow-md flex items-center h-full xl:px-2 relative"><div class="flex items-center">
-<button class="xl:hidden h-14 w-14 sm:h-18 sm:w-18 leading-14 sm:leading-18 text-gray-100 hover:bg-gray-700 hover:text-brand focus:outline-none focus:bg-gray-700 focus:text-brand" data-action="sidebar#open" data-sidebar-target="hamburger">
-<span class="sr-only">Open navigation menu</span>
-<svg aria-hidden="true" class="fill-current h-8 w-8" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
-</button><a aria-label="Back to homepage" class="hover:bg-gray-700 focus:bg-gray-700 focus:outline-none tooltipped tooltipped-sw" href="index.html"><span class="hidden lg:inline-block shrink-0 font-medium text-gray-100 mx-5 leading-14 sm:leading-18 tracking-wider">Analysis Suite  documentation</span>
-</a></div><div class="flex justify-end items-center flex-1"><form action="search.html" class="flex print:hidden justify-between items-center leading-14 sm:leading-18 md:ml-4 bg-gray-dark text-gray-300 focus-within:bg-gray-50 focus-within:text-gray-800 focus-within:absolute focus-within:inset-x-0 focus-within:top-0 md:focus-within:w-full md:focus-within:static" data-action="click-&gt;search#focusSearchInput" id="searchbox" method="get">
-<button aria-label="Get search results" class="text-inherit h-14 w-14 sm:h-18 sm:w-18" tabindex="-1">
-<svg aria-hidden="true" class="fill-current stroke-current h-8 w-8" stroke-width="0.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
-</button>
-<input aria-label="Search the docs" class="pr-2 bg-transparent text-inherit focus:outline-none w-0 md:w-auto focus:w-full transition-all duration-100" data-search-target="searchInput" id="search-input" name="q" placeholder="Search the docs" type="search"/>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+      <title>Plotting | Analysis Suite  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" />
+      <link rel="stylesheet" href="_static/theme.33684ae9923d01874503.css" />
+      <link rel="stylesheet" href="_static/style.css" />
+        <link rel="search" title="Search" href="search.html" />
+        <link rel="index" title="Index" href="genindex.html" />
+        <link rel="prev" title="BDT_utilities" href="analysis_suite.BDT_utilities.html" />
+  </head>
+
+  <body class="antialiased text-gray scroll-smooth">
+    <div
+      id="page"
+      data-controller="sidebar search"
+      data-action="keydown@window->search#focus"
+      class="h-screen xl:grid xl:grid-layout"
+    >
+      <a class="block text-xl bg-white py-4 z-20 absolute top-0 h-14 inset-x-0 text-center transform -translate-y-full focus:translate-y-0 focus:outline-none transition-transform duration-75" href="#code-class-docutils-literal-notranslate-span-class-pre-plotting-span-code" title="Skip navigation links">Skip to content</a>
+
+      <header class="grid-area-header z-10 h-14">
+        <div class="bg-gray-dark shadow-md flex items-center h-full xl:px-2 relative"><div class="flex items-center">
+      <button
+    data-action="sidebar#open"
+    data-sidebar-target="hamburger"
+    class="xl:hidden h-14 w-14 leading-14 text-gray-100 hover:bg-gray-700 hover:text-brand focus:outline-none focus:bg-gray-700 focus:text-brand">
+  <span class="sr-only">Open navigation menu</span>
+  <svg aria-hidden="true" class="fill-current h-8 w-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+</button><a class="hover:bg-gray-700 focus:bg-gray-700 focus:outline-none tooltipped tooltipped-sw"
+   href="index.html"
+   aria-label="Back to homepage"><span class="hidden lg:inline-block shrink-0 font-medium text-gray-100 mx-5 leading-14 tracking-wider">Analysis Suite  documentation</span>
+</a></div><div class="flex justify-end items-center flex-1"><form
+  id="searchbox"
+  action="search.html"
+  data-action="click->search#focusSearchInput"
+  method="get"
+  class="flex print:hidden justify-between items-center leading-14 md:ml-4 bg-gray-dark text-gray-300 focus-within:bg-gray-50 focus-within:text-gray-800 focus-within:absolute focus-within:inset-x-0 focus-within:top-0 md:focus-within:w-full md:focus-within:static">
+
+  <button
+    class="text-inherit h-14 w-14"
+    aria-label="Get search results"
+    tabindex="-1"
+  >
+    <svg aria-hidden="true" class="fill-current stroke-current h-8 w-8" stroke-width="0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+  </button>
+
+  <input
+    name="q"
+    id="search-input"
+    data-search-target="searchInput"
+    type="search"
+    aria-label="Search the docs"
+    placeholder="Search the docs"
+    class="pr-2 bg-transparent text-inherit focus:outline-none w-0 md:w-auto focus:w-full transition-all duration-100"
+  />
 </form></div>
 </div>
-</header>
-<aside class="grid-area-sidebar h-full fixed xl:relative inset-y-0 left-0 z-20 xl:z-0 print:hidden overflow-y-auto transition-all transform transform-gpu -translate-x-full opacity-0 duration-300 xl:translate-x-0 xl:opacity-100" data-sidebar-target="sidebar">
-<nav class="h-full overflow-y-auto bg-white text-gray-600 pt-8 flex flex-col" role="navigation">
-<div class="nav-toc flex-1 pl-6"><p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+      </header>
+
+      
+  <aside data-sidebar-target="sidebar" class="grid-area-sidebar h-full fixed xl:relative inset-y-0 left-0 z-20 xl:z-0 print:hidden overflow-y-auto transition-all transform transform-gpu -translate-x-full opacity-0 duration-300 xl:translate-x-0 xl:opacity-100">
+    <nav
+  role="navigation"
+  class="h-full overflow-y-auto bg-white text-gray-600 pt-8 flex flex-col"
+>
+  <div class="nav-toc flex-1 pl-6"><p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="index.html">Main Page</a></div></li>
-<li class="toctree-l1"><div class="nav-link"><svg class="expand" data-action="click-&gt;sidebar#expand keydown-&gt;sidebar#expandKeyPressed" tabindex="0" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" data-action="click-&gt;sidebar#close" href="running.html">Basic running</a></div><ul>
-<li class="toctree-l2"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="running.html#analysis-analyze">Analysis (<code class="docutils literal notranslate">analyze</code>)</a></div></li>
-<li class="toctree-l2"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="running.html#bdt-runner-mva">BDT runner (<code class="docutils literal notranslate">mva</code>)</a></div></li>
-<li class="toctree-l2"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="running.html#plotting-plot">Plotting (<code class="docutils literal notranslate">plot</code>)</a></div></li>
-<li class="toctree-l2"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="running.html#setup-combine-combine">Setup Combine (<code class="docutils literal notranslate">combine</code>)</a></div></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Main Page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running.html">Basic running</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="running.html#analysis-analyze">Analysis (<code class="docutils literal notranslate"><span class="pre">analyze</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running.html#bdt-runner-mva">BDT runner (<code class="docutils literal notranslate"><span class="pre">mva</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running.html#plotting-plot">Plotting (<code class="docutils literal notranslate"><span class="pre">plot</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running.html#setup-combine-combine">Setup Combine (<code class="docutils literal notranslate"><span class="pre">combine</span></code>)</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current expanded"><div class="nav-link"><svg class="expand" data-action="click-&gt;sidebar#expand keydown-&gt;sidebar#expandKeyPressed" tabindex="0" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" data-action="click-&gt;sidebar#close" href="analysis_suite.html">Analysis Suite Documentation</a></div><ul class="current">
-<li class="toctree-l2"><div class="nav-link"><svg class="expand" data-action="click-&gt;sidebar#expand keydown-&gt;sidebar#expandKeyPressed" tabindex="0" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" data-action="click-&gt;sidebar#close" href="analysis_suite.commons.html"><code class="docutils literal notranslate">commons</code></a></div><ul>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="analysis_suite.commons.html#commons-awkward-commons"><code class="docutils literal notranslate">commons.awkward_commons</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="analysis_suite.commons.html#commons-configs"><code class="docutils literal notranslate">commons.configs</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="analysis_suite.commons.html#commons-histogram"><code class="docutils literal notranslate">commons.histogram</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="analysis_suite.commons.html#module-analysis_suite.commons.info"><code class="docutils literal notranslate">commons.info</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="analysis_suite.commons.html#module-analysis_suite.commons.makeSimpleHtml"><code class="docutils literal notranslate">commons.makeSimpleHtml</code></a></div></li>
+<li class="toctree-l1 current"><a class="reference internal" href="analysis_suite.html">Analysis Suite Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="analysis_suite.commons.html"><code class="docutils literal notranslate"><span class="pre">commons</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="analysis_suite.commons.html#commons-awkward-commons"><code class="docutils literal notranslate"><span class="pre">commons.awkward_commons</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysis_suite.commons.html#commons-configs"><code class="docutils literal notranslate"><span class="pre">commons.configs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysis_suite.commons.html#commons-histogram"><code class="docutils literal notranslate"><span class="pre">commons.histogram</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysis_suite.commons.html#module-analysis_suite.commons.info"><code class="docutils literal notranslate"><span class="pre">commons.info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysis_suite.commons.html#module-analysis_suite.commons.makeSimpleHtml"><code class="docutils literal notranslate"><span class="pre">commons.makeSimpleHtml</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><div class="nav-link"><svg class="expand" data-action="click-&gt;sidebar#expand keydown-&gt;sidebar#expandKeyPressed" tabindex="0" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="reference internal" data-action="click-&gt;sidebar#close" href="analysis_suite.BDT_utilities.html"><code class="docutils literal notranslate">BDT_utilities</code></a></div><ul>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="analysis_suite.BDT_utilities.html#bdt-utilities-mvaplotter"><code class="docutils literal notranslate">BDT_utilities.MVAPlotter</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="analysis_suite.BDT_utilities.html#bdt-utilities-mvamaker"><code class="docutils literal notranslate">BDT_utilities.MvaMaker</code></a></div></li>
+<li class="toctree-l2"><a class="reference internal" href="analysis_suite.BDT_utilities.html"><code class="docutils literal notranslate"><span class="pre">BDT_utilities</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="analysis_suite.BDT_utilities.html#bdt-utilities-mvaplotter"><code class="docutils literal notranslate"><span class="pre">BDT_utilities.MVAPlotter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysis_suite.BDT_utilities.html#bdt-utilities-mvamaker"><code class="docutils literal notranslate"><span class="pre">BDT_utilities.MvaMaker</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2 current expanded"><div class="nav-link"><svg class="expand" data-action="click-&gt;sidebar#expand keydown-&gt;sidebar#expandKeyPressed" tabindex="0" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg><a class="current reference internal" data-action="click-&gt;sidebar#close" href="#"><code class="docutils literal notranslate">Plotting</code></a></div><ul>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="#plotting-logfile"><code class="docutils literal notranslate">Plotting.LogFile</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="#plotting-confighelper"><code class="docutils literal notranslate">Plotting.configHelper</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="#plotting-pypad"><code class="docutils literal notranslate">Plotting.pyPad</code></a></div></li>
-<li class="toctree-l3"><div class="nav-link"><a class="reference internal" data-action="click-&gt;sidebar#close" href="#plotting-stack"><code class="docutils literal notranslate">Plotting.stack</code></a></div></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">Plotting</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plotting-logfile"><code class="docutils literal notranslate"><span class="pre">Plotting.LogFile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plotting-confighelper"><code class="docutils literal notranslate"><span class="pre">Plotting.configHelper</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plotting-pypad"><code class="docutils literal notranslate"><span class="pre">Plotting.pyPad</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plotting-stack"><code class="docutils literal notranslate"><span class="pre">Plotting.stack</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 </div>
-<button class="text-4xl text-gray-800 p-4 bottom-0 hover:text-brand xl:hidden focus:text-brand self-center" data-action="" title="Close navigation menu">
-<span class="sr-only">Close navigation menu</span>
-<svg aria-hidden="true" class="fill-current stroke-current h-6 w-6" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
-</button>
+
+  <button
+      data-action=""
+      title="Close navigation menu"
+      class="text-4xl text-gray-800 p-4 bottom-0 hover:text-brand xl:hidden focus:text-brand self-center">
+    <span class="sr-only">Close navigation menu</span>
+    <svg aria-hidden="true" class="fill-current stroke-current h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+  </button>
 </nav>
-</aside>
-<main class="px-10 xl:ml-fluid grid-area-main overflow-y-auto flex flex-col h-full mx-0 md:mx-auto xl:mr-0" data-action="scroll-&gt;scroll#showButton" data-controller="scroll"><nav aria-label="breadcrumbs" class="print:hidden mt-12 text-sm text-gray-light" role="navigation">
-<a class="text-gray-light text-sm hover:text-gray-dark font-medium focus:text-gray-dark" href="index.html">Analysis Suite  documentation</a>
-<span class="mr-1">/</span><a class="text-gray-light text-sm hover:text-gray-dark" href="analysis_suite.html">Analysis Suite Documentation</a>
-<span class="mr-1">/</span><span aria-current="page"><code class="docutils literal notranslate">Plotting</code></span>
+  </aside>
+
+  <main
+    data-controller="scroll"
+    data-action="scroll->scroll#showButton"
+    class="px-4 xl:ml-fluid grid-area-main overflow-y-auto flex flex-col h-full mx-0 md:mx-auto xl:mr-0"
+  ><nav role="navigation"
+     aria-label="breadcrumbs"
+     class="print:hidden mt-12 text-sm text-gray-light">
+  <a class="text-gray-light text-sm hover:text-gray-dark font-medium focus:text-gray-dark" href="index.html">Analysis Suite  documentation</a>
+  <span class="mr-1">/</span><a class="text-gray-light text-sm hover:text-gray-dark" href="analysis_suite.html">Analysis Suite Documentation</a>
+    <span class="mr-1">/</span><span aria-current="page"><code class="docutils literal notranslate"><span class="pre">Plotting</span></code></span>
 </nav>
-<article class="flex-1" role="main">
-<section id="plotting">
-<h1><code class="docutils literal notranslate">Plotting</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#plotting">¶</a></h1>
+    <article role="main" class="flex-1">
+      
+  <section id="plotting">
+<h1><code class="docutils literal notranslate"><span class="pre">Plotting</span></code><a class="headerlink" href="#plotting" title="Permalink to this headline">¶</a></h1>
 <section id="plotting-logfile">
-<h2><code class="docutils literal notranslate">Plotting.LogFile</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#plotting-logfile">¶</a></h2>
-<dl class="py class code-definition">
+<h2><code class="docutils literal notranslate"><span class="pre">Plotting.LogFile</span></code><a class="headerlink" href="#plotting-logfile" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile">
-<em class="property">class<span class="w"> </span></em><code class="sig-prename descclassname">analysis_suite.Plotting.LogFile.</code><code class="sig-name descname">LogFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">info</span></em>, <em class="sig-param"><span class="n">lumi</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile">¶</a></dt>
-<dd>
-<p>Bases: <code class="xref py py-class docutils literal notranslate">object</code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">analysis_suite.Plotting.LogFile.</span></span><span class="sig-name descname"><span class="pre">LogFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lumi</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Wrapper for Logfile for a plot</p>
-<dl class="py attribute code-definition">
+<dl class="py attribute">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.plotTable">
-<code class="sig-name descname">plotTable</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.plotTable">¶</a></dt>
-<dd>
-<p>PrettyTable holding all the histogram information</p>
+<span class="sig-name descname"><span class="pre">plotTable</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.plotTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>PrettyTable holding all the histogram information</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>PrettyTable</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute code-definition">
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.output_name">
-<code class="sig-name descname">output_name</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.output_name">¶</a></dt>
-<dd>
-<p>Name/path of logfile to be created</p>
+<span class="sig-name descname"><span class="pre">output_name</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.output_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name/path of logfile to be created</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute code-definition">
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.analysis">
-<code class="sig-name descname">analysis</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.analysis">¶</a></dt>
-<dd>
-<p>Analysis running over</p>
+<span class="sig-name descname"><span class="pre">analysis</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analysis running over</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute code-definition">
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.selection">
-<code class="sig-name descname">selection</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.selection">¶</a></dt>
-<dd>
-<p>Selection of analysis running over</p>
+<span class="sig-name descname"><span class="pre">selection</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selection of analysis running over</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute code-definition">
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.lumi">
-<code class="sig-name descname">lumi</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.lumi">¶</a></dt>
-<dd>
-<p>Luminosity of this run (in ipb, but converted to ifb in class)</p>
+<span class="sig-name descname"><span class="pre">lumi</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.lumi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Luminosity of this run (in ipb, but converted to ifb in class)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute code-definition">
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.hists">
-<code class="sig-name descname">hists</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.hists">¶</a></dt>
-<dd>
-<p>List of lists with Integral and Error^2 indexed by the constants
+<span class="sig-name descname"><span class="pre">hists</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.hists" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of lists with Integral and Error^2 indexed by the constants
 BKG, SIGNAL, DATA, TOTAL</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -157,60 +205,60 @@ BKG, SIGNAL, DATA, TOTAL</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute code-definition">
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.callTime">
-<code class="sig-name descname">callTime</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.callTime">¶</a></dt>
-<dd>
-<p>String of the time this script was called (any format)</p>
+<span class="sig-name descname"><span class="pre">callTime</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.callTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>String of the time this script was called (any format)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute code-definition">
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.command">
-<code class="sig-name descname">command</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.command">¶</a></dt>
-<dd>
-<p>Command used to start this script</p>
+<span class="sig-name descname"><span class="pre">command</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command used to start this script</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute code-definition">
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.name">
-<code class="sig-name descname">name</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.name">¶</a></dt>
-<dd>
-<p>Name of the histogram</p>
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the histogram</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py method code-definition">
+
+<dl class="py method">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.add_breakdown">
-<code class="sig-name descname">add_breakdown</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">group</span></em>, <em class="sig-param"><span class="n">break_dict</span></em>, <em class="sig-param"><span class="n">roundDigit</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_breakdown"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.add_breakdown">¶</a></dt>
-<dd>
-</dd></dl>
-<dl class="py method code-definition">
+<span class="sig-name descname"><span class="pre">add_breakdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">break_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roundDigit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_breakdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.add_breakdown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.add_mc">
-<code class="sig-name descname">add_mc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stacker</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_mc"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.add_mc">¶</a></dt>
-<dd>
-<p>Add background data to this class</p>
+<span class="sig-name descname"><span class="pre">add_mc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stacker</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_mc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.add_mc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add background data to this class</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>drawOrder</strong> (<em>list of tuples</em><em> (</em><em>string</em><em>, </em><em>GenericHist</em><em>)</em>) – List of all background hists with their names</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py method code-definition">
+
+<dl class="py method">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.add_metainfo">
-<em class="property">static<span class="w"> </span></em><code class="sig-name descname">add_metainfo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">callTime</span></em>, <em class="sig-param"><span class="n">command</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_metainfo"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.add_metainfo">¶</a></dt>
-<dd>
-<p>Set specific metadata for output file</p>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_metainfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callTime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_metainfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.add_metainfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set specific metadata for output file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -220,11 +268,11 @@ BKG, SIGNAL, DATA, TOTAL</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py method code-definition">
+
+<dl class="py method">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.add_signal">
-<code class="sig-name descname">add_signal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signal</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_signal"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.add_signal">¶</a></dt>
-<dd>
-<p>Add signal data to this class</p>
+<span class="sig-name descname"><span class="pre">add_signal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_signal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.add_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add signal data to this class</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -234,21 +282,21 @@ BKG, SIGNAL, DATA, TOTAL</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute code-definition">
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="id0">
-<code class="sig-name descname">callTime</code><em class="property"><span class="w"> </span><span class="p">=</span><span class="w"> </span>''</em><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#id0">¶</a></dt>
-<dd>
-</dd></dl>
-<dl class="py attribute code-definition">
+<span class="sig-name descname"><span class="pre">callTime</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="id1">
-<code class="sig-name descname">command</code><em class="property"><span class="w"> </span><span class="p">=</span><span class="w"> </span>''</em><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#id1">¶</a></dt>
-<dd>
-</dd></dl>
-<dl class="py method code-definition">
+<span class="sig-name descname"><span class="pre">command</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.get_likelihood">
-<code class="sig-name descname">get_likelihood</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.get_likelihood"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.get_likelihood">¶</a></dt>
-<dd>
-<p>Get Figure of merit</p>
+<span class="sig-name descname"><span class="pre">get_likelihood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.get_likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.get_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Figure of merit</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>tuple Figure of Merit (S/sqrt(S+B)) and its error</p>
@@ -258,11 +306,11 @@ BKG, SIGNAL, DATA, TOTAL</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py method code-definition">
+
+<dl class="py method">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.get_sig_bkg_ratio">
-<code class="sig-name descname">get_sig_bkg_ratio</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.get_sig_bkg_ratio"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.get_sig_bkg_ratio">¶</a></dt>
-<dd>
-<p>Get S/B with its error</p>
+<span class="sig-name descname"><span class="pre">get_sig_bkg_ratio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.get_sig_bkg_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.get_sig_bkg_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get S/B with its error</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>tuple S/B and its error</p>
@@ -272,64 +320,88 @@ BKG, SIGNAL, DATA, TOTAL</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py method code-definition">
+
+<dl class="py method">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.get_sqrt_err">
-<code class="sig-name descname">get_sqrt_err</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.get_sqrt_err"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.get_sqrt_err">¶</a></dt>
-<dd>
-<p>Grab the Integral and error on that information</p>
+<span class="sig-name descname"><span class="pre">get_sqrt_err</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.get_sqrt_err"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.get_sqrt_err" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grab the Integral and error on that information</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – int pointed to self.hists list</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py method code-definition">
+
+<dl class="py method">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile.write_out">
-<code class="sig-name descname">write_out</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">isLatex</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.write_out"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.LogFile.LogFile.write_out">¶</a></dt>
-<dd>
-<p>Write out all current information to the objects output file</p>
+<span class="sig-name descname"><span class="pre">write_out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isLatex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.write_out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.write_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write out all current information to the objects output file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>isLatex</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether table should be written out in latex or org style table</p>
 </dd>
 </dl>
 </dd></dl>
+
 </dd></dl>
+
 </section>
 <section id="plotting-confighelper">
-<h2><code class="docutils literal notranslate">Plotting.configHelper</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#plotting-confighelper">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">Plotting.configHelper</span></code><a class="headerlink" href="#plotting-confighelper" title="Permalink to this headline">¶</a></h2>
 </section>
 <section id="plotting-pypad">
-<h2><code class="docutils literal notranslate">Plotting.pyPad</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#plotting-pypad">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">Plotting.pyPad</span></code><a class="headerlink" href="#plotting-pypad" title="Permalink to this headline">¶</a></h2>
 </section>
 <section id="plotting-stack">
-<h2><code class="docutils literal notranslate">Plotting.stack</code><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#plotting-stack">¶</a></h2>
-<dl class="py class code-definition">
+<h2><code class="docutils literal notranslate"><span class="pre">Plotting.stack</span></code><a class="headerlink" href="#plotting-stack" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.stack.Stack">
-<em class="property">class<span class="w"> </span></em><code class="sig-prename descclassname">analysis_suite.Plotting.stack.</code><code class="sig-name descname">Stack</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bin_info</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/stack.html#Stack"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.stack.Stack">¶</a></dt>
-<dd>
-<p>Bases: <a class="reference internal" href="analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram" title="analysis_suite.commons.histogram.Histogram"><code class="xref py py-class docutils literal notranslate">analysis_suite.commons.histogram.Histogram</code></a></p>
-<dl class="py method code-definition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">analysis_suite.Plotting.stack.</span></span><span class="sig-name descname"><span class="pre">Stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bin_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stack_by_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/stack.html#Stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.stack.Stack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram" title="analysis_suite.commons.histogram.Histogram"><code class="xref py py-class docutils literal notranslate"><span class="pre">analysis_suite.commons.histogram.Histogram</span></code></a></p>
+<dl class="py method">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.stack.Stack.plot_stack">
-<code class="sig-name descname">plot_stack</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pad</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/stack.html#Stack.plot_stack"><span class="viewcode-link">[source]</span></a><a aria-label="Click to copy this link" class="headerlink tooltipped tooltipped-ne" data-action="click-&gt;clipboard#copyHeaderLink" data-controller="clipboard" href="#analysis_suite.Plotting.stack.Stack.plot_stack">¶</a></dt>
-<dd>
+<span class="sig-name descname"><span class="pre">plot_stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pad</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/stack.html#Stack.plot_stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.stack.Stack.plot_stack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="analysis_suite.Plotting.stack.Stack.recalculate_stack">
+<span class="sig-name descname"><span class="pre">recalculate_stack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/stack.html#Stack.recalculate_stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.stack.Stack.recalculate_stack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
-</dd></dl>
+
 </section>
 </section>
-</article>
-<footer>
-<div class="mt-20 mb-4 text-sm text-gray-700">© 2021, Dylan Teague Made with <a href="https://www.sphinx-doc.org">Sphinx 4.4.0</a></div>
-</footer></main>
-<button class="fixed bottom-0 right-0 z-20 opacity-0 p-4 m-4 tracking-wide bg-gray-900 text-gray-100 transition transform transform-gpu duration-500 translate-y-full" data-action="search#hideSnackbar" data-search-target="snackbar">
+
+
+    </article>
+
+    <footer>
+      
+        <div class="mt-20 mb-4 text-sm text-gray-700">&copy; 2021, Dylan Teague&nbsp;Made with <a href="https://www.sphinx-doc.org">Sphinx 4.5.0</a></div>
+      
+    </footer></main>
+
+
+      <button
+  data-search-target="snackbar"
+  data-action="search#hideSnackbar"
+  class="fixed bottom-0 right-0 z-20 opacity-0 p-4 m-4 tracking-wide bg-gray-900 text-gray-100 transition transform transform-gpu duration-500 translate-y-full"
+>
   Clear highlights
-</button><div class="fixed hidden inset-0 bg-black bg-opacity-50" data-action="click-&gt;sidebar#close" data-sidebar-target="screen">
+</button><div
+  data-sidebar-target="screen"
+  data-action="click->sidebar#close"
+  class="fixed hidden inset-0 bg-black bg-opacity-50">
 </div>
-</div>
-<script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-<script src="_static/jquery.js"></script>
-<script src="_static/underscore.js"></script>
-<script src="_static/doctools.js"></script>
-<script src="_static/theme.3666d2347a4c66e5d7a8.js"></script>
-</body>
+    </div>
+    
+      
+  <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+  <script src="_static/jquery.js"></script>
+  <script src="_static/underscore.js"></script>
+  <script src="_static/doctools.js"></script>
+<script src="_static/theme.1ba02c30758e6036ba31.js"></script>
+    
+  </body>
 </html>
