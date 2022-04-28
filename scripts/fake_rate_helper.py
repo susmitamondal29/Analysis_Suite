@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 from typing import ClassVar
 import warnings
+import numpy as np
 
 from analysis_suite.commons.histogram import Histogram
 from analysis_suite.Plotting.stack import Stack
@@ -17,7 +18,7 @@ def setup_histogram(group, vg_dict, chan, graph_info):
 
     for mem, vg in vg_dict.items():
         vals, scale = graph_info.func(vg, chan)
-        lumi = graph_info.lumi*1000 if group != 'data' else 1
+        lumi = graph_info.lumi*1000 if mem != 'data' else 1
         if isinstance(vals, tuple):
             output.fill(*vals, weight=lumi*scale, member=mem)
         else:
@@ -91,6 +92,15 @@ def setup_plot(mc_vg, data_vg, chan, graph_info, filename, region, scales = None
     file_name = f'{filename}_{region}_{graph_info.name}'
     axis_name = graph_info.axis_name.format(latex_chan[chan])
     plot_ratio1d(stack, data, file_name, axis_name, graph_info.lumi, region_name)
+
+def get_fake_rate(part, fake_rate, idx):
+    pt_axis, eta_axis = fake_rate.axes
+    npt, neta = fake_rate.axes.size
+
+    ptbin = np.digitize(part['pt', idx], pt_axis.edges) - 1
+    ptbin = np.where(ptbin == npt, npt-1, ptbin)
+    etabin = np.digitize(part.abseta(idx), eta_axis.edges) - 1
+    return fake_rate.values().flatten()[etabin + neta*ptbin]
 
 
 @dataclass

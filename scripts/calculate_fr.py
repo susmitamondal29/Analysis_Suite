@@ -53,14 +53,11 @@ def scale_trigger(vg, chan, trig_scale):
     vg.scale = (lowpt_weight+highpt_weight)*vg.scale
 
 def scale_fake(vg, chan, fakerate):
-    mask = vg[f'Fake{chan}'].num() > 0
-    scales = list()
-    for pt, eta in zip(vg[f'Fake{chan}']['pt', 0], vg[f'Fake{chan}'].abseta(0)):
-        pt = min(pt, 89)
-        scales.append(fakerate[bh.loc(pt), bh.loc(eta)].value)
-    scale = np.array(scales)
-    vg.scale[mask] = (scale)/(1-scale)*vg.scale[mask]
+    part = vg[f'Fake{chan}']
+    fr = get_fake_rate(part, fakerate, 0)
 
+    mask = part.num() > 0
+    vg.scale[mask] = fr/(1-fr)*vg.scale[mask]
 
 def fr_plot(name, tight, loose, **kwargs):
     with plot(name) as ax:
