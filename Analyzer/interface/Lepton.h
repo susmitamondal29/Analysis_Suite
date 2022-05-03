@@ -60,6 +60,8 @@ public:
 protected:
     TRArray<Int_t> m_charge;
     TRArray<Float_t> iso;
+    TRArray<Float_t> ptRel;
+    TRArray<Float_t> ptRatio;
     TRArray<Float_t> dz;
     TRArray<Float_t> dxy;
     TRArray<Int_t> genPartIdx;

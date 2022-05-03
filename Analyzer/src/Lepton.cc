@@ -10,6 +10,12 @@ void Lepton::setup(std::string name, TTreeReader& fReader, bool isMC)
     m_charge.setup(fReader, name + "_charge");
     dz.setup(fReader, name + "_dz");
     dxy.setup(fReader, name + "_dxy");
+
+    // Isolation variables
+    ptRel.setup(fReader, name + "_jetPtRelv2");
+    ptRatio.setup(fReader, name + "_jetRelIso");
+    iso.setup(fReader, "Electron_miniPFRelIso_all");
+
     if (isMC) {
         genPartIdx.setup(fReader, name+"_genPartIdx");
     }
@@ -75,9 +81,7 @@ bool Lepton::passJetIsolation(size_t idx, const Particle& jets)
 {
     if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
         return true; /// no close jet (probably no jets)
-    auto jetV = jets.p3(closeJet_by_lepton.at(idx));
-
-    return passRatioCut(pt(idx)/jetV.rho()) || passRelCut(idx, jetV);
+    return iso.at(idx) < isoCut && ( 1/(1+ptRatio.at(idx)) > ptRatioCut || ptRel.at(idx) > ptRelCut );
 }
 
 float Lepton::fillFakePt(size_t idx, const Particle& jets) const

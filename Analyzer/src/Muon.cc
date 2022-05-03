@@ -7,20 +7,21 @@ void Muon::setup(TTreeReader& fReader, bool isMC)
     isGlobal.setup(fReader, "Muon_isGlobal");
     isTracker.setup(fReader, "Muon_isTracker");
     isPFcand.setup(fReader, "Muon_isPFcand");
-    iso.setup(fReader, "Muon_miniPFRelIso_all");
+
     tightCharge.setup(fReader, "Muon_tightCharge");
     mediumId.setup(fReader, "Muon_mediumId");
     sip3d.setup(fReader, "Muon_sip3d");
     id = PID::Muon;
+    isoCut = 0.1;
 
     if (year_ == Year::yr2016) {
         isoCut = 0.16;
         ptRatioCut = 0.76;
-        ptRelCut = pow(7.2, 2);
+        ptRelCut = 7.2;
     } else {
         isoCut = 0.11;
         ptRatioCut = 0.74;
-        ptRelCut = pow(6.8, 2);
+        ptRelCut = 6.8;
     }
 
     setSF<TH2D>("Muon_ID", Systematic::Muon_ID);
@@ -58,9 +59,7 @@ void Muon::createFakeList(Particle& jets)
 void Muon::createTightList(Particle& jets)
 {
     for (auto i : list(Level::Fake)) {
-        if (pt(i) > 15
-            && iso.at(i) < isoCut
-            && passJetIsolation(i, jets))
+        if (pt(i) > 15 && passJetIsolation(i, jets))
             m_partList[Level::Tight]->push_back(i);
     }
 }
@@ -68,13 +67,13 @@ void Muon::createTightList(Particle& jets)
 float Muon::getScaleFactor()
 {
     float weight = 1.;
-    for (auto midx : list(Level::Tight)) {
-        float fixed_pt = std::max(std::min(pt(midx), ptMax), ptMin);
-        if (year_ == Year::yr2016) {
-            weight *= getWeight("Muon_ID", eta(midx), fixed_pt);
-        } else {
-            weight *= getWeight("Muon_ID", fixed_pt, fabs(eta(midx)));
-        }
-    }
+    // for (auto midx : list(Level::Tight)) {
+    //     float fixed_pt = std::max(std::min(pt(midx), ptMax), ptMin);
+    //     if (year_ == Year::yr2016) {
+    //         weight *= getWeight("Muon_ID", eta(midx), fixed_pt);
+    //     } else {
+    //         weight *= getWeight("Muon_ID", fixed_pt, fabs(eta(midx)));
+    //     }
+    // }
     return weight;
 }
