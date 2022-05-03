@@ -228,7 +228,7 @@ bool Closure_MisId::measurement_cuts() {
     passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
 
     float mass = get_mass();
-    passCuts &= cuts.setCut("passZCut", mass > 50);
+    passCuts &= cuts.setCut("passZCut", mass > 20);
     // passCuts &= cuts.setCut("passOppositeSign", !isSameSign());
     // passCuts &= cuts.setCut("passHasElectron", elec.size(Level::Tight) > 0);
     passCuts &= cuts.setCut("passJetNumber", jet.size(Level::Tight) >= 2);

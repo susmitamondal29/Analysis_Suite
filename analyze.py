@@ -58,17 +58,13 @@ def get_info_local(filename):
     analysisName = sampleName[sampleName.index("user")+2]
 
     analysis, year, selection = analysisName.split("_")
-    isUL = 'UL' in analysis
     return {"analysis": analysis, "year": year, "selection": selection,
-            "sampleName": sampleName, "isUL": isUL}
+            "sampleName": sampleName}
 
 def get_info_general(filename):
     sampleName = filename.split('/')
     analysis = "FakeRate"
-    yearDict = {"Summer16": "2016",
-                "Fall17": "2017",
-                "Autumn18" : "2018",
-                "UL16": "2016",
+    yearDict = {"UL16": "2016",
                 "UL17": "2017",
                 "UL18": "2018",
                 "Run2016" : "2016",
@@ -81,9 +77,8 @@ def get_info_general(filename):
             year = yearDict[yearName]
             break
 
-    isUL = "UL"  in filename
     return {"analysis": analysis, "year": year, "selection": "From_DAS",
-            "sampleName": sampleName, "isUL": isUL}
+            "sampleName": sampleName}
 
 
 def setup_jec(filename):
@@ -123,6 +118,7 @@ if __name__ == "__main__":
     else:
         details = get_info_local(testfile)
     info = FileInfo(**details)
+    print(details['sampleName'])
     groupName = info.get_group(details["sampleName"])
     datadir = Path(os.getenv("CMSSW_BASE"))/"src"/"analysis_suite"/"data"
     with open(datadir /".analyze_info") as f:
@@ -142,11 +138,10 @@ if __name__ == "__main__":
         'Year': details["year"],
     }
     if args.test:
-        inputs['Xsec'] = 1
-        inputs['isData'] = False
+        inputs["MetaData"].update({'Xsec': 1, 'isData': False})
     else:
-        inputs['Xsec'] = info.get_xsec(groupName)
-        inputs['isData'] = info.is_data(groupName)
+        inputs["MetaData"].update({'Xsec': info.get_xsec(groupName),
+                                   'isData': info.is_data(groupName) })
     inputs["Verbosity"] = args.verbose
     inputs["Systematics"] = configs.get_shape_systs()
     # Possibly need to fix for fakefactor stuff

@@ -94,7 +94,7 @@ class FileInfo(BasicInfo):
     def __init__(self, year="2018", isUL=False, **kwargs):
         super().__init__(**kwargs)
         self.year = int(year)
-        file_name = "UL" if isUL else "Legacy"
+        file_name = "UL"
         file_path = f'{self.base_path}.FileInfo.{file_name}'
         self.fileInfo = importlib.import_module(file_path).info
         self.dasNames = {key: info["DAS"] for key, info in self.fileInfo.items()}

@@ -157,6 +157,7 @@ info ={
         "Members" : [
             "ttbar_2l2n",
             "ttbar_semilep",
+            "ttbar_hadronic",
         ],
     },
     "wjet_ht": {

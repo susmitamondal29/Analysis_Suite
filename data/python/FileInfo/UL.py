@@ -2,397 +2,462 @@
 
 info = {
     # TTT
-    "TTTJ" : {
+    "tttj" : {
         "cross_section" : 0.0004741,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: 'TTTJ_TuneCUETP8M2T4_13TeV-madgraph-pythia8',
-            2017: 'TTTJ_TuneCP5_13TeV-madgraph-pythia8',
-            2018: 'TTTJ_TuneCP5_13TeV-madgraph-pythia8',
-        },
+        "DAS": 'TTTJ_Tune.*',
     },
-    "TTTW" : {
+    "tttw" : {
         "cross_section" : 0.000788,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: 'TTTW_TuneCUETP8M2T4_13TeV-madgraph-pythia8',
-            2017: 'TTTW_TuneCP5_13TeV-madgraph-pythia8',
-            2018: 'TTTW_TuneCP5_13TeV-madgraph-pythia8',
-        },
+        "DAS": 'TTTW_Tune.*',
     },
 
     # TTTT
-    "TTTT" : {
+    "tttt" : {
         "cross_section" : 0.001197,
         "Source of cross section" : "MCM",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: 'TTTT_TuneCUETP8M2T4_13TeV-amcatnlo-pythia8',
-            2017: 'TTTT_TuneCP5_13TeV-amcatnlo-pythia8',
-            2018: 'TTTT_TuneCP5_13TeV-amcatnlo-pythia8',
-        },
+        "DAS": 'TTTT_Tune.*',
     },
 
     # TTXY
-    "TTZH" : {
+    "ttzh" : {
         "cross_section" : 0.001535,
         "Source of cross section" : "arXiv:1610.07922",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: 'TTZH_TuneCUETP8M2T4_13TeV-madgraph-pythia8',
-            2017: 'TTZH_TuneCP5_13TeV-madgraph-pythia8',
-            2018: 'TTZH_TuneCP5_13TeV-madgraph-pythia8',
-        },
+        "DAS": 'TTZH_Tune.*',
     },
-    "TTHH" : {
-        "cross_section" : 0.000757,
+    "tthh" : {
+            "cross_section" : 0.000757,
         "Source of cross section" : "arXiv:1610.07922",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: 'TTHH_TuneCUETP8M2T4_13TeV-madgraph-pythia8',
-            2017: 'TTHH_TuneCP5_13TeV-madgraph-pythia8',
-            2018: 'TTHH_TuneCP5_13TeV-madgraph-pythia8',
-        },
+        "DAS": 'TTHH_Tune.*',
     },
-    "TTWH" : {
+    "ttwh" : {
         "cross_section" : 0.001582,
         "Source of cross section" : "arXiv:1610.07922",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: 'TTWH_TuneCUETP8M2T4_13TeV-madgraph-pythia8',
-            2017: 'TTWH_TuneCP5_13TeV-madgraph-pythia8',
-            2018: 'TTWH_TuneCP5_13TeV-madgraph-pythia8',
-        },
+        "DAS": 'TTWH_Tune.*',
     },
 
-    "TTWZ" : {
+    "ttwz" : {
         "cross_section" : 0.003884,
         "Source of cross section" : "arXiv:1610.07922",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: 'TTWZ_TuneCUETP8M2T4_13TeV-madgraph-pythia8',
-            2017: 'TTWZ_TuneCP5_13TeV-madgraph-pythia8',
-            2018: 'TTWZ_TuneCP5_13TeV-madgraph-pythia8',
-        },
+        "DAS": 'TTWZ_Tune.*',
     },
-    "TTZZ" : {
+    "ttzz" : {
         "cross_section" : 0.001982,
         "Source of cross section" : "arXiv:1610.07922",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016:  'TTZZ_TuneCUETP8M2T4_13TeV-madgraph-pythia8',
-            2017: 'TTZZ_TuneCP5_13TeV-madgraph-pythia8',
-            2018: 'TTZZ_TuneCP5_13TeV-madgraph-pythia8',
-        },
+        "DAS": 'TTZZ_Tune.*',
     },
-    "TTWW" : {
+    "ttww" : {
         "cross_section" : 0.01150,
         "Source of cross section" : "arXiv:1610.07922",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: 'TTWW_TuneCUETP8M2T4_13TeV-madgraph-pythia8',
-            2017: 'TTWW_TuneCP5_13TeV-madgraph-pythia8',
-            2018: 'TTWW_TuneCP5_13TeV-madgraph-pythia8',
-        },
+        "DAS": 'TTWW_Tune.*',
     },
 
     # TTX
-    "TTWJetsToLNu" : {
+    "ttw" : {
         "cross_section" : 0.1792,
         "Source of cross section" : "arXiv:1812.08622",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: 'TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
-            2017: 'TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8',
-            2018: 'TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8',
-        },
+        "DAS": 'TTWJetsToLNu_Tune.*'
     },
-    "TTZToLLNuNu": {
+    "ttz": {
         "cross_section" : 0.2589,
         "Source of cross section" : "arXiv:1812.08622",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: 'TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-            2017: 'TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8',
-            2018: 'TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8',
-        },
+        "DAS": 'TTZToLLNuNu_M-10_Tune.*',
     },
-    "ttHToNonbb" : {
+    "ttz_m1-10": {
+        "cross_section" : 0.0532,
+        "Source of cross section" : "arXiv:1812.08622",
+        "DAS": "TTZToLL_M-1to10_Tune.*",
+    },
+    "tth" : {
         "cross_section" : 0.2151,
         "Source of cross section" : "",
-        "Generator Info": "NLO PH+P8",
-        "DAS": {
-            2016: "ttHToNonbb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8",
-            2017: 'ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8',
-            2018: 'ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8',
-        },
-    },
-    "ttHTobb" : {
-        "cross_section" : 0.2151,
-        "Source of cross section" : "",
-        "Generator Info": "NLO PH+P8",
-        "DAS": {
-            2016: "ttHToNonbb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8",
-            2017: 'ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8',
-            2018: 'ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8',
-        },
+        "DAS" : "ttHToNonbb_M125_Tune.*",
     },
 
     # VVV
-    "WWW": {
+    "www": {
         "cross_section" : 0.2086,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: 'WWW_4F_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-            2017: 'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8',
-            2018: 'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8',
-        },
+        "DAS": 'WWW_4F_Tune.*',
     },
-    "ZZZ" : {
+    "zzz" : {
         "cross_section" : 0.01398,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: 'ZZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-            2017: 'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8',
-            2018: 'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8',
-        },
+        "DAS": 'ZZZ_Tune.*',
     },
-    "WZZ": {
+    "wzz": {
         "cross_section" : 0.05565,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: 'WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-            2017: 'WZZ_TuneCP5_13TeV-amcatnlo-pythia8',
-            2018: 'WZZ_TuneCP5_13TeV-amcatnlo-pythia8',
-        },
+        "DAS": 'WZZ_Tune.*'
     },
-    "WWZ" : {
+    "wwz" : {
         "cross_section" : 0.1651,
         "Source of cross section" : "MCM",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: "WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8",
-            2017: 'WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8',
-            2018: 'WWZ_TuneCP5_13TeV-amcatnlo-pythia8',
-        },
+        "DAS": 'WWZ_.*Tune.*',
     },
 
     # VV
-    "WZTo3LNu" : {
+    "wzTo3lnu" : {
         "cross_section" : 4.4297,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: "WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
-            2017: "WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-            2018: "WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-        },
+        "DAS": 'WZTo3LNu_Tune.*',
     },
-    "WWTo2L2Nu" : {
+    "ww_doubleScatter" : {
         "cross_section" : 0.16975,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "NLO PH+P8",
-        "DAS": {
-            2016: 'WWTo2L2Nu_DoubleScattering_13TeV-pythia8',
-            2017: 'WWTo2L2Nu_DoubleScattering_13TeV-pythia8',
-            2018: 'WWTo2L2Nu_DoubleScattering_13TeV-pythia8',
-        },
+        "DAS": 'WWTo2L2Nu_DoubleScattering_.*',
     },
-    "VHTononbb" : {
+    "vh2nonbb" : {
         "cross_section" : 0.9561,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: 'VHToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8',
-            2017: 'VHToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8',
-            2018: 'VHToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8',
-        },
+        "DAS": 'VHToNonbb_M125_13TeV.*',
     },
-    "ZZTo4L": {
+    "zz4l": {
         "cross_section" : 1.256,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "NLO PH+P8",
-        "DAS": {
-            2016: "ZZ_TuneCUETP8M1_13TeV-pythia8",
-            2017: "ZZTo4L_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-            2018: "ZZTo4L_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-        },
+        "DAS": 'ZZ.*_Tune',
     },
-    # "wpwpjj_ewk" : {
-    #     "cross_section" : 0.03711,
-    #     "Source of cross section" : "AN2018-062",
-    #     "DAS": {
-    #         2016: 'WpWpJJ_EWK-QCD_TuneCUETP8M1_13TeV-madgraph-pythia8',
-    #         2017: 'WpWpJJ_EWK-QCD_TuneCP5_13TeV-madgraph-pythia8',
-    #         2018: 'WpWpJJ_EWK-QCD_TuneCP5_13TeV-madgraph-pythia8',
-    #     },
-    # },
+    "wpwpjj_ewk" : {
+        "cross_section" : 0.03711,
+        "Source of cross section" : "AN2018-062",
+        "DAS": 'WpWpJJ_EWK-QCD_Tune.*',
+    },
 
     # X+g
-    "WWG" : {
+    "wwg" : {
         "cross_section" : 0.2147,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: 'WWG_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-            2017: 'WWG_TuneCP5_13TeV-amcatnlo-pythia8',
-            2018: 'WWG_TuneCP5_13TeV-amcatnlo-pythia8',
-        },
+        "DAS": 'WWG_Tune.*',
     },
-    "WGToLNuG" : {
-        "cross_section" : 405.271,
+    "wg" : {
+          "cross_section" : 405.271,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: 'WGToLNuG_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-            2017: 'WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8',
-            2018: 'WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8',
-        },
+        "DAS": 'WGToLNuG_Tune.*',
     },
-    "ZGToLLG" : {
+    "zg" : {
         "cross_section" : 0.166,
         "Source of cross section" : "MCM",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: 'ZGTo2LG_PtG-130_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-            2017: 'ZGTo2LG_PtG-130_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-            2018: 'ZGTo2LG_PtG-130_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-        },
+        "DAS": 'ZGTo2LG_PtG-130_Tune.*',
     },
-    "WZG" : {
+    "wzg" : {
         "cross_section" : 0.04123,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: 'WZG_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-            2017: 'WZG_TuneCP5_13TeV-amcatnlo-pythia8',
-            2018: 'WZG_TuneCP5_13TeV-amcatnlo-pythia8',
-        },
+        "DAS": 'WZG_Tune.*',
     },
-    "TGJets" : {
+    "tg" : {
         "cross_section" : 2.967,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: 'TGJets_TuneCUETP8M1_13TeV_amcatnlo_madspin_pythia8',
-            2017: 'TGJets_TuneCP5_13TeV_amcatnlo_madspin_pythia8',
-            2018: 'TGJets_TuneCP5_13TeV_amcatnlo_madspin_pythia8',
-        },
+        "DAS": 'TGJets_Tune.*',
     },
-    "TTGamma_Dilept" : {
+    "ttg_dilep" : {
         "cross_section" : 0.632,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: "TTGamma_Dilept_TuneCP5_PSweights_13TeV-madgraph-pythia8",
-            2017: 'TTGamma_Dilept_TuneCP5_PSweights_13TeV-madgraph-pythia8',
-            2018: 'TTGamma_Dilept_TuneCP5_13TeV-madgraph-pythia8',
-        },
+        "DAS": 'TTGamma_Dilept_Tune.*',
     },
-    "TTGamma_Hadronic" : {
+    "ttg_hadronic" : {
         "cross_section" : 0.794,
         "Source of cross section" : "MCM",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: "TTGamma_Hadronic_TuneCP5_PSweights_13TeV-madgraph-pythia8",
-            2017: 'TTGamma_Hadronic_TuneCP5_PSweights_13TeV-madgraph-pythia8',
-            2018: 'TTGamma_Hadronic_TuneCP5_13TeV-madgraph-pythia8',
-        },
+        "DAS": 'TTGamma_Hadronic_Tune.*',
     },
-    "TTGamma_SingleLept" : {
+    "ttg_singleLept" : {
         "cross_section" : 5.048,
         "Source of cross section" : "MCM",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: "TTGamma_SingleLept_TuneCP5_PSweights_13TeV-madgraph-pythia8",
-            2017: 'TTGamma_SingleLept_TuneCP5_PSweights_13TeV-madgraph-pythia8',
-            2018: 'TTGamma_SingleLept_TuneCP5_13TeV-madgraph-pythia8',
-        },
+        "DAS": 'TTGamma_SingleLept_Tune.*',
     },
 
     # other
-    "tZq" : {
+    "tzq" : {
         "cross_section" : 0.0736,
         "Source of cross section" : "MCM",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: "tZq_ll_4f_ckm_NLO_TuneCP5_PSweights_13TeV-amcatnlo-pythia8",
-            2017: "tZq_ll_4f_ckm_NLO_TuneCP5_PSweights_13TeV-amcatnlo-pythia8",
-            2018: "tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-madgraph-pythia8",
-        },
+        "DAS": 'tZq_ll_4f_ckm_NLO_Tune.*',
     },
-    "WJetsToLNu" : {
+    "wjets" : {
         "cross_section" : 61334.9,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: 'WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-            2017: 'WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8',
-            2018: 'WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8',
-        },
+        "DAS": 'WJetsToLNu_Tune.*',
     },
-    "TTJets": {
-        "cross_section" : 831.762,
-        "Source of cross section" : "AN2018-062",
-        "Generator Info": "NLO MG+P8",
-        "DAS": {
-            2016: 'TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8',
-            2017: 'TTJets_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-            2018: 'TTJets_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-        },
-    },
-    'DYJetsToLL_M-10to50': {
-        "cross_section" : 18610,
-        "Source of cross section" : "AN2018-062",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: "DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-            2017: 'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
-            2018: 'DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8',
-        },
-    },
-    'DYJetsToLL_M-50': {
-        "cross_section" : 6020.85,
-        "Source of cross section" : "AN2018-062",
-        "Generator Info": "LO MG+P8",
-        "DAS": {
-            2016: "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
-            2017: "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-            2018: "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-        },
-    },
-    "GluGluToH" : {
+    "ggh2zz" : {
         "cross_section" : 0.01181,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "NLO PH+P8",
-        "DAS": {
-            2016: "GluGluHToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8",
-            2017: 'GluGluHToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8',
-            2018: 'GluGluHToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8',
-        },
+        "DAS": 'GluGluHToZZTo4L_M125_13TeV.*',
     },
-    "SingleTop" : {
+    "st_twll" : {
         "cross_section" : 0.01123,
         "Source of cross section" : "AN2018-062",
-        "Generator Info": "NLO PH+P8",
-        "DAS": {
-            2016: "ST_tWll_5f_LO_13TeV-MadGraph-pythia8",
-            2017: 'ST_tWll_5f_LO_TuneCP5_PSweights_13TeV-madgraph-pythia8',
-            2018: 'ST_tWll_5f_LO_TuneCP5_PSweights_13TeV-madgraph-pythia8',
-        },
+        "DAS": 'ST_tWll_5f_LO_.*',
     },
-    # "ttbar" : {
-    #     "cross_section" : 689.7,
-    #     "Source of cross section" : "MCM",
-    #     "DAS": {
-    #         2016: 'TT_TuneCUETP8M2T4_13TeV-powheg-pythia8',
-    #         2017: 'TT_TuneCH3_13TeV-powheg-herwig7',
-    #         2018: 'TT_TuneCH3_13TeV-powheg-herwig7',
-    #     },
-    # },
+
+    "data" : {
+        "cross_section" : 1,
+        "DAS": "dummy",
+    },
+
+    # TTBar samples
+    "ttbar" : {
+        "cross_section" : 831.762,
+        "Source of cross section" : "MCM",
+        "DAS": 'TT_Tune.*',
+    },
+    "ttbar_2l2n": {
+        "cross_section" : 88.29,
+        "DAS" : "TTTo2L2Nu_Tune.*",
+    },
+    "ttbar_semilep": {
+        "cross_section" : 365.34,
+        "DAS" : "TTToSemiLeptonic_Tune.*",
+    },
+    "ttbar_hadronic": {
+        "cross_section" : 377.96,
+        "DAS" : "TTToHadronic_Tune.*",
+    },
+
+    # Drell-Yan
+    'DYm10-50': {
+        "cross_section" : 15890.0,
+        "Source of cross section" : "AN2018-062",
+        "DAS": 'DYJetsToLL_M-10to50_Tune.*',
+    },
+    'DYm50': {
+        "cross_section" : 5398.0,
+        "Source of cross section" : "AN2018-062",
+        "DAS": 'DYJetsToLL_M-50_Tune.*madgraphMLM-pythia8',
+    },
+    'DYm50_amc': {
+        "cross_section" : 6404.0,
+        "Source of cross section" : "AN2018-062",
+        "DAS": 'DYJetsToLL_M-50_Tune.*amcatnloFXFX-pythia8',
+    },
+    "DYm50_ht40-70" : {
+        "cross_section": 311.4,
+        "DAS" : "DYJetsToLL_M-50_HT-40to70_Tune.*",
+    },
+    "DYm50_ht70-100" : {
+        "cross_section": 145.5,
+        "DAS" : "DYJetsToLL_M-50_HT-70to100_Tune.*",
+    },
+    "DYm50_ht100-200" : {
+        "cross_section": 160.7,
+        "DAS" : "DYJetsToLL_M-50_HT-100to200_Tune.*",
+    },
+    "DYm50_ht200-400" : {
+        "cross_section": 48.63,
+        "DAS" : "DYJetsToLL_M-50_HT-200to400_Tune.*",
+    },
+    "DYm50_ht400-600" : {
+        "cross_section": 6.993,
+        "DAS" : "DYJetsToLL_M-50_HT-400to600_Tune.*",
+    },
+    "DYm50_ht600-800" : {
+        "cross_section": 1.761,
+        "DAS" : "DYJetsToLL_M-50_HT-600to800_Tune.*",
+    },
+    "DYm50_ht800-1200" : {
+        "cross_section": 0.8021,
+        "DAS" : "DYJetsToLL_M-50_HT-800to1200_Tune.*",
+    },
+    "DYm50_ht1200-2500" : {
+        "cross_section": 0.1937,
+        "DAS" : "DYJetsToLL_M-50_HT-1200to2500_Tune.*",
+    },
+    "DYm50_ht2500-Inf" : {
+        "cross_section": 0.003514,
+        "DAS" : "DYJetsToLL_M-50_HT-2500toInf_Tune.*",
+    },
+
+    # W + Jets
+    "wjets_ht70-100" : {
+        "cross_section": 1292.0,
+        "DAS" : "WJetsToLNu_HT-70To100_TuneC*",
+    },
+    "wjets_ht100-200": {
+        "cross_section": 1256.0,
+        "DAS" : "WJetsToLNu_HT-100To200_TuneC*",
+    },
+    "wjets_ht200-400": {
+        "cross_section": 407.9,
+        "DAS" : "WJetsToLNu_HT-200To400_TuneC*",
+    },
+    "wjets_ht400-600": {
+        "cross_section": 57.48,
+        "DAS" : "WJetsToLNu_HT-400To600_TuneC*",
+    },
+    "wjets_ht600-800": {
+        "cross_section": 12.87,
+        "DAS" : "WJetsToLNu_HT-600To800_TuneC*",
+    },
+    "wjets_ht800-1200": {
+        "cross_section": 5.366,
+        "DAS" : "WJetsToLNu_HT-800To1200_TuneC*",
+    },
+    "wjets_ht1200-2500": {
+        "cross_section": 1.15,
+        "DAS" : "WJetsToLNu_HT-1200To2500_TuneC*",
+    },
+    "wjets_ht2500-Inf": {
+        "cross_section": 0.008001,
+        "DAS" :   "WJetsToLNu_HT-2500ToInf_TuneC*",
+    },
+
+    "qcd_mu15_pt20-Inf" : {
+        "cross_section" : { "2016": 269900, "2017/2018": 239400, },
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-20toInf_MuEnrichedPt15_Tune.*',
+    },
+    "qcd_mu_pt15-20" : {
+        "cross_section" : { "2016": 3678000, "2017/2018": 2797000 },
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-15to20_MuEnrichedPt5_Tune.*',
+    },
+    "qcd_mu_pt20-30" : {
+        "cross_section" : { "2016": 3189000, "2017/2018": 2526000 },
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-20to30_MuEnrichedPt5_Tune.*',
+    },
+    "qcd_mu_pt30-50" : {
+        "cross_section" : { "2016": 1662000, "2017/2018": 1362000 },
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-30to50_MuEnrichedPt5_Tune.*',
+    },
+    "qcd_mu_pt50-80" : {
+        "cross_section" : { "2016": 452200, "2017/2018": 376600 },
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-50to80_MuEnrichedPt5_Tune.*',
+    },
+    "qcd_mu_pt80-120" : {
+        "cross_section" : { "2016": 106500, "2017/2018": 88930 },
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-80to120_MuEnrichedPt5_Tune.*',
+    },
+    "qcd_mu_pt120-170" : {
+        "cross_section" : { "2016": 25700, "2017/2018": 21230 },
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-120to170_MuEnrichedPt5_Tune.*',
+    },
+    "qcd_mu_pt170-300" : {
+        "cross_section" : { "2016": 8683, "2017/2018": 7055 },
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-170to300_MuEnrichedPt5_Tune.*',
+    },
+    "qcd_mu_pt300-470" : {
+        "cross_section" : { "2016": 800.9, "2017/2018": 797.3 },
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-300to470_MuEnrichedPt5_Tune.*',
+    },
+    "qcd_mu_pt470-600" : {
+        "cross_section" : { "2016": 79.37, "2017/2018": 59.24 },
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-470to600_MuEnrichedPt5_Tune.*',
+    },
+    "qcd_mu_pt600-800" : {
+        "cross_section" : { "2016": 25.31, "2017/2018": 18.22 },
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-600to800_MuEnrichedPt5_Tune.*',
+    },
+    "qcd_mu_pt800-1000" : {
+        "cross_section" : { "2016": 4.723, "2017/2018": 3.275 },
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-800to1000_MuEnrichedPt5_Tune.*',
+    },
+    "qcd_mu_pt1000-Inf" : {
+        "cross_section" : { "2016": 1.62, "2017/2018": 1.078 },
+        "Source of cross section" : "XSDB",
+        "DAS": 'QCD_Pt-1000toInf_MuEnrichedPt5_Tune.*',
+    },
+    # electron enriched
+    "qcd_em_pt15-20" : {
+        "cross_section" : { "2016": 1601000, "2017/2018": 1327000, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-15to20_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt20-30" : {
+        "cross_section" : { "2016": 5533000, "2017/2018": 4897000, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-20to30_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt30-50" : {
+        "cross_section" : { "2016": 6953000, "2017/2018": 6379000, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-30to50_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt50-80" : {
+        "cross_section" : { "2016": 1984000, "2017/2018": 1984000, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-50to80_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt80-120" : {
+        "cross_section" : { "2016": 417400, "2017/2018": 366500, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-80to120_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt120-170" : {
+        "cross_section" : { "2016": 75840, "2017/2018": 66490, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-120to170_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt170-300" : {
+        "cross_section" : { "2016": 18830, "2017/2018": 16480, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-170to300_EMEnriched_Tune.*",
+    },
+    "qcd_em_pt300-Inf" : {
+        "cross_section" : { "2016": 1221, "2017/2018": 1097, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt-300toInf_EMEnriched_Tune.*",
+    },
+    # QCD bc
+    "qcd_bcToE_pt15-20" : {
+        "cross_section" : { "2016": 231500, "2017/2018": 186200, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt_15to20_bcToE_Tune.*",
+    },
+    "qcd_bcToE_pt20-30" : {
+        "cross_section" : { "2016": 363600, "2017/2018": 303800, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt_20to30_bcToE_Tune.*",
+    },
+    "qcd_bcToE_pt30-80" : {
+        "cross_section" : { "2016": 416700, "2017/2018": 362300, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt_30to80_bcToE_Tune.*",
+    },
+    "qcd_bcToE_pt80-170" : {
+        "cross_section" : { "2016": 39950, "2017/2018": 33700, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt_80to170_bcToE_Tune.*",
+    },
+    "qcd_bcToE_pt170-250" : {
+        "cross_section" : { "2016": 2603, "2017/2018": 2125, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt_170to250_bcToE_Tune.*",
+    },
+    "qcd_bcToE_pt250-Inf" : {
+        "cross_section" : { "2016": 722.6, "2017/2018": 562.5, },
+        "Source of cross section" : "XSDB",
+        "DAS" : "QCD_Pt_250toInf_bcToE_Tune.*",
+    },
+
+
+
+
+
+    # Other
+    "ttjet": {
+        "cross_section" : 831.762,
+        "Source of cross section" : "AN2018-062",
+        "DAS": 'TTJets_Tune.*',
+    },
+    "ttjets_dilep": {
+        "cross_section" : 54.17,
+        "DAS" : "TTJets_DiLept_Tune.*",
+    },
+    "ttjets_single_t": {
+        "cross_section" : { "2016": 114.0,  "2017/2018": 109.6 },
+        "DAS" : "TTJets_SingleLeptFromT_Tune.*",
+    },
+    "ttjets_single_tbar": {
+        "cross_section" : { "2016": 114.0,  "2017/2018": 108.7 },
+        "DAS" : "TTJets_SingleLeptFromTbar_Tune.*",
+    },
+
 }
