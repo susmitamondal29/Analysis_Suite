@@ -35,6 +35,7 @@ def setup_events(dataInfo, branch, syst = 0):
             vg = VarGetter(dataInfo.filename, branch, member, xsec, syst)
             if not len(vg):
                 continue
+            print(member, sum(vg.scale))
             output[group][member] = vg
     return output
 

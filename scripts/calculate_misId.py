@@ -109,7 +109,7 @@ def misid_measure(year, lumi, ginfo, finfo, args):
 
     mc_info = DataInfo(Path(f"misId_mc_{year}.root"), year)
     mc_info.setup_member(ginfo, finfo, "DY_ht")
-    mc_info.setup_member(ginfo, finfo, "ttjets_lep")
+    mc_info.setup_member(ginfo, finfo, "ttbar_lep")
 
     data_info = DataInfo(Path(f"misId_data_{year}.root"), year)
     data_info.setup_member(ginfo, finfo, "data")
@@ -179,7 +179,7 @@ def misid_closure(year, lumi, ginfo, finfo, args):
 
     mc_info = DataInfo(Path(f"misId_mc_{year}.root"), year)
     mc_info.setup_member(ginfo, finfo, "DY")
-    mc_info.setup_member(ginfo, finfo, "ttjets_lep")
+    mc_info.setup_member(ginfo, finfo, "ttbar_lep")
 
     data_info = DataInfo(Path(f"misId_data_{year}.root"), year)
     data_info.setup_member(ginfo, finfo, "data")
@@ -225,7 +225,7 @@ if __name__ == "__main__":
         "data": "black",
         "DY_ht": "goldenrod",
         "DY": "goldenrod",
-        "ttjets_lep": 'royalblue',
+        "ttbar_lep": 'royalblue',
         'charge_flip': 'seagreen',
     }
     ginfo = GroupInfo(color_by_group)
@@ -237,5 +237,5 @@ if __name__ == "__main__":
         GraphInfo.lumi = lumi
         finfo = FileInfo(year)
 
-        # misid_measure(year, lumi, ginfo, finfo, args)
+        misid_measure(year, lumi, ginfo, finfo, args)
         misid_closure(year, lumi, ginfo, finfo, args)
