@@ -10,18 +10,6 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine( "gErrorIgnoreLevel = 1001;")
 
-jecTagsMC = {
-    "2016": "Summer16_07Aug2017_V11_MC",
-    "2017": "Fall17_17Nov2017_V32_MC",
-    "2018": "Autumn18_V19_MC",
-}
-jerTagsMC = {
-    "2016": "Summer16_25nsV1_MC",
-    "2017": "Fall17_V3_MC",
-    "2018": "Autumn18_V7b_MC",
-}
-
-
 def setInputs(inputs):
     root_inputs = ROOT.TList()
     for key, data in inputs.items():
@@ -86,19 +74,6 @@ def get_info_general(filename):
             "sampleName": sampleName, "isUL": isUL}
 
 
-def setup_jec(filename):
-    jetType = "AK4PFchs"
-    datadir = Path(os.getenv("CMSSW_BASE"))/"src"/"analysis_suite"/"data"
-    outdir = Path("jec_files")
-    outdir.mkdir(exist_ok=True)
-
-    with tarfile.open(datadir / 'JEC' / f"{filename}.tgz") as tar:
-        for member in [name for name in tar.getnames() if jetType in name]:
-            if (outdir/member).exists():
-                continue
-            tar.extract(member, path=outdir)
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="main")
     parser.add_argument("-i", "--infile", default = "blah.in")
@@ -129,9 +104,6 @@ if __name__ == "__main__":
         analysis = f.readline().strip()
     print(groupName)
 
-    setup_jec(jecTagsMC[details["year"]])
-    setup_jec(jerTagsMC[details["year"]])
-
     # Setup inputs
     inputs = dict()
     inputs["MetaData"] = {
@@ -142,11 +114,9 @@ if __name__ == "__main__":
         'Year': details["year"],
     }
     if args.test:
-        inputs['Xsec'] = 1
-        inputs['isData'] = False
+        inputs['MetaData'].update({'Xsec': 1, 'isData': False})
     else:
-        inputs['Xsec'] = info.get_xsec(groupName)
-        inputs['isData'] = info.is_data(groupName)
+        inputs['MetaData'].update({'Xsec': info.get_xsec(groupName), 'isData': info.is_data(groupName)})
     inputs["Verbosity"] = args.verbose
     inputs["Systematics"] = configs.get_shape_systs()
     # Possibly need to fix for fakefactor stuff
