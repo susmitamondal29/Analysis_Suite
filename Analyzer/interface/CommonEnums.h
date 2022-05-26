@@ -3,20 +3,30 @@
 
 #include <unordered_map>
 #include <vector>
+#include <string>
 
 const size_t MAX_PARTICLES = 65535;
 
 enum class Year {
-    yr2016,
+    yr2016pre,
+    yr2016post,
     yr2017,
     yr2018,
     yrDefault,
 };
 
 static const std::unordered_map<Year, std::string> yearMap = {
-    { Year::yr2016, "2016" },
+    { Year::yr2016pre, "2016preVFP" },
+    { Year::yr2016post, "2016postVFP" },
     { Year::yr2017, "2017" },
     { Year::yr2018, "2018" }
+};
+
+static const std::unordered_map<Year, std::string> yearNum = {
+    { Year::yr2016pre, "16" },
+    { Year::yr2016post, "16" },
+    { Year::yr2017, "17" },
+    { Year::yr2018, "18" }
 };
 
 enum class PID {

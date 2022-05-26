@@ -52,11 +52,9 @@ def get_info_local(filename):
 
 def get_info_general(filename):
     sampleName = filename.split('/')
-    analysis = "FakeRate"
-    yearDict = {"Summer16": "2016",
-                "Fall17": "2017",
-                "Autumn18" : "2018",
-                "UL16": "2016",
+
+    yearDict = {"UL16NanoAODAPVv": "2016preVFP",
+                "UL16NanoAODv": "2016postVFP",
                 "UL17": "2017",
                 "UL18": "2018",
                 "Run2016" : "2016",
@@ -70,7 +68,7 @@ def get_info_general(filename):
             break
 
     isUL = "UL"  in filename
-    return {"analysis": analysis, "year": year, "selection": "From_DAS",
+    return {"year": year, "selection": "From_DAS",
             "sampleName": sampleName, "isUL": isUL}
 
 
