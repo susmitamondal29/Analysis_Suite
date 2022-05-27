@@ -58,7 +58,6 @@ void BaseSelector::Init(TTree* tree)
     fOutput->Add(rootSystList);
     LOG_POST << "Finished setting python inputs";
     setupSystematicInfo();
-    jetCorrector.setup(year_);
 
     fReader.SetTree(tree);
     if (isMC_) {
@@ -171,7 +170,7 @@ void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
     if (isMC_) {
         rGen.createTopList();
     }
-    jet.setupJEC(jetCorrector, rGenJet);
+    jet.setupJEC(rGenJet);
     muon.setGoodParticles(systNum, jet, rGen);
     elec.setGoodParticles(systNum, jet, rGen);
     jet.setGoodParticles(systNum);

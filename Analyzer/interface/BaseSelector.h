@@ -17,7 +17,6 @@
 #include "analysis_suite/Analyzer/interface/Muon.h"
 #include "analysis_suite/Analyzer/interface/GenParticle.h"
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
-#include "analysis_suite/Analyzer/interface/JetCorrection.h"
 #include "analysis_suite/Analyzer/interface/Variable.h"
 #include "analysis_suite/Analyzer/interface/CommonStructs.h"
 
@@ -93,7 +92,6 @@ protected:
     std::map<Channel, TreeInfo> trees;
 
     TRVariable<Float_t> genWeight;
-    JetCorrection jetCorrector;
 
     Year year_;
     bool isMC_ = true;

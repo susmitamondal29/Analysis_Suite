@@ -147,7 +147,7 @@ void FakeRate::ApplyDataSpecifics()
         std::string trig_string;
         if (lead_lep.Pt() < 25) trig_string = trig_cuts.trigger_names[subChannel_].at(0);
         else trig_string = trig_cuts.trigger_names[subChannel_].at(1);
-        (*weight) *= sfMaker.getPScale(*run, *lumiblock, trig_string);
+        (*weight) *= sfMaker.getPrescale(*run, *lumiblock, trig_string);
     }
 }
 

@@ -3,6 +3,7 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "Math/GenVector/VectorUtil.h"
 #include "analysis_suite/Analyzer/interface/Systematic.h"
 #include "analysis_suite/Analyzer/interface/Variable.h"
 
