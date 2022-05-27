@@ -16,14 +16,15 @@ void Muon::setup(TTreeReader& fReader, bool isMC)
     if (year_ == Year::yr2016) {
         isoCut = 0.16;
         ptRatioCut = 0.76;
-        ptRelCut = pow(7.2, 2);
+        ptRelCut = 7.2;
     } else {
         isoCut = 0.11;
         ptRatioCut = 0.74;
-        ptRelCut = pow(6.8, 2);
+        ptRelCut = 6.8;
     }
 
-    setSF<TH2D>("Muon_ID", Systematic::Muon_ID);
+    auto corr_set = getScaleFile("MUO", "muon_Z");
+    muon_scale = corr_set->at("NUM_MediumID_DEN_TrackerMuons");
 }
 
 void Muon::createLooseList()
@@ -69,12 +70,7 @@ float Muon::getScaleFactor()
 {
     float weight = 1.;
     for (auto midx : list(Level::Tight)) {
-        float fixed_pt = std::max(std::min(pt(midx), ptMax), ptMin);
-        if (year_ == Year::yr2016) {
-            weight *= getWeight("Muon_ID", eta(midx), fixed_pt);
-        } else {
-            weight *= getWeight("Muon_ID", fixed_pt, fabs(eta(midx)));
-        }
+        weight *= muon_scale->evaluate({yearMap.at(year_)+"_UL", abs(eta(midx)), pt(midx), "sf"});
     }
     return weight;
 }

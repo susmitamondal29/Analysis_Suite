@@ -11,8 +11,8 @@ public:
     virtual void createTightList(Particle& jets) override;
     virtual float getScaleFactor() override;
 
-    Float_t pt(size_t idx) const { return m_pt.at(idx) / eCorr.at(idx); };
-    Float_t pt(Level level, size_t i) const { return pt(idx(level, i)); }
+    // Float_t pt(size_t idx) const { return m_pt.at(idx) / eCorr.at(idx); };
+    // Float_t pt(Level level, size_t i) const { return pt(idx(level, i)); }
 
     TRArray<Float_t> eCorr;
     TRArray<UChar_t> lostHits;
@@ -27,10 +27,15 @@ public:
     TRArray<Float_t> hcalSumEt;
     TRArray<Float_t> tkSumPt;
 
+    TRArray<Bool_t> mva_l;
+    TRArray<Bool_t> mva_80;
+    TRArray<Bool_t> mva_90;
+
 private:
     const float BARREL_ETA = 1.479;
     std::vector<std::vector<double>> mvaLoose, mvaTight;
-    bool passMVACut(size_t idx, bool isTight);
+
+    correction::Correction::Ref electron_scale;
 
     Float_t ptMax = 499;
 };

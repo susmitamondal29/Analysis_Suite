@@ -60,6 +60,8 @@ public:
 protected:
     TRArray<Int_t> m_charge;
     TRArray<Float_t> iso;
+    TRArray<Float_t> ptRel;
+    TRArray<Float_t> ptRatio;
     TRArray<Float_t> dz;
     TRArray<Float_t> dxy;
     TRArray<Int_t> genPartIdx;
@@ -70,14 +72,6 @@ protected:
 
     PID id;
 
-    bool passRatioCut(float val) const { return val > ptRatioCut; }
-    bool passRelCut(size_t idx, Vector3D& jet) const
-    {
-        auto lepV = p3(idx);
-        auto diff = jet - lepV;
-        auto cross = diff.Cross(lepV);
-        return cross.Mag2() / diff.Mag2() > ptRelCut;
-    }
 };
 
 #endif // __LEPTON_H_

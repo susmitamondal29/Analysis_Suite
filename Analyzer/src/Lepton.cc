@@ -14,6 +14,12 @@ void Lepton::setup(std::string name, TTreeReader& fReader, bool isMC)
         genPartIdx.setup(fReader, name+"_genPartIdx");
     }
 
+    // Isolation variables
+    ptRel.setup(fReader, name + "_jetPtRelv2");
+    ptRatio.setup(fReader, name + "_jetRelIso");
+    iso.setup(fReader, name + "_miniPFRelIso_all");
+
+
     GenericParticle::setup(name, fReader);
     setup_map(Level::Loose);
     setup_map(Level::Fake);
@@ -70,14 +76,11 @@ bool Lepton::passZCut(float low, float high)
     return false;
 }
 
-
 bool Lepton::passJetIsolation(size_t idx, const Particle& jets)
 {
     if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
         return true; /// no close jet (probably no jets)
-    auto jetV = jets.p3(closeJet_by_lepton.at(idx));
-
-    return passRatioCut(pt(idx)/jetV.rho()) || passRelCut(idx, jetV);
+    return iso.at(idx) < isoCut && ( 1/(1+ptRatio.at(idx)) > ptRatioCut || ptRel.at(idx) > ptRelCut );
 }
 
 float Lepton::fillFakePt(size_t idx, const Particle& jets) const
@@ -86,10 +89,10 @@ float Lepton::fillFakePt(size_t idx, const Particle& jets) const
         return 1.; /// no close jet (probably no jets)
     auto jetV = jets.p3(closeJet_by_lepton.at(idx));
 
-    if (passRelCut(idx, jetV)) {
+    if (ptRel.at(idx) > ptRelCut) {
         if (iso.at(idx) > isoCut)
             return (1 + iso.at(idx)-isoCut);
-    } else if (!passRatioCut(pt(idx)/jetV.rho())) {
+    } else if (1/(1+ptRatio.at(idx)) <= ptRatioCut) {
         return jetV.rho()*ptRatioCut/pt(idx);
     }
     return 1.;
