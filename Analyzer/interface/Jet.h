@@ -2,13 +2,12 @@
 #define __JET_H_
 
 #include <unordered_map>
+#include <random>
 
 #include "analysis_suite/Analyzer/interface/Particle.h"
 
 #include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 #include "CondTools/BTau/interface/BTagCalibrationReader.h"
-
-class JetCorrection;
 
 enum PUID { PU_Tight = 0, PU_Medium = 1, PU_Loose = 2 };
 
@@ -75,7 +74,7 @@ public:
     TRVariable<Float_t> rho;
 
 
-    void setupJEC(JetCorrection& jecCorr, GenericParticle& genJet);
+    void setupJEC(GenericParticle& genJet);
     bool isJECSyst() {return jec_systs.find(currentSyst) != jec_systs.end(); }
     std::pair<Float_t, Float_t> get_JEC_pair(Systematic syst, size_t idx) const
     {
@@ -90,6 +89,7 @@ public:
 private:
     float loose_bjet_cut, medium_bjet_cut, tight_bjet_cut;
     int looseId = 0b11;
+    float jet_dr = 0.4;
     std::unordered_map<Systematic, std::unordered_map<eVar, std::vector<float>>> m_jet_scales;
     std::vector<float>* m_jec;
 
@@ -133,30 +133,28 @@ private:
         {Year::yr2018, "102XSF_V2"},
     };
 
-    void createBtagReaders();
-    float getTotalBTagWeight();
-    float getTotalShapeWeight();
+    std::unordered_map<Year, std::string> jec_source = {
+        {Year::yr2016, "Summer19UL16_V7_MC"},
+        {Year::yr2016apv, "Summer19UL16APV_V7_MC"},
+        {Year::yr2017, "Summer19UL17_V5_MC"},
+        {Year::yr2018, "Summer19UL18_V5_MC"},
+    };
+
+    std::unordered_map<Year, std::string> jer_source = {
+        {Year::yr2016, "Summer20UL16_JRV3_MC"},
+        {Year::yr2016apv, "Summer20UL16APV_JRV3_MC"},
+        {Year::yr2017, "Summer19UL17_JRV2_MC"},
+        {Year::yr2018, "Summer19UL18_JRV2_MC"},
+    };
+    correction::Correction::Ref jer_scale, jet_resolution, jec_scale;
 
     bool use_shape_btag = false;
-    BTagCalibration calib;
-    BTagCalibrationReader* btag_reader, *shape_btag_reader;
 
-    double getBWeight(BTagEntry::JetFlavor flav, size_t idx)
-    {
-        std::string measType = "central";
-        if (currentSyst == Systematic::BJet_BTagging) {
-            measType = varName_by_var.at(currentVar);
-        }
-        return btag_reader->eval_auto_bounds(measType, flav, eta(idx), pt(idx));
-    }
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
 
-    double getShapeWeight(BTagEntry::JetFlavor flav, size_t idx) {
-        std::string measType = "central";
-        if (systName_by_syst.find(currentSyst) != systName_by_syst.end()) {
-            measType = varName_by_var.at(currentVar) + "_" + systName_by_syst.at(currentSyst);
-        }
-        return btag_reader->eval_auto_bounds(measType, flav, eta(idx), pt(idx), btag.at(idx));
-    }
+    float get_jer(size_t i, GenericParticle& genJet);
+    float get_jec(size_t i);
 };
 
 #endif // __JET_H_

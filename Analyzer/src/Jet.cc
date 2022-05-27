@@ -1,5 +1,4 @@
 #include "analysis_suite/Analyzer/interface/Jet.h"
-#include "analysis_suite/Analyzer/interface/JetCorrection.h"
 
 void Jet::setup(TTreeReader& fReader, bool isMC)
 {
@@ -33,14 +32,13 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
         medium_bjet_cut = 0.4184;
         tight_bjet_cut = 0.7527;
     }
-    // calib = BTagCalibration("deepcsv", scaleDir_ + "/btagging/DeepCSV_" + btag_file[year_] + ".csv");
-    calib = BTagCalibration("deepcsv", scaleDir_ + "/btagging/DeepCSV_" + yearMap.at(year_) + ".csv");
-    setSF<TH2D>("btagEff_b", Systematic::BJet_Eff);
-    setSF<TH2D>("btagEff_c", Systematic::BJet_Eff);
-    setSF<TH2D>("btagEff_udsg", Systematic::BJet_Eff);
 
     // use_shape_btag = true;
-    createBtagReaders();
+
+    auto corr_set = getScaleFile("JME", "jet_jerc");
+    jec_scale = corr_set->at(jec_source[year_]+"_Total_AK4PFchs");
+    jer_scale = corr_set->at(jer_source[year_]+"_ScaleFactor_AK4PFchs");
+    jet_resolution = corr_set->at(jer_source[year_]+"_PtResolution_AK4PFchs");
 
     m_jet_scales[Systematic::Nominal] = {{eVar::Nominal, std::vector<float>()}};
     for (auto syst : jec_systs) {
@@ -92,6 +90,11 @@ float Jet::getHT(const std::vector<size_t>& jet_list)
     return ht;
 }
 
+float Jet::getScaleFactor()
+{
+    return 1.;
+}
+
 float Jet::getCentrality(const std::vector<size_t>& jet_list)
 {
     float etot = 0;
@@ -101,84 +104,43 @@ float Jet::getCentrality(const std::vector<size_t>& jet_list)
     return getHT(jet_list) / etot;
 }
 
-float Jet::getScaleFactor()
-{
-    if (use_shape_btag) {
-        return getTotalShapeWeight();
-    } else {
-        return getTotalBTagWeight();
-
-    }
-}
-
-float Jet::getTotalBTagWeight() {
-    float weight = 1;
-    const auto& goodBJets = list(Level::Bottom);
-    for (auto bidx : goodBJets) {
-        auto btagInfo = btagInfo_by_flav[std::abs(hadronFlavour.at(bidx))];
-        weight *= getBWeight(btagInfo.flavor_type, bidx);
-    }
-    for (auto jidx : list(Level::Tight)) {
-        if (std::find(goodBJets.begin(), goodBJets.end(), jidx) != goodBJets.end()) {
-            continue; // is a bjet, weighting already taken care of
-        }
-        auto btagInfo = btagInfo_by_flav[std::abs(hadronFlavour.at(jidx))];
-        float eff = getWeight(btagInfo.jet_type, pt(jidx), fabs(eta(jidx)));
-        float bSF = getBWeight(btagInfo.flavor_type, jidx);
-        weight *= (1 - bSF * eff) / (1 - eff);
-    }
-    return weight;
-}
-
-float Jet::getTotalShapeWeight() {
-    float weight = 1;
-    bool charmSyst = charm_systs.find(currentSyst) != charm_systs.end();
-    for (auto idx : list(Level::Tight)) {
-        auto flav = static_cast<PID>(std::abs(hadronFlavour.at(idx)));
-        if (flav == PID::Bottom) {
-            if (!charmSyst) weight *= getShapeWeight(BTagEntry::FLAV_B, idx);
-        } else if (flav == PID::Charm) {
-            if (charmSyst) weight *= getShapeWeight(BTagEntry::FLAV_C, idx);
-        } else {
-            if (!charmSyst) weight *= getShapeWeight(BTagEntry::FLAV_UDSG, idx);
-        }
-    }
-    return weight;
-}
-
-void Jet::createBtagReaders()
-{
-    if (use_shape_btag) {
-        std::vector<std::string> systs;
-        for (auto [syst, name]: systName_by_syst) {
-            systs.push_back("up_"+name);
-            systs.push_back("down_"+name);
-        }
-        btag_reader = new BTagCalibrationReader(BTagEntry::OP_RESHAPING, "central", systs);
-        btag_reader->load(calib, BTagEntry::FLAV_B, "iterativefit");
-        btag_reader->load(calib, BTagEntry::FLAV_C, "iterativefit");
-        btag_reader->load(calib, BTagEntry::FLAV_UDSG, "iterativefit");
-    } else {
-        btag_reader = new BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"});
-        btag_reader->load(calib, BTagEntry::FLAV_B, "comb");
-        btag_reader->load(calib, BTagEntry::FLAV_C, "comb");
-        btag_reader->load(calib, BTagEntry::FLAV_UDSG, "incl");
-    }
-}
-
-void Jet::setupJEC(JetCorrection& jecCorr, GenericParticle& genJet) {
-    if (isJECSyst()) {
+void Jet::setupJEC(GenericParticle& genJet) {
+    if (currentSyst == Systematic::Nominal || isJECSyst()) {
         m_jec = &m_jet_scales[currentSyst][currentVar];
+        m_jec->assign(size(), 1);
         for(size_t i = 0; i < size(); ++i) {
-            float jes_scale = jecCorr.getJES(nompt(i), eta(i));
-            float genPt = (genJetIdx.at(i) != -1) ? genJet.pt(genJetIdx.at(i)) : -1.0;
-            float jer_scale = jecCorr.getJER(jes_scale*nompt(i), eta(i), *rho, genPt);
-            m_jec->push_back(jes_scale*jer_scale);
+            (*m_jec)[i] *= get_jec(i);
+            (*m_jec)[i] *= get_jer(i, genJet);
         }
     } else {
         m_jec = &m_jet_scales[Systematic::Nominal][eVar::Nominal];
-        if (currentSyst == Systematic::Nominal) {
-            m_jec->assign(size(), 1);
-        }
     }
+}
+
+float Jet::get_jec(size_t i) {
+    if (currentSyst != Systematic::Jet_JER || currentVar == eVar::Nominal) {
+        return 1.;
+    } else {
+        float delta = jec_scale->evaluate({eta(i), pt(i)});
+        return (currentVar == eVar::Up) ? (1+delta) : (1-delta);
+    }
+}
+
+float Jet::get_jer(size_t i, GenericParticle& genJets) {
+    using namespace ROOT::Math::VectorUtil;
+    float resolution = jet_resolution->evaluate({eta(i), pt(i), *rho});
+    float scale = jer_scale->evaluate({eta(i), "nom"}); // ("nom","up","down") (as of now only for AK4)
+
+    bool hasGenJet = genJetIdx.at(i) != -1;
+    auto genJet = (hasGenJet) ? genJets.p4(genJetIdx.at(i)) : LorentzVector();
+    float pt_ratio = (hasGenJet) ? 1-pt(i)/genJet.Pt() : 0.;
+
+    if (hasGenJet && DeltaR(p4(i), genJet) < jet_dr/2 && abs(pt_ratio) < 3*resolution) {
+        return 1 + (scale-1)*pt_ratio;
+    } else if (scale > 1.) {
+        std::normal_distribution<> gaussian{0, resolution};
+        return 1 + gaussian(gen)*sqrt(pow(scale,2) - 1);
+    }
+
+    return 1.;
 }
