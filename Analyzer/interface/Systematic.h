@@ -5,6 +5,8 @@
 #include <TH2.h>
 #include <TFile.h>
 
+#include "correction.h"
+
 #include "analysis_suite/Analyzer/interface/CommonEnums.h"
 
 struct WeightGetter {
@@ -64,6 +66,14 @@ protected:
                     static_cast<T*>(f_scale_factors->Get((histname+"_up").c_str())),
                     static_cast<T*>(f_scale_factors->Get((histname+"_down").c_str()))});
         }
+    }
+
+    auto getScaleFile(std::string group, std::string filename)
+    {
+        std::string scale_file = scaleDir_ + "/POG/" + group;
+        scale_file += "/" + yearMap.at(year_) + "_UL";
+        scale_file += "/" + filename + ".json.gz";
+        return correction::CorrectionSet::from_file(scale_file.c_str());
     }
 
     template <class... Args>

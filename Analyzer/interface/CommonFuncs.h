@@ -3,6 +3,8 @@
 
 #include <unordered_map>
 #include <cmath>
+#include <string>
+#include <stdexcept>
 
 template <class A, class B>
 A get_by_val(std::unordered_map<A, B> map, B val_) {

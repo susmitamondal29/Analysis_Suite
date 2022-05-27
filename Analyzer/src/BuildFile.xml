@@ -2,6 +2,7 @@
 <use name="root"/>
 <use name="json"/>
 <use name="rootgraphics"/>
+<use name="correctionlib"/>
 <use name="DataFormats/Math"/>
 <use name="CondFormats/BTauObjects"/>
 <use name="CondTools/BTau"/>
@@ -11,4 +12,4 @@
   <lib name="1"/>
 </export>
 
-<Flags CXXFLAGS="-DLOGURU_WITH_STREAMS=1"/>
+<flags CXXFLAGS="-DLOGURU_WITH_STREAMS=1"/>
