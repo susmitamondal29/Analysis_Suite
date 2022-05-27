@@ -1,0 +1,3 @@
+[submodule "jsonpog-integration"]
+	path = jsonpog-integration
+	url = ./jsonpog-integration/
