@@ -200,11 +200,18 @@ info ={
     "DY": {
         "Name": r"DY",
         "Members" : [
-            "DYm50",
+            "DYm50_amc",
             "DYm10-50"
         ]
     },
-
+"VV": {
+        "Name": r"VV",
+        "Members": [
+            "ww",
+            "zz4l",
+            "wz",
+        ]
+    },
 
     "data" : {
         "Name": r"Data",
