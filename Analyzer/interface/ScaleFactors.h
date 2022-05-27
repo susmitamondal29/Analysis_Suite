@@ -9,8 +9,6 @@
 #include "analysis_suite/Analyzer/interface/Systematic.h"
 #include "analysis_suite/Analyzer/interface/Variable.h"
 
-class PrescaleProvider;
-
 class ScaleFactors : public SystematicWeights {
 public:
     ScaleFactors() {}
@@ -23,19 +21,13 @@ public:
 
     float getLHESF();
 
-    float getPrescale(std::unordered_map<std::string, std::string>& l1_map,
-                      std::vector<std::string> hlts, UInt_t run, UInt_t lumi);
-    int getIndPrescale(std::string hlt, std::string l1, UInt_t run, UInt_t lumi);
-
-    size_t getPScale(size_t run, size_t lumi, std::string trig);
+    size_t getPrescale(size_t run, size_t lumi, std::string trig);
 
     bool inGoldenLumi(UInt_t run, UInt_t lumi);
 
 private:
 
     TRArray<Float_t> LHEScaleWeight;
-
-    PrescaleProvider* prescaler;
 
     bool isMC;
 
@@ -51,6 +43,8 @@ private:
             return std::distance(lumis.begin(), std::upper_bound(lumis.begin(), lumis.end(), lumi));
         }
     };
+
+    correction::Correction::Ref pu_scale;
 
     std::unordered_map<size_t, Prescale_Info> prescale_info;
 };

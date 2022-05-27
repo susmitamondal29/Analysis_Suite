@@ -1,6 +1,5 @@
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
 #include "analysis_suite/Analyzer/interface/CommonEnums.h"
-#include "analysis_suite/Analyzer/interface/PrescaleProvider.h"
 
 #include <sstream>
 
@@ -11,11 +10,11 @@ void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
     if (isMC && fReader.GetTree()->GetBranchStatus("LHEScaleWeight"))
         LHEScaleWeight.setup(fReader, "LHEScaleWeight");
     else if (!isMC) {
-        prescaler = new PrescaleProvider(scaleDir_ + "/prescale/triggerData" + yearMap.at(year_));
         std::ifstream golden_json_file(scaleDir_ + "/golden_json/golden_json_" + yearMap.at(year_) + ".json");
         golden_json_file >> golden_json;
     }
-    setSF<TH1D>("pileupSF", Systematic::Pileup, "", true);
+    auto corr_set = getScaleFile("LUM", "puWeights");
+    pu_scale = corr_set->at("Collisions" + yearNum.at(year_)+ "_UltraLegacy_goldenJSON");
 }
 
 void ScaleFactors::setup_prescale()
@@ -41,7 +40,7 @@ void ScaleFactors::setup_prescale()
     }
 }
 
-size_t ScaleFactors::getPScale(size_t run, size_t lumi, std::string trig)
+size_t ScaleFactors::getPrescale(size_t run, size_t lumi, std::string trig)
 {
     auto run_info = prescale_info[run];
     size_t lumi_idx = run_info.distance(lumi) - 1;
@@ -51,7 +50,7 @@ size_t ScaleFactors::getPScale(size_t run, size_t lumi, std::string trig)
 
 float ScaleFactors::getPileupSF(int nPU)
 {
-    return getWeight("pileupSF", nPU);
+    return pu_scale->evaluate({static_cast<float>(nPU), "nominal"});
 }
 
 float ScaleFactors::getLHESF()
@@ -76,41 +75,6 @@ float ScaleFactors::getLHESF()
     return 1.;
 }
 
-float ScaleFactors::getPrescale(std::unordered_map<std::string, std::string>& l1_map,
-                                std::vector<std::string> hlts, UInt_t run, UInt_t lumi)
-{
-    // std::cout << run << " " << lumi <<  std::endl;
-    int ps_factor = -1;
-    for (auto hlt : hlts) {
-        int l1factor = prescaler->l1Prescale(l1_map[hlt], run, lumi);
-        int hltfactor = prescaler->hltPrescale(hlt+"_v", run, lumi);
-        // std::cout << hlt << " "<< l1_map[hlt] << " " << l1factor << " " << hltfactor << std::endl;
-        if (ps_factor < 0) {
-            ps_factor = hltfactor*l1factor;
-        } else if(hltfactor > 0) {
-            ps_factor = std::min(ps_factor, hltfactor*l1factor);
-        }
-    }
-    // std::cout << ps_factor <<  "-------" << std::endl;
-    if (ps_factor > 0) {
-        return ps_factor;
-    }
-
-
-    return 1.;
-}
-
-int ScaleFactors::getIndPrescale(std::string hlt, std::string l1, UInt_t run, UInt_t lumi)
-{
-    if (isMC)
-        return 1;
-    int l1factor = prescaler->l1Prescale(l1, run, lumi);
-    int hltfactor = prescaler->hltPrescale(hlt+"_v", run, lumi);
-    if (l1factor < 0 || hltfactor < 0) {
-        return -1;
-    }
-    return hltfactor*l1factor;
-}
 
 bool ScaleFactors::inGoldenLumi(UInt_t run, UInt_t lumi)
 {
