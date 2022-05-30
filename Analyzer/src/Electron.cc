@@ -26,9 +26,11 @@ void Electron::setup(TTreeReader& fReader, bool isMC)
     ptRelCut = 8.0;
     isoCut = 0.1;
 
-    auto corr_set = getScaleFile("EGM", "electron");
-    electron_scale = WeightHolder(corr_set->at("UL-Electron-ID-SF"), Systematic::Electron_Scale,
-                                  {"sf", "sfup", "sfdown"});
+    if(isMC) {
+        auto corr_set = getScaleFile("EGM", "electron");
+        electron_scale = WeightHolder(corr_set->at("UL-Electron-ID-SF"), Systematic::Electron_Scale,
+                                      {"sf", "sfup", "sfdown"});
+    }
 
 }
 

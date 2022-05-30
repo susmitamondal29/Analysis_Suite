@@ -3,6 +3,7 @@
 void Jet::setup(TTreeReader& fReader, bool isMC)
 {
     GenericParticle::setup("Jet", fReader);
+    isMC_ = isMC;
     jetId.setup(fReader, "Jet_jetId");
     btag.setup(fReader, "Jet_btagDeepFlavB");
     puId.setup(fReader, "Jet_puId");
@@ -36,16 +37,17 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
     }
 
     // use_shape_btag = true;
+    if (isMC) {
+        auto corr_set = getScaleFile("JME", "jet_jerc");
+        jec_scale = WeightHolder(corr_set->at(jec_source[year_]+"_Total_AK4PFchs"));
+        jet_resolution = WeightHolder(corr_set->at(jer_source[year_]+"_PtResolution_AK4PFchs"));
+        jer_scale = WeightHolder(corr_set->at(jer_source[year_]+"_ScaleFactor_AK4PFchs"),
+                                 Systematic::Jet_JER, {"nom","up","down"});
 
-    auto corr_set = getScaleFile("JME", "jet_jerc");
-    jec_scale = WeightHolder(corr_set->at(jec_source[year_]+"_Total_AK4PFchs"));
-    jet_resolution = WeightHolder(corr_set->at(jer_source[year_]+"_PtResolution_AK4PFchs"));
-    jer_scale = WeightHolder(corr_set->at(jer_source[year_]+"_ScaleFactor_AK4PFchs"),
-                             Systematic::Jet_JER, {"nom","up","down"});
-
-    auto jmar_set = getScaleFile("JME", "UL"+ yearMap.at(year_).substr(2) + "_jmar");
-    puid_scale = WeightHolder(jmar_set->at("PUJetID_eff"),
-                              Systematic::Jet_PUID, {"nom","up","down"});
+        auto jmar_set = getScaleFile("JME", "UL"+ yearMap.at(year_).substr(2) + "_jmar");
+        puid_scale = WeightHolder(jmar_set->at("PUJetID_eff"),
+                                  Systematic::Jet_PUID, {"nom","up","down"});
+    }
 
     m_jet_scales[Systematic::Nominal] = {{eVar::Nominal, std::vector<float>()}};
     for (auto syst : jec_systs) {
@@ -120,6 +122,8 @@ void Jet::setupJEC(GenericParticle& genJet) {
     if (currentSyst == Systematic::Nominal || isJECSyst()) {
         m_jec = &m_jet_scales[currentSyst][currentVar];
         m_jec->assign(size(), 1);
+        if (!isMC_) return;
+
         for(size_t i = 0; i < size(); ++i) {
             (*m_jec)[i] *= get_jec(i);
             (*m_jec)[i] *= get_jer(i, genJet);

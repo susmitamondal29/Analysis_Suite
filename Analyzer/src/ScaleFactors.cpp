@@ -7,15 +7,16 @@
 void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
 {
     isMC = isMC_;
-    if (isMC && fReader.GetTree()->GetBranchStatus("LHEScaleWeight"))
+    if (isMC && fReader.GetTree()->GetBranchStatus("LHEScaleWeight")) {
         LHEScaleWeight.setup(fReader, "LHEScaleWeight");
-    else if (!isMC) {
+        auto corr_set = getScaleFile("LUM", "puWeights");
+        pu_scale = WeightHolder(corr_set->at("Collisions" + yearNum.at(year_)+ "_UltraLegacy_goldenJSON"),
+                                Systematic::Pileup, {"nominal", "up", "down"});
+    } else if (!isMC) {
         std::ifstream golden_json_file(scaleDir_ + "/golden_json/golden_json_" + yearMap.at(year_) + ".json");
-        golden_json_file >> golden_json;
+            golden_json_file >> golden_json;
     }
-    auto corr_set = getScaleFile("LUM", "puWeights");
-    pu_scale = WeightHolder(corr_set->at("Collisions" + yearNum.at(year_)+ "_UltraLegacy_goldenJSON"),
-                            Systematic::Pileup, {"nominal", "up", "down"});
+
 }
 
 void ScaleFactors::setup_prescale()

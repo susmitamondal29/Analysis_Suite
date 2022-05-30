@@ -23,9 +23,11 @@ void Muon::setup(TTreeReader& fReader, bool isMC)
         ptRelCut = 6.8;
     }
 
-    auto corr_set = getScaleFile("MUO", "muon_Z");
-    muon_scale = WeightHolder(corr_set->at("NUM_MediumID_DEN_TrackerMuons"), Systematic::Muon_Scale,
-                              {"sf", "systup", "systdown"});
+    if (isMC) {
+        auto corr_set = getScaleFile("MUO", "muon_Z");
+        muon_scale = WeightHolder(corr_set->at("NUM_MediumID_DEN_TrackerMuons"), Systematic::Muon_Scale,
+                                  {"sf", "systup", "systdown"});
+    }
 }
 
 void Muon::createLooseList()

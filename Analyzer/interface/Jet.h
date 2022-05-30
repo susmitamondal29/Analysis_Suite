@@ -92,6 +92,7 @@ private:
     float jet_dr = 0.4;
     std::unordered_map<Systematic, std::unordered_map<eVar, std::vector<float>>> m_jet_scales;
     std::vector<float>* m_jec;
+    bool isMC_;
 
     void createLooseList();
     void createBJetList();
