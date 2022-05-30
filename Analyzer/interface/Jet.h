@@ -140,7 +140,9 @@ private:
         {Year::yr2017, "Summer19UL17_JRV2_MC"},
         {Year::yr2018, "Summer19UL18_JRV2_MC"},
     };
+
     WeightHolder jer_scale, jet_resolution, jec_scale;
+    WeightHolder puid_scale;
 
     bool use_shape_btag = false;
 

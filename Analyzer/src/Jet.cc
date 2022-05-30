@@ -4,8 +4,7 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
 {
     GenericParticle::setup("Jet", fReader);
     jetId.setup(fReader, "Jet_jetId");
-    btag.setup(fReader, "Jet_btagDeepB");
-    area.setup(fReader, "Jet_area");
+    btag.setup(fReader, "Jet_btagDeepFlavB");
     puId.setup(fReader, "Jet_puId");
     if (isMC) {
         hadronFlavour.setup(fReader, "Jet_hadronFlavour");
@@ -18,19 +17,22 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
     setup_map(Level::Bottom);
     setup_map(Level::Tight);
 
-    if (year_ == Year::yr2016pre || year_ == Year::yr2016post) {
-        loose_bjet_cut = 0.2219;
-        medium_bjet_cut = 0.6324;
-        tight_bjet_cut = 0.8958;
-
+    if (year_ == Year::yr2016pre) {
+        loose_bjet_cut =  0.0508;
+        medium_bjet_cut = 0.2598;
+        tight_bjet_cut =  0.6502;
+    } else if (year_ == Year::yr2016post) {
+        loose_bjet_cut =  0.0480;
+        medium_bjet_cut = 0.2489;
+        tight_bjet_cut =  0.6377;
     } else if (year_ == Year::yr2017) {
-        loose_bjet_cut = 0.1522;
-        medium_bjet_cut = 0.4941;
-        tight_bjet_cut = 0.8001;
+        loose_bjet_cut =  0.0532;
+        medium_bjet_cut = 0.3040;
+        tight_bjet_cut =  0.7476;
     } else if (year_ == Year::yr2018) {
-        loose_bjet_cut = 0.1241;
-        medium_bjet_cut = 0.4184;
-        tight_bjet_cut = 0.7527;
+        loose_bjet_cut =  0.0490;
+        medium_bjet_cut = 0.2783;
+        tight_bjet_cut =  0.7100;
     }
 
     // use_shape_btag = true;
@@ -41,6 +43,9 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
     jer_scale = WeightHolder(corr_set->at(jer_source[year_]+"_ScaleFactor_AK4PFchs"),
                              Systematic::Jet_JER, {"nom","up","down"});
 
+    auto jmar_set = getScaleFile("JME", "UL"+ yearMap.at(year_).substr(2) + "_jmar");
+    puid_scale = WeightHolder(jmar_set->at("PUJetID_eff"),
+                              Systematic::Jet_PUID, {"nom","up","down"});
 
     m_jet_scales[Systematic::Nominal] = {{eVar::Nominal, std::vector<float>()}};
     for (auto syst : jec_systs) {
@@ -54,7 +59,7 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
 void Jet::createLooseList()
 {
     for (size_t i = 0; i < size(); i++) {
-        if (pt(i) > 5
+        if (pt(i) > 25
             && fabs(eta(i)) < 2.4
             && (jetId.at(i) & looseId) != 0
             && (pt(i) > 50 || (puId.at(i) >> PU_Medium) & 1)
@@ -66,8 +71,7 @@ void Jet::createLooseList()
 void Jet::createBJetList()
 {
     for (auto i : list(Level::Loose)) {
-        if (pt(i) > 25
-            && btag.at(i) > medium_bjet_cut)
+        if (btag.at(i) > medium_bjet_cut)
             m_partList[Level::Bottom]->push_back(i);
         n_loose_bjet.back() += (btag.at(i) > loose_bjet_cut) ? 1 : 0;
         n_medium_bjet.back() += (btag.at(i) > medium_bjet_cut) ? 1 : 0;
@@ -94,6 +98,12 @@ float Jet::getHT(const std::vector<size_t>& jet_list)
 
 float Jet::getScaleFactor()
 {
+    float weight = 1.;
+    std::string syst = systName(puid_scale);
+    for (auto idx : list(Level::Loose)) {
+        if (pt(idx) < 50)
+            weight *= puid_scale.evaluate({eta(idx), pt(idx), syst, "M"});
+    }
     return 1.;
 }
 

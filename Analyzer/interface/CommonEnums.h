@@ -70,6 +70,7 @@ enum class Systematic {
     Pileup,
     Jet_JER,
     Jet_JES,
+    Jet_PUID,
 };
 
 enum class eVar {
@@ -99,6 +100,7 @@ static const std::unordered_map<std::string, Systematic> syst_by_name = {
     { "Pileup", Systematic::Pileup },
     { "Jet_JER", Systematic::Jet_JER },
     { "Jet_JES", Systematic::Jet_JES },
+    { "Jet_PUID", Systematic::Jet_PUID },
 };
 
 static const std::vector<eVar> syst_vars = { eVar::Up, eVar::Down };
