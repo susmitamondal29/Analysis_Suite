@@ -91,9 +91,8 @@ class GroupInfo(BasicInfo):
         return self.get_memberMap()[group]
 
 class FileInfo(BasicInfo):
-    def __init__(self, year="2018", isUL=False, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.year = int(year)
         file_name = "UL" # if isUL else "Legacy"
         file_path = f'{self.base_path}.FileInfo.{file_name}'
         self.fileInfo = importlib.import_module(file_path).info
@@ -119,11 +118,6 @@ class FileInfo(BasicInfo):
             return 1.
         info = self.get_info(group)
         scale = info['cross_section']
-        if isinstance(scale, dict):
-            if self.year == 2016:
-                scale = scale[f"{self.year}"]
-            else:
-                scale = scale["2017/2018"]
         if "kfactor" in info:
             scale *= info["kfactor"]
         return scale

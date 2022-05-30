@@ -110,7 +110,7 @@ conditions = {
             "Run2016B-02Apr2020_ver2*",
             "Run2016C-02Apr2020*",
             "Run2016D-02Apr2020*",
-            "Run2016E-02Apr2020*",
+            "Run2016E-02Apr2020-v*",
             "Run2016F-02Apr2020*",
             "Run2016G-02Apr2020*",
             "Run2016H-02Apr2020*"
@@ -123,22 +123,19 @@ conditions = {
             "Run2017F-02Apr2020*",
         ],
         "2018": [
-            "Run2018A-02Apr2020*",
-            "Run2018B-02Apr2020*",
-            "Run2018C-02Apr2020*",
-            "Run2018D-02Apr2020*",
+             "Run2018A-UL2018_MiniAODv2_NanoAODv9-v*",
+            "Run2018B-UL2018_MiniAODv2_NanoAODv9-v*",
+            "Run2018C-UL2018_MiniAODv2_NanoAODv9-v*",
+            "Run2018D-UL2018_MiniAODv2_NanoAODv9-v*",
         ]
     },
     "mc" : {
-        "2016" : ["RunIISummer16NanoAOD*02Apr2020*_asymptotic_v*"],
-        "2017" : ["RunIIFall17NanoAOD*02Apr2020*_realistic_v*"],
-        "2018" : ["RunIIAutumn18NanoAOD*02Apr2020*_realistic_v*"],
+        "2016pre":  ["RunIISummer20UL16NanoAODAPVv9*-106X_mcRun2_asymptotic_preVFP*v*"],
+        "2016post": ["RunIISummer20UL16NanoAODv9*-106X_mcRun2_asymptotic_v*"],
+        "2017":     ["RunIISummer20UL17NanoAODv9*-106X_mc2017_realistic_v*"],
+        "2018":     ["RunIISummer20UL18NanoAODv9*-106X_upgrade2018_realistic_v*"],
     },
-    "mcUL" : {
-        "2016": ["RunIISummer20UL16MiniAOD*-106X_mcRun2_asymptotic_v*"],
-        "2017": ["RunIISummer20UL17MiniAOD*-106X_mc2017_realistic_v*"],
-        "2018": ["RunIISummer20UL18MiniAOD*-106X_upgrade2018_realistic_v*"],
-    }
+
 }
 
 selection = {
