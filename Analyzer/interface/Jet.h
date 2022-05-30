@@ -127,22 +127,16 @@ private:
         Systematic::Jet_JES,
     };
 
-    std::unordered_map<Year, std::string> btag_file = {
-        {Year::yr2016, "2016Legacy_V1"},
-        {Year::yr2017, "94XSF_V5_B_F"},
-        {Year::yr2018, "102XSF_V2"},
-    };
-
     std::unordered_map<Year, std::string> jec_source = {
-        {Year::yr2016, "Summer19UL16_V7_MC"},
-        {Year::yr2016apv, "Summer19UL16APV_V7_MC"},
+        {Year::yr2016pre, "Summer19UL16APV_V7_MC"},
+        {Year::yr2016post, "Summer19UL16_V7_MC"},
         {Year::yr2017, "Summer19UL17_V5_MC"},
         {Year::yr2018, "Summer19UL18_V5_MC"},
     };
 
     std::unordered_map<Year, std::string> jer_source = {
-        {Year::yr2016, "Summer20UL16_JRV3_MC"},
-        {Year::yr2016apv, "Summer20UL16APV_JRV3_MC"},
+        {Year::yr2016pre, "Summer20UL16APV_JRV3_MC"},
+        {Year::yr2016post, "Summer20UL16_JRV3_MC"},
         {Year::yr2017, "Summer19UL17_JRV2_MC"},
         {Year::yr2018, "Summer19UL18_JRV2_MC"},
     };

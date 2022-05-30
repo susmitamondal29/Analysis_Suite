@@ -13,7 +13,7 @@ void Muon::setup(TTreeReader& fReader, bool isMC)
     sip3d.setup(fReader, "Muon_sip3d");
     id = PID::Muon;
 
-    if (year_ == Year::yr2016) {
+    if (year_ == Year::yr2016pre || year_ == Year::yr2016post) {
         isoCut = 0.16;
         ptRatioCut = 0.76;
         ptRelCut = 7.2;

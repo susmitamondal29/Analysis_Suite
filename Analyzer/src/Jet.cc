@@ -18,7 +18,7 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
     setup_map(Level::Bottom);
     setup_map(Level::Tight);
 
-    if (year_ == Year::yr2016) {
+    if (year_ == Year::yr2016pre || year_ == Year::yr2016post) {
         loose_bjet_cut = 0.2219;
         medium_bjet_cut = 0.6324;
         tight_bjet_cut = 0.8958;

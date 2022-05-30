@@ -10,9 +10,6 @@ void ResolvedTop::setup(TTreeReader& fReader)
 
     std::string workingPoint = "TWP";
     wp = wp_by_name.at(workingPoint);
-
-    setSF<TH1F>("topSF_" + workingPoint + "_True", Systematic::Top_SF, "topSF");
-    setSF<TH1F>("topSF_" + workingPoint + "_Fake", Systematic::Top_SF, "fakeTopSF");
 }
 
 void ResolvedTop::createLooseList()
@@ -26,20 +23,5 @@ void ResolvedTop::createLooseList()
 float ResolvedTop::getScaleFactor(const Particle& genPart)
 {
     float weight = 1.;
-    for (auto tidx : list(Level::Loose)) {
-        bool foundMatch = false;
-        float minDR = 0.1;
-        for (auto gidx : genPart.list(Level::Top)) {
-            float dr2 = deltaR(genPart.eta(gidx), eta(tidx), genPart.phi(gidx), phi(tidx));
-            if (dr2 < minDR) {
-                foundMatch = true;
-                weight *= getWeight("topSF", pt(tidx));
-                break;
-            }
-        }
-        if (!foundMatch) {
-            weight *= getWeight("fakeTopSF", pt(tidx));
-        }
-    }
     return weight;
 }

@@ -43,7 +43,7 @@ void Closure_MisId::Init(TTree* tree)
         LHE_pdgId.setup(fReader, "LHEPart_pdgId");
     }
 
-    if (year_ == Year::yr2016) {
+    if (year_ == Year::yr2016pre || year_ == Year::yr2016post) {
         setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"});
         setupTrigger(Subchannel::ME, {"HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
                                       "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",

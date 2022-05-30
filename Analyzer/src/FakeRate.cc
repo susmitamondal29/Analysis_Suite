@@ -57,7 +57,7 @@ void FakeRate::Init(TTree* tree)
     setupTrigger(Subchannel::E, {"HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30",
                                  "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30"});
     // Dilepton triggers
-    if (year_ == Year::yr2016) {
+    if (year_ == Year::yr2016pre || year_ == Year::yr2016post) {
         setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"});
         setupTrigger(Subchannel::ME, {"HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
                                       "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
