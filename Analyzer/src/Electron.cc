@@ -27,7 +27,8 @@ void Electron::setup(TTreeReader& fReader, bool isMC)
     isoCut = 0.1;
 
     auto corr_set = getScaleFile("EGM", "electron");
-    electron_scale = corr_set->at("UL-Electron-ID-SF");
+    electron_scale = WeightHolder(corr_set->at("UL-Electron-ID-SF"), Systematic::Electron_Scale,
+                                  {"sf", "sfup", "sfdown"});
 
 }
 
@@ -86,17 +87,9 @@ void Electron::createTightList(Particle& jets)
 float Electron::getScaleFactor()
 {
     float weight = 1.;
+    std::string syst = systName(electron_scale);
     for (auto eidx : list(Level::Tight)) {
-        weight *= electron_scale->evaluate({yearMap.at(year_),"sf","wp90noiso",abs(eta(eidx)), pt(eidx)});
-        //     float fixed_pt = std::min(pt(eidx), ptMax);
-    //     if (fixed_pt < 20) {
-    //         weight *= getWeight("ElectronSF_low", eta(eidx), fixed_pt);
-    //     } else {
-    //         weight *= getWeight("ElectronSF", eta(eidx), fixed_pt);
-    //     }
-    //     weight *= getWeight("Electron_MVATightIP2D3DIDEmu", eta(eidx), fixed_pt);
-    //     weight *= getWeight("Electron_ConvIHit0", eta(eidx), fixed_pt);
-    //     weight *= getWeight("Electron_MultiIsoEmu", eta(eidx), fixed_pt);
+        weight *= electron_scale.evaluate({yearMap.at(year_), syst, "wp90noiso", fabs(eta(eidx)), pt(eidx)});
     }
     return weight;
 }

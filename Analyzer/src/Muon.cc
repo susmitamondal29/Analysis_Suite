@@ -24,7 +24,8 @@ void Muon::setup(TTreeReader& fReader, bool isMC)
     }
 
     auto corr_set = getScaleFile("MUO", "muon_Z");
-    muon_scale = corr_set->at("NUM_MediumID_DEN_TrackerMuons");
+    muon_scale = WeightHolder(corr_set->at("NUM_MediumID_DEN_TrackerMuons"), Systematic::Muon_Scale,
+                              {"sf", "systup", "systdown"});
 }
 
 void Muon::createLooseList()
@@ -69,8 +70,9 @@ void Muon::createTightList(Particle& jets)
 float Muon::getScaleFactor()
 {
     float weight = 1.;
+    std::string syst = systName(muon_scale);
     for (auto midx : list(Level::Tight)) {
-        weight *= muon_scale->evaluate({yearMap.at(year_)+"_UL", abs(eta(midx)), pt(midx), "sf"});
+        weight *= muon_scale.evaluate({yearMap.at(year_)+"_UL", fabs(eta(midx)), pt(midx), syst});
     }
     return weight;
 }

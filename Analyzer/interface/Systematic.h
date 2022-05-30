@@ -20,6 +20,8 @@ struct WeightHolder {
 
     WeightHolder() {}
 
+    WeightHolder(correction::Correction::Ref scale) : scale_(scale) {}
+
     WeightHolder(correction::Correction::Ref scale, Systematic syst, std::vector<std::string> varNames)
         : scale_(scale)
         , syst_(syst)

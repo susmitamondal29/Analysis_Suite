@@ -36,9 +36,11 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
     // use_shape_btag = true;
 
     auto corr_set = getScaleFile("JME", "jet_jerc");
-    jec_scale = corr_set->at(jec_source[year_]+"_Total_AK4PFchs");
-    jer_scale = corr_set->at(jer_source[year_]+"_ScaleFactor_AK4PFchs");
-    jet_resolution = corr_set->at(jer_source[year_]+"_PtResolution_AK4PFchs");
+    jec_scale = WeightHolder(corr_set->at(jec_source[year_]+"_Total_AK4PFchs"));
+    jet_resolution = WeightHolder(corr_set->at(jer_source[year_]+"_PtResolution_AK4PFchs"));
+    jer_scale = WeightHolder(corr_set->at(jer_source[year_]+"_ScaleFactor_AK4PFchs"),
+                             Systematic::Jet_JER, {"nom","up","down"});
+
 
     m_jet_scales[Systematic::Nominal] = {{eVar::Nominal, std::vector<float>()}};
     for (auto syst : jec_systs) {
@@ -121,15 +123,15 @@ float Jet::get_jec(size_t i) {
     if (currentSyst != Systematic::Jet_JER || currentVar == eVar::Nominal) {
         return 1.;
     } else {
-        float delta = jec_scale->evaluate({eta(i), pt(i)});
+        float delta = jec_scale.evaluate({eta(i), pt(i)});
         return (currentVar == eVar::Up) ? (1+delta) : (1-delta);
     }
 }
 
 float Jet::get_jer(size_t i, GenericParticle& genJets) {
     using namespace ROOT::Math::VectorUtil;
-    float resolution = jet_resolution->evaluate({eta(i), pt(i), *rho});
-    float scale = jer_scale->evaluate({eta(i), "nom"}); // ("nom","up","down") (as of now only for AK4)
+    float resolution = jet_resolution.evaluate({eta(i), pt(i), *rho});
+    float scale = jer_scale.evaluate({eta(i), systName(jer_scale)});
 
     bool hasGenJet = genJetIdx.at(i) != -1;
     auto genJet = (hasGenJet) ? genJets.p4(genJetIdx.at(i)) : LorentzVector();

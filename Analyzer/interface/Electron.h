@@ -35,7 +35,7 @@ private:
     const float BARREL_ETA = 1.479;
     std::vector<std::vector<double>> mvaLoose, mvaTight;
 
-    correction::Correction::Ref electron_scale;
+    WeightHolder electron_scale;
 
     Float_t ptMax = 499;
 };

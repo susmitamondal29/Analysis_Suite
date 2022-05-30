@@ -18,8 +18,7 @@ public:
     TRArray<Bool_t> mediumId;
     TRArray<Float_t> sip3d;
 
-    correction::Correction::Ref muon_scale;
-
+    WeightHolder muon_scale;
 
     Float_t ptMax = 119;
     Float_t ptMin = 20;

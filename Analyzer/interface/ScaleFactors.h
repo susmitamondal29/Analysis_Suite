@@ -44,7 +44,7 @@ private:
         }
     };
 
-    correction::Correction::Ref pu_scale;
+    WeightHolder pu_scale;
 
     std::unordered_map<size_t, Prescale_Info> prescale_info;
 };

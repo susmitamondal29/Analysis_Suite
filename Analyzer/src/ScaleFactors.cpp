@@ -14,7 +14,8 @@ void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
         golden_json_file >> golden_json;
     }
     auto corr_set = getScaleFile("LUM", "puWeights");
-    pu_scale = corr_set->at("Collisions" + yearNum.at(year_)+ "_UltraLegacy_goldenJSON");
+    pu_scale = WeightHolder(corr_set->at("Collisions" + yearNum.at(year_)+ "_UltraLegacy_goldenJSON"),
+                            Systematic::Pileup, {"nominal", "up", "down"});
 }
 
 void ScaleFactors::setup_prescale()
@@ -50,7 +51,7 @@ size_t ScaleFactors::getPrescale(size_t run, size_t lumi, std::string trig)
 
 float ScaleFactors::getPileupSF(int nPU)
 {
-    return pu_scale->evaluate({static_cast<float>(nPU), "nominal"});
+    return pu_scale.evaluate({static_cast<float>(nPU), systName(pu_scale)});
 }
 
 float ScaleFactors::getLHESF()
