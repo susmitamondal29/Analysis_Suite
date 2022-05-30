@@ -4,41 +4,37 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TFile.h>
+#include <memory>
+#include <variant>
 
 #include "correction.h"
 
 #include "analysis_suite/Analyzer/interface/CommonEnums.h"
 
-struct WeightGetter {
-    TH1* hist;
-    Systematic syst;
-    TH1* up = nullptr;
-    TH1* down = nullptr;
+typedef std::vector<correction::Variable::Type> WeightVector;
 
-    template <class... Args>
-    float getWeight(Systematic syst_, eVar var_, Args... args)
+struct WeightHolder {
+    correction::Correction::Ref scale_;
+    Systematic syst_;
+    std::unordered_map<eVar, std::string> name_by_var;
+
+    WeightHolder() {}
+
+    WeightHolder(correction::Correction::Ref scale, Systematic syst, std::vector<std::string> varNames)
+        : scale_(scale)
+        , syst_(syst)
     {
-        if(syst_ != syst) {
-            return getBinContent(hist, args...);
-        } else if(var_ == eVar::Up) {
-            if (up)
-                return getBinContent(up, args...);
-            else
-                return getBinContent(hist, args...) + getBinError(hist, args...);
-        } else if (var_ == eVar::Down) {
-            if (down)
-                return getBinContent(down, args...);
-            else
-                return getBinContent(hist, args...) - getBinError(hist, args...);
-        }
-        return 0.;
+        name_by_var[eVar::Nominal] = varNames.at(0);
+        name_by_var[eVar::Up] = varNames.at(1);
+        name_by_var[eVar::Down] = varNames.at(2);
     }
 
-    template <class... Args>
-    float getBinContent(TH1* h, Args... args) { return h->GetBinContent(h->FindBin(args...)); }
+    std::string systName(Systematic syst, eVar var) {
+        if (syst_ != syst) return name_by_var[eVar::Nominal];
+        else return name_by_var[var];
+    }
 
-    template <class... Args>
-    float getBinError(TH1* h, Args... args) { return h->GetBinError(h->FindBin(args...)); }
+    float evaluate(WeightVector vec) { return scale_->evaluate(vec); };
 };
 
 class SystematicWeights {
@@ -51,23 +47,6 @@ public:
     static Systematic currentSyst;
 
 protected:
-    std::unordered_map<std::string, WeightGetter*> scales_by_name;
-
-    template <class T>
-    void setSF(std::string name, Systematic syst, std::string map_name="", bool separateErrors=false)
-    {
-        if (map_name.empty())
-            map_name = name;
-        std::string histname = yearMap.at(year_) + "/" + name;
-        if (separateErrors) {
-            scales_by_name[map_name] = new WeightGetter({static_cast<T*>(f_scale_factors->Get(histname.c_str())), syst});
-        } else {
-            scales_by_name[map_name] = new WeightGetter({static_cast<T*>(f_scale_factors->Get(histname.c_str())), syst,
-                    static_cast<T*>(f_scale_factors->Get((histname+"_up").c_str())),
-                    static_cast<T*>(f_scale_factors->Get((histname+"_down").c_str()))});
-        }
-    }
-
     auto getScaleFile(std::string group, std::string filename)
     {
         std::string scale_file = scaleDir_ + "/POG/" + group;
@@ -76,11 +55,13 @@ protected:
         return correction::CorrectionSet::from_file(scale_file.c_str());
     }
 
-    template <class... Args>
-    float getWeight(std::string name, Args... args)
-    {
-        return scales_by_name[name]->getWeight(currentSyst, currentVar, args...);
-    }
+    std::string systName(WeightHolder& weight) { return weight.systName(currentSyst, currentVar); }
+
+    // template <class... Args>
+    // float getWeight(std::string name, Args... args)
+    // {
+    //     return scales_by_name[name]->getWeight(currentSyst, currentVar, args...);
+    // }
 };
 
 #endif // SYSTEMATIC_H_
