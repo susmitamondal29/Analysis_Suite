@@ -3,19 +3,22 @@
 
 void ResolvedTop::setup(TTreeReader& fReader)
 {
-    GenericParticle::setup("ResolvedTop", fReader);
-    discriminator.setup(fReader, "ResolvedTop_discriminator");
+    GenericParticle::setup("FatJet", fReader);
+    mass_softdrop.setup(fReader, "msoftdrop");
+    tau2.setup(fReader, "tau2");
+    tau3.setup(fReader, "tau3");
 
     setup_map(Level::Loose);
 
-    std::string workingPoint = "TWP";
-    wp = wp_by_name.at(workingPoint);
+    wp = wp_by_name.at("VL");
 }
 
 void ResolvedTop::createLooseList()
 {
     for (size_t i = 0; i < size(); i++) {
-        if (discriminator.at(i) > wp)
+        if (mass_softdrop.at(i) > 105
+            && mass_softdrop.at(i) < 210
+            && tau3.at(i)/tau2.at(i) < wp)
             m_partList[Level::Loose]->push_back(i);
     }
 }

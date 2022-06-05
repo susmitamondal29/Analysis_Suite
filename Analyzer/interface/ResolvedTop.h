@@ -16,13 +16,16 @@ public:
         createLooseList();
     }
 
-    TRArray<Float_t> discriminator;
+    TRArray<Float_t> mass_softdrop;
+    TRArray<Float_t> tau2;
+    TRArray<Float_t> tau3;
 
     const std::unordered_map<std::string, float> wp_by_name = {
-        { "LWP", 0.75 }, // Loose 0.75
-        { "MWP", 0.85 }, // Medium 0.85
-        { "Alt_TWP", 0.92 }, // AltTight 0.92
-        { "TWP", 0.95 }, // Tight 0.95
+        { "VL", 0.69 }, // Loose 5%
+        { "L", 0.61 }, // Medium 2.5%
+        { "M", 0.52 }, // AltTight 1%
+        { "T", 0.47 }, // Tight 0.5%
+        { "VT", 0.38 }, // Very tight 0.1%
     };
     float wp;
 };
