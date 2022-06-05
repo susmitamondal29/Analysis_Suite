@@ -31,7 +31,6 @@ class Closure_MisId : public BaseSelector {
     LeptonOut* o_tightElectrons;
     JetOut* o_jets;
 
-    TRVariable<ULong64_t> event;
     TRVariable<Float_t> Met_pt;
     TRVariable<Float_t> Met_phi;
     TRVariable<Float_t> Pileup_nTrueInt;

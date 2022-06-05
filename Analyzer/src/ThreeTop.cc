@@ -303,7 +303,7 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
     fillLepton(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
     fillJet(jet, Level::Tight, *o_jets, pass_bitmap);
     fillJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
-    fillTop(rTop, Level::Loose, *o_resolvedTop, pass_bitmap);
+    fillParticle(rTop, Level::Loose, *o_resolvedTop, pass_bitmap);
     fillAllLeptons(muon, elec, *o_tightLeptons, pass_bitmap);
 
     for (size_t syst = 0; syst < numSystematics(); ++syst) {

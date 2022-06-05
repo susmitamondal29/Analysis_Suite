@@ -17,19 +17,6 @@ void fillJet(const Jet& jet, Level level, JetOut& fillObject, size_t pass_bitmap
     LOG_FUNC << "End of fillJet";
 }
 
-void fillTop(const ResolvedTop& top, Level level, TopOut& fillObject, size_t pass_bitmap)
-{
-    LOG_FUNC << "Start of fillTop";
-    fillObject.clear();
-    for (size_t idx = 0; idx < top.size(); ++idx) {
-        size_t final_bitmap = fillParticle(top, level, fillObject, idx, pass_bitmap);
-        if (final_bitmap != 0) {
-            fillObject.discriminator.push_back(top.discriminator.at(idx));
-        }
-    }
-    LOG_FUNC << "End of fillTop";
-}
-
 void fillAllLeptons(const Lepton& muon, const Lepton& elec, ParticleOut& fillObject, size_t pass_bitmap)
 {
     LOG_FUNC << "Start of fillLeptons";
@@ -63,4 +50,22 @@ void fillLepton(const Lepton& lep, Level level, LeptonOut& fillObject, size_t pa
         }
     }
     LOG_FUNC << "End of fillLepon";
+}
+
+void fillBEff(const Jet& jet, Level level, BEffOut& fillObject, size_t pass_bitmap) {
+    LOG_FUNC << "Start fillJet";
+    fillObject.clear();
+
+    for (size_t idx = 0; idx < jet.size(); ++idx) {
+        size_t final_bitmap = fillParticle(jet, level, fillObject, idx, pass_bitmap);
+        if (final_bitmap != 0) {
+            float btag = jet.btag.at(idx);
+            if (btag > jet.tight_bjet_cut) fillObject.pass_btag.push_back(3);
+            if (btag > jet.medium_bjet_cut) fillObject.pass_btag.push_back(2);
+            if (btag > jet.loose_bjet_cut) fillObject.pass_btag.push_back(1);
+            fillObject.flavor.push_back(jet.hadronFlavour.at(idx));
+        }
+    }
+    LOG_FUNC << "End of fillJet";
+
 }

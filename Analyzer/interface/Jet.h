@@ -85,9 +85,10 @@ public:
         const auto scales = m_jet_scales.at(syst);
         return std::make_pair(scales.at(eVar::Down).at(idx), scales.at(eVar::Up).at(idx));
     }
+    float loose_bjet_cut, medium_bjet_cut, tight_bjet_cut;
+
 
 private:
-    float loose_bjet_cut, medium_bjet_cut, tight_bjet_cut;
     int looseId = 0b11;
     float jet_dr = 0.4;
     std::unordered_map<Systematic, std::unordered_map<eVar, std::vector<float>>> m_jet_scales;
