@@ -107,7 +107,7 @@ void BEfficiency::FillValues(const std::vector<bool>& passVec)
         pass_bitmap += passVec.at(i) << i;
     }
 
-    fillBEff(jet, Level::Bottom, *o_beff, pass_bitmap);
+    fillBEff(jet, Level::Loose, *o_beff, pass_bitmap);
 
     LOG_FUNC << "End of FillValues";
 }

@@ -61,8 +61,9 @@ void fillBEff(const Jet& jet, Level level, BEffOut& fillObject, size_t pass_bitm
         if (final_bitmap != 0) {
             float btag = jet.btag.at(idx);
             if (btag > jet.tight_bjet_cut) fillObject.pass_btag.push_back(3);
-            if (btag > jet.medium_bjet_cut) fillObject.pass_btag.push_back(2);
-            if (btag > jet.loose_bjet_cut) fillObject.pass_btag.push_back(1);
+            else if (btag > jet.medium_bjet_cut) fillObject.pass_btag.push_back(2);
+            else if (btag > jet.loose_bjet_cut) fillObject.pass_btag.push_back(1);
+            else fillObject.pass_btag.push_back(0);
             fillObject.flavor.push_back(jet.hadronFlavour.at(idx));
         }
     }
