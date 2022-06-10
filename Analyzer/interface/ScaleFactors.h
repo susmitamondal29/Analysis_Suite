@@ -20,6 +20,7 @@ public:
     float getPileupSF(int nPU);
 
     float getLHESF();
+    float getLHEPdf();
 
     size_t getPrescale(size_t run, size_t lumi, std::string trig);
 
@@ -28,6 +29,7 @@ public:
 private:
 
     TRArray<Float_t> LHEScaleWeight;
+    TRArray<Float_t> LHEPdfWeight;
 
     bool isMC;
 

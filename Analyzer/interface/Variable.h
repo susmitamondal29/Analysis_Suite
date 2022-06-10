@@ -71,6 +71,12 @@ public:
             return 0;
         }
     }
+    auto begin() {
+        return array->begin();
+    }
+    auto end() {
+        return array->end();
+    }
 private:
     TTreeReaderArray<T>* array = nullptr;
 };

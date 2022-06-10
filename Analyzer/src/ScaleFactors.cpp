@@ -7,8 +7,9 @@
 void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
 {
     isMC = isMC_;
-    if (isMC && fReader.GetTree()->GetBranchStatus("LHEScaleWeight")) {
+    if (isMC) {
         LHEScaleWeight.setup(fReader, "LHEScaleWeight");
+        LHEPdfWeight.setup(fReader, "LHEPdfWeight");
         auto corr_set = getScaleFile("LUM", "puWeights");
         pu_scale = WeightHolder(corr_set->at("Collisions" + yearNum.at(year_)+ "_UltraLegacy_goldenJSON"),
                                 Systematic::Pileup, {"nominal", "up", "down"});
@@ -75,6 +76,31 @@ float ScaleFactors::getLHESF()
         return LHEScaleWeight.at(varIdx);
     }
     return 1.;
+}
+
+float ScaleFactors::getLHEPdf()
+{
+    // [0] central value
+    // [1-100] PDF replica variations
+    // [101] alphaZ down ; [102] alphaZ up
+    // http://nnpdf.mi.infn.it/wp-content/uploads/2019/03/NNPDFfits_Positivity_PhysicalCrossSections_v2.pdf
+    if (currentSyst == Systematic::PDF_unc) {
+        std::sort(LHEPdfWeight.begin()+1, LHEPdfWeight.begin()+100);
+        float err = (LHEPdfWeight.at(17) - LHEPdfWeight.at(84))/2;
+        return LHEPdfWeight.at(0) + ((currentVar == eVar::Up) ? err : -err);
+    } else if (currentSyst == Systematic::PDF_alphaZ) {
+        if (LHEPdfWeight.size() != 103) {
+            return 1.;
+        } else  {
+            return (currentVar == eVar::Up) ? LHEPdfWeight.at(102) : LHEPdfWeight.at(101);
+        }
+    } else {
+        if (LHEPdfWeight.size() > 1) {
+            return LHEPdfWeight.at(0);
+        } else {
+            return 1.;
+        }
+    }
 }
 
 

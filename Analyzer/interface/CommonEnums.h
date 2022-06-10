@@ -54,6 +54,8 @@ enum class Systematic {
     Nominal,
     LHE_muF,
     LHE_muR,
+    PDF_alphaZ,
+    PDF_unc,
 
     BJet_BTagging,
     BJet_Eff,
@@ -84,6 +86,8 @@ enum class eVar {
 static const std::unordered_map<std::string, Systematic> syst_by_name = {
     { "LHE_muF", Systematic::LHE_muF },
     { "LHE_muR", Systematic::LHE_muR },
+    { "PDF_unc", Systematic::PDF_unc },
+    { "PDF_alphaZ", Systematic::PDF_alphaZ},
 
     { "BJet_BTagging", Systematic::BJet_BTagging },
     { "BJet_Eff", Systematic::BJet_Eff },
