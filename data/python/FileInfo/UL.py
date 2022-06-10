@@ -322,71 +322,71 @@ info = {
         "DAS" :   "WJetsToLNu_HT-2500ToInf_TuneC*",
     },
 
-    "qcd_mu15_pt20-Inf" : {
-        "cross_section" : { "2016": 269900, "2017/2018": 239400, },
-        "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-20toInf_MuEnrichedPt15_Tune.*',
-    },
-    "qcd_mu_pt15-20" : {
-        "cross_section" : { "2016": 3678000, "2017/2018": 2797000 },
-        "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-15to20_MuEnrichedPt5_Tune.*',
-    },
-    "qcd_mu_pt20-30" : {
-        "cross_section" : { "2016": 3189000, "2017/2018": 2526000 },
-        "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-20to30_MuEnrichedPt5_Tune.*',
-    },
-    "qcd_mu_pt30-50" : {
-        "cross_section" : { "2016": 1662000, "2017/2018": 1362000 },
-        "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-30to50_MuEnrichedPt5_Tune.*',
-    },
-    "qcd_mu_pt50-80" : {
-        "cross_section" : { "2016": 452200, "2017/2018": 376600 },
-        "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-50to80_MuEnrichedPt5_Tune.*',
-    },
-    "qcd_mu_pt80-120" : {
-        "cross_section" : { "2016": 106500, "2017/2018": 88930 },
-        "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-80to120_MuEnrichedPt5_Tune.*',
-    },
-    "qcd_mu_pt120-170" : {
-        "cross_section" : { "2016": 25700, "2017/2018": 21230 },
-        "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-120to170_MuEnrichedPt5_Tune.*',
-    },
-    "qcd_mu_pt170-300" : {
-        "cross_section" : { "2016": 8683, "2017/2018": 7055 },
-        "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-170to300_MuEnrichedPt5_Tune.*',
-    },
-    "qcd_mu_pt300-470" : {
-        "cross_section" : { "2016": 800.9, "2017/2018": 797.3 },
-        "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-300to470_MuEnrichedPt5_Tune.*',
-    },
-    "qcd_mu_pt470-600" : {
-        "cross_section" : { "2016": 79.37, "2017/2018": 59.24 },
-        "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-470to600_MuEnrichedPt5_Tune.*',
-    },
-    "qcd_mu_pt600-800" : {
-        "cross_section" : { "2016": 25.31, "2017/2018": 18.22 },
-        "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-600to800_MuEnrichedPt5_Tune.*',
-    },
-    "qcd_mu_pt800-1000" : {
-        "cross_section" : { "2016": 4.723, "2017/2018": 3.275 },
-        "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-800to1000_MuEnrichedPt5_Tune.*',
-    },
-    "qcd_mu_pt1000-Inf" : {
-        "cross_section" : { "2016": 1.62, "2017/2018": 1.078 },
-        "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-1000toInf_MuEnrichedPt5_Tune.*',
-    },
+    # "qcd_mu15_pt20-Inf" : {
+    #     "cross_section" : { "2016": 269900, "2017/2018": 239400, },
+    #     "Source of cross section" : "XSDB",
+    #     "DAS": 'QCD_Pt-20toInf_MuEnrichedPt15_Tune.*',
+    # },
+    # "qcd_mu_pt15-20" : {
+    #     "cross_section" : { "2016": 3678000, "2017/2018": 2797000 },
+    #     "Source of cross section" : "XSDB",
+    #     "DAS": 'QCD_Pt-15to20_MuEnrichedPt5_Tune.*',
+    # },
+    # "qcd_mu_pt20-30" : {
+    #     "cross_section" : { "2016": 3189000, "2017/2018": 2526000 },
+    #     "Source of cross section" : "XSDB",
+    #     "DAS": 'QCD_Pt-20to30_MuEnrichedPt5_Tune.*',
+    # },
+    # "qcd_mu_pt30-50" : {
+    #     "cross_section" : { "2016": 1662000, "2017/2018": 1362000 },
+    #     "Source of cross section" : "XSDB",
+    #     "DAS": 'QCD_Pt-30to50_MuEnrichedPt5_Tune.*',
+    # },
+    # "qcd_mu_pt50-80" : {
+    #     "cross_section" : { "2016": 452200, "2017/2018": 376600 },
+    #     "Source of cross section" : "XSDB",
+    #     "DAS": 'QCD_Pt-50to80_MuEnrichedPt5_Tune.*',
+    # },
+    # "qcd_mu_pt80-120" : {
+    #     "cross_section" : { "2016": 106500, "2017/2018": 88930 },
+    #     "Source of cross section" : "XSDB",
+    #     "DAS": 'QCD_Pt-80to120_MuEnrichedPt5_Tune.*',
+    # },
+    # "qcd_mu_pt120-170" : {
+    #     "cross_section" : { "2016": 25700, "2017/2018": 21230 },
+    #     "Source of cross section" : "XSDB",
+    #     "DAS": 'QCD_Pt-120to170_MuEnrichedPt5_Tune.*',
+    # },
+    # "qcd_mu_pt170-300" : {
+    #     "cross_section" : { "2016": 8683, "2017/2018": 7055 },
+    #     "Source of cross section" : "XSDB",
+    #     "DAS": 'QCD_Pt-170to300_MuEnrichedPt5_Tune.*',
+    # },
+    # "qcd_mu_pt300-470" : {
+    #     "cross_section" : { "2016": 800.9, "2017/2018": 797.3 },
+    #     "Source of cross section" : "XSDB",
+    #     "DAS": 'QCD_Pt-300to470_MuEnrichedPt5_Tune.*',
+    # },
+    # "qcd_mu_pt470-600" : {
+    #     "cross_section" : { "2016": 79.37, "2017/2018": 59.24 },
+    #     "Source of cross section" : "XSDB",
+    #     "DAS": 'QCD_Pt-470to600_MuEnrichedPt5_Tune.*',
+    # },
+    # "qcd_mu_pt600-800" : {
+    #     "cross_section" : { "2016": 25.31, "2017/2018": 18.22 },
+    #     "Source of cross section" : "XSDB",
+    #     "DAS": 'QCD_Pt-600to800_MuEnrichedPt5_Tune.*',
+    # },
+    # "qcd_mu_pt800-1000" : {
+    #     "cross_section" : { "2016": 4.723, "2017/2018": 3.275 },
+    #     "Source of cross section" : "XSDB",
+    #     "DAS": 'QCD_Pt-800to1000_MuEnrichedPt5_Tune.*',
+    # },
+    # "qcd_mu_pt1000-Inf" : {
+    #     "cross_section" : { "2016": 1.62, "2017/2018": 1.078 },
+    #     "Source of cross section" : "XSDB",
+    #     "DAS": 'QCD_Pt-1000toInf_MuEnrichedPt5_Tune.*',
+    # },
 
     # # electron enriched
     # "qcd_em_pt15-20" : {
@@ -494,13 +494,13 @@ info = {
         "cross_section" : 54.17,
         "DAS" : "TTJets_DiLept_Tune.*",
     },
-    "ttjets_single_t": {
-        "cross_section" : { "2016": 114.0,  "2017/2018": 109.6 },
-        "DAS" : "TTJets_SingleLeptFromT_Tune.*",
-    },
-    "ttjets_single_tbar": {
-        "cross_section" : { "2016": 114.0,  "2017/2018": 108.7 },
-        "DAS" : "TTJets_SingleLeptFromTbar_Tune.*",
-    },
+    # "ttjets_single_t": {
+    #     "cross_section" : { "2016": 114.0,  "2017/2018": 109.6 },
+    #     "DAS" : "TTJets_SingleLeptFromT_Tune.*",
+    # },
+    # "ttjets_single_tbar": {
+    #     "cross_section" : { "2016": 114.0,  "2017/2018": 108.7 },
+    #     "DAS" : "TTJets_SingleLeptFromTbar_Tune.*",
+    # },
 
 }

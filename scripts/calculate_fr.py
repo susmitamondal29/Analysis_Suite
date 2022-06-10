@@ -316,7 +316,7 @@ if __name__ == "__main__":
     for year in args.years:
         lumi = PlotInfo.lumi[year]
         GraphInfo.lumi = lumi
-        finfo = FileInfo(year)
+        finfo = FileInfo()
 
         np_sideband(year, lumi, ginfo, finfo, args)
         np_fake_rate(year, lumi, ginfo, finfo, args)

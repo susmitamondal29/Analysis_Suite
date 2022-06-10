@@ -108,7 +108,7 @@ def misid_measure(year, lumi, ginfo, finfo, args):
     all_pteta = GraphInfo("all_pteta", "", (ptbins, etabins), lambda vg, chan: flip_data(vg.TightElectron, flip=False))
 
     mc_info = DataInfo(Path(f"misId_mc_{year}.root"), year)
-    mc_info.setup_member(ginfo, finfo, "DY_ht")
+    mc_info.setup_member(ginfo, finfo, "DY")
     mc_info.setup_member(ginfo, finfo, "ttbar_lep")
     mc_info.setup_member(ginfo, finfo, "VV")
 
@@ -238,7 +238,7 @@ if __name__ == "__main__":
     for year in args.years:
         lumi = PlotInfo.lumi[year]
         GraphInfo.lumi = lumi
-        finfo = FileInfo(year)
+        finfo = FileInfo()
 
         misid_measure(year, lumi, ginfo, finfo, args)
-        misid_closure(year, lumi, ginfo, finfo, args)
+        # misid_closure(year, lumi, ginfo, finfo, args)
