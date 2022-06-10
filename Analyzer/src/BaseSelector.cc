@@ -225,11 +225,11 @@ void BaseSelector::print_bar()
 
     std::string bar = "[";
     bar += std::string(int(floor(progress*barWidth)), '=');
-    if (bar.size() < barWidth) bar += ">";
-    if (bar.size() < barWidth)
+    if (bar.size() <= barWidth) bar += ">";
+    if (bar.size() <= barWidth)
         bar += std::string(int((barWidth+1)-bar.size()), ' ');
     bar += "] ";
-    bar += std::to_string(progress * 100.0) + " %";
+    bar += std::to_string(round(progress*1000)/10.) + " %";
     std::cout << bar << std::endl;
 
 }
