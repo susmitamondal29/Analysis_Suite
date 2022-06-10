@@ -38,15 +38,30 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
 
     // use_shape_btag = true;
     if (isMC) {
+        // JEC Weights
         auto corr_set = getScaleFile("JME", "jet_jerc");
         jec_scale = WeightHolder(corr_set->at(jec_source[year_]+"_Total_AK4PFchs"));
         jet_resolution = WeightHolder(corr_set->at(jer_source[year_]+"_PtResolution_AK4PFchs"));
         jer_scale = WeightHolder(corr_set->at(jer_source[year_]+"_ScaleFactor_AK4PFchs"),
                                  Systematic::Jet_JER, {"nom","up","down"});
 
+        // Pileup Weights
         auto jmar_set = getScaleFile("JME", "UL"+ yearMap.at(year_).substr(2) + "_jmar");
         puid_scale = WeightHolder(jmar_set->at("PUJetID_eff"),
                                   Systematic::Jet_PUID, {"nom","up","down"});
+
+        // BTagging Weights
+        auto btag_set = getScaleFile("BTV", "btagging");
+        btag_bc_scale = WeightHolder(btag_set->at("deepJet_comb"),
+                                     Systematic::Jet_PUID, {"central","up","down"});
+        btag_udsg_scale = WeightHolder(btag_set->at("deepJet_incl"),
+                                       Systematic::Jet_PUID, {"central","up","down"});
+
+        // // BTagging Efficiencies
+        // auto beff_set = getScaleFile("BTV", "tagging_eff");
+        // btag_eff = WeightHolder(btag_set->at("SS"),
+        //                         Systematic::Jet_PUID, {"central","up","down"});
+
     }
 
     m_jet_scales[Systematic::Nominal] = {{eVar::Nominal, std::vector<float>()}};
@@ -106,7 +121,7 @@ float Jet::getScaleFactor()
         if (pt(idx) < 50)
             weight *= puid_scale.evaluate({eta(idx), pt(idx), syst, "M"});
     }
-    return 1.;
+    return weight;
 }
 
 float Jet::getCentrality(const std::vector<size_t>& jet_list)
@@ -131,6 +146,26 @@ void Jet::setupJEC(GenericParticle& genJet) {
     } else {
         m_jec = &m_jet_scales[Systematic::Nominal][eVar::Nominal];
     }
+}
+
+float Jet::getTotalBTagWeight() {
+    float weight = 1;
+    std::string syst = systName(puid_scale);
+    const auto& goodBJets = list(Level::Bottom);
+    for (auto bidx : goodBJets) {
+        auto scaler = (hadronFlavour.at(bidx) == 0) ? btag_udsg_scale : btag_bc_scale;
+        weight *= scaler.evaluate({syst, "M", hadronFlavour.at(bidx), fabs(eta(bidx)), pt(bidx)});
+    }
+    for (auto jidx : list(Level::Tight)) {
+        if (std::find(goodBJets.begin(), goodBJets.end(), jidx) != goodBJets.end()) {
+            continue; // is a bjet, weighting already taken care of
+        }
+        auto scaler = (hadronFlavour.at(jidx) == 0) ? btag_udsg_scale : btag_bc_scale;
+        float bSF = scaler.evaluate({syst, "M", hadronFlavour.at(jidx), fabs(eta(jidx)), pt(jidx)});
+        float eff = btag_eff.evaluate({syst, "M", hadronFlavour.at(jidx), fabs(eta(jidx)), pt(jidx)});
+        weight *= (1 - bSF * eff) / (1 - eff);
+    }
+    return weight;
 }
 
 float Jet::get_jec(size_t i) {

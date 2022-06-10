@@ -101,28 +101,7 @@ private:
 
     float getHT(const std::vector<size_t>& jet_list);
     float getCentrality(const std::vector<size_t>& jet_list);
-
-    std::unordered_map<int, Btag_Info> btagInfo_by_flav = {
-        {static_cast<int>(PID::Bottom), {BTagEntry::FLAV_B, "btagEff_b"}},
-        {static_cast<int>(PID::Charm), {BTagEntry::FLAV_C, "btagEff_c"}},
-        {static_cast<int>(PID::Jet), {BTagEntry::FLAV_UDSG, "btagEff_udsg"}},
-    };
-
-    const std::unordered_map<Systematic, std::string> systName_by_syst = {
-        { Systematic::BJet_Shape_hf, "hf" },
-        { Systematic::BJet_Shape_hfstats1, "hfstats1" },
-        { Systematic::BJet_Shape_hfstats2, "hfstats2" },
-        { Systematic::BJet_Shape_lf, "lf" },
-        { Systematic::BJet_Shape_lfstats1, "lfstats1" },
-        { Systematic::BJet_Shape_lfstats2, "lfstats2" },
-        { Systematic::BJet_Shape_cferr1, "cferr1" },
-        { Systematic::BJet_Shape_cferr2, "cferr2" },
-    };
-
-    const std::set<Systematic> charm_systs = {
-        Systematic::BJet_Shape_cferr1,
-        Systematic::BJet_Shape_cferr2,
-    };
+    float getTotalBTagWeight();
 
     const std::set<Systematic> jec_systs = {
         Systematic::Jet_JER,
@@ -145,6 +124,7 @@ private:
 
     WeightHolder jer_scale, jet_resolution, jec_scale;
     WeightHolder puid_scale;
+    WeightHolder btag_bc_scale, btag_udsg_scale, btag_eff;
 
     bool use_shape_btag = false;
 
