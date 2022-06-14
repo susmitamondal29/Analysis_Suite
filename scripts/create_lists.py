@@ -43,62 +43,81 @@ datasets = {
             "MuonEG",
         ],
         "2018": [
-            # "DoubleMuon",
+            "DoubleMuon",
             "EGamma",
-            # "MuonEG",
+            "MuonEG",
         ],
     },
 
     "mc" : [
-        # "QCD_Pt-20toInf_MuEnrichedPt15_Tune*",
-        # "QCD_Pt-15to20_MuEnrichedPt5_Tune*",
-        # "QCD_Pt-20to30_MuEnrichedPt5_Tune*",
-        # "QCD_Pt-30to50_MuEnrichedPt5_Tune*",
-        # "QCD_Pt-50to80_MuEnrichedPt5_Tune*",
-        # "QCD_Pt-80to120_MuEnrichedPt5_Tune*",
-        # "QCD_Pt-120to170_MuEnrichedPt5_Tune*",
-        # "QCD_Pt-170to300_MuEnrichedPt5_Tune*",
-        # "QCD_Pt-300to470_MuEnrichedPt5_Tune*",
-        # "QCD_Pt-470to600_MuEnrichedPt5_Tune*",
-        # "QCD_Pt-600to800_MuEnrichedPt5_Tune*",
-        # "QCD_Pt-800to1000_MuEnrichedPt5_Tune*",
-        # "QCD_Pt-1000toInf_MuEnrichedPt5_Tune*",
+        # # TTT
+        # 'TTTJ_TuneCP5*',
+        # 'TTTW_TuneCP5*',
 
-        # "QCD_Pt-15to20_EMEnriched_Tune*",
-        # "QCD_Pt-20to30_EMEnriched_Tune*",
-        # "QCD_Pt-30to50_EMEnriched_Tune*",
-        # "QCD_Pt-50to80_EMEnriched_Tune*",
-        # "QCD_Pt-80to120_EMEnriched_Tune*",
-        # "QCD_Pt-120to170_EMEnriched_Tune*",
-        # "QCD_Pt-170to300_EMEnriched_Tune*",
-        # "QCD_Pt-300toInf_EMEnriched_Tune*",
+        # # TTTT
+        # 'TTTT_TuneCP5*',
 
-        # "QCD_Pt_15to20_bcToE_Tune*",
-        # "QCD_Pt_20to30_bcToE_Tune*",
-        # "QCD_Pt_30to80_bcToE_Tune*",
-        # "QCD_Pt_80to170_bcToE_Tune*",
-        # "QCD_Pt_170to250_bcToE_Tune*",
-        # "QCD_Pt_250toInf_bcToE_Tune*",
+        # # TTX
+        # 'TTWJetsToLNu_TuneCP5_13TeV*',
+        # 'TTZToLLNuNu_M-10_TuneCP5_13TeV*',
+        # 'TTZToLL_M-1to10_TuneCP5*',
+        # 'ttHToNonbb_M125_TuneCP5*',
+        # 'ttHTobb_M125_TuneCP5*'
 
-        # "WJetsToLNu_Tune*madgraphMLM-pythia8",
-        "TTJets_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8",
-        # "TT_Tune*powheg*",
-        # "DYJetsToLL_M-10to50_Tune*madgraphMLM-pythia8",
-        "DYJetsToLL_M-50_TuneCP5*madgraphMLM-pythia8",
+        # # TTXY
+        # 'TTHH_TuneCP5*',
+        # 'TTWH_TuneCP5*',
+        # 'TTWW_TuneCP5*',
+        # 'TTWZ_TuneCP5*',
+        # 'TTZH_TuneCP5*',
+        # 'TTZZ_TuneCP5*',
 
-        # "DYJetsToLL_M-50_HT-40to70_Tune*13TeV-madgraphMLM-pythia8",
-        "DYJetsToLL_M-50_HT-70to100_Tune*13TeV-madgraphMLM-pythia8",
-        "DYJetsToLL_M-50_HT-100to200_Tune*13TeV-madgraphMLM-pythia8",
-        "DYJetsToLL_M-50_HT-200to400_Tune*13TeV-madgraphMLM-pythia8",
-        "DYJetsToLL_M-50_HT-400to600_Tune*13TeV-madgraphMLM-pythia8",
-        "DYJetsToLL_M-50_HT-600to800_Tune*13TeV-madgraphMLM-pythia8",
-        "DYJetsToLL_M-50_HT-800to1200_Tune*13TeV-madgraphMLM-pythia8",
-        "DYJetsToLL_M-50_HT-1200to2500_Tune*13TeV-madgraphMLM-pythia8",
-        "DYJetsToLL_M-50_HT-2500toInf_Tune*13TeV-madgraphMLM-pythia8",
+        # # Xgamma
+        # 'TGJets_TuneCP5*',
+        # 'TTGamma_Dilept_TuneCP5_13TeV*',
+        # 'TTGamma_Hadronic_TuneCP5*',
+        # 'TTGamma_SingleLept_TuneCP5_13TeV*',
+        # 'WGToLNuG_TuneCP5*',
+        # 'WWG_TuneCP5*',
+        # 'WZG_TuneCP5*',
+        # 'ZGToLLG_01J_5f_TuneCP5*',
 
+        # # VV Inclusive
+        # 'WW_TuneCP5*',
+        # 'WZ_TuneCP5*',
+        # 'ZZ_TuneCP5*',
 
+        # # VVV
+        # 'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8',
+        # 'WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8',
+        # 'WZZ_TuneCP5_13TeV-amcatnlo-pythia8',
+        # 'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8',
 
+        # # Other
+        # 'DYJetsToLL_M-10to50_TuneCP5*',
+        # 'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+        # 'GluGluHToZZTo4L_M125_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8',
+        # 'ST_tW_Dilept_5f_DR_TuneCP5*',
+        # 'TT_TuneCH3_13TeV-powheg-herwig7',
+        # 'WJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+        # 'tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-amcatnlo-pythia8',
+
+        # # DY HT binned
+        # "DYJetsToLL_M-50_HT-*_TuneCP5*13TeV-madgraphMLM-pythia8",
+
+        # # TTbar lepton binned
+        # 'TTTo2L2Nu_TuneCP5_13TeV*',
+        # 'TTToSemiLeptonic_TuneCP5_13TeV*',
+        # 'TTToHadronic_TuneCP5_13TeV*',
+
+        # # QCD
+        # "QCD_Pt-20_MuEnrichedPt15_Tune*",
+        # "QCD_Pt-*_MuEnrichedPt5_Tune*",
+        # "QCD_Pt-*_EMEnriched_Tune*",
+        # "QCD_Pt_*_bcToE_Tune*",
+
+        # # VV
+        # To be done
     ],
 }
 
@@ -107,23 +126,23 @@ datasets = {
 conditions = {
     "data" : {
         "2016" : [
-            "Run2016B-02Apr2020_ver2*",
-            "Run2016C-02Apr2020*",
-            "Run2016D-02Apr2020*",
-            "Run2016E-02Apr2020-v*",
-            "Run2016F-02Apr2020*",
-            "Run2016G-02Apr2020*",
-            "Run2016H-02Apr2020*"
+            "Run2016B-ver2*UL2016_MiniAODv2_NanoAODv9-v*",
+            "Run2016C*UL2016_MiniAODv2_NanoAODv9-v*",
+            "Run2016D*UL2016_MiniAODv2_NanoAODv9-v*",
+            "Run2016E*UL2016_MiniAODv2_NanoAODv9-v*",
+            "Run2016F*UL2016_MiniAODv2_NanoAODv9-v*",
+            "Run2016G*UL2016_MiniAODv2_NanoAODv9-v*",
+            "Run2016H*UL2016_MiniAODv2_NanoAODv9-v*",
         ],
         "2017" : [
-            "Run2017B-02Apr2020*",
-            "Run2017C-02Apr2020*",
-            "Run2017D-02Apr2020*",
-            "Run2017E-02Apr2020*",
-            "Run2017F-02Apr2020*",
+            "Run2017B-UL2017_MiniAODv2_NanoAODv9-v*",
+            "Run2017C-UL2017_MiniAODv2_NanoAODv9-v*",
+            "Run2017D-UL2017_MiniAODv2_NanoAODv9-v*",
+            "Run2017E-UL2017_MiniAODv2_NanoAODv9-v*",
+            "Run2017F-UL2017_MiniAODv2_NanoAODv9-v*",
         ],
         "2018": [
-             "Run2018A-UL2018_MiniAODv2_NanoAODv9-v*",
+            "Run2018A-UL2018_MiniAODv2_NanoAODv9-v*",
             "Run2018B-UL2018_MiniAODv2_NanoAODv9-v*",
             "Run2018C-UL2018_MiniAODv2_NanoAODv9-v*",
             "Run2018D-UL2018_MiniAODv2_NanoAODv9-v*",
@@ -136,11 +155,6 @@ conditions = {
         "2018":     ["RunIISummer20UL18NanoAODv9*-106X_upgrade2018_realistic_v*"],
     },
 
-}
-
-selection = {
-    "mc": "NEWtopTagger-HT250-Bjet1-Leptons2",
-    'data': 'DATA-HT250-Bjet1-Leptons2',
 }
 
 def get_nevents(dataset):
@@ -181,7 +195,9 @@ def local_list(year, selection, groups):
 #     all_datasets = datasets[args.type] if isinstance(datasets[args.type], list) else datasets[args.type][year]
 #     for cond, ds in itertools.product(conditions[args.type][year], all_datasets):
 #         for dataset in get_datasets(ds, cond, "data" in args.type):
-#             print(dataset, get_nevents(dataset))
+#             print(dataset)
+#             # print(dataset, get_nevents(dataset))
+#     print()
 # exit()
 
 isData = "data" in args.type
