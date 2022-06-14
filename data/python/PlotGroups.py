@@ -201,6 +201,7 @@ info ={
         "Name": r"DY",
         "Members" : [
             "DYm50_amc",
+            "DYm50",
             "DYm10-50"
         ]
     },

@@ -36,7 +36,6 @@ info = {
         "Source of cross section" : "arXiv:1610.07922",
         "DAS": 'TTWH_Tune.*',
     },
-
     "ttwz" : {
         "cross_section" : 0.003884,
         "Source of cross section" : "arXiv:1610.07922",
@@ -74,6 +73,12 @@ info = {
         "Source of cross section" : "",
         "DAS" : "ttHToNonbb_M125_Tune.*",
     },
+    "tth_bb" : {
+        "cross_section" : 0.2151,
+        "Source of cross section" : "",
+        "DAS" : "ttHTobb_M125_Tune.*",
+    },
+
 
     # VVV
     "www": {
@@ -94,36 +99,37 @@ info = {
     "wwz" : {
         "cross_section" : 0.1651,
         "Source of cross section" : "MCM",
-        "DAS": 'WWZ_.*Tune.*',
+        "DAS": 'WWZ_4F_Tune.*',
     },
 
-    # VV
-    "wzTo3lnu" : {
-        "cross_section" : 4.4297,
-        "Source of cross section" : "AN2018-062",
-        "DAS": 'WZTo3LNu_Tune.*',
-    },
-    "ww_doubleScatter" : {
-        "cross_section" : 0.16975,
-        "Source of cross section" : "AN2018-062",
-        "DAS": 'WWTo2L2Nu_DoubleScattering_.*',
-    },
-    "vh2nonbb" : {
-        "cross_section" : 0.9561,
-        "Source of cross section" : "AN2018-062",
-        "DAS": 'VHToNonbb_M125_13TeV.*',
-    },
-    "zz4l": {
-        # "cross_section" : 1.256,
-        "cross_section": 16.523,
-        "Source of cross section" : "AN2018-062",
-        "DAS": 'ZZ.*_Tune',
-    },
-    "wpwpjj_ewk" : {
-        "cross_section" : 0.03711,
-        "Source of cross section" : "AN2018-062",
-        "DAS": 'WpWpJJ_EWK-QCD_Tune.*',
-    },
+    # # VV
+    # "wzTo3lnu" : {
+    #     "cross_section" : 4.4297,
+    #     "Source of cross section" : "AN2018-062",
+    #     "DAS": 'WZTo3LNu_Tune.*',
+    # },
+    # "ww_doubleScatter" : {
+    #     "cross_section" : 0.16975,
+    #     "Source of cross section" : "AN2018-062",
+    #     "DAS": 'WWTo2L2Nu_DoubleScattering_.*',
+    # },
+    # "vh2nonbb" : {
+    #     "cross_section" : 0.9561,
+    #     "Source of cross section" : "AN2018-062",
+    #     "DAS": 'VHToNonbb_M125_13TeV.*',
+    # },
+    # "zz4l": {
+    #     # "cross_section" : 1.256,
+    #     "cross_section": 16.523,
+    #     "Source of cross section" : "AN2018-062",
+    #     "DAS": 'ZZ.*_Tune',
+    # },
+    # "wpwpjj_ewk" : {
+    #     "cross_section" : 0.03711,
+    #     "Source of cross section" : "AN2018-062",
+    #     "DAS": 'WpWpJJ_EWK-QCD_Tune.*',
+    # },
+
     ## VV Inclusive
     "zz" : {
         "cross_section": 16.523,
@@ -151,14 +157,14 @@ info = {
         "DAS": 'WWG_Tune.*',
     },
     "wg" : {
-          "cross_section" : 405.271,
+        "cross_section" : 405.271,
         "Source of cross section" : "AN2018-062",
         "DAS": 'WGToLNuG_Tune.*',
     },
     "zg" : {
         "cross_section" : 0.166,
         "Source of cross section" : "MCM",
-        "DAS": 'ZGTo2LG_PtG-130_Tune.*',
+        "DAS": 'ZGToLLG_01J_5f_Tune.*',
     },
     "wzg" : {
         "cross_section" : 0.04123,
@@ -200,12 +206,12 @@ info = {
     "ggh2zz" : {
         "cross_section" : 0.01181,
         "Source of cross section" : "AN2018-062",
-        "DAS": 'GluGluHToZZTo4L_M125_13TeV.*',
+        "DAS": 'GluGluHToZZTo4L_M125_Tune.*',
     },
     "st_twll" : {
         "cross_section" : 0.01123,
         "Source of cross section" : "AN2018-062",
-        "DAS": 'ST_tWll_5f_LO_.*',
+        "DAS": 'ST_tW_Dilept_5f.*',
     },
 
     "data" : {
@@ -246,7 +252,7 @@ info = {
         "DAS": 'DYJetsToLL_M-50_Tune.*madgraphMLM-pythia8',
     },
     'DYm50_amc': {
-        "cross_section" : 6077.22,
+        "cross_section" : 6404.,
         "Source of cross section" : "1G25ns",
         "Level": "NNLO",
         "DAS": 'DYJetsToLL_M-50_Tune.*amcatnloFXFX-pythia8',
@@ -480,27 +486,4 @@ info = {
         "Source of cross section" : "1G25ns",
         "DAS" : "QCD_Pt_250toInf_bcToE_Tune.*",
     },
-
-
-
-
-    # Other
-    "ttjet": {
-        "cross_section" : 831.762,
-        "Source of cross section" : "AN2018-062",
-        "DAS": 'TTJets_Tune.*',
-    },
-    "ttjets_dilep": {
-        "cross_section" : 54.17,
-        "DAS" : "TTJets_DiLept_Tune.*",
-    },
-    # "ttjets_single_t": {
-    #     "cross_section" : { "2016": 114.0,  "2017/2018": 109.6 },
-    #     "DAS" : "TTJets_SingleLeptFromT_Tune.*",
-    # },
-    # "ttjets_single_tbar": {
-    #     "cross_section" : { "2016": 114.0,  "2017/2018": 108.7 },
-    #     "DAS" : "TTJets_SingleLeptFromTbar_Tune.*",
-    # },
-
 }
