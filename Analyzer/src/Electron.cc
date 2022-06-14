@@ -60,7 +60,7 @@ void Electron::createFakeList(Particle& jets)
         if (mva_90.at(i)
             // sip3d.at(i) < 4
             // && lostHits.at(i) == 0
-            // && tightCharge.at(i) == 2
+            && tightCharge.at(i) == 2
             ) {
             auto closejet_info = getCloseJet(i, jets);
             fakePtFactor[i] = fillFakePt(i, jets);

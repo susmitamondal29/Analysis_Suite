@@ -119,6 +119,8 @@ void Closure_MisId::ApplyScaleFactors()
     LOG_EVENT << "weight after pu scale: " << (*weight);
     (*weight) *= sfMaker.getLHESF();
     LOG_EVENT << "weight after lhe scale: " << (*weight);
+    (*weight) *= sfMaker.getLHEPdf();
+    LOG_EVENT << "weight after lhe pdf: " << (*weight);
     (*weight) *= jet.getScaleFactor();
     LOG_EVENT << "weight after jet scale: " << (*weight);
     (*weight) *= elec.getScaleFactor();
