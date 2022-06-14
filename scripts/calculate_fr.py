@@ -9,7 +9,7 @@ from pathlib import Path
 from analysis_suite.commons.histogram import Histogram
 from analysis_suite.commons.plot_utils import plot, plot_colorbar
 from analysis_suite.commons.info import FileInfo, GroupInfo, PlotInfo
-from fake_rate_helper import setup_events, setup_histogram, setup_plot, mask_vg, DataInfo, GraphInfo, hep
+from analysis_suite.commons.fake_rate_helper import setup_events, setup_histogram, setup_plot, mask_vg, DataInfo, GraphInfo, hep
 
 trig_scale = {
     "2016": {

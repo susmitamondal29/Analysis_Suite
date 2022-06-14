@@ -11,7 +11,7 @@ from matplotlib import colors
 from analysis_suite.commons.histogram import Histogram
 from analysis_suite.commons.plot_utils import plot, plot_colorbar
 from analysis_suite.commons.info import FileInfo, GroupInfo, PlotInfo
-from fake_rate_helper import setup_events, setup_histogram, setup_plot, mask_vg, get_fake_rate, DataInfo, GraphInfo, hep
+from analysis_suite.commons.fake_rate_helper import setup_events, setup_histogram, setup_plot, mask_vg, get_fake_rate, DataInfo, GraphInfo, hep
 
 def num_two_parts(part1, part2):
     return (part1.num() == 1)*(part2.num() == 1)
@@ -107,12 +107,12 @@ def misid_measure(year, lumi, ginfo, finfo, args):
     flip_pteta = GraphInfo("flip_pteta", "", (ptbins, etabins), lambda vg, chan: flip_data(vg.TightElectron, flip=True))
     all_pteta = GraphInfo("all_pteta", "", (ptbins, etabins), lambda vg, chan: flip_data(vg.TightElectron, flip=False))
 
-    mc_info = DataInfo(Path(f"misId_mc_{year}.root"), year)
+    mc_info = DataInfo(Path(f"{args.filename}_mc_{year}.root"), year)
     mc_info.setup_member(ginfo, finfo, "DY")
     mc_info.setup_member(ginfo, finfo, "ttbar_lep")
     mc_info.setup_member(ginfo, finfo, "VV")
 
-    data_info = DataInfo(Path(f"misId_data_{year}.root"), year)
+    data_info = DataInfo(Path(f"{args.filename}_data_{year}.root"), year)
     data_info.setup_member(ginfo, finfo, "data")
 
     mr_data = setup_events(data_info, "OS_MR")['data']
@@ -178,12 +178,12 @@ def misid_closure(year, lumi, ginfo, finfo, args):
     ht = GraphInfo("ht", 'HT', bh.axis.Regular(30, 0, 250), lambda vg, chan : vg.get_hist("HT"))
     met = GraphInfo("met", 'MET', bh.axis.Regular(30, 0, 50), lambda vg, chan : vg.get_hist("Met"))
 
-    mc_info = DataInfo(Path(f"misId_mc_{year}.root"), year)
+    mc_info = DataInfo(Path(f"{args.filename}_mc_{year}.root"), year)
     mc_info.setup_member(ginfo, finfo, "DY")
     mc_info.setup_member(ginfo, finfo, "ttbar_lep")
     mc_info.setup_member(ginfo, finfo, "VV")
 
-    data_info = DataInfo(Path(f"misId_data_{year}.root"), year)
+    data_info = DataInfo(Path(f"{args.filename}_data_{year}.root"), year)
     data_info.setup_member(ginfo, finfo, "data")
 
     os_data = setup_events(data_info, "OS_CR")['data']
@@ -213,6 +213,7 @@ def misid_closure(year, lumi, ginfo, finfo, args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--filename', default='misId')
     parser.add_argument("-y", "--years", required=True,
                         type=lambda x : ["2016", "2017", "2018"] if x == "all" \
                                    else [i.strip() for i in x.split(',')],

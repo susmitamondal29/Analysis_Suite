@@ -6,7 +6,7 @@ import gzip
 from correctionlib.schemav2 import VERSION, Binning, Category, Correction, CorrectionSet
 
 from analysis_suite.commons import FileInfo, GroupInfo, PlotInfo
-from fake_rate_helper import setup_events, setup_histogram, DataInfo, GraphInfo
+from analysis_suite.commons.fake_rate_helper import setup_events, setup_histogram, DataInfo, GraphInfo
 
 def get_pteta(part, flav, wp):
     flav_mask = part.flavor == flav

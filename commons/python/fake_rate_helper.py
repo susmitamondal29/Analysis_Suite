@@ -35,6 +35,7 @@ def setup_events(dataInfo, branch, syst = 0):
             vg = VarGetter(dataInfo.filename, branch, member, xsec, syst)
             if not len(vg):
                 continue
+            print(member, sum(vg.scale))
             output[group][member] = vg
     return output
 
@@ -54,7 +55,7 @@ def mask_vg(vgs, mask_func):
         else:
             mask_vg(vg, mask_func)
 
-def plot_ratio1d(stack, data, plot_name, axis_name, lumi, channel=None):
+def plot_ratio1d(stack, data, plot_name, axis_name, lumi, channel=None, ylim=None):
     with ratio_plot(plot_name, axis_name, stack.get_xrange()) as ax:
         ratio = Histogram("Ratio", data.axis, color="black")
         band = Histogram("Ratio", data.axis, color="plum")
@@ -81,7 +82,10 @@ def plot_ratio1d(stack, data, plot_name, axis_name, lumi, channel=None):
             warnings.simplefilter("ignore")
             hep.cms.label(ax=pad, lumi=lumi, data=data)
 
-def setup_plot(mc_vg, data_vg, chan, graph_info, filename, region, scales = None):
+        if ylim is not None:
+            pad.set_ylim(top=ylim)
+
+def setup_plot(mc_vg, data_vg, chan, graph_info, filename, region, scales = None, ylim=None):
     print(chan, region, graph_info.name)
     mc = {group: setup_histogram(group, mc_group, chan, graph_info) for group, mc_group in mc_vg.items()}
     data = setup_histogram('data', data_vg, chan, graph_info)
@@ -91,7 +95,7 @@ def setup_plot(mc_vg, data_vg, chan, graph_info, filename, region, scales = None
     region_name = f'${region} ({latex_chan[chan]})$'
     file_name = f'{filename}_{region}_{graph_info.name}'
     axis_name = graph_info.axis_name.format(latex_chan[chan])
-    plot_ratio1d(stack, data, file_name, axis_name, graph_info.lumi, region_name)
+    plot_ratio1d(stack, data, file_name, axis_name, graph_info.lumi, region_name, ylim)
 
 def get_fake_rate(part, fake_rate, idx):
     pt_axis, eta_axis = fake_rate.axes
