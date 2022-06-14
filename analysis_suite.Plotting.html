@@ -6,11 +6,11 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
-    <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
       <title>Plotting | Analysis Suite  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" />
-      <link rel="stylesheet" href="_static/theme.33684ae9923d01874503.css" />
+      <link rel="stylesheet" href="_static/theme.e6081a2fb60dd7bf7015.css" />
       <link rel="stylesheet" href="_static/style.css" />
         <link rel="search" title="Search" href="search.html" />
         <link rel="index" title="Index" href="genindex.html" />
@@ -108,7 +108,7 @@
 </div>
 
   <button
-      data-action=""
+      data-action="sidebar#close"
       title="Close navigation menu"
       class="text-4xl text-gray-800 p-4 bottom-0 hover:text-brand xl:hidden focus:text-brand self-center">
     <span class="sr-only">Close navigation menu</span>
@@ -119,7 +119,6 @@
 
   <main
     data-controller="scroll"
-    data-action="scroll->scroll#showButton"
     class="px-4 xl:ml-fluid grid-area-main overflow-y-auto flex flex-col h-full mx-0 md:mx-auto xl:mr-0"
   ><nav role="navigation"
      aria-label="breadcrumbs"
@@ -131,9 +130,9 @@
     <article role="main" class="flex-1">
       
   <section id="plotting">
-<h1><code class="docutils literal notranslate"><span class="pre">Plotting</span></code><a class="headerlink" href="#plotting" title="Permalink to this headline">¶</a></h1>
+<h1><code class="docutils literal notranslate"><span class="pre">Plotting</span></code><a class="headerlink" href="#plotting" title="Permalink to this heading">¶</a></h1>
 <section id="plotting-logfile">
-<h2><code class="docutils literal notranslate"><span class="pre">Plotting.LogFile</span></code><a class="headerlink" href="#plotting-logfile" title="Permalink to this headline">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">Plotting.LogFile</span></code><a class="headerlink" href="#plotting-logfile" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.LogFile.LogFile">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">analysis_suite.Plotting.LogFile.</span></span><span class="sig-name descname"><span class="pre">LogFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lumi</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile" title="Permalink to this definition">¶</a></dt>
@@ -144,7 +143,7 @@
 <span class="sig-name descname"><span class="pre">plotTable</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.plotTable" title="Permalink to this definition">¶</a></dt>
 <dd><p>PrettyTable holding all the histogram information</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>PrettyTable</p>
 </dd>
 </dl>
@@ -155,7 +154,7 @@
 <span class="sig-name descname"><span class="pre">output_name</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.output_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name/path of logfile to be created</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
@@ -166,7 +165,7 @@
 <span class="sig-name descname"><span class="pre">analysis</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.analysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analysis running over</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
@@ -177,7 +176,7 @@
 <span class="sig-name descname"><span class="pre">selection</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Selection of analysis running over</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
@@ -188,7 +187,7 @@
 <span class="sig-name descname"><span class="pre">lumi</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.lumi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Luminosity of this run (in ipb, but converted to ifb in class)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
@@ -200,7 +199,7 @@
 <dd><p>List of lists with Integral and Error^2 indexed by the constants
 BKG, SIGNAL, DATA, TOTAL</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of lists</p>
 </dd>
 </dl>
@@ -211,7 +210,7 @@ BKG, SIGNAL, DATA, TOTAL</p>
 <span class="sig-name descname"><span class="pre">callTime</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.callTime" title="Permalink to this definition">¶</a></dt>
 <dd><p>String of the time this script was called (any format)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
@@ -222,7 +221,7 @@ BKG, SIGNAL, DATA, TOTAL</p>
 <span class="sig-name descname"><span class="pre">command</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Command used to start this script</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
@@ -233,7 +232,7 @@ BKG, SIGNAL, DATA, TOTAL</p>
 <span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the histogram</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
@@ -249,7 +248,7 @@ BKG, SIGNAL, DATA, TOTAL</p>
 <span class="sig-name descname"><span class="pre">add_mc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stacker</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_mc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.add_mc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add background data to this class</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>drawOrder</strong> (<em>list of tuples</em><em> (</em><em>string</em><em>, </em><em>GenericHist</em><em>)</em>) – List of all background hists with their names</p>
 </dd>
 </dl>
@@ -260,7 +259,7 @@ BKG, SIGNAL, DATA, TOTAL</p>
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_metainfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callTime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_metainfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.add_metainfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set specific metadata for output file</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>callTime</strong> (<em>string</em>) – Time script was call (not formated, must be done before here)</p></li>
 <li><p><strong>command</strong> (<em>string</em>) – Full commandline string use for this run</p></li>
@@ -274,7 +273,7 @@ BKG, SIGNAL, DATA, TOTAL</p>
 <span class="sig-name descname"><span class="pre">add_signal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.add_signal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.add_signal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add signal data to this class</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>signal</strong> (<em>GenericHist</em>) – Histogram of signal information</p></li>
 <li><p><strong>groupName</strong> (<em>string</em>) – Name used to label the singal</p></li>
@@ -298,10 +297,10 @@ BKG, SIGNAL, DATA, TOTAL</p>
 <span class="sig-name descname"><span class="pre">get_likelihood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.get_likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.get_likelihood" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get Figure of merit</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple Figure of Merit (S/sqrt(S+B)) and its error</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>tuple</p>
 </dd>
 </dl>
@@ -312,10 +311,10 @@ BKG, SIGNAL, DATA, TOTAL</p>
 <span class="sig-name descname"><span class="pre">get_sig_bkg_ratio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.get_sig_bkg_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.get_sig_bkg_ratio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get S/B with its error</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple S/B and its error</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>tuple</p>
 </dd>
 </dl>
@@ -326,7 +325,7 @@ BKG, SIGNAL, DATA, TOTAL</p>
 <span class="sig-name descname"><span class="pre">get_sqrt_err</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.get_sqrt_err"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.get_sqrt_err" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grab the Integral and error on that information</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – int pointed to self.hists list</p>
 </dd>
 </dl>
@@ -337,7 +336,7 @@ BKG, SIGNAL, DATA, TOTAL</p>
 <span class="sig-name descname"><span class="pre">write_out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isLatex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/LogFile.html#LogFile.write_out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.LogFile.LogFile.write_out" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write out all current information to the objects output file</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>isLatex</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether table should be written out in latex or org style table</p>
 </dd>
 </dl>
@@ -347,17 +346,17 @@ BKG, SIGNAL, DATA, TOTAL</p>
 
 </section>
 <section id="plotting-confighelper">
-<h2><code class="docutils literal notranslate"><span class="pre">Plotting.configHelper</span></code><a class="headerlink" href="#plotting-confighelper" title="Permalink to this headline">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">Plotting.configHelper</span></code><a class="headerlink" href="#plotting-confighelper" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="plotting-pypad">
-<h2><code class="docutils literal notranslate"><span class="pre">Plotting.pyPad</span></code><a class="headerlink" href="#plotting-pypad" title="Permalink to this headline">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">Plotting.pyPad</span></code><a class="headerlink" href="#plotting-pypad" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="plotting-stack">
-<h2><code class="docutils literal notranslate"><span class="pre">Plotting.stack</span></code><a class="headerlink" href="#plotting-stack" title="Permalink to this headline">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">Plotting.stack</span></code><a class="headerlink" href="#plotting-stack" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.stack.Stack">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">analysis_suite.Plotting.stack.</span></span><span class="sig-name descname"><span class="pre">Stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bin_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stack_by_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/stack.html#Stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.stack.Stack" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram" title="analysis_suite.commons.histogram.Histogram"><code class="xref py py-class docutils literal notranslate"><span class="pre">analysis_suite.commons.histogram.Histogram</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="analysis_suite.commons.html#analysis_suite.commons.histogram.Histogram" title="analysis_suite.commons.histogram.Histogram"><code class="xref py py-class docutils literal notranslate"><span class="pre">Histogram</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="analysis_suite.Plotting.stack.Stack.plot_stack">
 <span class="sig-name descname"><span class="pre">plot_stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pad</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/analysis_suite/Plotting/stack.html#Stack.plot_stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#analysis_suite.Plotting.stack.Stack.plot_stack" title="Permalink to this definition">¶</a></dt>
@@ -378,7 +377,7 @@ BKG, SIGNAL, DATA, TOTAL</p>
 
     <footer>
       
-        <div class="mt-20 mb-4 text-sm text-gray-700">&copy; 2021, Dylan Teague&nbsp;Made with <a href="https://www.sphinx-doc.org">Sphinx 4.5.0</a></div>
+        <div class="mt-20 mb-4 text-sm text-gray-700">&copy; 2021, Dylan Teague&nbsp;Made with <a href="https://www.sphinx-doc.org">Sphinx 5.0.1</a></div>
       
     </footer></main>
 
@@ -400,8 +399,9 @@ BKG, SIGNAL, DATA, TOTAL</p>
   <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
   <script src="_static/jquery.js"></script>
   <script src="_static/underscore.js"></script>
+  <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
   <script src="_static/doctools.js"></script>
-<script src="_static/theme.1ba02c30758e6036ba31.js"></script>
+<script src="_static/theme.a9d041328d1560cbc665.js"></script>
     
   </body>
 </html>

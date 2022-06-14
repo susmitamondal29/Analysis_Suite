@@ -6,11 +6,11 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
-    <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
       <title>Main Page | Analysis Suite  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" />
-      <link rel="stylesheet" href="_static/theme.33684ae9923d01874503.css" />
+      <link rel="stylesheet" href="_static/theme.e6081a2fb60dd7bf7015.css" />
       <link rel="stylesheet" href="_static/style.css" />
         <link rel="search" title="Search" href="search.html" />
         <link rel="index" title="Index" href="genindex.html" />
@@ -108,7 +108,7 @@
 </div>
 
   <button
-      data-action=""
+      data-action="sidebar#close"
       title="Close navigation menu"
       class="text-4xl text-gray-800 p-4 bottom-0 hover:text-brand xl:hidden focus:text-brand self-center">
     <span class="sr-only">Close navigation menu</span>
@@ -119,12 +119,11 @@
 
   <main
     data-controller="scroll"
-    data-action="scroll->scroll#showButton"
     class="px-4 xl:ml-fluid grid-area-main overflow-y-auto flex flex-col h-full mx-0 md:mx-auto xl:mr-0"
   ><article role="main" class="flex-1">
       
   <section id="main-page">
-<h1>Main Page<a class="headerlink" href="#main-page" title="Permalink to this headline">¶</a></h1>
+<h1>Main Page<a class="headerlink" href="#main-page" title="Permalink to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
@@ -145,7 +144,7 @@
 </ul>
 </div>
 <section id="installation-guide">
-<h2>Installation Guide<a class="headerlink" href="#installation-guide" title="Permalink to this headline">¶</a></h2>
+<h2>Installation Guide<a class="headerlink" href="#installation-guide" title="Permalink to this heading">¶</a></h2>
 <p>This area requires python3 for all python scripts as well as ROOT, so you need to be in a CMSSW area with ROOT 6.20 or greater. At time of writing, <code class="docutils literal notranslate"><span class="pre">CMSSW_11_2_0_pre9</span></code> fits the bill. You will also have to have certain packages not default for</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><code><span class="c1"># Generic Area Setup</span>
 cmsrel CMSSW_11_2_0_pre9
@@ -161,7 +160,7 @@ scram b -j <span class="m">4</span>
 <p><strong>Note</strong>: After you scram, the python will compile, but this is not needed, it is also compiled at run time. Scram just sets up the links, so scram is not needed whenever python code is changed after the first run. HOWEVER, scram is needed to compile the cpp code!</p>
 </section>
 <section id="quick-start">
-<h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this heading">¶</a></h2>
 <p>The code has several modes: <code class="docutils literal notranslate"><span class="pre">analysis</span></code>, <code class="docutils literal notranslate"><span class="pre">mva</span></code>, <code class="docutils literal notranslate"><span class="pre">plot</span></code>, and <code class="docutils literal notranslate"><span class="pre">combine</span></code>. There are many options needed for the code to run, and it is detailed more in the running section of this tutorial. The main options needed for all running is the analysis which corresponds to the cpp code used for analysis as well as the fileInfo used for getting sample information, and the Work Directory or where all the output files will be saved</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><code>./run_suite.py &lt;mode&gt; -a &lt;Analysis&gt; -d &lt;Work Directory&gt;
 </code></pre></div></div>
@@ -174,7 +173,7 @@ scram b -j <span class="m">4</span>
 
     <footer>
       
-        <div class="mt-20 mb-4 text-sm text-gray-700">&copy; 2021, Dylan Teague&nbsp;Made with <a href="https://www.sphinx-doc.org">Sphinx 4.5.0</a></div>
+        <div class="mt-20 mb-4 text-sm text-gray-700">&copy; 2021, Dylan Teague&nbsp;Made with <a href="https://www.sphinx-doc.org">Sphinx 5.0.1</a></div>
       
     </footer></main>
 
@@ -196,8 +195,9 @@ scram b -j <span class="m">4</span>
   <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
   <script src="_static/jquery.js"></script>
   <script src="_static/underscore.js"></script>
+  <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
   <script src="_static/doctools.js"></script>
-<script src="_static/theme.1ba02c30758e6036ba31.js"></script>
+<script src="_static/theme.a9d041328d1560cbc665.js"></script>
     
   </body>
 </html>

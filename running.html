@@ -6,11 +6,11 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
-    <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
       <title>Basic running | Analysis Suite  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" />
-      <link rel="stylesheet" href="_static/theme.33684ae9923d01874503.css" />
+      <link rel="stylesheet" href="_static/theme.e6081a2fb60dd7bf7015.css" />
       <link rel="stylesheet" href="_static/style.css" />
         <link rel="search" title="Search" href="search.html" />
         <link rel="index" title="Index" href="genindex.html" />
@@ -109,7 +109,7 @@
 </div>
 
   <button
-      data-action=""
+      data-action="sidebar#close"
       title="Close navigation menu"
       class="text-4xl text-gray-800 p-4 bottom-0 hover:text-brand xl:hidden focus:text-brand self-center">
     <span class="sr-only">Close navigation menu</span>
@@ -120,7 +120,6 @@
 
   <main
     data-controller="scroll"
-    data-action="scroll->scroll#showButton"
     class="px-4 xl:ml-fluid grid-area-main overflow-y-auto flex flex-col h-full mx-0 md:mx-auto xl:mr-0"
   ><nav role="navigation"
      aria-label="breadcrumbs"
@@ -131,12 +130,12 @@
     <article role="main" class="flex-1">
       
   <section id="basic-running">
-<h1>Basic running<a class="headerlink" href="#basic-running" title="Permalink to this headline">¶</a></h1>
+<h1>Basic running<a class="headerlink" href="#basic-running" title="Permalink to this heading">¶</a></h1>
 <p>The code works by a single script, <code class="docutils literal notranslate"><span class="pre">run_suite.py</span></code> which acts as the hub for the running of the code. There are several different modes the code can be run in, but within each mode, there are common options that are used, so most commands will look very similar except for minor differences.</p>
 <p>Options that are always required is the analysis name and the working directory. The Analysis name is coded to many input files and configs specific to the analysis one is doing and the working directory is teh common place where output files are saved.</p>
 <p>Below, each mode is describe in more depth. An important note is the output of each step flows into the other. One needs the output from <code class="docutils literal notranslate"><span class="pre">analyze</span></code> to run <code class="docutils literal notranslate"><span class="pre">mva</span></code> and one needs the output of <code class="docutils literal notranslate"><span class="pre">mva</span></code> to run <code class="docutils literal notranslate"><span class="pre">plotting</span></code></p>
 <section id="analysis-analyze">
-<h2>Analysis (<code class="docutils literal notranslate"><span class="pre">analyze</span></code>)<a class="headerlink" href="#analysis-analyze" title="Permalink to this headline">¶</a></h2>
+<h2>Analysis (<code class="docutils literal notranslate"><span class="pre">analyze</span></code>)<a class="headerlink" href="#analysis-analyze" title="Permalink to this heading">¶</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is part of the code is a work in progress</p>
@@ -146,17 +145,17 @@
 <p>One thing extremely important for processing using this framework: because very little can be sent as info to these jobs, the directories of the input files expresses information about the job. So in the eos area, the directory you run over MUST be in the format: <code class="docutils literal notranslate"><span class="pre">&lt;Analysis&gt;_&lt;Year&gt;_&lt;Optional</span> <span class="pre">Name&gt;</span></code> with the optional name as a way to identify info about the skim used or other info. The output files will be in a directory called <code class="docutils literal notranslate"><span class="pre">&lt;Analysis&gt;_&lt;Year&gt;_&lt;Optional</span> <span class="pre">Name&gt;-analyze</span></code>.</p>
 </section>
 <section id="bdt-runner-mva">
-<h2>BDT runner (<code class="docutils literal notranslate"><span class="pre">mva</span></code>)<a class="headerlink" href="#bdt-runner-mva" title="Permalink to this headline">¶</a></h2>
+<h2>BDT runner (<code class="docutils literal notranslate"><span class="pre">mva</span></code>)<a class="headerlink" href="#bdt-runner-mva" title="Permalink to this heading">¶</a></h2>
 <p>Mva (probably misnamed) runs the code for training the BDT for samples. This portion of the code takes the newly made ntuples from the output of the <code class="docutils literal notranslate"><span class="pre">analyze</span></code> step and takes care of the rest of the processing, calculating any ancillary variables i.e. variables not directly used in the event selection such as centrality. The variables included in the training are kept in <code class="docutils literal notranslate"><span class="pre">inputs.py</span></code> and the functions that are used to create the variables are stored in <code class="docutils literal notranslate"><span class="pre">commons/python/awkward_commons.py</span></code>.</p>
 <p>The code has the ability to run in a binary mode and a multiclass mode which is also decided in the <code class="docutils literal notranslate"><span class="pre">inputs.py</span></code> file. NOTE: currently, the code does not store info about the <code class="docutils literal notranslate"><span class="pre">inputs.py</span></code> file, so it is possible to change the mode of the file after running and causing unexpected behavior. Hopefully a fix will come soon.</p>
 <p>Mva also takes care of the weighting that is used for the plotting (and is one reason why it is needed to be done before the plotting).</p>
 </section>
 <section id="plotting-plot">
-<h2>Plotting (<code class="docutils literal notranslate"><span class="pre">plot</span></code>)<a class="headerlink" href="#plotting-plot" title="Permalink to this headline">¶</a></h2>
+<h2>Plotting (<code class="docutils literal notranslate"><span class="pre">plot</span></code>)<a class="headerlink" href="#plotting-plot" title="Permalink to this heading">¶</a></h2>
 <p>Plotting</p>
 </section>
 <section id="setup-combine-combine">
-<h2>Setup Combine (<code class="docutils literal notranslate"><span class="pre">combine</span></code>)<a class="headerlink" href="#setup-combine-combine" title="Permalink to this headline">¶</a></h2>
+<h2>Setup Combine (<code class="docutils literal notranslate"><span class="pre">combine</span></code>)<a class="headerlink" href="#setup-combine-combine" title="Permalink to this heading">¶</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is part of the code is a work in progress</p>
@@ -169,7 +168,7 @@
 
     <footer>
       
-        <div class="mt-20 mb-4 text-sm text-gray-700">&copy; 2021, Dylan Teague&nbsp;Made with <a href="https://www.sphinx-doc.org">Sphinx 4.5.0</a></div>
+        <div class="mt-20 mb-4 text-sm text-gray-700">&copy; 2021, Dylan Teague&nbsp;Made with <a href="https://www.sphinx-doc.org">Sphinx 5.0.1</a></div>
       
     </footer></main>
 
@@ -191,8 +190,9 @@
   <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
   <script src="_static/jquery.js"></script>
   <script src="_static/underscore.js"></script>
+  <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
   <script src="_static/doctools.js"></script>
-<script src="_static/theme.1ba02c30758e6036ba31.js"></script>
+<script src="_static/theme.a9d041328d1560cbc665.js"></script>
     
   </body>
 </html>
