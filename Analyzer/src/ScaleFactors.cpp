@@ -14,15 +14,15 @@ void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
         pu_scale = WeightHolder(corr_set->at("Collisions" + yearNum.at(year_)+ "_UltraLegacy_goldenJSON"),
                                 Systematic::Pileup, {"nominal", "up", "down"});
     } else if (!isMC) {
-        std::ifstream golden_json_file(scaleDir_ + "/golden_json/golden_json_" + yearMap.at(year_) + ".json");
-            golden_json_file >> golden_json;
+        std::ifstream golden_json_file(scaleDir_ + "/golden_json/golden_json_" + yearMap.at(year_).substr(0,4) + ".json");
+        golden_json_file >> golden_json;
     }
 
 }
 
 void ScaleFactors::setup_prescale()
 {
-    std::ifstream prescale_json_file(scaleDir_ + "/prescale/prescales_" + yearMap.at(year_) + ".json");
+    std::ifstream prescale_json_file(scaleDir_ + "/prescale/prescales_" + yearMap.at(year_).substr(0,4) + ".json");
     prescale_json_file >> prescale_json;
     for (size_t i = 0; i < prescale_json["trigs"].size(); ++i) {
         trigger_idx[prescale_json["trigs"][i]] = i;

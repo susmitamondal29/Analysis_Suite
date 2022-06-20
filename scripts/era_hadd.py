@@ -32,11 +32,13 @@ for year in args.years:
     output_dir = output_start / f"{analysis}_{year}_{args.filename}"
     info_dir = info_dir_start / f"{analysis}_{year}_{args.filename}-analyze"
 
+    hadd_files = ""
     for file_dir in info_dir.glob("analyze-*"):
         input_file = file_dir / f'{file_dir.name}.inputs'
         with open(input_file) as f:
-            if f"Run{year}{args.era}" in f.read():
-                print(file_dir.name)
+            if args.era in f.read():
+                hadd_files += str(output_dir/f"{file_dir.name}.root") + " "
+                # print(file_dir.name)
     # if not output_dir.exists():
     #     continue
-    # subprocess.call(f"hadd -f {args.output}_{year}.root {output_dir}/*root", shell=True)
+    subprocess.call(f"hadd -f -v 1 {args.output}_{year}.root {hadd_files}", shell=True)

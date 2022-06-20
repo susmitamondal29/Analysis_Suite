@@ -15,9 +15,8 @@ void BEfficiency::Init(TTree* tree)
 
     createTree("Signal", Channel::Signal);
 
-    std::string met_name = (year_ == Year::yr2017) ? "METFixEE2017" : "MET";
-    Met_pt.setup(fReader, (met_name+"_pt").c_str());
-    Met_phi.setup(fReader, (met_name+"_phi").c_str());
+    Met_pt.setup(fReader, "MET_pt");
+    Met_phi.setup(fReader, "MET_phi");
 
     if (isMC_) {
         Pileup_nTrueInt.setup(fReader, "Pileup_nTrueInt");
@@ -37,17 +36,21 @@ void BEfficiency::SetupOutTreeBranches(TTree* tree)
 void BEfficiency::ApplyScaleFactors()
 {
     LOG_FUNC << "Start of ApplyScaleFactors";
+
     LOG_EVENT << "weight: " << (*weight);
     (*weight) *= sfMaker.getPileupSF(*Pileup_nTrueInt);
     LOG_EVENT << "weight after pu scale: " << (*weight);
     (*weight) *= sfMaker.getLHESF();
     LOG_EVENT << "weight after lhe scale: " << (*weight);
+    (*weight) *= sfMaker.getLHEPdf();
+    LOG_EVENT << "weight after lhe pdf: " << (*weight);
     (*weight) *= jet.getScaleFactor();
     LOG_EVENT << "weight after jet scale: " << (*weight);
     (*weight) *= elec.getScaleFactor();
     LOG_EVENT << "weight after elec scale: " << (*weight);
     (*weight) *= muon.getScaleFactor();
     LOG_EVENT << "weight after muon scale: " << (*weight);
+
     LOG_FUNC << "End of ApplyScaleFactors";
 }
 

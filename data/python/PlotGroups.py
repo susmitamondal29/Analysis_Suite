@@ -3,8 +3,6 @@ info ={
     "xg": {
         "Name": "X+\gamma", 
         "Members": [
-            "wzg",
-	        "wwg",
             "ttg_hadronic",
 	        "ttg_singleLept",
 	        "ttg_dilep",
@@ -61,6 +59,8 @@ info ={
             "wzz",
 	        "www",
             "zzz",
+            "wzg",
+	        "wwg",
         ],
     },
 
@@ -205,11 +205,11 @@ info ={
             "DYm10-50"
         ]
     },
-"VV": {
+    "VV": {
         "Name": r"VV",
         "Members": [
             "ww",
-            "zz4l",
+            "zz",
             "wz",
         ]
     },

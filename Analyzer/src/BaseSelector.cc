@@ -6,6 +6,7 @@
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
 #include "analysis_suite/Analyzer/interface/CommonFuncs.h"
 
+#include <sstream>
 
 void BaseSelector::SetupOutTreeBranches(TTree* tree)
 {
@@ -229,7 +230,10 @@ void BaseSelector::print_bar()
     if (bar.size() <= barWidth)
         bar += std::string(int((barWidth+1)-bar.size()), ' ');
     bar += "] ";
-    bar += std::to_string(round(progress*1000)/10.) + " %";
+    std::ostringstream ss;
+    ss.precision(2);
+    ss << std::fixed <<progress*100;
+    bar += ss.str() + " %";
     std::cout << bar << std::endl;
 
 }
