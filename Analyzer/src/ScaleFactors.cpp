@@ -10,6 +10,7 @@ void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
     if (isMC) {
         LHEScaleWeight.setup(fReader, "LHEScaleWeight");
         LHEPdfWeight.setup(fReader, "LHEPdfWeight");
+        PSWeight.setup(fReader, "PSWeight");
         auto corr_set = getScaleFile("LUM", "puWeights");
         pu_scale = WeightHolder(corr_set->at("Collisions" + yearNum.at(year_)+ "_UltraLegacy_goldenJSON"),
                                 Systematic::Pileup, {"nominal", "up", "down"});
@@ -17,7 +18,6 @@ void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
         std::ifstream golden_json_file(scaleDir_ + "/golden_json/golden_json_" + yearMap.at(year_).substr(0,4) + ".json");
         golden_json_file >> golden_json;
     }
-
 }
 
 void ScaleFactors::setup_prescale()
@@ -74,6 +74,20 @@ float ScaleFactors::getLHESF()
             varIdx = (currentVar == eVar::Up) ? 7 : 1;
         }
         return LHEScaleWeight.at(varIdx);
+    }
+    return 1.;
+}
+// Float_t PS weights (w_var / w_nominal);
+float ScaleFactors::getPartonShower()
+{
+    // [0] is ISR=2 FSR=1; [1] is ISR=1 FSR=2
+    // [2] is ISR=0.5 FSR=1; [3] is ISR=1 FSR=0.5;
+    if (!isMC || PSWeight.size() != 4) return 1.;
+
+    if (currentSyst == Systematic::PS_ISR) {
+        return (currentVar == eVar::Up) ? PSWeight.at(0) : PSWeight.at(2);
+    } else if (currentSyst == Systematic::PS_FSR) {
+        return (currentVar == eVar::Up) ? PSWeight.at(1) : PSWeight.at(3);
     }
     return 1.;
 }

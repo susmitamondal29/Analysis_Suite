@@ -21,6 +21,7 @@ public:
 
     float getLHESF();
     float getLHEPdf();
+    float getPartonShower();
 
     size_t getPrescale(size_t run, size_t lumi, std::string trig);
 
@@ -30,6 +31,7 @@ private:
 
     TRArray<Float_t> LHEScaleWeight;
     TRArray<Float_t> LHEPdfWeight;
+    TRArray<Float_t> PSWeight;
 
     bool isMC;
 
