@@ -32,12 +32,10 @@ public:
     TRArray<Bool_t> mva_90;
 
 private:
+    bool passTriggerRequirements(size_t i);
+
     const float BARREL_ETA = 1.479;
-    std::vector<std::vector<double>> mvaLoose, mvaTight;
-
     WeightHolder electron_scale;
-
-    Float_t ptMax = 499;
 };
 
 #endif // __ELECTRON_H_

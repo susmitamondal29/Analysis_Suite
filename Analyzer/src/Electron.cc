@@ -95,3 +95,13 @@ float Electron::getScaleFactor()
     }
     return weight;
 }
+
+bool Electron::passTriggerRequirements(size_t i)
+{
+    return ecalSumEt.at(i) / pt(i) < 0.5
+        && hcalSumEt.at(i) / pt(i) < 0.3
+        && tkSumPt.at(i) / pt(i) < 0.2
+        && ((fabs(eta(i)) < BARREL_ETA && sieie.at(i) < 0.013) || (fabs(eta(i)) >= BARREL_ETA && sieie.at(i) < 0.035))
+        && hoe.at(i) < 0.13;
+
+}

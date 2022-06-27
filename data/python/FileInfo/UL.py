@@ -192,18 +192,18 @@ info = {
         "DAS": 'TGJets_Tune.*',
     },
     "ttg_dilep" : {
-        "cross_section" : 0.632,
-        "Source of cross section" : "AN2018-062",
+        "cross_section" : 1.502,
+        "Source of cross section" : "XSDB",
         "DAS": 'TTGamma_Dilept_Tune.*',
     },
     "ttg_hadronic" : {
-        "cross_section" : 0.794,
-        "Source of cross section" : "MCM",
+        "cross_section" : 4.178,
+        "Source of cross section" : "XSDB",
         "DAS": 'TTGamma_Hadronic_Tune.*',
     },
     "ttg_singleLept" : {
-        "cross_section" : 5.048,
-        "Source of cross section" : "MCM",
+        "cross_section" : 5.095,
+        "Source of cross section" : "XSDB",
         "DAS": 'TTGamma_SingleLept_Tune.*',
     },
 
