@@ -8,15 +8,28 @@ void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
 {
     isMC = isMC_;
     if (isMC) {
+        // Generator Weights
         LHEScaleWeight.setup(fReader, "LHEScaleWeight");
         LHEPdfWeight.setup(fReader, "LHEPdfWeight");
         PSWeight.setup(fReader, "PSWeight");
+
+        // Pileup Weights
         auto corr_set = getScaleFile("LUM", "puWeights");
         pu_scale = WeightHolder(corr_set->at("Collisions" + yearNum.at(year_)+ "_UltraLegacy_goldenJSON"),
                                 Systematic::Pileup, {"nominal", "up", "down"});
     } else if (!isMC) {
+        // Golden Json
         std::ifstream golden_json_file(scaleDir_ + "/golden_json/golden_json_" + yearMap.at(year_).substr(0,4) + ".json");
         golden_json_file >> golden_json;
+
+        // Fake Rates
+        auto corr_set = getScaleFile("USER", "fake_rate");
+        charge_misId = WeightHolder(corr_set->at("Charge_MisId"), Systematic::ChargeMisId_stat,
+                                    {"nom", "up", "down"});
+        nonprompt_muon = WeightHolder(corr_set->at("Nonprompt_muon"), Systematic::Nonprompt_Mu_stat,
+                                      {"nom", "up", "down"});
+        nonprompt_elec = WeightHolder(corr_set->at("Nonprompt_elec"), Systematic::Nonprompt_El_stat,
+                                      {"nom", "up", "down"});
     }
 }
 
@@ -27,13 +40,11 @@ void ScaleFactors::setup_prescale()
     for (size_t i = 0; i < prescale_json["trigs"].size(); ++i) {
         trigger_idx[prescale_json["trigs"][i]] = i;
     }
-
     for (auto& [run, info]: prescale_json.items()) {
         if (run == "trigs") continue;
         std::istringstream iss(run);
         size_t run_num;
         iss >> run_num;
-
         auto lumis = info["lumi"].get<std::vector<size_t>>();
         std::vector<std::vector<size_t>> ps_info;
         for (auto& val: lumis) {
@@ -69,7 +80,6 @@ float ScaleFactors::getLHESF()
         int varIdx = 4;
         if (currentSyst == Systematic::LHE_muF) {
             varIdx = (currentVar == eVar::Up) ? 5 : 3;
-
         } else if (currentSyst == Systematic::LHE_muR) {
             varIdx = (currentVar == eVar::Up) ? 7 : 1;
         }
@@ -77,7 +87,7 @@ float ScaleFactors::getLHESF()
     }
     return 1.;
 }
-// Float_t PS weights (w_var / w_nominal);
+
 float ScaleFactors::getPartonShower()
 {
     // [0] is ISR=2 FSR=1; [1] is ISR=1 FSR=2
@@ -99,6 +109,9 @@ float ScaleFactors::getLHEPdf()
     // [101] alphaZ down ; [102] alphaZ up
     // http://nnpdf.mi.infn.it/wp-content/uploads/2019/03/NNPDFfits_Positivity_PhysicalCrossSections_v2.pdf
     if (currentSyst == Systematic::PDF_unc) {
+        if (LHEPdfWeight.size() < 101) {
+            return 1.;
+        }
         std::sort(LHEPdfWeight.begin()+1, LHEPdfWeight.begin()+100);
         float err = (LHEPdfWeight.at(17) - LHEPdfWeight.at(84))/2;
         return LHEPdfWeight.at(0) + ((currentVar == eVar::Up) ? err : -err);
