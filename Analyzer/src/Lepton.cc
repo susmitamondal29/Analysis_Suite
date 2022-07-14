@@ -78,22 +78,18 @@ bool Lepton::passZCut(float low, float high)
 
 bool Lepton::passJetIsolation(size_t idx, const Particle& jets)
 {
-    if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
-        return true; /// no close jet (probably no jets)
+    // if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
+    //     return true; /// no close jet (probably no jets)
     return iso.at(idx) < isoCut && ( 1/(1+ptRatio.at(idx)) > ptRatioCut || ptRel.at(idx) > ptRelCut );
 }
 
 float Lepton::fillFakePt(size_t idx, const Particle& jets) const
 {
-    if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
-        return 1.; /// no close jet (probably no jets)
-    auto jetV = jets.p3(closeJet_by_lepton.at(idx));
-
     if (ptRel.at(idx) > ptRelCut) {
         if (iso.at(idx) > isoCut)
             return (1 + iso.at(idx)-isoCut);
     } else if (1/(1+ptRatio.at(idx)) <= ptRatioCut) {
-        return jetV.rho()*ptRatioCut/pt(idx);
+        return (1+ptRatio.at(idx))*ptRatioCut;
     }
     return 1.;
 }

@@ -12,16 +12,18 @@ void Muon::setup(TTreeReader& fReader, bool isMC)
     mediumId.setup(fReader, "Muon_mediumId");
     sip3d.setup(fReader, "Muon_sip3d");
     id = PID::Muon;
-
-    if (year_ == Year::yr2016pre || year_ == Year::yr2016post) {
-        isoCut = 0.16;
-        ptRatioCut = 0.76;
-        ptRelCut = 7.2;
-    } else {
-        isoCut = 0.11;
-        ptRatioCut = 0.74;
-        ptRelCut = 6.8;
-    }
+    isoCut = 0.1;
+    ptRatioCut = 0.8;
+    ptRelCut = 5.0;
+    // if (year_ == Year::yr2016pre || year_ == Year::yr2016post) {
+    //     isoCut = 0.16;
+    //     ptRatioCut = 0.76;
+    //     ptRelCut = 7.2;
+    // } else {
+    //     isoCut = 0.11;
+    //     ptRatioCut = 0.74;
+    //     ptRelCut = 6.8;
+    // }
 
     if (isMC) {
         auto corr_set = getScaleFile("MUO", "muon_Z");
@@ -63,8 +65,9 @@ void Muon::createTightList(Particle& jets)
 {
     for (auto i : list(Level::Fake)) {
         if (pt(i) > 15
-            && iso.at(i) < isoCut
-            && passJetIsolation(i, jets))
+            // && iso.at(i) < isoCut
+            && passJetIsolation(i, jets)
+            )
             m_partList[Level::Tight]->push_back(i);
     }
 }

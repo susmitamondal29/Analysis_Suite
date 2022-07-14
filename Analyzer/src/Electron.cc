@@ -20,10 +20,10 @@ void Electron::setup(TTreeReader& fReader, bool isMC)
     mva_80.setup(fReader, "Electron_mvaFall17V2noIso_WP80");
     mva_90.setup(fReader, "Electron_mvaFall17V2noIso_WP90");
 
-
-    // 2017/2018 values
-    ptRatioCut = 0.78;
-    ptRelCut = 8.0;
+    ptRatioCut = 0.8;
+    ptRelCut = 5.0;
+    // ptRatioCut = 0.78;
+    // ptRelCut = 8.0;
     isoCut = 0.1;
 
     if(isMC) {
@@ -39,17 +39,15 @@ void Electron::createLooseList()
     for (size_t i = 0; i < size(); i++) {
         if (pt(i) > 7
             && fabs(eta(i)) < 2.5
-            // && convVeto.at(i)
-            // && lostHits.at(i) <= 1
+            && convVeto.at(i)
+            && lostHits.at(i) <= 1
             && fabs(dz.at(i)) < 0.1
             && fabs(dxy.at(i)) < 0.05
             && mva_l.at(i)
-            && iso.at(i) < 0.4
-            // && fabs(eInvMinusPInv.at(i) < 0.01)
-            // && hoe.at(i) < 0.08
-            // && ((fabs(eta(i)) < BARREL_ETA && sieie.at(i) < 0.011) || (fabs(eta(i)) >= BARREL_ETA && sieie.at(i) < 0.031))
-            )
+            && iso.at(i) < 0.4)
+        {
             m_partList[Level::Loose]->push_back(i);
+        }
     }
 }
 
@@ -58,10 +56,10 @@ void Electron::createFakeList(Particle& jets)
 {
     for (auto i : list(Level::Loose)) {
         if (mva_90.at(i)
-            // sip3d.at(i) < 4
-            // && lostHits.at(i) == 0
-            && tightCharge.at(i) == 2
-            ) {
+            && sip3d.at(i) < 4
+            && lostHits.at(i) == 0
+            && tightCharge.at(i) == 2)
+        {
             auto closejet_info = getCloseJet(i, jets);
             fakePtFactor[i] = fillFakePt(i, jets);
             if (getModPt(i) > 15) {
@@ -77,11 +75,10 @@ void Electron::createTightList(Particle& jets)
 {
     for (auto i : list(Level::Fake)) {
         if (pt(i) > 15
-            // && ecalSumEt.at(i) / pt(i) < 0.45
-            // && hcalSumEt.at(i) / pt(i) < 0.25
-            // && tkSumPt.at(i) / pt(i) < 0.2
-            // && passMVACut(i, true)
-            && passJetIsolation(i, jets))
+            // && iso.at(i) < isoCut
+            // && passTriggerRequirements(i)
+            && passJetIsolation(i, jets)
+            )
             m_partList[Level::Tight]->push_back(i);
     }
 }
