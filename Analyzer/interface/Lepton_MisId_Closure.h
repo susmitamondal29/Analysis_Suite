@@ -5,17 +5,17 @@
 #include "analysis_suite/Analyzer/interface/Output.h"
 
 class Closure_MisId : public BaseSelector {
- public:
-    virtual void Init(TTree* tree) override;
-    virtual bool getCutFlow() override;
-    virtual void FillValues(const std::vector<bool>& passVec) override;
-    virtual void SetupOutTreeBranches(TTree* tree) override;
-    virtual void ApplyScaleFactors() override;
-    virtual void clearParticles() override;
-    virtual void clearOutputs() override;
+public:
+    void Init(TTree* tree) override;
+    bool getCutFlow() override;
+    void FillValues(const std::vector<bool>& passVec) override;
+    void SetupOutTreeBranches(TTree* tree) override;
+    void ApplyScaleFactors() override;
+    void clearParticles() override;
+    void clearOutputs() override;
     ClassDefOverride(Closure_MisId, 0);
 
- private:
+private:
     void printStuff();
     bool isSameSign();
     bool measurement_cuts();
@@ -31,8 +31,6 @@ class Closure_MisId : public BaseSelector {
     LeptonOut* o_tightElectrons;
     JetOut* o_jets;
 
-    TRVariable<Float_t> Met_pt;
-    TRVariable<Float_t> Met_phi;
     TRVariable<Float_t> Pileup_nTrueInt;
     TRVariable<Float_t> LHE_HT;
     TRArray<Int_t> LHE_pdgId;
@@ -40,6 +38,7 @@ class Closure_MisId : public BaseSelector {
     size_t nLHE_leps;
 
     std::vector<Float_t> o_ht, o_ht_lhe, o_htb, o_met, o_metphi, o_centrality, o_nlhe_leps;
+    int nlooseMu, nlooseEl;
 };
 
 #endif // LEPTON_MISID_CLOSURE_H_

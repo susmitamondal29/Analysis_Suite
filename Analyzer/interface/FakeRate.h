@@ -29,20 +29,22 @@ private:
     float getLeadPt();
     bool isSameSign();
 
-    ParticleOut* o_fakeMuons;
-    ParticleOut* o_tightMuons;
-    ParticleOut* o_fakeElectrons;
-    ParticleOut* o_tightElectrons;
+    LeptonOut_Fake* o_fakeMuons;
+    LeptonOut_Fake* o_tightMuons;
+    LeptonOut_Fake* o_fakeElectrons;
+    LeptonOut_Fake* o_tightElectrons;
     JetOut* o_jets;
     JetOut* o_bJets;
 
-    TRVariable<Float_t> Met_pt;
-    TRVariable<Float_t> Met_phi;
     TRVariable<Float_t> Pileup_nTrueInt;
 
-    std::vector<Float_t> o_ht, o_htb, o_met, o_metphi, o_nb_loose, o_nb_tight;
+    std::vector<Float_t> o_ht, o_htb, o_met, o_metphi;
+    std::vector<size_t> o_nb_loose, o_nb_tight;
 
-    std::set<std::string> ewk_sets = {"ttjet", "ttbar", "wjets", "DYm50", "DYm10-50"};
+    std::set<std::string> ewk_sets = {"ttjet", "ttbar", "wjets", "DYm50", "DYm10-50",
+                                      "ttbar_2l2n", "ttbar_semilep", "ttbar_hadronic",
+                                      "DYm50_amc",
+    };
 
     LorentzVector lead_lep;
 };

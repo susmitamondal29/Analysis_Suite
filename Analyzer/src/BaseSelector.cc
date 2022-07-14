@@ -6,15 +6,14 @@
 #include "analysis_suite/Analyzer/interface/ScaleFactors.h"
 #include "analysis_suite/Analyzer/interface/CommonFuncs.h"
 
-#include <sstream>
-
 void BaseSelector::SetupOutTreeBranches(TTree* tree)
 {
     tree->Branch("weight", &o_weight);
     tree->Branch("PassEvent", &o_pass_event);
-    tree->Branch("run", &o_run);
-    tree->Branch("lumiBlock", &o_lumiblock);
-    tree->Branch("event", &o_event);
+    run.setupBranch(tree);
+    lumiblock.setupBranch(tree);
+    event.setupBranch(tree);
+ 
 }
 
 void BaseSelector::Init(TTree* tree)
@@ -64,23 +63,21 @@ void BaseSelector::Init(TTree* tree)
     if (isMC_) {
         genWeight.setup(fReader, "genWeight");
     }
+
     run.setup(fReader, "run");
     lumiblock.setup(fReader, "luminosityBlock");
     event.setup(fReader, "event");
+    PV_npvs.setup(fReader, "PV_npvs");
 
-    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_goodVertices"));
-    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_globalSuperTightHalo2016Filter"));
-    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_HBHENoiseFilter"));
-    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_HBHENoiseIsoFilter"));
-    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_EcalDeadCellTriggerPrimitiveFilter"));
-    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_BadPFMuonFilter"));
-    metfilters.push_back(TRVariable<Bool_t>(fReader, "Flag_ecalBadCalibFilter"));
+    metfilters.setup(fReader, {"Flag_goodVertices", "Flag_globalSuperTightHalo2016Filter", "Flag_HBHENoiseFilter", "Flag_HBHENoiseIsoFilter",
+                               "Flag_EcalDeadCellTriggerPrimitiveFilter", "Flag_BadPFMuonFilter","Flag_ecalBadCalibFilter"});
 
     o_weight.resize(numSystematics());
     o_channels.resize(numSystematics());
     o_pass_event.resize(numSystematics());
 
     sfMaker.init(isMC_, fReader);
+    met.setup(MET_Type::PF, fReader);
     muon.setup(fReader, isMC_);
     elec.setup(fReader, isMC_);
     jet.setup(fReader, isMC_);
@@ -88,38 +85,38 @@ void BaseSelector::Init(TTree* tree)
         rGen.setup(fReader);
         rGenJet.setup(fReader);
     }
-    total_events = tree->GetEntries();
-    LOG_S(INFO) << "Total number of events: " << total_events;
+
+    if (loguru::g_stderr_verbosity > 0) {
+        bar.set_total(tree->GetEntries());
+        bar.print_header();
+    }
 
     LOG_FUNC << "End of Init";
 }
 
 Bool_t BaseSelector::Process(Long64_t entry)
 {
-    if (loguru::g_stderr_verbosity > 5 && entry > 1000) return false;
-    else if (loguru::g_stderr_verbosity > 2 && entry > 100000) return false;
+    if (loguru::g_stderr_verbosity > 8 && entry > 2) return false;
+    else if (loguru::g_stderr_verbosity > 2 && entry > 10000) return false;
+
     LOG_FUNC << "Start of Process";
-    current_event++;
-    if ((current_event % 10000 == 0 || current_event == total_events)
-        && loguru::g_stderr_verbosity > 0) {
-        LOG_S(INFO) << "At entry " <<  current_event;
-        print_bar();
+    if (loguru::g_stderr_verbosity > 0) {
+        bar.print_bar();
+        bar++;
     }
     clearParticles();
     fReader.SetLocalEntry(entry);
+
+    // Remove non-golden lumi stuff
+    if (!isMC_ && !sfMaker.inGoldenLumi(*run, *lumiblock)) {
+        return false;
+    }
 
     std::vector<bool> systPassSelection;
     bool passAny = false;
     size_t systNum = 0;
     for (auto syst : systematics_) {
         LOG_EVENT_IF(syst != Systematic::Nominal) << "Systematic is " << get_by_val(syst_by_name, syst);
-
-        // Remove non-golden lumi stuff
-        if (!isMC_ && !sfMaker.inGoldenLumi(*run, *lumiblock)) {
-            // std::cout << "bad run/lumi " << *run << " : " << *lumiblock << std::endl;
-            break;
-        }
-
         std::vector<eVar> vars = (syst != Systematic::Nominal) ? syst_vars : nominal_var;
         for (auto var : vars) {
             LOG_EVENT << "Variation is: " << varName_by_var.at(var);
@@ -130,22 +127,27 @@ Bool_t BaseSelector::Process(Long64_t entry)
         }
     }
     if (systPassSelection.size() > 0 && systPassSelection[0]) {
-        passed_events++;
+        bar.pass();
     }
 
-    if (passAny) {
-        for (auto& [chan, tree] : trees) {
-            bool passedChannel = false;
-            for (size_t syst = 0; syst < numSystematics(); ++syst) {
-                o_pass_event[syst] = systPassSelection[syst] && chan == o_channels[syst];
-                passedChannel |= o_pass_event[syst];
-            }
+    if (!passAny) return false;
 
-            if (passedChannel) {
-                clearOutputs();
-                FillValues(o_pass_event);
-                tree.tree->Fill();
-            }
+    for (auto& [chan, tree] : trees) {
+        bool passedChannel = false;
+        for (size_t syst = 0; syst < numSystematics(); ++syst) {
+            o_pass_event[syst] = systPassSelection[syst] && chan == o_channels[syst];
+            passedChannel |= o_pass_event[syst];
+        }
+
+        if (passedChannel) {
+            clearOutputs();
+
+            run.fill();
+            lumiblock.fill();
+            event.fill();
+
+            FillValues(o_pass_event);
+            tree.tree->Fill();
         }
     }
     LOG_FUNC << "End of Process";
@@ -154,7 +156,7 @@ Bool_t BaseSelector::Process(Long64_t entry)
 
 void BaseSelector::SlaveTerminate()
 {
-    LOG_S(INFO) << passed_events << " events passed selection";
+    if (loguru::g_stderr_verbosity > 0) bar.print_trailer();
 }
 
 void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
@@ -168,14 +170,16 @@ void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
 
     (*weight) = isMC_ ? *genWeight : 1.0;
 
-    if (isMC_) {
-        rGen.createTopList();
-    }
     jet.setupJEC(rGenJet);
+    met.setupJEC(jet);
+    met.fix_xy(*run, *PV_npvs);
+    // Setup good particle lists
     muon.setGoodParticles(systNum, jet, rGen);
     elec.setGoodParticles(systNum, jet, rGen);
     jet.setGoodParticles(systNum);
+    // Class dependent setting up
     setOtherGoodParticles(systNum);
+
     setupChannel();
 
     if (isMC_) {
@@ -211,29 +215,3 @@ void BaseSelector::setupSystematicInfo()
     LOG_FUNC << "End of setupSystematicInfo";
 }
 
-
-void BaseSelector::FillValues(const std::vector<bool>& passVec) {
-    o_run = *run;
-    o_lumiblock = *lumiblock;
-    o_event = *event;
-
-}
-
-void BaseSelector::print_bar()
-{
-    // Setup progress bar
-    float progress = float(current_event)/total_events;
-
-    std::string bar = "[";
-    bar += std::string(int(floor(progress*barWidth)), '=');
-    if (bar.size() <= barWidth) bar += ">";
-    if (bar.size() <= barWidth)
-        bar += std::string(int((barWidth+1)-bar.size()), ' ');
-    bar += "] ";
-    std::ostringstream ss;
-    ss.precision(2);
-    ss << std::fixed <<progress*100;
-    bar += ss.str() + " %";
-    std::cout << bar << std::endl;
-
-}

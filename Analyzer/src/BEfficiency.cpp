@@ -15,9 +15,6 @@ void BEfficiency::Init(TTree* tree)
 
     createTree("Signal", Channel::Signal);
 
-    Met_pt.setup(fReader, "MET_pt");
-    Met_phi.setup(fReader, "MET_phi");
-
     if (isMC_) {
         Pileup_nTrueInt.setup(fReader, "Pileup_nTrueInt");
     }
@@ -89,13 +86,13 @@ bool BEfficiency::signal_cuts()
     CutInfo cuts;
 
     passCuts &= cuts.setCut("passPreselection", true);
-    passCuts &= cuts.setCut("passMETFilter", passMetFilters());
+    passCuts &= cuts.setCut("passMETFilter", metfilters.pass());
     passCuts &= cuts.setCut("pass2FakeLep",  nLeps(Level::Fake) == 2);
 
     passCuts &= cuts.setCut("passSSLeptons", isSameSign());
     passCuts &= cuts.setCut("passZVeto", muon.passZVeto() && elec.passZVeto());
     passCuts &= cuts.setCut("passJetNumber", jet.size(Level::Tight) >= 2);
-    passCuts &= cuts.setCut("passMetCut", *Met_pt > 25);
+    passCuts &= cuts.setCut("passMetCut", met.pt() > 25);
     passCuts &= cuts.setCut("passHTCut", jet.getHT(Level::Tight) > 100);
 
     return passCuts;

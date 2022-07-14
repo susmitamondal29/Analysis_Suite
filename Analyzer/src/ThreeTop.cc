@@ -30,20 +30,17 @@ void ThreeTop::Init(TTree* tree)
 
     createTree("Signal_Dilepton", Channel::SS_Dilepton);
     createTree("Signal_Multi", Channel::SS_Multi);
+    createTree("TTZ_CR", Channel::TTZ_CR);
     // Charge Mis-id Fake Rate
     if (!isMC_) {
         createTree("TightFake_Nonprompt", Channel::TightFake_Nonprompt);
         createTree("OS_Charge_MisId", Channel::OS_MisId);
-    } else {
-        rGen.setup(fReader);
     }
 
     trigEff_leadPt.setup(fOutput, "leadPt", 4, 100, 0, 100);
 
-    rTop.setup(fReader);
+    // rTop.setup(fReader);
 
-    Met_pt.setup(fReader, "MET_pt");
-    Met_phi.setup(fReader, "MET_phi");
     if (isMC_) {
         Pileup_nTrueInt.setup(fReader, "Pileup_nTrueInt");
     }
@@ -198,7 +195,7 @@ bool ThreeTop::baseline_cuts(CutInfo& cuts)
     bool passCuts = true;
 
     passCuts &= cuts.setCut("passPreselection", true);
-    passCuts &= cuts.setCut("passMETFilter", passMetFilters());
+    passCuts &= cuts.setCut("passMETFilter", metfilters.pass());
 
     if (passCuts) trigEff_leadPt.fill(getLeadPt(), trig_cuts.pass_cut(subChannel_), subChannel_, *weight);
     passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
@@ -206,7 +203,7 @@ bool ThreeTop::baseline_cuts(CutInfo& cuts)
 
     passCuts &= cuts.setCut("passJetNumber", jet.size(Level::Tight) >= 2);
     passCuts &= cuts.setCut("passBJetNumber", jet.size(Level::Bottom) >= 1);
-    passCuts &= cuts.setCut("passMetCut", *Met_pt > 25);
+    passCuts &= cuts.setCut("passMetCut", met.pt() > 25);
     passCuts &= cuts.setCut("passHTCut", jet.getHT(Level::Tight) > 300);
 
     LOG_FUNC << "End of baseline_cuts";
@@ -309,8 +306,8 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
     for (size_t syst = 0; syst < numSystematics(); ++syst) {
         o_ht.push_back(jet.getHT(Level::Tight, syst));
         o_htb.push_back(jet.getHT(Level::Bottom, syst));
-        o_met.push_back(*Met_pt);
-        o_metphi.push_back(*Met_phi);
+        o_met.push_back(met.pt());
+        o_metphi.push_back(met.phi());
         o_centrality.push_back(jet.getCentrality(Level::Tight, syst));
         o_nb_loose.push_back(jet.n_loose_bjet.at(syst));
         o_nb_tight.push_back(jet.n_tight_bjet.at(syst));
@@ -341,7 +338,7 @@ void ThreeTop::printStuff()
 {
     LOG_FUNC << "Start of printStuff";
     std::cout << "Event: " << *event << std::endl;
-    std::cout << "Met: " << *Met_pt << std::endl;
+    std::cout << "Met: " << met.pt() << std::endl;
     std::cout << "HT: " << jet.getHT(Level::Tight, 0) << std::endl;
     std::cout << "njet: " << jet.size(Level::Tight) << std::endl;
     std::cout << "nbjet: " << jet.size(Level::Bottom) << std::endl;

@@ -17,8 +17,6 @@ class BEfficiency : public BaseSelector {
     bool isSameSign();
     bool signal_cuts();
 
-    TRVariable<Float_t> Met_pt;
-    TRVariable<Float_t> Met_phi;
     TRVariable<Float_t> Pileup_nTrueInt;
 
     BEffOut* o_beff;
