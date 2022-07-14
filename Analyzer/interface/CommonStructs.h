@@ -26,6 +26,10 @@ struct TriggerInfo {
         }
     }
 
+    std::string trig_name(Subchannel chan, size_t i) {
+        return trigger_names[chan].at(i);
+    }
+
     bool pass_cut(Subchannel chan) {
         if (trigs.find(chan) == trigs.end()) {
             return true;
@@ -35,6 +39,10 @@ struct TriggerInfo {
             if (*trig) return true;
         }
         return false;
+    }
+
+    bool pass_cut(Subchannel chan, size_t i) {
+        return *trigs[chan].at(i);
     }
 };
 
@@ -90,6 +98,23 @@ struct TrigEff {
     }
 };
 
+template <typename T>
+struct VarCollection {
+    std::vector<TRVariable<T>> variables;
+
+    void setup(TTreeReader& fReader, std::vector<std::string> names) {
+        for (auto name : names) {
+            variables.push_back(TRVariable<T>(fReader, name));
+        }
+    }
+
+    bool pass() {
+        for (auto var: variables) {
+            if (!*var) return false;
+        }
+        return true;
+    }
+};
 
 
 

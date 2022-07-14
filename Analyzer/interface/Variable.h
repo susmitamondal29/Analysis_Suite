@@ -17,6 +17,7 @@ public:
     }
 
     void setup(TTreeReader& fReader, std::string branch) {
+        branch_ = branch;
         if (fReader.GetTree()->GetBranchStatus(branch.c_str())) {
             val = new TTreeReaderValue<T>(fReader, branch.c_str());
         } else {
@@ -32,8 +33,25 @@ public:
             return 0.;
         }
     }
-private:
+protected:
     TTreeReaderValue<T>* val = nullptr;
+    std::string branch_;
+};
+
+
+template <class T>
+class OutValue : public TRVariable<T> {
+public:
+    void setupBranch(TTree* tree) {
+        tree->Branch(this->branch_.c_str(), &var_raw);
+    }
+
+    void fill() {
+        var_raw = this->operator*();
+    }
+
+private:
+    T var_raw;
 };
 
 
