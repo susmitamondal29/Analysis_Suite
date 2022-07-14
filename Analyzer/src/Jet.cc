@@ -46,7 +46,7 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
                                  Systematic::Jet_JER, {"nom","up","down"});
 
         // Pileup Weights
-        auto jmar_set = getScaleFile("JME", "UL"+ yearMap.at(year_).substr(2) + "_jmar");
+        auto jmar_set = getScaleFile("JME", "jmar");
         puid_scale = WeightHolder(jmar_set->at("PUJetID_eff"),
                                   Systematic::Jet_PUID, {"nom","up","down"});
 
@@ -194,4 +194,15 @@ float Jet::get_jer(size_t i, GenericParticle& genJets) {
     }
 
     return 1.;
+}
+
+PolarVector Jet::get_momentum_change()
+{
+    PolarVector change;
+    for(size_t i = 0; i < size(); ++i) {
+        change += PolarVector(pt(i)-nompt(i), phi(i));
+    }
+
+
+    return change;
 }

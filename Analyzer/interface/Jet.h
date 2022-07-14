@@ -9,12 +9,16 @@
 #include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 #include "CondTools/BTau/interface/BTagCalibrationReader.h"
 
+#include <Math/Vector2D.h>
+
 enum PUID { PU_Tight = 0, PU_Medium = 1, PU_Loose = 2 };
 
 struct Btag_Info {
     BTagEntry::JetFlavor flavor_type;
     std::string jet_type;
 };
+
+typedef ROOT::Math::DisplacementVector2D<ROOT::Math::Polar2D<double> > PolarVector;
 
 class Jet : public Particle {
 public:
@@ -35,6 +39,8 @@ public:
 
     float getCentrality(Level level, size_t syst) { return getCentrality(list(level, syst)); };
     float getCentrality(Level level) { return getCentrality(list(level)); };
+
+    PolarVector get_momentum_change();
 
     virtual void setupGoodLists() override
     {
@@ -75,7 +81,7 @@ public:
 
 
     void setupJEC(GenericParticle& genJet);
-    bool isJECSyst() {return jec_systs.find(currentSyst) != jec_systs.end(); }
+    bool isJECSyst() {return std::find(jec_systs.begin(), jec_systs.end(), currentSyst) != jec_systs.end(); }
     std::pair<Float_t, Float_t> get_JEC_pair(Systematic syst, size_t idx) const
     {
         if (m_jet_scales.find(syst) == m_jet_scales.end() ||
@@ -102,11 +108,6 @@ private:
     float getHT(const std::vector<size_t>& jet_list);
     float getCentrality(const std::vector<size_t>& jet_list);
     float getTotalBTagWeight();
-
-    const std::set<Systematic> jec_systs = {
-        Systematic::Jet_JER,
-        Systematic::Jet_JES,
-    };
 
     std::unordered_map<Year, std::string> jec_source = {
         {Year::yr2016pre, "Summer19UL16APV_V7_MC"},
