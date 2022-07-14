@@ -79,6 +79,27 @@ struct LeptonOut {
     }
 };
 
+struct LeptonOut_Fake {
+    std::vector<Float_t> pt;
+    std::vector<Float_t> eta;
+    std::vector<Float_t> phi;
+    std::vector<Float_t> mass;
+    std::vector<Float_t> ptRatio;
+    std::vector<Float_t> ptRel;
+    std::vector<Int_t> syst_bitMap;
+    void clear()
+    {
+        pt.clear();
+        eta.clear();
+        phi.clear();
+        mass.clear();
+        ptRatio.clear();
+        ptRel.clear();
+        syst_bitMap.clear();
+    }
+};
+
+
 struct BEffOut {
     std::vector<Float_t> pt;
     std::vector<Float_t> eta;
@@ -110,6 +131,8 @@ void fillJet(const Jet& jet, Level level, JetOut& fillObject, size_t pass_bitmap
 void fillAllLeptons(const Lepton& muon, const Lepton& elec, ParticleOut& fillObject, size_t pass_bitmap);
 
 void fillLepton(const Lepton& lep, Level level, LeptonOut& fillObject, size_t pass_bitmap, bool useFakept = false);
+
+void fillLepton_Fake(const Lepton& lep, Level level, LeptonOut_Fake& fillObject, size_t pass_bitmap);
 
 void fillBEff(const Jet& jet, Level level, BEffOut& fillObject, size_t pass_bitmap);
 
