@@ -26,7 +26,20 @@ def ratio_plot(filename, xlabel, binning):
     fig.savefig(filename, bbox_inches="tight")
     plt.close(fig)
 
-
+@contextmanager
+def nonratio_plot(filename, xlabel, binning):
+    fig, ax = plt.subplots()
+    yield ax
+    setup_ticks(ax)
+    axisSetup(ax, xlabel=xlabel, binning=binning)
+    ax.legend()
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        fig.tight_layout()
+    if hasattr(plot, "workdir"):
+        filename = f"{plot.workdir}/{filename}"
+    fig.savefig(filename, bbox_inches="tight")
+    plt.close(fig)
 
 @contextmanager
 def plot(filename, *args, **kwargs):

@@ -14,7 +14,8 @@ if not runfile_dir.exists():
 
 runfile_options = set()
 for f in runfile_dir.glob("*.dat"):
-    runfile_options.add(f.stem[:-5])
+    name = f.stem
+    runfile_options.add(name[:name.index("201")-1])
 
 xml_filename = str((base_dir/'Analyzer/src/classes_def.xml').resolve())
 xml_classes = parse(xml_filename)
@@ -52,6 +53,7 @@ for year in args.years:
     farmout_call += f' --infer-cmssw-path'
     farmout_call += f' --fwklite analyze.py'
     farmout_call += f' --input-basenames-not-unique'
+    # farmout_call += f' --num-cpus=4'
     farmout_call += f' --output-dir={output_dir}'
 
 

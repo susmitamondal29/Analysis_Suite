@@ -15,7 +15,8 @@ if not runfile_dir.exists():
 
 runfile_options = set()
 for f in runfile_dir.glob("*.dat"):
-    runfile_options.add(f.stem[:-5])
+    name = f.stem
+    runfile_options.add(name[:name.index("201")-1])
 
 xml_filename = str((base_dir/'Analyzer/src/classes_def.xml').resolve())
 xml_classes = parse(xml_filename)

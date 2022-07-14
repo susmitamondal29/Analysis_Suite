@@ -157,6 +157,7 @@ info ={
         "Members" : [
             "ttbar_2l2n",
             "ttbar_semilep",
+            "ttbar_hadronic",
         ],
     },
     "wjet_ht": {
@@ -172,12 +173,19 @@ info ={
             "wjets_ht2500-Inf"
         ],
     },
+    "wjets" : {
+        "Name": r"W+jets",
+        "Members": [
+            "wjets",
+        ],
+    },
     "ewk" : {
         "Name": r"EWK",
         "Members": [
             # "ttjet",
             'ttbar',
             "DYm50",
+            "DYm50_amc",
             "DYm10-50",
             "wjets",
         ]

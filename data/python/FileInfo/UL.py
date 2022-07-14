@@ -400,62 +400,62 @@ info = {
     "qcd_mu_pt15-20" : {
         "cross_section" : 2797000,
         "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-15to20_MuEnrichedPt5_Tune.*',
+        "DAS": 'QCD_Pt-15To20_MuEnrichedPt5_Tune.*',
     },
     "qcd_mu_pt20-30" : {
         "cross_section" : 2518000,
         "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-20to30_MuEnrichedPt5_Tune.*',
+        "DAS": 'QCD_Pt-20To30_MuEnrichedPt5_Tune.*',
     },
     "qcd_mu_pt30-50" : {
         "cross_section" : 1361000,
         "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-30to50_MuEnrichedPt5_Tune.*',
+        "DAS": 'QCD_Pt-30To50_MuEnrichedPt5_Tune.*',
     },
     "qcd_mu_pt50-80" : {
         "cross_section" : 377800,
         "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-50to80_MuEnrichedPt5_Tune.*',
+        "DAS": 'QCD_Pt-50To80_MuEnrichedPt5_Tune.*',
     },
     "qcd_mu_pt80-120" : {
         "cross_section" : 88620,
         "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-80to120_MuEnrichedPt5_Tune.*',
+        "DAS": 'QCD_Pt-80To120_MuEnrichedPt5_Tune.*',
     },
     "qcd_mu_pt120-170" : {
         "cross_section" : 21070,
         "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-120to170_MuEnrichedPt5_Tune.*',
+        "DAS": 'QCD_Pt-120To170_MuEnrichedPt5_Tune.*',
     },
     "qcd_mu_pt170-300" : {
         "cross_section" : 7019,
         "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-170to300_MuEnrichedPt5_Tune.*',
+        "DAS": 'QCD_Pt-170To300_MuEnrichedPt5_Tune.*',
     },
     "qcd_mu_pt300-470" : {
         "cross_section" : 622.4,
         "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-300to470_MuEnrichedPt5_Tune.*',
+        "DAS": 'QCD_Pt-300To470_MuEnrichedPt5_Tune.*',
     },
     "qcd_mu_pt470-600" : {
         "cross_section" : 58.86,
         "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-470to600_MuEnrichedPt5_Tune.*',
+        "DAS": 'QCD_Pt-470To600_MuEnrichedPt5_Tune.*',
     },
     "qcd_mu_pt600-800" : {
         "cross_section" : 18.22,
         "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-600to800_MuEnrichedPt5_Tune.*',
+        "DAS": 'QCD_Pt-600To800_MuEnrichedPt5_Tune.*',
     },
     "qcd_mu_pt800-1000" : {
         "cross_section" : 3.25,
         "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-800to1000_MuEnrichedPt5_Tune.*',
+        "DAS": 'QCD_Pt-800To1000_MuEnrichedPt5_Tune.*',
     },
     "qcd_mu_pt1000-Inf" : {
         "cross_section" : 1.078,
         "Source of cross section" : "XSDB",
-        "DAS": 'QCD_Pt-1000toInf_MuEnrichedPt5_Tune.*',
+        "DAS": 'QCD_Pt-1000_MuEnrichedPt5_Tune.*',
     },
 
     # electron enriched

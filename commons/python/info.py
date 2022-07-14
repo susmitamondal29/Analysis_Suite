@@ -129,3 +129,5 @@ class FileInfo(BasicInfo):
             if "data" in split:
                 return True
         return False
+
+fileInfo = FileInfo()
