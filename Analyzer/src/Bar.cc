@@ -6,6 +6,7 @@
 void Bar::print_header()
 {
     std::cout << "Total number of events: " << total_events << std::endl;
+    start_time = time(NULL);
 }
 
 void Bar::print_bar()
@@ -27,8 +28,12 @@ void Bar::print_bar()
     ss << std::fixed <<progress*100;
     bar += ss.str() + " %  ";
 
+    std::cout << bar;
+    size_t elapse = static_cast<size_t>(time(NULL) - start_time);
+    int ratio = (n_proc_events) ? static_cast<int>(((float)n_proc_events)/elapse) : 0;
+    std::cout << " (" << elapse << "s - " << ratio << "#/s)";
+    std::cout << " (" << passed_events << "/" << n_proc_events << ")" << std::endl;
 
-    std::cout << bar << "(" << passed_events << "/" << n_proc_events << ")" << std::endl;
 }
 
 void Bar::print_trailer()

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include <ctime>
 
 class Bar {
 public:
@@ -23,6 +24,7 @@ private:
 
     const size_t barWidth  = 75;
     size_t freq = 10000;
+    time_t start_time;
 };
 
 #endif // BAR_H_
