@@ -41,6 +41,9 @@ public:
     Vector3D p3(Level level, size_t i) const { return p3(idx(level, i)); }
 
     const std::vector<size_t>& list(Level level) const { return *m_partList.at(level); };
+    auto begin(Level level) const { return list(level).begin(); }
+    auto end(Level level) const { return list(level).end(); }
+
     virtual void clear();
 
 protected:

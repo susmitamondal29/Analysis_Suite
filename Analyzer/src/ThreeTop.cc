@@ -37,7 +37,7 @@ void ThreeTop::Init(TTree* tree)
         createTree("OS_Charge_MisId", Channel::OS_MisId);
     }
 
-    trigEff_leadPt.setup(fOutput, "leadPt", 4, 100, 0, 100);
+    // trigEff_leadPt.setup(fOutput, "leadPt", 4, 100, 0, 100);
 
     // rTop.setup(fReader);
 
@@ -45,14 +45,36 @@ void ThreeTop::Init(TTree* tree)
         Pileup_nTrueInt.setup(fReader, "Pileup_nTrueInt");
     }
 
-    setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
-                                  "HLT_DoubleMu8_Mass8_PFHT300"});
-    setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
-                                  "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
-    setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
-                                  "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
-    setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
-                                  "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+    // Dilepton triggers
+    if (year_ == Year::yr2016pre) {
+        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
+                                      "HLT_DoubleMu8_Mass8_PFHT300"});
+        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL",
+                                      "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
+                                      "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+    } else if (year_ == Year::yr2016post) {
+        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
+                                      "HLT_DoubleMu8_Mass8_PFHT300"});
+        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+        setupTrigger(Subchannel::EM, {"HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});
+    } else if(year_ == Year::yr2017) {
+        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"});
+        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"});
+    } else if (year_ == Year::yr2018) {
+        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"});
+        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"});
+    }
     setupTrigger(Subchannel::None);
 
     LOG_FUNC << "End of Init";
@@ -62,11 +84,8 @@ void ThreeTop::SetupOutTreeBranches(TTree* tree)
 {
     LOG_FUNC << "Start of SetupOutTreeBranches";
     BaseSelector::SetupOutTreeBranches(tree);
-    tree->Branch("LooseMuon", "ParticleOut", &o_looseMuons);
-    tree->Branch("LooseElectron", "ParticleOut", &o_looseElectrons);
-    tree->Branch("TightMuon", "LeptonOut", &o_tightMuons);
-    tree->Branch("TightElectron", "LeptonOut", &o_tightElectrons);
-    tree->Branch("TightLeptons", "ParticleOut", &o_tightLeptons);
+    tree->Branch("TightMuon", "ParticleOut", &o_tightMuons);
+    tree->Branch("TightElectron", "ParticleOut", &o_tightElectrons);
     tree->Branch("Jets", "JetOut", &o_jets);
     tree->Branch("BJets", "JetOut", &o_bJets);
     tree->Branch("ResolvedTops", "TopOut", &o_resolvedTop);
@@ -78,6 +97,8 @@ void ThreeTop::SetupOutTreeBranches(TTree* tree)
     tree->Branch("Centrality", &o_centrality);
     tree->Branch("N_bloose", &o_nb_loose);
     tree->Branch("N_btight", &o_nb_tight);
+    tree->Branch("N_loose_muon", &o_nloose_muon);
+    tree->Branch("N_loose_elec", &o_nloose_elec);
     LOG_FUNC << "End of SetupOutTreeBranches";
 }
 
@@ -99,6 +120,8 @@ void ThreeTop::clearOutputs()
     o_centrality.clear();
     o_nb_loose.clear();
     o_nb_tight.clear();
+    o_nloose_muon.clear();
+    o_nloose_elec.clear();
     LOG_FUNC << "End of clearOutputs";
 }
 
@@ -110,14 +133,45 @@ void ThreeTop::ApplyScaleFactors()
     LOG_EVENT << "weight after pu scale: " << (*weight);
     (*weight) *= sfMaker.getLHESF();
     LOG_EVENT << "weight after lhe scale: " << (*weight);
+    (*weight) *= sfMaker.getLHEPdf();
+    LOG_EVENT << "weight after pdf scale: " << (*weight);
+    (*weight) *= sfMaker.getPartonShower();
+    LOG_EVENT << "weight after ps scale: " << (*weight);
     (*weight) *= jet.getScaleFactor();
     LOG_EVENT << "weight after jet scale: " << (*weight);
+    (*weight) *= jet.getTotalBTagWeight();
+    LOG_EVENT << "weight after bjet scale: " << (*weight);
     (*weight) *= elec.getScaleFactor();
     LOG_EVENT << "weight after elec scale: " << (*weight);
     (*weight) *= muon.getScaleFactor();
     LOG_EVENT << "weight after muon scale: " << (*weight);
     // (*weight) *= rTop.getScaleFactor(rGen);
     LOG_FUNC << "End of ApplyScaleFactors";
+}
+
+void ThreeTop::applyNonprompt(Particle& part, PID pid)
+{
+    auto tight = part.begin(Level::Tight);
+    for (auto fake = part.begin(Level::Fake); fake != part.end(Level::Fake); ++fake) {
+        if (tight == part.end(Level::Tight) || (*tight) > (*fake)) {
+            (*weight) *= sfMaker.getNonpromptFR(part.eta(*fake), part.pt(*fake), pid);
+        } else {
+            tight++;
+        }
+    }
+    part.moveLevel(Level::Fake, Level::Tight);
+}
+
+void ThreeTop::ApplyDataScaleFactors()
+{
+    if ((*currentChannel_) == Channel::TightFake_Nonprompt) {
+        applyNonprompt(muon, PID::Muon);
+        applyNonprompt(elec, PID::Electron);
+    } else if ((*currentChannel_) == Channel::OS_MisId) {
+        for (auto i : elec.list(Level::Tight)) {
+            (*weight) *= sfMaker.getChargeMisIdFR(elec.eta(i), elec.pt(i));
+        }
+    }
 }
 
 void ThreeTop::setOtherGoodParticles(size_t syst)
@@ -170,10 +224,9 @@ bool ThreeTop::getCutFlow()
     LOG_FUNC << "Start of passSelection";
     (*currentChannel_) = Channel::None;
     setSubChannel();
+    if (!baseline_cuts()) return false;
 
-    if (signal_cuts()) {
-        (*currentChannel_) = (nLeps(Level::Tight) == 2) ? Channel::SS_Dilepton : Channel::SS_Multi;
-    }
+    if (signal_cuts()) (*currentChannel_) = (nLeps(Level::Tight) == 2) ? Channel::SS_Dilepton : Channel::SS_Multi;
 
     if (nonprompt_cuts()) (*currentChannel_) = Channel::TightFake_Nonprompt;
 
@@ -185,26 +238,29 @@ bool ThreeTop::getCutFlow()
         return false;
     }
 
+    if (!isMC_)  ApplyDataScaleFactors();
+
     LOG_FUNC << "End of passSelection";
     return true;
 }
 
-bool ThreeTop::baseline_cuts(CutInfo& cuts)
+bool ThreeTop::baseline_cuts()
 {
     LOG_FUNC << "Start of baseline_cuts";
     bool passCuts = true;
+    CutInfo cuts;
 
     passCuts &= cuts.setCut("passPreselection", true);
     passCuts &= cuts.setCut("passMETFilter", metfilters.pass());
 
-    if (passCuts) trigEff_leadPt.fill(getLeadPt(), trig_cuts.pass_cut(subChannel_), subChannel_, *weight);
+    // if (passCuts) trigEff_leadPt.fill(getLeadPt(), trig_cuts.pass_cut(subChannel_), subChannel_, *weight);
     passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
     passCuts &= cuts.setCut("passLeadPt", getLeadPt() > 25);
 
     passCuts &= cuts.setCut("passJetNumber", jet.size(Level::Tight) >= 2);
     passCuts &= cuts.setCut("passBJetNumber", jet.size(Level::Bottom) >= 1);
     passCuts &= cuts.setCut("passMetCut", met.pt() > 25);
-    passCuts &= cuts.setCut("passHTCut", jet.getHT(Level::Tight) > 300);
+    passCuts &= cuts.setCut("passHTCut", jet.getHT(Level::Tight) > 250);
 
     LOG_FUNC << "End of baseline_cuts";
     return passCuts;
@@ -216,7 +272,6 @@ bool ThreeTop::signal_cuts()
     bool passCuts = true;
     CutInfo cuts;
 
-    passCuts = baseline_cuts(cuts);
     passCuts &= cuts.setCut("passZVeto", muon.passZVeto() && elec.passZVeto());
     passCuts &= cuts.setCut("pass2Or3Leptons", nLeps(Level::Tight) == 2 || nLeps(Level::Tight) == 3);
     passCuts &= cuts.setCut("passSameSign;", isSameSign(Level::Tight));
@@ -238,7 +293,6 @@ bool ThreeTop::ttz_CR_cuts()
     bool passCuts = true;
     CutInfo cuts;
 
-    passCuts = baseline_cuts(cuts);
     passCuts &= cuts.setCut("failZVeto", !muon.passZVeto() || !elec.passZVeto());
     passCuts &= cuts.setCut("pass2Leptons", nLeps(Level::Tight) == 3);
     passCuts &= cuts.setCut("passSameSign;", isSameSign(Level::Tight));
@@ -256,7 +310,6 @@ bool ThreeTop::nonprompt_cuts()
     bool passCuts = true;
     CutInfo cuts;
 
-    passCuts = baseline_cuts(cuts);
     passCuts &= cuts.setCut("pass1TightLeptons", nLeps(Level::Tight) == 1);
     passCuts &= cuts.setCut("pass2FakeLeptons", nLeps(Level::Fake) == 2);
     passCuts &= cuts.setCut("passSameSign;", isSameSign(Level::Fake));
@@ -276,6 +329,7 @@ bool ThreeTop::charge_misid_cuts()
 
     passCuts &= cuts.setCut("passZVeto", muon.passZVeto() && elec.passZVeto());
     passCuts &= cuts.setCut("pass2Leptons", nLeps(Level::Tight) == 2);
+    passCuts &= cuts.setCut("pass1Electron", elec.size(Level::Tight) >= 1);
     passCuts &= cuts.setCut("passOppositeSign;", !isSameSign(Level::Tight));
 
     // Fill Cut flow
@@ -294,14 +348,11 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
         pass_bitmap += passVec.at(i) << i;
     }
 
-    fillParticle(muon, Level::Loose, *o_looseMuons, pass_bitmap);
-    fillParticle(elec, Level::Loose, *o_looseElectrons, pass_bitmap);
-    fillLepton(muon, Level::Tight, *o_tightMuons, pass_bitmap);
-    fillLepton(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
+    fillParticle(muon, Level::Tight, *o_tightMuons, pass_bitmap);
+    fillParticle(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
     fillJet(jet, Level::Tight, *o_jets, pass_bitmap);
     fillJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
     fillParticle(rTop, Level::Loose, *o_resolvedTop, pass_bitmap);
-    fillAllLeptons(muon, elec, *o_tightLeptons, pass_bitmap);
 
     for (size_t syst = 0; syst < numSystematics(); ++syst) {
         o_ht.push_back(jet.getHT(Level::Tight, syst));
@@ -311,6 +362,8 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
         o_centrality.push_back(jet.getCentrality(Level::Tight, syst));
         o_nb_loose.push_back(jet.n_loose_bjet.at(syst));
         o_nb_tight.push_back(jet.n_tight_bjet.at(syst));
+        o_nloose_muon.push_back(muon.size(Level::Loose));
+        o_nloose_elec.push_back(elec.size(Level::Loose));
     }
     LOG_FUNC << "End of FillValues";
 }
