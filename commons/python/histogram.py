@@ -36,6 +36,10 @@ class Histogram:
         hist.hist = right*self.hist
         return hist
 
+    def __imul__(self, right):
+        self.hist *= right
+        return self
+
     def __iadd__(self, right):
         if isinstance(right, Histogram):
             self._set_hist(right.hist)
@@ -114,6 +118,9 @@ class Histogram:
         return_obj.hist.variances()[:] = error2
         return return_obj
 
+    def move_overflow(self):
+        self.hist[-1] += self.hist[bh.overflow]
+        self.hist[bh.overflow] = (0, 0)
 
     def set_metadata(self, other):
         self.group = other.group

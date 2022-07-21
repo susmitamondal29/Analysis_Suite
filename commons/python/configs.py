@@ -161,13 +161,17 @@ def get_list_systs(systs=["all"], tool="", **kwargs):
         return [syst for syst in set.intersection(*allSysts)
                 if clean_syst(syst) in systs]
 
-def get_trees(years):
-    import uproot
-    for year in years:
-        filename = Path(f'result_{year}.root')
+def get_trees(filename):
+    if filename.is_dir():
+        all_trees = set()
+        for root_file in filename.glob("*root"):
+            all_trees |= get_trees(root_file)
+        return all_trees
+    else:
+        import uproot
         with uproot.open(filename) as f:
-            group = [key.strip(";1") for key in f.keys() if "/" not in key][0]
-            return [key.strip(";1") for key, val in f[group].items() if "TTree" in repr(val)]
+            group = [key for key in f.keys() if "/" not in key][0]
+            return {key.strip(";1") for key, val in f[group].items() if "TTree" in repr(val)}
 
 def clean_syst(syst):
     return syst.replace("_down","").replace("_up","")
