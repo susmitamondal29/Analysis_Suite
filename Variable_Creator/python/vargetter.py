@@ -1,215 +1,288 @@
 #!/usr/bin/env python3
-import math
 import awkward as ak
 import uproot as uproot
 import numpy as np
-import itertools
-from analysis_suite.commons.configs import get_metadata
-from analysis_suite.commons.info import FileInfo
-from dataclasses import dataclass
-from typing import Callable
-
-
-
-@dataclass
-class Variable:
-    func: Callable[..., dict]
-    inputs: tuple
-
-    def apply(self, arr):
-        if isinstance(self.inputs, str):
-            return self.func(arr, self.inputs)
-        else:
-            return self.func(arr, *self.inputs)
-
-    def getType(self):
-        isInt = "num" in repr(self.func) or "n_" in self.inputs
-        return "int" if isInt else "float"
+from copy import copy
 
 class VarGetter:
-    branch_names = None
+    single_branch = ["run", "event", "lumiBlock"]
 
-    @staticmethod
-    def add_part_branches(particles, variables):
-        if VarGetter.branch_names is None:
-            VarGetter.branch_names = list()
-        if isinstance(particles, list):
-            VarGetter.branch_names += ["/".join(el) for el in itertools.product(particles, variables)]
-        else:
-            VarGetter.branch_names += [f"{particles}/{var}" for var in variables]
-
-    @staticmethod
-    def add_var_branches(variables):
-        if VarGetter.branch_names is None:
-           VarGetter.branch_names = list()
-        VarGetter.branch_names += variables
-
-    def __init__(self, f, tree, group, syst=0):
+    def __init__(self, filename, treename, group, xsec, syst=0):
         self.syst = syst
         self.syst_bit = 2**self.syst
-        self.jec = None
-        if self.branch_names is None:
-            branches = [key for key, array in f[group][tree].items()
-                        if len(array.keys()) == 0]
-        else:
-            branches = [key for key in f[group][tree].keys()
-                        if key in self.branch_names] + ["weight"]
-        analysis = get_metadata(f[group]["MetaData"], "Analysis")
-        year = get_metadata(f[group]["MetaData"], "Year")
-        self.xsec = float(get_metadata(f[group]["MetaData"], "Xsec"))
-        self.sumw = sum(f[group]["sumweight"].values())
+        self.systName = ""
+        self._mask = None
+        self.part_name = []
+        self.arr = dict()
+        self.parts = dict()
+        self.branches = []
 
-        if f[group][tree].num_entries != 0:
-            analyzed = f[group][tree]
-            passMask = analyzed["PassEvent"].array()[:, self.syst]
-            self.arr = analyzed.arrays(branches)[passMask]
-            if group == "data":
-                self.scale = np.ones(len(self.arr))
-                self.remove_dup()
+        f = uproot.open(filename)
+        if group not in f or treename not in f[group]:
+            return
+
+        self.tree = f[group][treename]
+        self.branches = [key for key, array in self.tree.items() if len(array.keys()) == 0]
+        self.part_name = np.unique([br.split('/')[0] for br in self.branches if '/' in br])
+        self._base_mask = ak.to_numpy(self._get_var("PassEvent"))
+        self._mask = copy(self._base_mask)
+        self._scale = ak.to_numpy(self._get_var("weight"))
+
+        if group == "data":
+            _, unique_idx = np.unique(ak.to_numpy(self["event"]), return_index=True)
+            self.mask = np.in1d(np.arange(len(self)), unique_idx)
+            self._base_mask = copy(self._mask)
+        else:
+            sumw = sum(f[group]["sumweight"].values())
+            self._scale = xsec/sumw*self._scale
+
+    def __bool__(self):
+        return self._mask is not None
+
+    def _get_var(self, name):
+        return self.tree[name].array()[:, self.syst]
+
+    def _get_var_nosyst(self, name):
+        return self.tree[name].array()
+
+    def __getitem__(self, key):
+        if key in self.part_name:
+            if key not in self.parts:
+                self.parts[key] = Particle(key, self)
+            return self.parts[key]
+        elif not self.exists(key):
+            raise AttributeError(f'{key} not found')
+        elif key not in self.arr:
+            if "/" in key or key in self.single_branch:
+                self.arr[key] = self._get_var_nosyst(key)
             else:
-                self.scale = self.arr["weight"][:,self.syst]
-                self.scale = self.xsec/self.sumw*self.scale
-        else:
-            self.arr = ak.Array([])
-            self.scale = ak.Array([])
+                self.arr[key] = self._get_var(key)
+        return self.arr[key][self.mask]
 
-    def __add__(self, other):
-        sumwTot = self.sumw + other.sumw
-        self.arr = ak.concatenate((self.arr, other.arr))
-        self.scale = ak.concatenate((self.sumw*self.scale, other.sumw*other.scale))/sumwTot
-        self.sumw = sumwTot
-        return self
+    def __getattr__(self, key):
+        return self.__getitem__(key)
 
     def __len__(self):
-        return len(self.scale)
+        return np.count_nonzero(self.mask)
+
+    def setSyst(self, systName):
+        self.systName = systName
+        if systName in ["JES", "JER"]:
+            jec = self.vg.systName.lower().split('_')
+            updown = {"down": "first", "up": "second"}
+            self.jec_var = f'jec/{jec[1]}.{updown[jec[2]]}'
+        else:
+            self.jec_var = ""
+
+    def mergeParticles(self, merge, part1, part2):
+        self.part_name = np.append(self.part_name, merge)
+        self.parts[merge] = MergeParticle(self[part1], self[part2])
+
+    # Scale related functions
+
+    @property
+    def scale(self):
+        return self._scale[self.mask]
+
+    @scale.setter
+    def scale(self, scale):
+        if isinstance(scale, tuple):
+            scale, mask = scale
+            self._scale[self.get_submask(mask)] = scale
+        else:
+            self._scale[self.mask] = scale
+
+    def get_submask(self, mask):
+        submask = copy(self.mask)
+        submask[submask] *= mask
+        return submask
+
+    # Mask related functions
+
+    @property
+    def mask(self):
+        return self._mask
+
+    @mask.setter
+    def mask(self, mask):
+        self._mask[self._mask] *= mask
+
+    def clear_mask(self):
+        self._mask = copy(self._base_mask)
+
+
+    def get_hist(self, var):
+        if not hasattr(self, var):
+            raise AttributeError
+        return self[var], self.scale
 
     def exists(self, branch):
-        return branch in self.arr.fields
+        return branch in self.branches
 
-    def remove_dup(self):
-        _, unique_idx = np.unique(ak.to_numpy(self.arr.event), return_index=True)
-        self.arr = self.arr[unique_idx]
-        self.scale = self.scale[unique_idx]
+    def close(self):
+        self.tree.close()
 
-    def set_JEC(self, systName):
-        systNames = systName.lower().split('_')
-        if len(systNames) != 3 or systNames[1] not in ["jes", "jer"]:
-            return
-        updown = {"down": "first", "up": "second"}
-        self.jec = f'{systNames[1]}/{systNames[1]}.{updown[systNames[2]]}'
+    # Function to combine things
 
-    def setup_scale(self):
-        self.scale *= self.xsec/self.sumw
-
-    def get_part_mask(self, part):
-        return np.bitwise_and(self.arr["{}/syst_bitMap".format(part)], self.syst_bit) != 0
-
-    def mask(self, mask):
-        self.arr = self.arr[mask]
-        self.scale = self.scale[mask]
-
-    def num(self, part):
-        return ak.to_numpy(ak.count(self.get_part_mask(part), axis=1))
-
-    def pt(self, part, n, fill=-1):
-        if "Jet" in part and self.jec is not None:
-            return self.nth(part, "pt", n, fill)*self.nth(part, self.jec, n, fill)
-        else:
-            return self.nth(part, "pt", n, fill)
-
-    def eta(self, part, n, fill=-1):
-        return self.nth(part, "eta", n, fill)
-
-    def abseta(self, part, n, fill=-1):
-        abseta = np.nan_to_num(np.abs(self.nth(part, "eta", n, np.nan)), nan=-1)
-        return abseta
-
-    def phi(self, part, n, fill=-1):
-        return self.nth(part, "phi", n, fill)
-
-    def dphi(self, part1, idx1, part2, idx2):
-        dphi = self.phi(part1, idx1) - self.phi(part2, idx2)
-        dphi[dphi > np.pi] = dphi[dphi > np.pi] - np.pi
-        dphi[dphi < np.pi] = dphi[dphi < np.pi] + np.pi
-        return dphi
-
-    def pmass(self, part, n, fill=-1):
-        return self.nth(part, "mass", n, fill)
-
-    def mt(self, part, n, fill=-1):
-        import warnings
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            angle_part = (1-np.cos(self.phi(part, n)-self.var("Met_phi")))
-            # print(np.histogram(np.cos(self.phi(part, n)-self.var("Met_phi"))))
-            # print(angle_part)
-            # print(self.pt(part, n))
-            # print(self.var("Met"))
-            total = np.sqrt(2*self.pt(part, n)*self.var("Met")*angle_part)
-            # exit()
-        return np.nan_to_num(total, nan=-1)
-
-    def pvar(self, part, name, flat=True):
-        if flat:
-            return ak.flatten(self.arr[f'{part}/{name}'][self.get_part_mask(part)])
-        else:
-            return self.arr[f'{part}/{name}'][self.get_part_mask(part)]
-
-    def nth(self, part, name, n=0, fill=-1):
-        var = self.arr[f'{part}/{name}'][self.get_part_mask(part)]
-        return ak.to_numpy(ak.fill_none(ak.pad_none(var, n+1, axis=1, clip=True)[:,n], fill))
+    @staticmethod
+    def combine(arr1, arr2):
+        return ak.sum(ak.unzip(ak.cartesian([arr1, arr2], axis=-1)), axis=0)
 
     def dr(self, part1, idx1, part2, idx2):
-        eta2 = (self.eta(part1, idx1) - self.eta(part2, idx2))**2
-        phi2 = self.dphi(part1, idx1,part2, idx2)**2
-        return np.sqrt(eta2+phi2)
+        deta = self[part1]["eta", idx1] - self[part2]["eta", idx2]
+        dphi = self.dphi(part1, idx1, part2, idx2)
+        return np.sqrt(deta**2 + dphi**2)
+
+    def dphi(self, part1, idx1, part2, idx2):
+        dphi = self[part1]["phi", idx1] - self[part2]["phi", idx2]
+        dphi[dphi > np.pi] = dphi[dphi > np.pi] - np.pi
+        dphi[dphi < -np.pi] = dphi[dphi < -np.pi] + np.pi
+        return dphi
+
+    def cosDtheta(self, part1, idx1, part2, idx2):
+        cosh_eta = np.cosh(self[part1]['eta', idx1]) * np.cosh(self[part2]['eta', idx2])
+        sinh_eta = np.sinh(self[part1]['eta', idx1]) * np.sinh(self[part2]['eta', idx2])
+        cos_dphi = np.cos(self[part1]['phi', idx1] - self[part2]['phi', idx2])
+        return (cos_dphi + sinh_eta)/cosh_eta
 
     def mass(self, part1, idx1, part2, idx2):
-        # This assumes E ~ p or p >> m (true for light particles)
-        cosh_deta = np.cosh(self.eta(part1, idx1) - self.eta(part2, idx2))
-        cos_dphi = np.cos(self.phi(part1, idx1) - self.phi(part2, idx2))
-        pt = 2*self.pt(part1, idx1)*self.pt(part2, idx2)
-        return np.sqrt(pt*(cosh_deta - cos_dphi))
+        energy = self[part1]['energy', idx1] + self[part2]['energy', idx2]
+        px = self[part1]['px', idx1] + self[part2]['px', idx2]
+        py = self[part1]['py', idx1] + self[part2]['py', idx2]
+        pz = self[part1]['pz', idx1] + self[part2]['pz', idx2]
+        return np.sqrt(energy**2 - px**2 - py**2 - pz**2)
 
-    def true_mass(self, part1, idx1, part2, idx2):
-        m1 = self.pmass(part1, idx1)
-        m2 = self.pmass(part2, idx2)
-        e1 = np.sqrt(m1**2 + self.pt(part1, idx1)*np.cosh(self.eta(part1, idx1))**2)
-        e2 = np.sqrt(m2**2 + self.pt(part2, idx2)*np.cosh(self.eta(part2, idx2))**2)
-        pt_part = 2*self.pt(part1, idx1)*self.pt(part2, idx2)
-        phi_part = np.cos(self.phi(part1, idx1) - self.phi(part2, idx2))
-        eta_part = np.sinh(self.eta(part1, idx1))*np.sinh(self.eta(part2, idx2))
+    def top_mass(self, part1, part2):
+        energy = self.combine(self[part1].energy(), self[part2].energy()) + self["Met"]
+        px = self.combine(self[part1].px(), self[part2].px()) + self["Met"]*np.cos(self["Met_phi"])
+        py = self.combine(self[part1].py(), self[part2].py()) + self["Met"]*np.sin(self["Met_phi"])
+        pz = self.combine(self[part1].pz(), self[part2].pz())
+        top = np.sqrt(energy**2 - px**2 - py**2 - pz**2)
+        return top[ak.argmin(np.abs(top - 172.76), axis=-1, keepdims=True)][:, 0]
 
-        return np.sqrt(m1**2 + m2**2 + 2*e1*e2 - pt_part*(phi_part + eta_part))
-    
-    def cosDtheta(self, part1, idx1, part2, idx2):
-        cosh_eta = np.cosh(self.eta(part1, idx1))*np.cosh(self.eta(part2, idx2))
-        sinh_eta = np.sinh(self.eta(part1, idx1))*np.sinh(self.eta(part2, idx2))
-        cos_dphi = np.cos(self.phi(part1, idx1) - self.phi(part2, idx2))
 
-        return (cos_dphi - sinh_eta)/cosh_eta
+class Particle:
+    def __init__(self, name, vg):
+        self.vg = vg
+        self.name = name
+        self._mask = np.bitwise_and(vg._get_var_nosyst(f'{self.name}/syst_bitMap'), vg.syst_bit) != 0
 
-    def var(self, name):
-        return ak.to_numpy(self.arr[name][:,self.syst])
+    # Getter functions
 
-    def var_s(self, name):
-        return ak.to_numpy(self.arr[name])
+    def __getattr__(self, var):
+        if var == "pt":
+            return self._pt()
+        return self.vg[f'{self.name}/{var}'][self.mask]
 
-    def trig(self, idx):
-        return ak.to_numpy(self.arr["HLT_trigs"][:, idx])
+    def __getitem__(self, idx):
+        pad = False
+        if len(idx) == 2:
+            var, idx = idx
+        else:
+            var, idx, pad = idx
 
-    ##### Need to fix
+        if callable(getattr(self, var)):
+            return getattr(self, var)(idx)
+        else:
+            return self._get_val(var, idx, pad)
 
-    def mwT(self, part):
-        part_phi = self.arr[f'{part}/phi'][self.get_part_mask(part)]
-        part_pt = self.arr[f'{part}/pt'][self.get_part_mask(part)]
-        cos_angles = np.cos(part_phi-self.var("Met_phi"))
-        close_mask = ak.argmax(cos_angles, axis=-1) == ak.local_index(cos_angles, axis=-1)
-        close_pt = self.flatten(part_pt[close_mask])
+    def _get_val(self, var, idx, pad=False):
+        if pad:
+            vals = ak.pad_none(self.vg[f'{self.name}/{var}'][self.mask], idx+1)
+        elif idx == -1:
+            return self.vg[f'{self.name}/{var}'][self.mask]
+        else:
+            vals = self.vg[f'{self.name}/{var}'][self.mask][self.num() > idx]
+        return ak.to_numpy(vals[:, idx])
 
-        return np.sqrt(2*self.var("Met")*close_pt*(1 - self.flatten(cos_angles[close_mask])))
-    
-    def flatten(self, arr):
-        return ak.to_numpy(ak.flatten(arr))
-    # arr_mod, scale_mod = ak.unzip(ak.cartesian([self.arr[name], self.scale]))
-    # return ak.to_numpy(ak.flatten(arr_mod))
+    # Special function for allowing jec in pt
+
+    def _pt(self, idx=-1):
+        if self.vg.jec_var and "Jet" in self.name:
+            return self._get_val('pt', idx) * self[f'{self.vg.jec_var}']
+        else:
+            return self._get_val('pt', idx)
+
+    def padding(func):
+        def inner(self, *args, pad=False, fill=-1):
+            print(args)
+            if pad:
+                self.__pad__ = True
+                vals = ak.fill_none(func(self, *args), fill)
+                self.__pad__ = False
+                return ak.to_numpy(vals)
+            else:
+                return func(self, *args)
+        return inner
+
+    # def get_hist(self, var, idx, *args):
+    #     return self._get_val(var, idx, *args), self.scale(idx)
+
+    # def get_hist2d(self, var1, var2, idx, *args):
+    #     return (self._get_val(var1, idx, *args), self._get_val(var2, idx, *args)), self.scale(idx)
+
+    @property
+    def mask(self):
+        return self._mask[self.vg.mask]
+
+    def scale(self, n):
+        if n == -1:
+            return ak.broadcast_arrays(self.vg.scale, self.pt)[0]
+        else:
+            return self.vg.scale[self.num() > n]
+
+    # Functions for a particle
+
+    def abseta(self, idx):
+        return np.abs(self['eta', idx])
+
+    def num(self):
+        return ak.to_numpy(ak.count(self.mask, axis=1))
+
+    def px(self, idx=-1):
+        return self['pt', idx]*np.cos(self['phi', idx])
+
+    def py(self, idx=-1):
+        return self['pt', idx]*np.sin(self['phi', idx])
+
+    def pz(self, idx=-1):
+        return self['pt', idx]*np.sinh(self['eta', idx])
+
+    def energy(self, idx=-1):
+        return np.sqrt(self['mass', idx]**2 + (self['pt', idx]*np.cosh(self['eta', idx]))**2)
+
+    def mt(self, idx):
+        mask = self.num() > idx
+        angle_part = 1-np.cos(self['phi', idx] - self.vg["Met_phi"][mask])
+        return np.sqrt(2*self['pt', idx] * self.vg["Met"][mask] * angle_part)
+
+    def pt_ratio(self, idx=-1):
+        return 1/(1+self["ptRatio", idx])
+
+
+class MergeParticle:
+    def __init__(self, part1, part2):
+        self.part1 = part1
+        self.part2 = part2
+        self.idx_sort = ak.argsort(ak.concatenate((part1.pt, part2.pt), axis=-1), ascending=False)
+        self.__pad__ = False
+
+    def pad(self):
+        self.__pad__ = True
+
+    def __getattr__(self, var):
+        if callable(getattr(self.part1, var)):
+            return lambda : ak.concatenate((getattr(self.part1, var)(), getattr(self.part2, var)()), axis=-1)[self.idx_sort]
+        else:
+            return ak.concatenate((self.part1.__getattr__(var), self.part2.__getattr__(var)), axis=-1)[self.idx_sort]
+
+    def __getitem__(self, idx):
+        var, idx = idx
+        if callable(getattr(self.part1, var)):
+            vals = ak.concatenate((getattr(self.part1, var)(), getattr(self.part2, var)()), axis=-1)[self.idx_sort]
+        else:
+            vals = ak.concatenate((self.part1.__getattr__(var), self.part2.__getattr__(var)), axis=-1)[self.idx_sort]
+        if self.__pad__:
+            vals = ak.pad_none(vals, idx+1)
+        return ak.to_numpy(vals[:, idx])
+
