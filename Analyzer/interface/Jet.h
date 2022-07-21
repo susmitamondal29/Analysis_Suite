@@ -25,6 +25,7 @@ public:
     void setup(TTreeReader& fReader, bool isMC);
 
     virtual float getScaleFactor() override;
+    float getTotalBTagWeight();
 
     float pt(size_t idx) const {
         return m_pt.at(idx)*m_jec->at(idx);
@@ -107,7 +108,6 @@ private:
 
     float getHT(const std::vector<size_t>& jet_list);
     float getCentrality(const std::vector<size_t>& jet_list);
-    float getTotalBTagWeight();
 
     std::unordered_map<Year, std::string> jec_source = {
         {Year::yr2016pre, "Summer19UL16APV_V7_MC"},

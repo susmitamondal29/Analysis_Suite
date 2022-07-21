@@ -27,6 +27,9 @@ public:
 
     bool inGoldenLumi(UInt_t run, UInt_t lumi);
 
+    float getChargeMisIdFR(float eta, float pt);
+    float getNonpromptFR(float eta, float pt, PID pid);
+
 private:
 
     TRArray<Float_t> LHEScaleWeight;

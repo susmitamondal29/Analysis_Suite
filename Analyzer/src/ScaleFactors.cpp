@@ -6,6 +6,7 @@
 
 void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
 {
+    LOG_FUNC << "Start init";
     isMC = isMC_;
     if (isMC) {
         // Generator Weights
@@ -23,14 +24,15 @@ void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
         golden_json_file >> golden_json;
 
         // Fake Rates
-        auto corr_set = getScaleFile("USER", "fake_rate");
+        auto corr_set = getScaleFile("USER", "fake_rates");
         charge_misId = WeightHolder(corr_set->at("Charge_MisId"), Systematic::ChargeMisId_stat,
                                     {"nom", "up", "down"});
         nonprompt_muon = WeightHolder(corr_set->at("Nonprompt_muon"), Systematic::Nonprompt_Mu_stat,
                                       {"nom", "up", "down"});
-        nonprompt_elec = WeightHolder(corr_set->at("Nonprompt_elec"), Systematic::Nonprompt_El_stat,
+        nonprompt_elec = WeightHolder(corr_set->at("Nonprompt_electron"), Systematic::Nonprompt_El_stat,
                                       {"nom", "up", "down"});
     }
+    LOG_FUNC << "End init";
 }
 
 void ScaleFactors::setup_prescale()
@@ -143,4 +145,22 @@ bool ScaleFactors::inGoldenLumi(UInt_t run, UInt_t lumi)
         }
     }
     return false;
+}
+
+float ScaleFactors::getChargeMisIdFR(float eta, float pt)
+{
+    std::string syst = systName(charge_misId);
+    return charge_misId.evaluate({syst, fabs(eta), pt});
+}
+
+float ScaleFactors::getNonpromptFR(float eta, float pt, PID pid)
+{
+    if (pid == PID::Muon) {
+        std::string syst = systName(nonprompt_muon);
+        return nonprompt_muon.evaluate({syst, fabs(eta), pt});
+    } else if (pid == PID::Electron) {
+        std::string syst = systName(nonprompt_elec);
+        return nonprompt_elec.evaluate({syst, fabs(eta), pt});
+    }
+    return 1.0;
 }

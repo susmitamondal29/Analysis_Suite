@@ -53,14 +53,14 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
         // BTagging Weights
         auto btag_set = getScaleFile("BTV", "btagging");
         btag_bc_scale = WeightHolder(btag_set->at("deepJet_comb"),
-                                     Systematic::Jet_PUID, {"central","up","down"});
+                                     Systematic::BJet_BTagging, {"central","up","down"});
         btag_udsg_scale = WeightHolder(btag_set->at("deepJet_incl"),
-                                       Systematic::Jet_PUID, {"central","up","down"});
+                                       Systematic::BJet_BTagging, {"central","up","down"});
 
-        // // BTagging Efficiencies
-        // auto beff_set = getScaleFile("BTV", "tagging_eff");
-        // btag_eff = WeightHolder(btag_set->at("SS"),
-        //                         Systematic::Jet_PUID, {"central","up","down"});
+        // BTagging Efficiencies
+        auto beff_set = getScaleFile("USER", "beff");
+        btag_eff = WeightHolder(beff_set->at("SS"),
+                                Systematic::BJet_Eff, {"central","up","down"});
 
     }
 
@@ -150,19 +150,20 @@ void Jet::setupJEC(GenericParticle& genJet) {
 
 float Jet::getTotalBTagWeight() {
     float weight = 1;
-    std::string syst = systName(puid_scale);
+    std::string tag_syst = systName(btag_bc_scale);
+    std::string eff_syst = systName(btag_eff);
     const auto& goodBJets = list(Level::Bottom);
     for (auto bidx : goodBJets) {
         auto scaler = (hadronFlavour.at(bidx) == 0) ? btag_udsg_scale : btag_bc_scale;
-        weight *= scaler.evaluate({syst, "M", hadronFlavour.at(bidx), fabs(eta(bidx)), pt(bidx)});
+        weight *= scaler.evaluate({tag_syst, "M", hadronFlavour.at(bidx), fabs(eta(bidx)), pt(bidx)});
     }
     for (auto jidx : list(Level::Tight)) {
         if (std::find(goodBJets.begin(), goodBJets.end(), jidx) != goodBJets.end()) {
             continue; // is a bjet, weighting already taken care of
         }
         auto scaler = (hadronFlavour.at(jidx) == 0) ? btag_udsg_scale : btag_bc_scale;
-        float bSF = scaler.evaluate({syst, "M", hadronFlavour.at(jidx), fabs(eta(jidx)), pt(jidx)});
-        float eff = btag_eff.evaluate({syst, "M", hadronFlavour.at(jidx), fabs(eta(jidx)), pt(jidx)});
+        float bSF = scaler.evaluate({tag_syst, "M", hadronFlavour.at(jidx), fabs(eta(jidx)), pt(jidx)});
+        float eff = btag_eff.evaluate({eff_syst, "M", hadronFlavour.at(jidx), fabs(eta(jidx)), pt(jidx)});
         weight *= (1 - bSF * eff) / (1 - eff);
     }
     return weight;
