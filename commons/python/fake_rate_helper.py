@@ -3,10 +3,12 @@ from dataclasses import dataclass
 from typing import ClassVar
 import warnings
 import numpy as np
+import uproot
 
 from analysis_suite.commons.histogram import Histogram
 from analysis_suite.Plotting.stack import Stack
-from analysis_suite.Variable_Creator.vargetter2 import VarGetter
+from analysis_suite.commons.info import fileInfo
+from analysis_suite.Variable_Creator.vargetter import VarGetter
 from analysis_suite.commons.plot_utils import ratio_plot, setup_mplhep, plot, plot_colorbar
 
 hep = setup_mplhep()
@@ -18,6 +20,7 @@ def setup_histogram(group, vg_dict, chan, graph_info):
 
     for mem, vg in vg_dict.items():
         vals, scale = graph_info.func(vg, chan)
+        # print(mem, chan, sum(scale), len(scale))
         lumi = graph_info.lumi*1000 if mem != 'data' else 1
         if isinstance(vals, tuple):
             output.fill(*vals, weight=lumi*scale, member=mem)
@@ -35,7 +38,7 @@ def setup_events(dataInfo, branch, syst = 0):
             vg = VarGetter(dataInfo.filename, branch, member, xsec, syst)
             if not len(vg):
                 continue
-            print(member, sum(vg.scale))
+            print(member, sum(vg.scale), len(vg.scale))
             output[group][member] = vg
     return output
 
@@ -102,9 +105,10 @@ def get_fake_rate(part, fake_rate, idx):
     npt, neta = fake_rate.axes.size
 
     ptbin = np.digitize(part['pt', idx], pt_axis.edges) - 1
-    ptbin = np.where(ptbin == npt, npt-1, ptbin)
+    ptbin = np.where(ptbin >= npt, npt-1, ptbin)
     etabin = np.digitize(part.abseta(idx), eta_axis.edges) - 1
     return fake_rate.values().flatten()[etabin + neta*ptbin]
+
 
 
 @dataclass
@@ -133,3 +137,106 @@ class GraphInfo:
             return self.bin_tuple
         else:
             return (self.bin_tuple,)
+
+
+
+#####################################
+# NEW STUFF
+#####################################
+
+
+
+def fill_histograms(files, mask_funcs, graphs, groups, chans, branch, lumi, scaler=None, syst=0):
+    out_hists = dict()
+    for graph in graphs:
+        out_hists[graph.name] = dict()
+        for chan in chans:
+            out_hists[graph.name][chan] = {group: Histogram(group, *graph.bins()) for group in groups.keys()}
+
+    total_files = len(files)
+    for i, filename in enumerate(files):
+        members = get_dirnames(filename)
+        for member in members:
+            group = get_by_val(groups, member)
+            if group is None:
+                continue
+            xsec = fileInfo.get_xsec(member)
+
+            vg = VarGetter(filename, branch, member, xsec, syst)
+            print(member, len(vg.scale), lumi*sum(vg.scale) if member != 'data' else sum(vg.scale))
+            if isinstance(scaler, list):
+                for sc in scaler:
+                    sc(vg)
+            elif scaler is not None:
+                scaler(vg)
+            for chan in chans:
+                vg.clear_mask()
+                vg.mask = mask_funcs[chan](vg)
+                for graph in graphs:
+                    vals, scale = graph.func(vg, chan)
+                    if group != "data":
+                        scale *= lumi
+                    if isinstance(vals, tuple):
+                        out_hists[graph.name][chan][group].fill(*vals, weight=scale, member=member)
+                    else:
+                        out_hists[graph.name][chan][group].fill(vals, weight=scale, member=member)
+            vg.close()
+    return out_hists
+
+def get_dirnames(filename):
+    with uproot.open(filename) as f:
+        dirnames = [d for d, cls in f.classnames().items() if cls == "TDirectory"]
+        if not dirnames:
+            return None
+        return {d.partition(";")[0] for d in dirnames}
+
+def get_syst_index(filename, systName):
+    with uproot.open(filename) as f:
+        syst_dir = [key for key in f.keys() if "Systematics" in key][0]
+        systNames = [name.member("fName") for name in f[syst_dir]]
+    return systNames.index(systName)
+
+def get_by_val(dic, val):
+    for key, list_ in dic.items():
+         if val in list_:
+             return key
+    return None
+
+
+def setup_groups(groups, ginfo):
+    group_dict = dict()
+    for group in groups:
+        group_dict[group] = [mem for mem in ginfo.get_members(group)]
+    return group_dict
+
+def make_plot(hist_dict, graph_info, chan, lumi, filename, region, data_name='data'):
+    data = hist_dict[data_name]
+    data.color = 'k'
+    stack = make_stack({key: hist for key, hist in hist_dict.items() if key != data_name})
+    latex_chan = {"Muon": "\mu", "Electron": "e", "MM": '\mu\mu', "EM": 'e\mu', "EE": 'ee'}
+    region_name = f'${region} ({latex_chan[chan]})$'
+    file_name = f'{filename}_{region}_{graph_info.name}'
+    axis_name = graph_info.axis_name.format(latex_chan[chan])
+    plot_ratio1d(stack, data, file_name, axis_name, lumi, region_name)
+
+def set_plot_details(hists, ginfo):
+    for hist in hists.values():
+        if isinstance(hist, Histogram):
+            hist.set_plot_details(ginfo)
+        else:
+            set_plot_details(hist, ginfo)
+
+def plot_project(filename, tight, loose, axis, axis_label, lumi):
+    with plot(filename) as ax:
+        eff_hist = Histogram.efficiency(tight.project(axis), loose.project(axis))
+        eff_hist.plot_points(ax)
+        ax.set_xlabel(axis_label)
+        hep.cms.label(ax=ax, lumi=lumi)
+
+def add_histgroups(reciever, base, groups):
+    if isinstance(groups, str):
+        groups = [groups]
+    for graph, graph_hists in base.items():
+        for chan, chan_hists in graph_hists.items():
+            for group in groups:
+                reciever[graph][chan][group] = chan_hists[group]
