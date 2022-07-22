@@ -8,21 +8,39 @@ from pathlib import Path
 
 from analysis_suite.commons.histogram import Histogram
 from analysis_suite.commons.plot_utils import plot, plot_colorbar
-from analysis_suite.commons.info import FileInfo, GroupInfo, PlotInfo
-from analysis_suite.commons.fake_rate_helper import setup_events, setup_histogram, setup_plot, mask_vg, DataInfo, GraphInfo, hep
+from analysis_suite.commons.info import GroupInfo, PlotInfo
+from analysis_suite.commons.fake_rate_helper import GraphInfo, hep, fill_histograms, get_dirnames, get_by_val, setup_groups, make_plot, set_plot_details, get_fake_rate, plot_project, add_histgroups
+
+
+def get_files(filename, year):
+     path = (Path.home() / f"hdfs/workspace/{filename}").resolve()
+     return list(path.glob(f"*{year}.root"))
+
 
 trig_scale = {
+    # "2016": {
+    #     "Electron" : [0.8670, 1.0125],
+    #     "Muon" : [0.7023, 0.9768],
+    # },
+    # "2017": {
+    #     "Electron" : [0.9540, 1.1406],
+    #     "Muon" : [0.7123, 1.0358],
+    # },
+    # "2018": {
+    #     "Electron" : [0.9491, 1.1130],
+    #     "Muon" : [0.9074, 1.1205],
+    # },
     "2016": {
-        "Electron" : [0.8670, 1.0125],
-        "Muon" : [0.7023, 0.9768],
+        "Electron" : [1., 1.],
+        "Muon" : [1., 1.],
     },
     "2017": {
-        "Electron" : [0.9540, 1.1406],
-        "Muon" : [0.7123, 1.0358],
+        "Electron" : [1., 1.],
+        "Muon" : [1., 1.],
     },
     "2018": {
-        "Electron" : [0.9491, 1.1130],
-        "Muon" : [0.9074, 1.1205],
+        "Electron" : [1., 1.],
+        "Muon" : [1., 1.],
     },
 }
 
@@ -46,24 +64,30 @@ def fit_template(data, qcd, ewk, fit_type="chi2"):
         res = minimize(likelihood, (start_val, start_val), args=(data.vals, qcd.vals, ewk.vals), method='Nelder-Mead')
     return res.x
 
-def scale_trigger(vg, chan, trig_scale):
+def scale_trigger(vg, chan, trig_scale, ptCut):
     pt = np.where(vg[f'Fake{chan}'].num() == 1, vg[f"Fake{chan}"].pad('pt', 0), vg[f"Tight{chan}"].pad('pt', 0))
-    lowpt_weight = (pt > 10)*(pt < 25)*trig_scale[0]
-    highpt_weight = (pt > 25)*trig_scale[1]
+    lowpt_weight = (pt < ptCut)*trig_scale[0]
+    highpt_weight = (pt > ptCut)*trig_scale[1]
     vg.scale = (lowpt_weight+highpt_weight)*vg.scale
 
 def scale_fake(vg, chan, fakerate):
     part = vg[f'Fake{chan}']
     fr = get_fake_rate(part, fakerate, 0)
-
     mask = part.num() > 0
-    vg.scale[mask] = fr/(1-fr)*vg.scale[mask]
 
-def fr_plot(name, tight, loose, **kwargs):
+    print(sum(mask))
+    print(sum(vg.scale[mask]))
+    print(sum(vg.scale[mask]*fr/(1-fr)))
+
+    vg.scale = (fr/(1-fr), mask)
+    print(sum(vg.scale))
+
+
+def fr_plot(name, tight, loose, part, **kwargs):
     with plot(name) as ax:
         mesh = (tight/loose).plot_2d(ax, **kwargs)
-        ax.set_xlabel("$p_{T}(\mu)$ [GeV]")
-        ax.set_ylabel("$|\eta(\mu)|$")
+        ax.set_xlabel(f"$p_{{T}}({part})$ [GeV]")
+        ax.set_ylabel(f"$|\eta({part})|$")
         plot_colorbar(mesh, ax)
 
 def get_fake(vg, chan, var):
@@ -85,64 +109,13 @@ def get_all_pteta(vg, chan):
 def num_two_parts(part1, part2):
     return (part1.num() == 1)*(part2.num() == 1)
 
+def measurement(files, ginfo, year):
+    plot_dir = Path(f'MR_{year}')
+    plot_dir.mkdir(exist_ok=True)
+    lumi = PlotInfo.lumi[year]
 
-def np_sideband(year, lumi, ginfo, finfo, args):
-    Path(f'SB_{year}').mkdir(exist_ok=True)
-
-    pt_tight = GraphInfo("tightpt", '$p_{{T}}({}_{{tight}})$', bh.axis.Regular(20, 0, 200), lambda vg, chan : get_tight(vg, chan, "pt"))
-    mt_tight = GraphInfo("tightmt", '$M_{{T}}({}_{{tight}})$', bh.axis.Regular(20, 0, 200), lambda vg, chan : get_tight(vg, chan, 'mt'))
-    met = GraphInfo("met", '$MET$', bh.axis.Regular(20, 30, 200), lambda vg, chan : vg.get_hist("Met"))
-    met_phi = GraphInfo("metphi", '$\phi(MET)$', bh.axis.Regular(20, -np.pi, np.pi), lambda vg, chan : vg.get_hist("Met_phi"))
-
-    data_info = DataInfo(Path(f"fake_rate_data_{year}.root"), year)
-    data_info.setup_member(ginfo, finfo, "data")
-
-    mc_info = DataInfo(Path(f"fake_rate_mc_{year}.root"), year)
-    mc_info.setup_member(ginfo, finfo, "ewk")
-    mc_info.setup_member(ginfo, finfo, "qcd")
-
-    side_data = setup_events(data_info, "SideBand")['data']
-    side_mc = setup_events(mc_info, "SideBand")
-
-    mc_scale_factors = dict()
-
-    for chan in args.sb_chan:
-        name = f'SB_{year}/{chan}_{year}'
-
-        # Masking
-        chan_mask = lambda vg : (vg[f'Tight{chan}'].num() == 1)
-        mask_vg(side_mc, chan_mask)
-        mask_vg(side_data, chan_mask)
-
-        for graph in [pt_tight, mt_tight, met, met_phi]:
-            setup_plot(side_mc, side_data, chan, graph, name+"_notrig", "SB")
-        scale_trigger(side_data['data'], chan, trig_scale[year][chan])
-        for graph in [pt_tight, mt_tight, met, met_phi]:
-            setup_plot(side_mc, side_data, chan, graph, name, 'SB')
-
-        # Fitting
-        mc_mt_sb = {group: setup_histogram(group, side_vgs, chan, mt_tight) for group, side_vgs in side_mc.items()}
-        data_mt_sb = setup_histogram('data', side_data, chan, mt_tight)
-        qcd_f, ewk_f = fit_template(data_mt_sb, mc_mt_sb['qcd'], mc_mt_sb["ewk"])
-        qcd_ml_f, ewk_ml_f = fit_template(data_mt_sb, mc_mt_sb['qcd'], mc_mt_sb["ewk"], fit_type='ml')
-
-        print(qcd_f, ewk_f)
-        print(qcd_ml_f, ewk_ml_f)
-
-        mc_scale_factors[chan] = {"ewk": ewk_f, 'qcd': qcd_f}
-        for graph in [pt_tight, mt_tight, met, met_phi]:
-            setup_plot(side_mc, side_data, chan, graph, f'{name}_SB_scaled', region="SB", scales=mc_scale_factors[chan])
-
-    # Dump MC scale factors
-    with open(f"mc_scales_{year}.pickle", "wb") as f:
-        pickle.dump(mc_scale_factors, f)
-
-
-def np_fake_rate(year, lumi, ginfo, finfo, args):
-    Path(f'MR_{year}').mkdir(exist_ok=True)
-
-    ptbins = bh.axis.Variable([15, 20, 25, 35, 50, 70, 90])
-    etabins = bh.axis.Variable([0.0, 1.2, 2.1, 2.4])
+    ptbins = bh.axis.Variable([15, 20, 25, 35, 50])
+    etabins = bh.axis.Variable([0.0, 1.2, 2.1, 2.5])
 
     pt_loose = GraphInfo("loosept", '$p_{{T}}({}_{{loose}})$', bh.axis.Regular(20, 0, 150), lambda vg, chan : get_all(vg, chan, 'pt'))
     pt_tight = GraphInfo("tightpt", '$p_{{T}}({}_{{tight}})$', bh.axis.Regular(20, 0, 200), lambda vg, chan : get_tight(vg, chan, "pt"))
@@ -153,77 +126,113 @@ def np_fake_rate(year, lumi, ginfo, finfo, args):
     pt_eta_all = GraphInfo("loosefr", '', (ptbins, etabins), lambda vg, chan : get_all_pteta(vg, chan))
     pt_eta_tight = GraphInfo("tightfr", '', (ptbins, etabins), lambda vg, chan : vg[f"Tight{chan}"].get_hist2d('pt', 'abseta', 0))
 
-    data_info = DataInfo(Path(f"fake_rate_data_{year}.root"), year)
-    data_info.setup_member(ginfo, finfo, "data")
+    all_graphs = [# pt_loose, pt_tight, mt_loose, mt_tight, met, met_phi,
+                  pt_eta_all, pt_eta_tight]
+    graphs = [# pt_loose, pt_tight, mt_loose, mt_tight, met, met_phi
+              ]
 
-    mc_info = DataInfo(Path(f"fake_rate_mc_{year}.root"), year)
-    mc_info.setup_member(ginfo, finfo, "ewk")
-    mc_info.setup_member(ginfo, finfo, "qcd")
+    groups = setup_groups(["data", "ewk", "qcd"], ginfo)
+    chans = ["Electron", "Muon"]
+    latex_chan = {"Electron": "e", "Muon": "\mu"}
+    mask = {chan: lambda vg : np.any((vg[f'Tight{chan}'].num() == 1, vg[f'Fake{chan}'].num() == 1)) for chan in chans}
+    scaler = [
+        lambda vg : scale_trigger(vg, "Muon", trig_scale[year]["Muon"], 20),
+        lambda vg : scale_trigger(vg, "Electron", trig_scale[year]["Electron"], 25),
+    ]
 
-    measure_data = setup_events(data_info, "Measurement")['data']
-    measure_mc = setup_events(mc_info, "Measurement")
-
-    fake_rates = dict()
+    out_hists = fill_histograms(files, mask, all_graphs, groups, chans, "Measurement", lumi*1000, scaler=scaler)
+    set_plot_details(out_hists, ginfo)
 
     # Load MC scale factors
     with open(f"mc_scales_{year}.pickle", "rb") as f:
         mc_scale_factors = pickle.load(f)
 
-    for chan in args.fr_chan:
-        name = f'MR_{year}/{chan}_{year}'
-        fake_rates[chan] = dict()
+    fake_rates = dict()
+    for chan in chans:
+        filename = plot_dir / f'{chan}_{year}'
+        for graph in graphs:
+            make_plot(out_hists[graph.name][chan], graph, chan, lumi, filename, "MR")
+            for group, sf in mc_scale_factors[chan].items():
+                out_hists[graph.name][chan][group].scale(sf, changeName=True)
+            make_plot(out_hists[graph.name][chan], graph, chan, lumi, f'{filename}_scaled', "MR")
 
-        # Masking
-        chan_mask = lambda vg : (vg[f'Tight{chan}'].num() == 1)+(vg[f'Fake{chan}'].num() == 1)
-        mask_vg(measure_mc, chan_mask)
-        mask_vg(measure_data, chan_mask)
+        h_pteta_tight = out_hists['tightfr'][chan]
+        h_pteta_all = out_hists['loosefr'][chan]
+        for group in h_pteta_tight.keys():
+            for i in range(etabins.size):
+                h_pteta_tight[group].hist[-1, i] += h_pteta_tight[group].hist[bh.overflow, i]
+                h_pteta_all[group].hist[-1, i] += h_pteta_all[group].hist[bh.overflow, i]
 
-        for graph in [pt_loose, pt_tight, mt_loose, mt_tight, met, met_phi]:
-            setup_plot(measure_mc, measure_data, chan, graph, name+"_notrig", "MR")
-        scale_trigger(measure_data['data'], chan, trig_scale[year][chan])
-        for graph in [pt_loose, pt_tight, mt_loose, mt_tight, met, met_phi]:
-            setup_plot(measure_mc, measure_data, chan, graph, name, "MR")
+        h_pteta_tight['data_ewk'] = h_pteta_tight['data'] - h_pteta_tight['ewk']
+        h_pteta_all['data_ewk'] = h_pteta_all['data'] - h_pteta_all['ewk']
 
-        for graph in [pt_loose, pt_tight, mt_loose, mt_tight, met, met_phi]:
-            setup_plot(measure_mc, measure_data, chan, graph, name+'_scaled', 'MR', scales=mc_scale_factors[chan])
-
-        # Calculate Fake Rate
-        qcd_f, ewk_f = mc_scale_factors[chan].values()
-        mc_tight_pteta = {group: setup_histogram(group, measure_vgs, chan, pt_eta_tight) for group, measure_vgs in measure_mc.items()}
-        data_tight_pteta = setup_histogram('data', measure_data, chan, pt_eta_tight)
-        data_corr_tight_pteta = data_tight_pteta - ewk_f*mc_tight_pteta["ewk"]
-
-        mc_all_pteta = {group: setup_histogram(group, measure_vgs, chan, pt_eta_all) for group, measure_vgs in measure_mc.items()}
-        data_all_pteta = setup_histogram('data', measure_data, chan, pt_eta_all)
-        data_corr_all_pteta = data_all_pteta - ewk_f*mc_all_pteta["ewk"]
-
-        fake_rates[chan]["qcd"] = Histogram.efficiency(mc_tight_pteta['qcd'], mc_all_pteta['qcd']).hist
-        fake_rates[chan]["data"] = Histogram.efficiency(data_tight_pteta, data_all_pteta).hist
-        fake_rates[chan]["data_ewk"] = Histogram.efficiency(data_corr_tight_pteta, data_corr_all_pteta).hist
-
+        fake_rates[chan] = {
+            "qcd": Histogram.efficiency(h_pteta_tight['qcd'], h_pteta_all['qcd']).hist,
+            "data": Histogram.efficiency(h_pteta_tight['data'], h_pteta_all['data']).hist,
+            "data_ewk": Histogram.efficiency(h_pteta_tight['data_ewk'], h_pteta_all['data_ewk']).hist,
+        }
+        print(fake_rates[chan]['data_ewk'].values())
         # Fake Rate Plotting
-        fr_plot(f"{name}_fr_data", data_tight_pteta, data_all_pteta)
-        fr_plot(f"{name}_fr_qcd", mc_tight_pteta['qcd'], mc_all_pteta['qcd'])
-        fr_plot(f"{name}_fr_ewkcorr", data_corr_tight_pteta, data_corr_all_pteta)
+        latex = latex_chan[chan]
+        fr_plot(f"{filename}_fr_qcd", h_pteta_tight['qcd'], h_pteta_all['qcd'], latex)
+        fr_plot(f"{filename}_fr_data", h_pteta_tight['data'], h_pteta_all['data'], latex)
+        fr_plot(f"{filename}_fr_ewkcorr", h_pteta_tight['data_ewk'], h_pteta_all['data_ewk'], latex)
 
-        with plot(f'{name}_fr_pt_{year}') as ax:
-            fr_pt = Histogram.efficiency(data_corr_tight_pteta.project(0), data_corr_all_pteta.project(0))
-            fr_pt.plot_points(ax)
-            hep.cms.label(ax=ax, lumi=lumi)
-
-        with plot(f'{name}_fr_eta_{year}') as ax:
-            fr_eta = Histogram.efficiency(data_corr_tight_pteta.project(1), data_corr_all_pteta.project(1))
-            fr_eta.plot_points(ax)
-            hep.cms.label(ax=ax, lumi=lumi)
+        plot_project(f'{filename}_fr_pt_{year}', h_pteta_tight['data_ewk'], h_pteta_all['data_ewk'], 0, f"$p_{{T}}({latex})$", lumi)
+        plot_project(f'{filename}_fr_eta_{year}', h_pteta_tight['data_ewk'], h_pteta_all['data_ewk'], 1, f'$\eta({latex})$', lumi)
 
     # Dump Fake rates
     with open(f"fr_{year}.pickle", "wb") as f:
         pickle.dump(fake_rates, f)
 
 
+def sideband(files, ginfo, year):
+    plot_dir = Path(f'SB_{year}')
+    plot_dir.mkdir(exist_ok=True)
+    lumi = PlotInfo.lumi[year]
 
-def np_closure(year, lumi, ginfo, finfo, args):
-    Path(f'CR_{year}').mkdir(exist_ok=True)
+    pt_tight = GraphInfo("tightpt", '$p_{{T}}({}_{{tight}})$', bh.axis.Regular(20, 0, 200), lambda vg, chan : get_tight(vg, chan, "pt"))
+    mt_tight = GraphInfo("tightmt", '$M_{{T}}({}_{{tight}})$', bh.axis.Regular(20, 0, 200), lambda vg, chan : get_tight(vg, chan, 'mt'))
+    met = GraphInfo("met", '$MET$', bh.axis.Regular(20, 30, 200), lambda vg, chan : vg.get_hist("Met"))
+    met_phi = GraphInfo("metphi", '$\phi(MET)$', bh.axis.Regular(20, -np.pi, np.pi), lambda vg, chan : vg.get_hist("Met_phi"))
+    graphs = [pt_tight, mt_tight, met, met_phi]
+
+    groups = setup_groups(["data", "ewk", "qcd"], ginfo)
+    chans = ["Electron", "Muon"]
+    mask = {chan: lambda vg : np.any((vg[f'Tight{chan}'].num() == 1, vg[f'Fake{chan}'].num() == 1)) for chan in chans}
+    scaler = [
+        lambda vg : scale_trigger(vg, "Muon", trig_scale[year]["Muon"], 20),
+        lambda vg : scale_trigger(vg, "Electron", trig_scale[year]["Electron"], 25),
+    ]
+
+    out_hists = fill_histograms(files, mask, graphs, groups, chans, "SideBand", lumi*1000, scaler=scaler)
+    set_plot_details(out_hists, ginfo)
+
+    mc_scale_factors = dict()
+    for chan in chans:
+        filename = plot_dir / f'{chan}_{year}'
+        for graph in graphs:
+            make_plot(out_hists[graph.name][chan], graph, chan, lumi, filename, "SB")
+
+        # calculate templated fit
+        h_tightmt = out_hists["tightmt"][chan]
+        qcd_f, ewk_f = fit_template(h_tightmt['data'], h_tightmt['qcd'], h_tightmt["ewk"])
+        mc_scale_factors[chan] = {"ewk": ewk_f, 'qcd': qcd_f}
+        print(chan, qcd_f, ewk_f)
+        for graph in graphs:
+            for group, sf in mc_scale_factors[chan].items():
+                out_hists[graph.name][chan][group].scale(sf, changeName=True)
+            make_plot(out_hists[graph.name][chan], graph, chan, lumi, f"{filename}_scaled", "SB")
+
+    # Dump MC scale factors
+    with open(f"mc_scales_{year}.pickle", "wb") as f:
+        pickle.dump(mc_scale_factors, f)
+
+
+def closure(files, ginfo, year):
+    plot_dir = Path(f'CR_{year}')
+    plot_dir.mkdir(exist_ok=True)
+    lumi = PlotInfo.lumi[year]
 
     met = GraphInfo("met", '$MET$', bh.axis.Regular(20, 0, 200), lambda vg, chan : vg.get_hist("Met"))
     ht = GraphInfo("ht", '$H_T$', bh.axis.Regular(15, 0, 600), lambda vg, chan : vg.get_hist("HT"))
@@ -231,18 +240,15 @@ def np_closure(year, lumi, ginfo, finfo, args):
     nbjet = GraphInfo("nbjets", '$N_b$', bh.axis.Regular(8, 0, 8), lambda vg, chan : (vg.BJets.num(), vg.scale))
     nloosebjet = GraphInfo("nloosebjets", '$N_{{bloose}}$', bh.axis.Regular(8, 0, 8), lambda vg, chan : vg.get_hist("N_bloose"))
     ntightbjet = GraphInfo("ntightbjets", '$N_{{btight}}$', bh.axis.Regular(8, 0, 8), lambda vg, chan : vg.get_hist("N_btight"))
+    graphs = [met, ht, njet, nbjet, nloosebjet, ntightbjet]
 
-    data_info = DataInfo(Path(f"data_closure_{year}.root"), year)
-    data_info.setup_member(ginfo, finfo, "data")
+    # Load MC scale factors
+    with open(f"fr_{year}.pickle", "rb") as f:
+        fake_rates = pickle.load(f)
 
-    mc_info = DataInfo(Path(f"mc_closure_{year}.root"), year)
-    mc_info.setup_member(ginfo, finfo, "ttbar_lep")
-    mc_info.setup_member(ginfo, finfo, "wjet_ht")
-
-    data_tf = setup_events(data_info, "Closure_TF")['data']
-    mc_tf = setup_events(mc_info, "Closure_TF")
-    mc_tt = setup_events(mc_info, "Closure_TT")
-
+    groups = setup_groups(["data", "ttbar_lep", "wjets"], ginfo)
+    groups_nodata = setup_groups(["ttbar_lep", "wjets"], ginfo)
+    chans = ["MM", "EE", "EM"]
     tt_masks = {"MM": lambda vg: vg.TightMuon.num() == 2,
                 "EE": lambda vg: vg.TightElectron.num() == 2,
                 "EM": lambda vg: num_two_parts(vg.TightMuon, vg.TightElectron),
@@ -251,32 +257,26 @@ def np_closure(year, lumi, ginfo, finfo, args):
                 "EE": lambda vg: num_two_parts(vg.TightElectron, vg.FakeElectron),
                 "EM": lambda vg: num_two_parts(vg.TightMuon, vg.FakeElectron)+num_two_parts(vg.TightElectron, vg.FakeMuon)
                 }
+    fr_scaler = [
+        lambda vg: scale_fake(vg, "Electron", fake_rates["Electron"]["data_ewk"]),
+        lambda vg: scale_fake(vg, "Muon", fake_rates["Muon"]["data_ewk"])
+    ]
 
-    # TF control region
-    for chan in args.close_chan:
-        mask_vg(mc_tf, tf_masks[chan])
-        mask_vg(data_tf, tf_masks[chan])
+    hists_TF = fill_histograms(files, tf_masks, graphs, groups, chans, "Closure_TF", lumi*1000)
+    set_plot_details(hists_TF, ginfo)
 
-        name = f'CR_{year}/{chan}_{year}'
+    mc_hists_TT = fill_histograms(files, tt_masks, graphs, groups_nodata, chans, "Closure_TT", lumi*1000)
+    hists_TT = fill_histograms(files, tf_masks, graphs, {"nonprompt": ["data"]}, chans, "Closure_TF", 1, scaler=fr_scaler)
+    add_histgroups(hists_TT, mc_hists_TT, groups_nodata.keys())
+    set_plot_details(hists_TT, ginfo)
 
-        for graph in [met, ht, njet, nbjet, nloosebjet, ntightbjet]:
-            setup_plot(mc_tf, data_tf, chan, graph, name, "TF")
+    for chan in chans:
+        filename = plot_dir / f'{chan}_{year}'
+        for graph in graphs:
+            make_plot(hists_TF[graph.name][chan], graph, chan, lumi, filename, "TF")
+            make_plot(hists_TT[graph.name][chan], graph, chan, lumi, filename, "TT", data_name="nonprompt")
 
-    data_tf['data'].clear_mask()
-    with open(f"fr_{year}.pickle", "rb") as f:
-        fake_rates = pickle.load(f)
-    scale_fake(data_tf['data'], "Muon", fake_rates["Muon"]['qcd'])
-    scale_fake(data_tf['data'], "Electron", fake_rates['Electron']['qcd'])
-    nonprompt = {"nonprompt", data_tf}
 
-    for chan in args.close_chan:
-        mask_vg(mc_tt, tt_masks[chan])
-        mask_vg(data_tf, tf_masks[chan])
-
-        name = f'CR_{year}/{chan}_{year}'
-
-        for graph in [met, ht, njet, nbjet, nloosebjet, ntightbjet]:
-            setup_plot(mc_tt, data_tf, chan, graph, name, "TT")
 
 
 if __name__ == "__main__":
@@ -285,20 +285,6 @@ if __name__ == "__main__":
                         type=lambda x : ["2016", "2017", "2018"] if x == "all" \
                                    else [i.strip() for i in x.split(',')],
                         help="Year to use")
-    parser.add_argument("--fr_chan", default='all',
-                        type=lambda x: ['Electron', 'Muon'] if x == 'all' \
-                                   else [i.strip() for i in x.split(',')],
-                        help="Channels for the fake")
-    parser.add_argument("--sb_chan", default='all',
-                        type=lambda x: ['Electron', 'Muon'] if x == 'all' \
-                                   else [i.strip() for i in x.split(',')],
-                        help="Channels for the fake")
-
-    parser.add_argument("--close_chan", default='all',
-                        type=lambda x: ['MM', 'EE', 'EM'] if x == 'all' \
-                                   else [i.strip() for i in x.split(',')],
-                        help="Channels for the Closure")
-
 
     args = parser.parse_args()
 
@@ -307,17 +293,18 @@ if __name__ == "__main__":
         "qcd": "grey",
         "ewk": "orange",
         "wjet_ht": "olive",
+        "wjets": "olive",
         "ttbar_lep": "royalblue",
         'nonprompt': 'lightgrey'
     }
     ginfo = GroupInfo(color_by_group)
-    GraphInfo.info = ginfo
 
     for year in args.years:
-        lumi = PlotInfo.lumi[year]
-        GraphInfo.lumi = lumi
-        finfo = FileInfo()
+        mr_files = get_files("fake_rate/0701", year)
+        cr_files = get_files("fake_rate/0711", year)
+        # files.extend(get_files(year, "fake_rate", "data"))
+        # files.extend()
 
-        np_sideband(year, lumi, ginfo, finfo, args)
-        np_fake_rate(year, lumi, ginfo, finfo, args)
-        np_closure(year, lumi, ginfo, finfo, args)
+        # sideband(mr_files, ginfo, year)
+        measurement(mr_files, ginfo, year)
+        # closure(cr_files, ginfo, year)
