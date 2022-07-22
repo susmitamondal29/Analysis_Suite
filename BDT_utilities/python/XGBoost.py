@@ -89,24 +89,11 @@ class XGBoostMaker(MLHolder):
         w_train[self.train_set["classID"] == 0] *= max(group_tot)/group_tot[0]
         w_train[self.train_set["classID"] == 1] *= max(group_tot)/group_tot[1]
 
-
-        # dtrain = xgb.DMatrix(data=x_train, label=y_train, weight=w_train)
-        # dtrain_2 = xgb.DMatrix(data=x_train, label=y_train, weight=self.train_set.scale_factor)
-        # dtest = xgb.DMatrix(data=x_test, label=y_test, weight=w_test)
-
-        # num_round = 100
-        # param = {'max_depth': 5, 'objective': 'binary:logistic',
-        #          'booster': 'dart', 'verbosity': 1}
-        # watchlist = [(dtest, 'eval'), (dtrain_2, 'train')]
-        # bst = xgb.train(param, dtrain, num_round, watchlist,
-        #                 feval=fom_metric)
-        # bst.save_model(f"{outdir}/model.bin")
-
-        fit_model = xgb.XGBRegressor(**asdict(self.param))
+        fit_model = xgb.XGBClassifier(**asdict(self.param))
         fit_model.fit(x_train, y_train, sample_weight=w_train,
                       eval_set=[(x_train, y_train), (x_test, y_test)],
-                      early_stopping_rounds=30, verbose=20)
-
+                      early_stopping_rounds=100, verbose=20)
+        print("here")
         self.best_iter = fit_model.get_booster().best_iteration
         fit_model.save_model(f'{outdir}/model.bin')
 
@@ -138,15 +125,14 @@ class XGBoostMaker(MLHolder):
         from analysis_suite.commons.info import PlotInfo
 
         use_set = self.test_sets[year]
-        lumi = 1000*PlotInfo.lumi[year]
 
         sig_mask = use_set.classID.astype(int) == 1
-        sig_wgt = use_set.scale_factor[sig_mask]*lumi
+        sig_wgt = use_set.scale_factor[sig_mask]
         sig_var = use_set[var][sig_mask]
         sig_pred = self.pred_test[year]["Signal"][sig_mask]
 
         bkg_mask = use_set.classID.astype(int) != 1
-        bkg_wgt = use_set.scale_factor[bkg_mask]*lumi
+        bkg_wgt = use_set.scale_factor[bkg_mask]
         bkg_var = use_set[var][bkg_mask]
         bkg_pred = self.pred_test[year]["Signal"][bkg_mask]
 

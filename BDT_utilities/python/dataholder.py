@@ -7,17 +7,27 @@
 """
 import numpy as np
 import pandas as pd
-pd.options.mode.chained_assignment = None
 from pandas.api.types import is_numeric_dtype
 from pathlib import Path
 from random import randint
 import uproot
-import uproot as upwrite
 import operator
-from analysis_suite.commons.configs import setup_pandas
 
 from sklearn.metrics import roc_auc_score, confusion_matrix
 from sklearn.model_selection import train_test_split
+
+pd.options.mode.chained_assignment = None
+
+def setup_pandas(all_vars):
+    df_set = pd.DataFrame(columns = all_vars)
+    for key in all_vars:
+        if key[0] == "N" or key == "classID":
+            dtype = 'int'
+        else:
+            dtype = 'float'
+        df_set[key] = df_set[key].astype(dtype)
+    return df_set
+
 
 class MLHolder:
     """Wrapper for XGBoost training. Takes an uproot input, a list of
@@ -44,10 +54,9 @@ class MLHolder:
         self.sample_map = dict()
         self.systName = systName
 
-        self.use_vars = use_vars
         nonTrain_vars = ["scale_factor"]
         derived_vars = ["classID", "sampleName", "train_weight"]
-        self._file_vars = list(use_vars.keys()) + nonTrain_vars
+        self._file_vars = use_vars + nonTrain_vars
         self._drop_vars = nonTrain_vars + derived_vars
         self.all_vars = self._file_vars + derived_vars
 
@@ -57,8 +66,8 @@ class MLHolder:
         self.min_train_events = 100
         self.random_state = 12345#randint(0, 2**32-1)#12345
 
-        self.train_set = setup_pandas(self.use_vars, self.all_vars)
-        self.validation_set = setup_pandas(self.use_vars, self.all_vars)
+        self.train_set = setup_pandas(self.all_vars)
+        self.validation_set = setup_pandas(self.all_vars)
         self.test_sets = dict()
 
         self.pred_test = dict()
@@ -82,11 +91,11 @@ class MLHolder:
         Args:
             directory(string): Path to directory where root files are kept
         """
-        train_set= setup_pandas(self.use_vars, self.all_vars)
-        test_set= setup_pandas(self.use_vars, self.all_vars)
-        validation_set= setup_pandas(self.use_vars, self.all_vars)
+        train_set= setup_pandas(self.all_vars)
+        test_set= setup_pandas(self.all_vars)
+        validation_set= setup_pandas(self.all_vars)
 
-        with uproot.open(directory / year / f'processed_{self.systName}.root') as f:
+        with uproot.open(directory / year / f'processed_{self.systName}_Signal.root') as f:
             allSet = set([name[:name.index(";")] for name in f.keys()])
             self.update_sample_map(allSet)
 
@@ -96,6 +105,7 @@ class MLHolder:
                         print(f"{sample} not found")
                         continue
                     df = f[sample].arrays(self._file_vars, library="pd")
+                    print(sample, len(df), sum(df.scale_factor))
                     df.loc[:, "classID"] = self.classID_by_className[className]
                     df.loc[:, "sampleName"] = self.sample_map[sample]
                     df.loc[:, "train_weight"] = sum(df.scale_factor) / len(df)
@@ -125,7 +135,6 @@ class MLHolder:
                                         ignore_index=True)
         self.test_sets[year] = test_set
 
-
     def split(self, workset, split_ratio):
         train, test = train_test_split(workset, train_size=split_ratio, random_state=self.random_state)
         test.loc[:, ["scale_factor", "train_weight"]] *= len(workset)/len(test)
@@ -151,7 +160,7 @@ class MLHolder:
     def apply_model(self, directory, year):
         use_set = self.test_sets[year]
         pred = self.predict(use_set, directory)
-        weights = use_set.scale_factor*137000.
+        weights = use_set.scale_factor
         labels = use_set.classID.astype(int)
 
         self.pred_test[year] = {grp: pred.T[i] for grp, i in self.classID_by_className.items()}
@@ -186,7 +195,7 @@ class MLHolder:
 
         sig = np.sum(cut_set[cut_set.classID == 1].scale_factor)
         bkg = np.sum(cut_set[cut_set.classID == 0].scale_factor)
-        fom = sig/np.sqrt(sig+bkg)*np.sqrt(137*1000)
+        fom = sig/np.sqrt(sig+bkg)
 
         matthew_coef = (tp/len(truth_vals)-s*p)/np.sqrt(p*s*(1-p)*(1-s))
         print(f'Cut {cut:0.3f} for year {year}: {precision:0.3f} {recall:0.3f} {f1_score:0.3f} {matthew_coef:0.3f} {fom:0.3f}')
@@ -239,13 +248,9 @@ class MLHolder:
           outfile(string): Name of file to write
         """
         keepList = [key for key in workSet.columns if is_numeric_dtype(workSet[key])]
-        branches = {key: workSet[key].dtype for key in keepList}
-        with upwrite.recreate(f'{outfile}.tmp') as f:
+        samples = np.unique(workSet.sampleName)
+        with uproot.recreate(outfile) as f:
             for sample, value in self.sample_map.items():
-                if value not in np.unique(workSet.sampleName):
+                if value not in samples:
                     continue
-                f[sample] = upwrite.newtree(branches)
-                f[sample].extend(workSet[workSet.sampleName == value][keepList].to_dict('list'))
-
-        # rename to avoid losing file if root writing fails
-        Path(f'{outfile}.tmp').rename(outfile)
+                f[sample] = workSet[workSet.sampleName == value][keepList]
