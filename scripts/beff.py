@@ -7,6 +7,7 @@ import argparse
 from correctionlib.schemav2 import VERSION, MultiBinning, Category, Correction, CorrectionSet
 
 from analysis_suite.commons import FileInfo, GroupInfo, PlotInfo
+from analysis_suite.commons.histogram import Histogram
 from analysis_suite.commons.fake_rate_helper import setup_events, setup_histogram, DataInfo, GraphInfo
 
 def get_pteta(part, flav, wp):
@@ -15,6 +16,21 @@ def get_pteta(part, flav, wp):
 
     return ((ak.flatten(part.pt[flav_mask][wp_mask]), abs(ak.flatten(part.eta[flav_mask][wp_mask]))),
             ak.flatten(part.scale(-1)[flav_mask][wp_mask]))
+
+def get_pt(part, flav, wp):
+    flav_mask = part.flavor == flav
+    wp_mask = part.pass_btag[flav_mask] >= wp
+
+    return (ak.flatten(part.pt[flav_mask][wp_mask]),
+            ak.flatten(part.scale(-1)[flav_mask][wp_mask]))
+
+def get_eta(part, flav, wp):
+    flav_mask = part.flavor == flav
+    wp_mask = part.pass_btag[flav_mask] >= wp
+
+    return (abs(ak.flatten(part.eta[flav_mask][wp_mask])),
+            ak.flatten(part.scale(-1)[flav_mask][wp_mask]))
+
 
 def get_sf(sf, syst):
     val, err = sf.value, sf.variance
@@ -63,17 +79,23 @@ def make_efficiencies(year, args):
     mc_info = DataInfo(Path(f"{args.filename}_{year}.root"), year)
     mc_info.setup_member(GroupInfo(), FileInfo(), "other")
 
-    ptbins = bh.axis.Variable([20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 120, 150, 200, 300, 400, 600,])
-    etabins = bh.axis.Regular(7, 0, 2.8)
+    ptbins = bh.axis.Variable([25, 35, 50, 70, 90, 120, 150, 200])
+    etabins = bh.axis.Regular(5, 0, 2.5)
     pteta = GraphInfo("", "", (ptbins, etabins), lambda vg, chan: get_pteta(vg.BJets, *chan))
+    pt = GraphInfo("", "", ptbins, lambda vg, chan: get_pt(vg.BJets, *chan))
+    eta = GraphInfo("", "", etabins, lambda vg, chan: get_eta(vg.BJets, *chan))
 
     output = setup_events(mc_info, "Signal")
     for flav in jet_flavs:
         all_hist = setup_histogram("", output["other"], (flav, 0), pteta)
+        all_pt = setup_histogram("", output["other"], (flav, 0), pt)
+        all_eta = setup_histogram("", output["other"], (flav, 0), eta)
         wp_dict = {wp_name: setup_histogram("", output["other"], (flav, wp_id), pteta) for wp_name, wp_id in wps.items()}
         for wp_name, wp_id in wps.items():
             wp_hist = setup_histogram("", output["other"], (flav, wp_id), pteta)
-            weights[wp_name][flav] = wp_hist/all_hist
+            wp_pt = setup_histogram("", output["other"], (flav, wp_id), pt)
+            wp_eta = setup_histogram("", output["other"], (flav, wp_id), eta)
+            weights[wp_name][flav] = Histogram.efficiency(wp_hist, all_hist)
 
     cset = CorrectionSet.parse_obj({
         "schema_version": VERSION,
@@ -99,7 +121,7 @@ def make_efficiencies(year, args):
     })
 
     basePath = Path(f'{__file__}').parents[1]
-    basePath /= 'data/POG/BTV/'+year+("VFP" if "2016" in year else "")+"_UL"
+    basePath /= 'data/POG/USER/'+year+("VFP" if "2016" in year else "")+"_UL"
     with gzip.open(basePath / "beff.json.gz", "wt") as fout:
         fout.write(cset.json(exclude_unset=True, indent=4))
 
