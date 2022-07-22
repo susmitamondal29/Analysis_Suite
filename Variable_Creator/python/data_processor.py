@@ -6,6 +6,7 @@ import uproot
 from .vargetter import VarGetter
 from analysis_suite.commons.info import fileInfo
 from analysis_suite.commons.fake_rate_helper import get_dirnames, get_syst_index
+import analysis_suite.data.inputs as mva_params
 
 class DataProcessor:
     def __init__(self, use_vars, lumi, systName="Nominal"):
@@ -15,6 +16,7 @@ class DataProcessor:
         self.use_vars = use_vars
         self.all_vars = list(use_vars.keys()) + ["scale_factor"]
         self.lumi = lumi
+        self.final_set = dict()
 
     def get_final_dict(self, directory, tree):
         arr_dict = dict()
@@ -26,19 +28,20 @@ class DataProcessor:
             for member in members:
                 if "Signal" in tree and member == "data":
                     continue # blind SR
-                xsec = fileInfo.get_xsec(member)*self.lumi if member != 'data' else 1
+                xsec = fileInfo.get_xsec(member)*self.lumi*1000 if member != 'data' else 1
                 vg = VarGetter(root_file, tree, member, xsec, syst)
                 if not vg:
                     continue
                 vg.setSyst(self.systName)
                 vg.mergeParticles("TightLepton", "TightMuon", "TightElectron")
+                if tree in mva_params.change_name:
+                    member = mva_params.change_name[tree]
                 arr_dict[member] = vg
         return arr_dict
 
     def process_year(self, infile, outdir, tree):
         # Process input file
         vg_dict = self.get_final_dict(infile, tree)
-        final_set = dict()
 
         for member, vg in vg_dict.items():
             if not len(vg):
@@ -47,11 +50,14 @@ class DataProcessor:
             df_dict = {varname: func(vg) for varname, func in self.use_vars.items()}
             df_dict["scale_factor"] = vg.scale
             df = pd.DataFrame.from_dict(df_dict)
-            final_set[member] = df.astype({col: int for col in df.columns if col[0] == 'N'})
+            df = df.astype({col: int for col in df.columns if col[0] == 'N'})
+            if member not in self.final_set:
+                self.final_set[member] = df
+            else:
+                self.final_set[member] = pd.concat([self.final_set[member], df], ignore_index=True)
             print(f"Finished setting up {member}")
-        self._write_out(outdir / f'processed_{self.systName}_{tree}.root', final_set)
 
-    def _write_out(self, outfile, workSet):
+    def write_out(self, outfile):
         """**Write out pandas file as a compressed pickle file
 
         Args:
@@ -61,7 +67,7 @@ class DataProcessor:
 
         """
         with uproot.recreate(outfile) as f:
-            for group, df in workSet.items():
+            for group, df in self.final_set.items():
                 if not len(df):
                     continue
                 f[group] = df
