@@ -82,6 +82,13 @@ def flip_data(part, flip=False):
     else:
         return (ak.flatten(part.pt), ak.flatten(np.abs(part.eta))), ak.flatten(part.scale(-1))
 
+def flip_data_eta(part, flip=False):
+    if flip:
+        flip_mask = ak.flatten(part.flip == 1)
+        return ak.flatten(np.abs(part.eta))[flip_mask], ak.flatten(part.scale(-1))[flip_mask]
+    else:
+        return ak.flatten(np.abs(part.eta)), ak.flatten(part.scale(-1))
+
 def scale_misId(vg, fake_rate):
     part = vg.TightElectron
     fr1 = get_fake_rate(part, fake_rate, 0)
@@ -91,24 +98,27 @@ def scale_misId(vg, fake_rate):
 
 def misid_measure(year, lumi, ginfo, finfo, args):
     Path(f'MR_{year}').mkdir(exist_ok=True)
-
-    ptbins = bh.axis.Variable([15, 40, 60, 80, 100, 200, 300])
-    etabins = bh.axis.Variable([0.0, 0.8, 1.479, 2.5])
+    # 1.479, 1.556, 1.653
+    ptbins = bh.axis.Variable([15, 50, 75, 100, 150])
+    etabins = bh.axis.Variable([0.0, 1.1, 1.479, 1.653, 2.5])
 
     pt_lead = GraphInfo("pt_lead", '$p_{{T}}(lep_{{lead}})$', bh.axis.Regular(20, 0, 200), lambda vg, chan : get_lead(vg, chan, "pt"))
     pt_sublead = GraphInfo("pt_sub", '$p_{{T}}(lep_{{sub}})$', bh.axis.Regular(20, 0, 200), lambda vg, chan : get_sublead(vg, chan, 'pt'))
     pt_all = GraphInfo("pt_all", '$p_{{T}}(lep)$', bh.axis.Regular(20, 0, 200), lambda vg, chan : get_all(vg, chan, 'pt'))
-    eta_lead = GraphInfo("eta_lead", '$\eta(lep_{{lead}})$', bh.axis.Regular(25, -2.5, 2.5), lambda vg, chan : get_lead(vg, chan, "eta"))
-    eta_sublead = GraphInfo("eta_sub", '$\eta(lep_{{sub}})$', bh.axis.Regular(25, -2.5, 2.5), lambda vg, chan : get_sublead(vg, chan, 'eta'))
-    eta_all = GraphInfo("eta_all", '$\eta(lep)$', bh.axis.Regular(25, -2.5, 2.5), lambda vg, chan : get_all(vg, chan, 'eta'))
+    eta_lead = GraphInfo("eta_lead", '$\eta(lep_{{lead}})$', bh.axis.Regular(26, -2.5, 2.5), lambda vg, chan : get_lead(vg, chan, "eta"))
+    eta_sublead = GraphInfo("eta_sub", '$\eta(lep_{{sub}})$', bh.axis.Regular(26, -2.5, 2.5), lambda vg, chan : get_sublead(vg, chan, 'eta'))
+    eta_all = GraphInfo("eta_all", '$\eta(lep)$', bh.axis.Regular(26, -2.5, 2.5), lambda vg, chan : get_all(vg, chan, 'eta'))
     mass = GraphInfo("mass", '$M({})$', bh.axis.Regular(30, 0, 400), lambda vg, chan : get_mass(vg, chan))
     ht = GraphInfo("ht", 'HT', bh.axis.Regular(30, 250, 1000), lambda vg, chan : vg.get_hist("HT"))
     met = GraphInfo("met", 'MET', bh.axis.Regular(30, 25, 250), lambda vg, chan : vg.get_hist("Met"))
     flip_pteta = GraphInfo("flip_pteta", "", (ptbins, etabins), lambda vg, chan: flip_data(vg.TightElectron, flip=True))
     all_pteta = GraphInfo("all_pteta", "", (ptbins, etabins), lambda vg, chan: flip_data(vg.TightElectron, flip=False))
+    flip_eta = GraphInfo("flip_pteta", "", bh.axis.Regular(101, 0, 2.5), lambda vg, chan: flip_data_eta(vg.TightElectron, flip=True))
+    all_eta = GraphInfo("all_pteta", "", bh.axis.Regular(101, 0, 2.5), lambda vg, chan: flip_data_eta(vg.TightElectron))
+
 
     mc_info = DataInfo(Path(f"{args.filename}_mc_{year}.root"), year)
-    mc_info.setup_member(ginfo, finfo, "DY")
+    mc_info.setup_member(ginfo, finfo, "DY_ht")
     mc_info.setup_member(ginfo, finfo, "ttbar_lep")
     mc_info.setup_member(ginfo, finfo, "VV")
 
@@ -123,27 +133,52 @@ def misid_measure(year, lumi, ginfo, finfo, args):
                   "EM": lambda vg: num_two_parts(vg.TightMuon, vg.TightElectron),
                   }
 
-    for chan in args.mr_chan:
-        name = f'MR_{year}/{chan}_{year}'
+    # for chan in args.mr_chan:
+    #     name = f'MR_{year}/{chan}_{year}'
 
-        # Masking
-        mask_vg(mr_mc, chan_masks[chan])
-        mask_vg(mr_data, chan_masks[chan])
+    #     # Masking
+    #     mask_vg(mr_mc, chan_masks[chan])
+    #     mask_vg(mr_data, chan_masks[chan])
 
-        for graph in [pt_lead, pt_sublead, pt_all, eta_lead, eta_sublead, eta_all, mass, ht, met]:
-            setup_plot(mr_mc, mr_data, chan, graph, name, "MR")
+    #     for graph in [pt_lead, pt_sublead, pt_all, eta_lead, eta_sublead, eta_all, mass, ht, met ]:
+    #         setup_plot(mr_mc, mr_data, chan, graph, name, "MR")
 
     outdir = f"MR_{year}"
 
     mask_vg(mr_mc, lambda vg: vg.TightElectron.num() > 0)
     mask_vg(mr_data, lambda vg: vg.TightElectron.num() > 0)
 
+    flip_eta_hist = setup_histogram("", {mem: hist for vgs in mr_mc.values() for mem, hist in vgs.items()},"", flip_eta)
+    with plot(f'{outdir}/flip_eta_{year}') as ax:
+        flip_eta_hist.plot_points(ax)
+        ax.set_xlabel("$\eta(e)$")
+        hep.cms.label(ax=ax, lumi=lumi)
+    all_eta_hist = setup_histogram("", {mem: hist for vgs in mr_mc.values() for mem, hist in vgs.items()},"", all_eta)
+    with plot(f'{outdir}/flipratio_eta_{year}') as ax:
+        fr_eta = Histogram.efficiency(flip_eta_hist, all_eta_hist)
+        fr_eta.plot_points(ax)
+        ax.set_xlabel("$\eta(e)$")
+        hep.cms.label(ax=ax, lumi=lumi)
+    exit()
+
+
     flip_hist = setup_histogram("", {mem: hist for vgs in mr_mc.values() for mem, hist in vgs.items()},"", flip_pteta)
-    all_hist = setup_histogram('data', mr_data, "", all_pteta)
+    all_hist = setup_histogram("", {mem: hist for vgs in mr_mc.values() for mem, hist in vgs.items()},"", all_pteta)
+    # all_hist = setup_histogram('data', mr_data, "", all_pteta)
+
+    print(all_hist.hist[-1, :].values())
+    for i in range(etabins.size):
+        all_hist.hist[-1, i] += all_hist.hist[bh.overflow, i]
+        flip_hist.hist[-1, i] += flip_hist.hist[bh.overflow, i]
+    print(all_hist.hist[-1, :].values())
+
+    print(flip_hist.vals)
+    print(all_hist.vals)
     fr = Histogram.efficiency(flip_hist, all_hist)
     fr_plot(f'{outdir}/fr_{year}', fr, year)
     print(fr.vals)
-
+    print(fr.err_ratio)
+    # exit()
     with plot(f'{outdir}/fr_pt_{year}') as ax:
         flip_pt = flip_hist.project(0)
         all_pt = all_hist.project(0)
@@ -171,9 +206,9 @@ def misid_closure(year, lumi, ginfo, finfo, args):
     pt_lead = GraphInfo("pt_lead", '$p_{{T}}(e_{{lead}})$', bh.axis.Regular(20, 0, 200), lambda vg, chan : vg.TightElectron.get_hist('pt', 0))
     pt_sublead = GraphInfo("pt_sub", '$p_{{T}}(e_{{sub}})$', bh.axis.Regular(20, 0, 200), lambda vg, chan : vg.TightElectron.get_hist('pt', 1))
     pt_all = GraphInfo("pt_all", '$p_{{T}}(e)$', bh.axis.Regular(20, 0, 200), lambda vg, chan : get_all(vg, chan, 'pt'))
-    eta_lead = GraphInfo("eta_lead", '$\eta(e_{{lead}})$', bh.axis.Regular(25, -2.5, 2.5), lambda vg, chan : vg.TightElectron.get_hist('eta', 0))
-    eta_sublead = GraphInfo("eta_sub", '$\eta(e_{{sub}})$', bh.axis.Regular(25, -2.5, 2.5), lambda vg, chan : vg.TightElectron.get_hist('eta', 0))
-    eta_all = GraphInfo("eta_all", '$\eta(e)$', bh.axis.Regular(25, -2.5, 2.5), lambda vg, chan : get_all(vg, chan, 'eta'))
+    eta_lead = GraphInfo("eta_lead", '$\eta(e_{{lead}})$', bh.axis.Regular(26, -2.5, 2.5), lambda vg, chan : vg.TightElectron.get_hist('eta', 0))
+    eta_sublead = GraphInfo("eta_sub", '$\eta(e_{{sub}})$', bh.axis.Regular(26, -2.5, 2.5), lambda vg, chan : vg.TightElectron.get_hist('eta', 0))
+    eta_all = GraphInfo("eta_all", '$\eta(e)$', bh.axis.Regular(26, -2.5, 2.5), lambda vg, chan : get_all(vg, chan, 'eta'))
     mass = GraphInfo("mass", '$M(e, e)$', bh.axis.Regular(20, 70, 115), lambda vg, chan : vg.TightElectron.get_hist('mass', 0, vg.TightElectron, 1))
     ht = GraphInfo("ht", 'HT', bh.axis.Regular(30, 0, 250), lambda vg, chan : vg.get_hist("HT"))
     met = GraphInfo("met", 'MET', bh.axis.Regular(30, 0, 50), lambda vg, chan : vg.get_hist("Met"))
@@ -194,20 +229,20 @@ def misid_closure(year, lumi, ginfo, finfo, args):
     chan = 'EE'
     name = f'CR_{year}/Closure'
 
-    # OS Region data/mc (real data) (where flip happens)
-    for graph in [pt_lead, pt_sublead, pt_all, eta_lead, eta_sublead, eta_all, mass, ht, met]:
-        setup_plot(os_mc, os_data, chan, graph, name, 'OS')
+    # # OS Region data/mc (real data) (where flip happens)
+    # for graph in [pt_lead, pt_sublead, pt_all, eta_lead, eta_sublead, eta_all, mass, ht, met]:
+    #     setup_plot(os_mc, os_data, chan, graph, name, 'OS')
 
-    # Closure Region data/mc (real data)
-    for graph in [pt_lead, pt_sublead, pt_all, eta_lead, eta_sublead, eta_all, mass, ht, met]:
-        setup_plot(ss_mc, ss_data, chan, graph, name, 'SS')
+    # # Closure Region data/mc (real data)
+    # for graph in [pt_lead, pt_sublead, pt_all, eta_lead, eta_sublead, eta_all, mass, ht, met]:
+    #     setup_plot(ss_mc, ss_data, chan, graph, name, 'SS')
 
     # Closure Region data/mc (real data)
     with open(f"charge_misid_rate_{year}.pickle", "rb") as f:
         fake_rates = pickle.load(f)
     scale_misId(os_data['data'], fake_rates)
     flip_SS_vg = {"charge_flip": os_data}
-    for graph in [pt_lead, pt_sublead, pt_all, eta_lead, eta_sublead, eta_all, mass, ht, met]:
+    for graph in [ pt_lead, pt_sublead, pt_all, eta_lead, eta_sublead, eta_all, mass, ht, met ]:
         setup_plot(flip_SS_vg, ss_data, chan, graph, f'{name}_flip','SS')
 
 
@@ -242,4 +277,4 @@ if __name__ == "__main__":
         finfo = FileInfo()
 
         misid_measure(year, lumi, ginfo, finfo, args)
-        # misid_closure(year, lumi, ginfo, finfo, args)
+        misid_closure(year, lumi, ginfo, finfo, args)
