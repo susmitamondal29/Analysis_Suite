@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 import subprocess
 import argparse
-from pathlib import Path
 import sys
 import numpy as np
-from analysis_suite.commons.plot_utils import plot
-import uproot
+
+from analysis_suite.commons.user import workspace_area, combine_area
 
 def runCombine(command, output=True, error=subprocess.DEVNULL):
     setup = [
-        "pushd ~/combine_area/ &>/dev/null",
+        f"pushd {combine_area}/ &>/dev/null",
         "eval $(scramv1 runtime -sh 2>/dev/null)",
         "popd &>/dev/null",
     ]
@@ -24,15 +23,15 @@ def runCombine(command, output=True, error=subprocess.DEVNULL):
 def get_cli():
     parser = argparse.ArgumentParser(prog="main", description="")
     parser.add_argument("type", type=str, choices=["impact", "sig", "hybrid", "sig_scan",
-                                                   "fit", "asymtotic", "limit_scan", "help"])
-    parser.add_argument("-d", "--workdir", required=True, type=lambda x : Path(x)/"combine",
+                                                   "fit", "asymptotic", "limit_scan", "help"])
+    parser.add_argument("-d", "--workdir", required=True, type=lambda x : workspace_area/x/"combine",
                         help="Working Directory")
     parser.add_argument("-f", "--fit_var", required=True,
                         help="Variable used for fitting")
     parser.add_argument("-n", "--name", default="", help="Extra name to outfile")
     if len(sys.argv) == 1:
         parser.parse_args()
-    blind_text = "--run blind" if sys.argv[1] == "asymtotic" else "-t -1"
+    blind_text = "--run blind" if sys.argv[1] == "asymptotic" else "-t -1"
     parser.add_argument("--blind", default="", action="store_const", const=blind_text)
     parser.add_argument("-r", default=1)
     return parser.parse_args()
@@ -47,7 +46,7 @@ if __name__ == "__main__":
     args = get_cli()
     runCombine.work_dir = args.workdir # same in all, so just set it
 
-    card = f'{args.fit_var}_card.root'
+    card = f'{args.fit_var}_2016_signal_card.root'
     blindness = f'{args.blind} --expectSignal {args.r}'
     if need_redo_t2w(args.workdir, card):
         runCombine(f'text2workspace.py {card.replace("root", "txt")}')
@@ -99,7 +98,7 @@ if __name__ == "__main__":
                 sig_file.unlink()
 
 
-    elif args.type == "asymtotic":
+    elif args.type == "asymptotic":
         runCombine(f'combine -M AsymptoticLimits {card} {blindness}')
 
     elif args.type == "hybrid":
