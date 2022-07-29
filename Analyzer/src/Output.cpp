@@ -83,5 +83,16 @@ void fillBEff(const Jet& jet, Level level, BEffOut& fillObject, size_t pass_bitm
         }
     }
     LOG_FUNC << "End of fillJet";
+}
 
+void fillTop(const ResolvedTop& top, Level level, TopOut& fillObject, size_t pass_bitmap)
+{
+    fillObject.clear();
+
+    for (size_t idx = 0; idx < top.size(); ++idx) {
+        size_t final_bitmap = fillParticle(top, level, fillObject, idx, pass_bitmap);
+        if (final_bitmap != 0) {
+            fillObject.disc.push_back(top.tau3.at(idx)/top.tau2.at(idx));
+        }
+    }
 }

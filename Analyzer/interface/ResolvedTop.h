@@ -9,7 +9,7 @@ class ResolvedTop : public Particle {
 public:
     void setup(TTreeReader& fReader);
     void createLooseList();
-    float getScaleFactor(const Particle& genPart);
+    float getScaleFactor() override;
 
     virtual void setupGoodLists() override
     {

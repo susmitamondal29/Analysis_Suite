@@ -4,9 +4,9 @@
 void ResolvedTop::setup(TTreeReader& fReader)
 {
     GenericParticle::setup("FatJet", fReader);
-    mass_softdrop.setup(fReader, "msoftdrop");
-    tau2.setup(fReader, "tau2");
-    tau3.setup(fReader, "tau3");
+    mass_softdrop.setup(fReader, "FatJet_msoftdrop");
+    tau2.setup(fReader, "FatJet_tau2");
+    tau3.setup(fReader, "FatJet_tau3");
 
     setup_map(Level::Loose);
 
@@ -23,7 +23,7 @@ void ResolvedTop::createLooseList()
     }
 }
 
-float ResolvedTop::getScaleFactor(const Particle& genPart)
+float ResolvedTop::getScaleFactor()
 {
     float weight = 1.;
     return weight;

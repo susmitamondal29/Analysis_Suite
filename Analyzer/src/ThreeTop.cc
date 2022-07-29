@@ -8,7 +8,6 @@ enum class Channel {
     SS_Multi,
     TightFake_Nonprompt,
     OS_MisId,
-    TTZ_CR,
     None,
 };
 
@@ -30,7 +29,6 @@ void ThreeTop::Init(TTree* tree)
 
     createTree("Signal_Dilepton", Channel::SS_Dilepton);
     createTree("Signal_Multi", Channel::SS_Multi);
-    createTree("TTZ_CR", Channel::TTZ_CR);
     // Charge Mis-id Fake Rate
     if (!isMC_) {
         createTree("TightFake_Nonprompt", Channel::TightFake_Nonprompt);
@@ -39,7 +37,7 @@ void ThreeTop::Init(TTree* tree)
 
     // trigEff_leadPt.setup(fOutput, "leadPt", 4, 100, 0, 100);
 
-    // rTop.setup(fReader);
+    rTop.setup(fReader);
 
     if (isMC_) {
         Pileup_nTrueInt.setup(fReader, "Pileup_nTrueInt");
@@ -88,7 +86,7 @@ void ThreeTop::SetupOutTreeBranches(TTree* tree)
     tree->Branch("TightElectron", "ParticleOut", &o_tightElectrons);
     tree->Branch("Jets", "JetOut", &o_jets);
     tree->Branch("BJets", "JetOut", &o_bJets);
-    tree->Branch("ResolvedTops", "TopOut", &o_resolvedTop);
+    tree->Branch("Tops", "TopOut", &o_top);
 
     tree->Branch("HT", &o_ht);
     tree->Branch("HT_b", &o_htb);
@@ -99,6 +97,7 @@ void ThreeTop::SetupOutTreeBranches(TTree* tree)
     tree->Branch("N_btight", &o_nb_tight);
     tree->Branch("N_loose_muon", &o_nloose_muon);
     tree->Branch("N_loose_elec", &o_nloose_elec);
+    tree->Branch("passZVeto", &o_pass_zveto);
     LOG_FUNC << "End of SetupOutTreeBranches";
 }
 
@@ -122,6 +121,7 @@ void ThreeTop::clearOutputs()
     o_nb_tight.clear();
     o_nloose_muon.clear();
     o_nloose_elec.clear();
+    o_pass_zveto.clear();
     LOG_FUNC << "End of clearOutputs";
 }
 
@@ -145,7 +145,7 @@ void ThreeTop::ApplyScaleFactors()
     LOG_EVENT << "weight after elec scale: " << (*weight);
     (*weight) *= muon.getScaleFactor();
     LOG_EVENT << "weight after muon scale: " << (*weight);
-    // (*weight) *= rTop.getScaleFactor(rGen);
+    (*weight) *= rTop.getScaleFactor();
     LOG_FUNC << "End of ApplyScaleFactors";
 }
 
@@ -232,9 +232,7 @@ bool ThreeTop::getCutFlow()
 
     if (charge_misid_cuts()) (*currentChannel_) = Channel::OS_MisId;
 
-    if (ttz_CR_cuts()) (*currentChannel_) = Channel::TTZ_CR;
-
-    if (*currentChannel_ == Channel::None) {
+    if (trees.find(*currentChannel_) == trees.end()) {
         return false;
     }
 
@@ -272,7 +270,6 @@ bool ThreeTop::signal_cuts()
     bool passCuts = true;
     CutInfo cuts;
 
-    passCuts &= cuts.setCut("passZVeto", muon.passZVeto() && elec.passZVeto());
     passCuts &= cuts.setCut("pass2Or3Leptons", nLeps(Level::Tight) == 2 || nLeps(Level::Tight) == 3);
     passCuts &= cuts.setCut("passSameSign;", isSameSign(Level::Tight));
 
@@ -284,23 +281,6 @@ bool ThreeTop::signal_cuts()
     fillCutFlow(Channel::SS_Multi, cuts);
 
     LOG_FUNC << "End of signal_cuts";
-    return passCuts;
-}
-
-bool ThreeTop::ttz_CR_cuts()
-{
-    LOG_FUNC << "Start of ttz_CR_cuts";
-    bool passCuts = true;
-    CutInfo cuts;
-
-    passCuts &= cuts.setCut("failZVeto", !muon.passZVeto() || !elec.passZVeto());
-    passCuts &= cuts.setCut("pass2Leptons", nLeps(Level::Tight) == 3);
-    passCuts &= cuts.setCut("passSameSign;", isSameSign(Level::Tight));
-
-    // Fill Cut flow
-    fillCutFlow(Channel::TTZ_CR, cuts);
-
-    LOG_FUNC << "End of ttz_CR_cuts";
     return passCuts;
 }
 
@@ -327,7 +307,6 @@ bool ThreeTop::charge_misid_cuts()
     bool passCuts = true;
     CutInfo cuts;
 
-    passCuts &= cuts.setCut("passZVeto", muon.passZVeto() && elec.passZVeto());
     passCuts &= cuts.setCut("pass2Leptons", nLeps(Level::Tight) == 2);
     passCuts &= cuts.setCut("pass1Electron", elec.size(Level::Tight) >= 1);
     passCuts &= cuts.setCut("passOppositeSign;", !isSameSign(Level::Tight));
@@ -350,9 +329,9 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
 
     fillParticle(muon, Level::Tight, *o_tightMuons, pass_bitmap);
     fillParticle(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
+    fillTop(rTop, Level::Loose, *o_top, pass_bitmap);
     fillJet(jet, Level::Tight, *o_jets, pass_bitmap);
     fillJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
-    fillParticle(rTop, Level::Loose, *o_resolvedTop, pass_bitmap);
 
     for (size_t syst = 0; syst < numSystematics(); ++syst) {
         o_ht.push_back(jet.getHT(Level::Tight, syst));
@@ -364,6 +343,7 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
         o_nb_tight.push_back(jet.n_tight_bjet.at(syst));
         o_nloose_muon.push_back(muon.size(Level::Loose));
         o_nloose_elec.push_back(elec.size(Level::Loose));
+        o_pass_zveto.push_back(muon.passZVeto() && elec.passZVeto());
     }
     LOG_FUNC << "End of FillValues";
 }

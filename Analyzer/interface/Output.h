@@ -43,13 +43,14 @@ struct JetOut {
     }
 };
 
+
 struct TopOut {
     std::vector<Float_t> pt;
     std::vector<Float_t> eta;
     std::vector<Float_t> phi;
     std::vector<Float_t> mass;
     std::vector<Int_t> syst_bitMap;
-    std::vector<Float_t> discriminator;
+    std::vector<Float_t> disc;
     void clear()
     {
         pt.clear();
@@ -57,7 +58,7 @@ struct TopOut {
         phi.clear();
         mass.clear();
         syst_bitMap.clear();
-        discriminator.clear();
+        disc.clear();
     }
 };
 
@@ -135,6 +136,8 @@ void fillLepton(const Lepton& lep, Level level, LeptonOut& fillObject, size_t pa
 void fillLepton_Fake(const Lepton& lep, Level level, LeptonOut_Fake& fillObject, size_t pass_bitmap);
 
 void fillBEff(const Jet& jet, Level level, BEffOut& fillObject, size_t pass_bitmap);
+
+void fillTop(const ResolvedTop& top, Level level, TopOut& fillObject, size_t pass_bitmap);
 
 #include "analysis_suite/Analyzer/interface/Output.hxx"
 
