@@ -131,6 +131,7 @@ class GraphInfo:
     func: object
     info: ClassVar[object] = None
     lumi: ClassVar[float] = None
+    cuts: object = None
 
     def bins(self):
         if isinstance(self.bin_tuple, tuple):
@@ -183,18 +184,7 @@ def fill_histograms(files, mask_funcs, graphs, groups, chans, branch, lumi, scal
             vg.close()
     return out_hists
 
-def get_dirnames(filename):
-    with uproot.open(filename) as f:
-        dirnames = [d for d, cls in f.classnames().items() if cls == "TDirectory"]
-        if not dirnames:
-            return None
-        return {d.partition(";")[0] for d in dirnames}
 
-def get_syst_index(filename, systName):
-    with uproot.open(filename) as f:
-        syst_dir = [key for key in f.keys() if "Systematics" in key][0]
-        systNames = [name.member("fName") for name in f[syst_dir]]
-    return systNames.index(systName)
 
 def get_by_val(dic, val):
     for key, list_ in dic.items():

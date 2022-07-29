@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
-import subprocess
-from pathlib import Path
 import logging
 
 import analysis_suite.commons.configs as config
 from analysis_suite.commons.info import PlotInfo
-from .data_processor import DataProcessor
 import analysis_suite.data.inputs as mva_params
 import analysis_suite.commons.user as user
 
+from .data_processor import DataProcessor
+
 def setup(cli_args):
     argList = list()
-    allSysts = config.get_list_systs(**vars(cli_args))
-    workdir = user.workspace_area / cli_args.workdir
 
     for year in cli_args.years:
-        outdir = workdir / year
+        outdir = cli_args.workdir / year
         config.checkOrCreateDir(outdir)
         infile = user.hdfs_area / f'workspace/signal_region/{year}'
         trees = mva_params.trees
+        allSysts = config.get_list_systs(infile, tool='analyze')
         for outname, tree in trees.items():
             for syst in allSysts:
                 argList.append((infile, outdir, outname, tree, year, syst))
@@ -30,11 +28,11 @@ def run(infile, outdir, outname, trees, year, syst):
     logging.info(f'Processing year {year} with syst {syst} MC')
     if isinstance(trees, list):
         for tree in trees:
-            data.process_year(infile, outdir, tree)
+            data.process_year(infile, tree)
     else:
-        data.process_year(infile, outdir, trees)
-
-    data.write_out(outdir / f'processed_{syst}_{outname}.root')
+        data.process_year(infile, trees)
+    if data:
+        data.write_out(outdir / f'processed_{syst}_{outname}.root')
 
 
 def cleanup(cli_args):

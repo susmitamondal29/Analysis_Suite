@@ -4,6 +4,7 @@ import sys
 import pkgutil
 import time
 import numpy as np
+import uproot
 from contextlib import contextmanager
 
 def get_cli():
@@ -97,8 +98,24 @@ def getGroupDict(groups, group_info):
         groupDict[groupName] = new_samples
     return groupDict
 
-def get_list_systs(systs=["all"], tool="", directory="", **kwargs):
-    pass
+
+def get_list_systs(infile, systs=["all"], tool="", **kwargs):
+    allSysts = set()
+    if tool == 'analyze':
+        if infile.is_dir():
+            all_files = list(infile.glob('*root'))
+        else:
+            all_files = [infile]
+        for file_ in all_files:
+            with uproot.open(file_) as f:
+                for key in f.keys() :
+                    if "Systematics" not in key:
+                        continue
+                    allSysts |= set(get_systs(f[key]))
+    return allSysts
+
+
+    # pass
     # allSysts = list()
 
     # if tool == "analyze":
@@ -137,15 +154,39 @@ def make_plot_paths(path):
     checkOrCreateDir(path / "plots")
     checkOrCreateDir(path / "logs")
 
-def get_shape_systs():
+def get_shape_systs(addVar=False):
     from analysis_suite.data.inputs import systematics
-    return [syst.name for syst in systematics if syst.syst_type == "shape"]
+    systs = [syst.name for syst in systematics if syst.syst_type == "shape"]
+    if addVar:
+        systs = [syst+"_up" for syst in systs] + [syst+"_down" for syst in systs ]
+    return systs
 
 def get_metadata(tlist, varName):
     for item in tlist:
         if item.member('fName') == varName:
             return item.member('fTitle')
     return None
+
+def get_systs(tlist):
+    return np.unique([item.member('fName') for item in tlist])
+
+def get_syst_index(filename, systName):
+    with uproot.open(filename) as f:
+        syst_dir = [key for key in f.keys() if "Systematics" in key][0]
+        systNames = [name.member("fName") for name in f[syst_dir]]
+    if systName not in systNames:
+        return -1
+    else:
+        return systNames.index(systName)
+
+def get_dirnames(filename):
+    with uproot.open(filename) as f:
+        dirnames = [d for d, cls in f.classnames().items() if cls == "TDirectory"]
+        if not dirnames:
+            return None
+        return {d.partition(";")[0] for d in dirnames}
+
+
 
 @contextmanager
 def rOpen(filename, option=""):

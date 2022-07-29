@@ -5,11 +5,11 @@ import uproot
 
 from .vargetter import VarGetter
 from analysis_suite.commons.info import fileInfo
-from analysis_suite.commons.fake_rate_helper import get_dirnames, get_syst_index
+from analysis_suite.commons.configs import get_dirnames, get_syst_index
 import analysis_suite.data.inputs as mva_params
 
 class DataProcessor:
-    def __init__(self, use_vars, lumi, systName="Nominal"):
+    def __init__(self, use_vars, lumi, systName="Nominal", cut=None):
         """Constructor method
         """
         self.systName = systName
@@ -17,14 +17,20 @@ class DataProcessor:
         self.all_vars = list(use_vars.keys()) + ["scale_factor"]
         self.lumi = lumi
         self.final_set = dict()
+        self.cut = cut
+
+    def __bool__(self):
+        return bool(self.final_set)
+
 
     def get_final_dict(self, directory, tree):
         arr_dict = dict()
         root_files = directory.glob("*.root") if directory.is_dir() else [directory]
-        print(tree)
         for root_file in root_files:
             members = get_dirnames(root_file)
             syst = get_syst_index(root_file, self.systName)
+            if syst == -1:
+                continue
             for member in members:
                 if "Signal" in tree and member == "data":
                     continue # blind SR
@@ -32,6 +38,8 @@ class DataProcessor:
                 vg = VarGetter(root_file, tree, member, xsec, syst)
                 if not vg:
                     continue
+
+                self.apply_cuts(vg)
                 vg.setSyst(self.systName)
                 vg.mergeParticles("TightLepton", "TightMuon", "TightElectron")
                 if tree in mva_params.change_name:
@@ -39,7 +47,7 @@ class DataProcessor:
                 arr_dict[member] = vg
         return arr_dict
 
-    def process_year(self, infile, outdir, tree):
+    def process_year(self, infile, tree):
         # Process input file
         vg_dict = self.get_final_dict(infile, tree)
 
@@ -55,7 +63,13 @@ class DataProcessor:
                 self.final_set[member] = df
             else:
                 self.final_set[member] = pd.concat([self.final_set[member], df], ignore_index=True)
-            print(f"Finished setting up {member}")
+            print(f"Finished setting up {member} in tree {tree}")
+
+    def apply_cuts(self, vg):
+        if self.cut is None:
+            pass
+        else:
+            vg.mask = self.cut(vg)
 
     def write_out(self, outfile):
         """**Write out pandas file as a compressed pickle file
