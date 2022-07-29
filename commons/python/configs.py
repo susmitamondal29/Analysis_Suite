@@ -43,6 +43,8 @@ def get_cli():
         parser.add_argument("-m", '--apply_model', action='store_true')
         parser.add_argument("--save", action='store_true')
         parser.add_argument("--plot", action='store_true')
+        parser.add_argument('-r', '--regions', default="Signal",
+                            type=lambda x : [i.strip() for i in x.split(',')],)
     elif sys.argv[1] == "plot":
         parser.add_argument("--hists", default="all",
                             type=lambda x : ["all"] if x == "all" \
@@ -99,7 +101,7 @@ def getGroupDict(groups, group_info):
     return groupDict
 
 
-def get_list_systs(infile, systs=["all"], tool="", **kwargs):
+def get_list_systs(infile, tool, systs=["all"], **kwargs):
     allSysts = set()
     if tool == 'analyze':
         if infile.is_dir():
@@ -112,33 +114,11 @@ def get_list_systs(infile, systs=["all"], tool="", **kwargs):
                     if "Systematics" not in key:
                         continue
                     allSysts |= set(get_systs(f[key]))
+    elif tool == 'mva':
+        for f in infile.glob("**/processed*root"):
+            allSysts |= {"_".join(f.stem.split('_')[1:-1])}
+
     return allSysts
-
-
-    # pass
-    # allSysts = list()
-
-    # if tool == "analyze":
-    #     import numpy as np
-    #     import uproot
-    #     for year in kwargs["years"]:
-    #         filename = Path(f'result_{year}.root')
-    #         with uproot.open(filename) as f:
-    #             syst_loc = list(filter(lambda x: "Systematics" in x, f.keys()))[0]
-    #             allSysts.append(set(np.unique([syst.member("fName") for syst in f[syst_loc]])))
-    # elif tool == "mva":
-    #     name="processed_"
-    #     allSets = list()
-    #     for year in kwargs["years"]:
-    #         print(type(directory))
-    #         d = directory / year
-    #         allSysts.append({syst.stem[len(name):] for syst in d.glob(f"{name}*.root")})
-
-    # if systs == ["all"]:
-    #     return set.intersection(*allSysts)
-    # else:
-    #     return [syst for syst in set.intersection(*allSysts)
-    #             if clean_syst(syst) in systs]
 
 def clean_syst(syst):
     return syst.replace("_down","").replace("_up","")

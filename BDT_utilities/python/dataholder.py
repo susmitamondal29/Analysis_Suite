@@ -12,6 +12,7 @@ from pathlib import Path
 from random import randint
 import uproot
 import operator
+import logging
 
 from sklearn.metrics import roc_auc_score, confusion_matrix
 from sklearn.model_selection import train_test_split
@@ -46,13 +47,14 @@ class MLHolder:
       param(dict): Variables used in the training
 
     """
-    def __init__(self, use_vars, groupDict, systName="Nominal", **kwargs):
+    def __init__(self, use_vars, groupDict, region="Signal", systName="Nominal", **kwargs):
         """Constructor method
         """
         self.classID_by_className = {"Signal": 1, "Background": 0, "NotTrained": 0}
         self.group_dict = groupDict
         self.sample_map = dict()
         self.systName = systName
+        self.region = region
 
         nonTrain_vars = ["scale_factor"]
         derived_vars = ["classID", "sampleName", "train_weight"]
@@ -81,6 +83,12 @@ class MLHolder:
         raise Exception("Calling base function")
 
 
+    def should_train(self, df, className):
+        enough_events = len(df)*self.split_ratio > self.min_train_events
+        trainable_class = className != "NotTrained"
+        is_SR = self.region == "Signal"
+        return enough_events and trainable_class and is_SR
+
     def setup_year(self, directory, year="2018", save_train=False):
         """**Fill the dataframes with all info in the input files**
 
@@ -95,7 +103,7 @@ class MLHolder:
         test_set= setup_pandas(self.all_vars)
         validation_set= setup_pandas(self.all_vars)
 
-        with uproot.open(directory / year / f'processed_{self.systName}_Signal.root') as f:
+        with uproot.open(directory / year / f'processed_{self.systName}_{self.region}.root') as f:
             allSet = set([name[:name.index(";")] for name in f.keys()])
             self.update_sample_map(allSet)
 
@@ -105,13 +113,13 @@ class MLHolder:
                         print(f"{sample} not found")
                         continue
                     df = f[sample].arrays(self._file_vars, library="pd")
-                    print(sample, len(df), sum(df.scale_factor))
+                    logging.debug(f'{sample}, {len(df)}, {sum(df.scale_factor)}')
                     df.loc[:, "classID"] = self.classID_by_className[className]
                     df.loc[:, "sampleName"] = self.sample_map[sample]
                     df.loc[:, "train_weight"] = sum(df.scale_factor) / len(df)
 
                     split_ratio = self.split_ratio
-                    if len(df) < self.min_train_events/split_ratio or className == "NotTrained":
+                    if not self.should_train(df, className):
                         test_set = pd.concat([df, test_set], ignore_index=True)
                         continue
                     elif len(df) > self.max_train_events/split_ratio:
@@ -237,7 +245,7 @@ class MLHolder:
         workSet = self.test_sets[year]
         for key, arr in self.pred_test[year].items():
             workSet.insert(0, key, arr)
-            self._output(workSet, outdir / year / f"test_{self.systName}.root")
+            self._output(workSet, outdir / year / f"test_{self.systName}_{self.region}.root")
 
 
     def _output(self, workSet, outfile):
