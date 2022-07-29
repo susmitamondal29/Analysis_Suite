@@ -20,7 +20,7 @@ void Met::setup(MET_Type type, TTreeReader& fReader)
     }
 }
 
-void Met::setupJEC(Jet& jet)
+void Met::setupMet(Jet& jet, UInt_t run, int nVertices)
 {
     if (currentSyst == Systematic::Nominal || jet.isJECSyst()) {
         corr_pt = &m_corr_pt[currentSyst][currentVar];
@@ -30,16 +30,17 @@ void Met::setupJEC(Jet& jet)
         met_vec -= delta_jet;
         (*corr_pt) = met_vec.R();
         (*corr_phi) = met_vec.Phi();
+        fix_xy(run, nVertices);
     } else {
         corr_pt = &m_corr_pt[Systematic::Nominal][eVar::Nominal];
-        corr_phi = &m_corr_pt[Systematic::Nominal][eVar::Nominal];
+        corr_phi = &m_corr_phi[Systematic::Nominal][eVar::Nominal];
     }
 }
 
 void Met::fix_xy(UInt_t run, int nVertices)
 {
-    float corr_metx = *m_pt*cos(*m_phi)+xcorr.evaluate({name, (float)run, (float)nVertices});
-    float corr_mety = *m_pt*sin(*m_phi)+ycorr.evaluate({name, (float)run, (float)nVertices});
+    float corr_metx = (*corr_pt)*cos(*corr_phi)+xcorr.evaluate({name, (float)run, (float)nVertices});
+    float corr_mety = (*corr_pt)*sin(*corr_phi)+ycorr.evaluate({name, (float)run, (float)nVertices});
 
     (*corr_pt) = sqrt(pow(corr_metx, 2) + pow(corr_mety, 2));
     (*corr_phi) = atan2(corr_mety, corr_metx);

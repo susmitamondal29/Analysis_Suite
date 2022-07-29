@@ -46,6 +46,9 @@ void BaseSelector::Init(TTree* tree)
         } else if (itemName == "Systematics") {
             for (auto systNamed : *static_cast<TList*>(item)) {
                 std::string systName = systNamed->GetName();
+                bool data_syst = std::find(data_systs.begin(), data_systs.end(), systName) != data_systs.end();
+                if (isMC_ != !data_syst)
+                    continue;
                 systematics_.push_back(syst_by_name.at(systName));
                 rootSystList->Add(new TNamed((systName + "_up").c_str(), systName.c_str()));
                 rootSystList->Add(new TNamed((systName + "_down").c_str(), systName.c_str()));
@@ -101,8 +104,8 @@ Bool_t BaseSelector::Process(Long64_t entry)
 
     LOG_FUNC << "Start of Process";
     if (loguru::g_stderr_verbosity > 0) {
-        bar.print_bar();
         bar++;
+        bar.print_bar();
     }
     clearParticles();
     fReader.SetLocalEntry(entry);
@@ -171,8 +174,7 @@ void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
     (*weight) = isMC_ ? *genWeight : 1.0;
 
     jet.setupJEC(rGenJet);
-    met.setupJEC(jet);
-    met.fix_xy(*run, *PV_npvs);
+    met.setupMet(jet, *run, *PV_npvs);
     // Setup good particle lists
     muon.setGoodParticles(systNum, jet, rGen);
     elec.setGoodParticles(systNum, jet, rGen);
@@ -211,7 +213,6 @@ void BaseSelector::setupSystematicInfo()
     SystematicWeights::nSyst = numSystematics();
     SystematicWeights::year_ = year_;
     SystematicWeights::scaleDir_ = scaleDir;
-    SystematicWeights::f_scale_factors = new TFile((scaleDir + "/scale_factors/event_scalefactors.root").c_str());
     LOG_FUNC << "End of setupSystematicInfo";
 }
 

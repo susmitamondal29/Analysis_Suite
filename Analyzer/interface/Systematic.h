@@ -42,7 +42,6 @@ struct WeightHolder {
 class SystematicWeights {
 public:
     static size_t nSyst;
-    static TFile* f_scale_factors;
     static Year year_;
     static std::string scaleDir_;
     static eVar currentVar;
@@ -59,11 +58,6 @@ protected:
 
     std::string systName(WeightHolder& weight) { return weight.systName(currentSyst, currentVar); }
 
-    // template <class... Args>
-    // float getWeight(std::string name, Args... args)
-    // {
-    //     return scales_by_name[name]->getWeight(currentSyst, currentVar, args...);
-    // }
 };
 
 #endif // SYSTEMATIC_H_

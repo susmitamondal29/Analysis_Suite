@@ -113,11 +113,21 @@ static const std::unordered_map<std::string, Systematic> syst_by_name = {
     { "Jet_JER", Systematic::Jet_JER },
     { "Jet_JES", Systematic::Jet_JES },
     { "Jet_PUID", Systematic::Jet_PUID },
+
+    { "ChargeMisId_stat", Systematic::ChargeMisId_stat },
+    { "Nonprompt_Mu_stat", Systematic::Nonprompt_Mu_stat },
+    { "Nonprompt_El_stat", Systematic::Nonprompt_El_stat },
 };
 
 const std::vector<Systematic> jec_systs = {
     Systematic::Jet_JER,
     Systematic::Jet_JES,
+};
+
+const std::vector<std::string> data_systs = {
+    "ChargeMisId_stat",
+    "Nonprompt_Mu_stat",
+    "Nonprompt_El_stat",
 };
 
 static const std::vector<eVar> syst_vars = { eVar::Up, eVar::Down };
