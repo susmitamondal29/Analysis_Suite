@@ -100,6 +100,7 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", default=-1)
     parser.add_argument("-a", "--analysis")
     parser.add_argument("-j", "--cores", default = 1, type=int)
+    parser.add_argument('-ns', '--no_syst', action='store_true')
     args = parser.parse_args()
 
     inputfile = args.infile if (env := os.getenv("INPUT")) is None else env
@@ -140,7 +141,8 @@ if __name__ == "__main__":
     else:
         inputs['MetaData'].update({'Xsec': info.get_xsec(groupName), 'isData': info.is_data(groupName)})
     inputs["Verbosity"] = args.verbose
-    inputs["Systematics"] = configs.get_shape_systs()
+    inputs["Systematics"] = configs.get_shape_systs() if not args.no_syst else []
+
     # Possibly need to fix for fakefactor stuff
     rInputs = setInputs(inputs)
     if int(args.verbose) > 0:

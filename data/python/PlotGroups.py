@@ -41,7 +41,14 @@ info ={
 	        "ttwh"
         ]
     },
-
+    "vv_inc": {
+        "Name": "vv",
+        "Members": [
+            "zz",
+            "wz",
+            "ww"
+        ],
+    },
     "vv": {
         "Name": "vv",
         "Members": [
@@ -230,10 +237,10 @@ info ={
     },
     'charge_flip': {
         "Name": r"Charge Misid",
-        "Members": ['data']
+        "Members": ["charge_misId"]
     },
     'nonprompt': {
         "Name": r"Nonprompt",
-        "Members": ['data']
+        "Members": ["nonprompt"]
     }
 }

@@ -1,5 +1,4 @@
 from analysis_suite.commons.histogram import Histogram
-from analysis_suite.commons.plot_utils import darkenColor
 
 import numpy as np
 
@@ -48,7 +47,7 @@ class Stack(Histogram):
             **self.options, **kwargs
         )
         # Apply patch to edge colors
-        edgecolors = [darkenColor(h.color) for h in self.stack]
+        edgecolors = [self.darkenColor(h.color) for h in self.stack]
         for p, ec in zip(patches, edgecolors):
             if isinstance(p, list):
                 p[0].set_ec(ec)
