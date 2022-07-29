@@ -40,7 +40,7 @@ datasets = {
         "2017": [
             "DoubleMuon",
             "SingleElectron",
-            "MuonEG",
+            # "MuonEG",
         ],
         "2018": [
             "DoubleMuon",
@@ -50,62 +50,62 @@ datasets = {
     },
 
     "mc" : [
-        # # TTT
-        # 'TTTJ_TuneCP5*',
-        # 'TTTW_TuneCP5*',
+        # TTT
+        'TTTJ_TuneCP5*',
+        'TTTW_TuneCP5*',
 
-        # # TTTT
-        # 'TTTT_TuneCP5*',
+        # TTTT
+        'TTTT_TuneCP5*',
 
-        # # TTX
-        # 'TTWJetsToLNu_TuneCP5_13TeV*',
-        # 'TTZToLLNuNu_M-10_TuneCP5_13TeV*',
-        # 'TTZToLL_M-1to10_TuneCP5*',
-        # 'ttHToNonbb_M125_TuneCP5*',
-        # 'ttHTobb_M125_TuneCP5*'
+        # TTX
+        'TTWJetsToLNu_TuneCP5_13TeV*',
+        'TTZToLLNuNu_M-10_TuneCP5_13TeV*',
+        'TTZToLL_M-1to10_TuneCP5*',
+        'ttHToNonbb_M125_TuneCP5*',
+        'ttHTobb_M125_TuneCP5*',
 
-        # # TTXY
-        # 'TTHH_TuneCP5*',
-        # 'TTWH_TuneCP5*',
-        # 'TTWW_TuneCP5*',
-        # 'TTWZ_TuneCP5*',
-        # 'TTZH_TuneCP5*',
-        # 'TTZZ_TuneCP5*',
+        # TTXY
+        'TTHH_TuneCP5*',
+        'TTWH_TuneCP5*',
+        'TTWW_TuneCP5*',
+        'TTWZ_TuneCP5*',
+        'TTZH_TuneCP5*',
+        'TTZZ_TuneCP5*',
 
-        # # Xgamma
-        # 'TGJets_TuneCP5*',
-        # 'TTGamma_Dilept_TuneCP5_13TeV*',
-        # 'TTGamma_Hadronic_TuneCP5*',
-        # 'TTGamma_SingleLept_TuneCP5_13TeV*',
-        # 'WGToLNuG_TuneCP5*',
-        # 'WWG_TuneCP5*',
-        # 'WZG_TuneCP5*',
-        # 'ZGToLLG_01J_5f_TuneCP5*',
+        # Xgamma
+        'TGJets_TuneCP5*',
+        'TTGamma_Dilept_TuneCP5_13TeV*',
+        'TTGamma_Hadronic_TuneCP5*',
+        'TTGamma_SingleLept_TuneCP5_13TeV*',
+        'WGToLNuG_TuneCP5*',
+        'WWG_TuneCP5*',
+        'WZG_TuneCP5*',
+        'ZGToLLG_01J_5f_TuneCP5*',
 
-        # # VV Inclusive
-        # 'WW_TuneCP5*',
-        # 'WZ_TuneCP5*',
-        # 'ZZ_TuneCP5*',
+        # VV Inclusive
+        'WW_TuneCP5*',
+        'WZ_TuneCP5*',
+        'ZZ_TuneCP5*',
 
-        # # VVV
-        # 'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8',
-        # 'WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8',
-        # 'WZZ_TuneCP5_13TeV-amcatnlo-pythia8',
-        # 'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8',
+        # VVV
+        'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8',
+        'WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8',
+        'WZZ_TuneCP5_13TeV-amcatnlo-pythia8',
+        'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8',
 
-        # # Other
+        # Other
         # 'DYJetsToLL_M-10to50_TuneCP5*',
         # 'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-        # 'GluGluHToZZTo4L_M125_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8',
-        # 'ST_tW_Dilept_5f_DR_TuneCP5*',
+        # # 'GluGluHToZZTo4L_M125_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8',
+        # # 'ST_tW_Dilept_5f_DR_TuneCP5*',
         # 'TT_TuneCH3_13TeV-powheg-herwig7',
         # 'WJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-        # 'tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-amcatnlo-pythia8',
+        # # 'tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-amcatnlo-pythia8',
 
         # # DY HT binned
         # "DYJetsToLL_M-50_HT-*_TuneCP5*13TeV-madgraphMLM-pythia8",
 
-        # # TTbar lepton binned
+        # TTbar lepton binned
         # 'TTTo2L2Nu_TuneCP5_13TeV*',
         # 'TTToSemiLeptonic_TuneCP5_13TeV*',
         # 'TTToHadronic_TuneCP5_13TeV*',
@@ -143,7 +143,7 @@ conditions = {
         ],
         "2018": [
             "Run2018A-UL2018_MiniAODv2_NanoAODv9-v*",
-            "Run2018B-UL2018_MiniAODv2_NanoAODv9-v*",
+            "Run2018B-U2018_MiniAODv2_NanoAODv9-v*",
             "Run2018C-UL2018_MiniAODv2_NanoAODv9-v*",
             "Run2018D-UL2018_MiniAODv2_NanoAODv9-v*",
         ]
