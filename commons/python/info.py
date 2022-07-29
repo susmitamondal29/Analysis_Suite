@@ -90,6 +90,15 @@ class GroupInfo(BasicInfo):
     def get_members(self, group):
         return self.get_memberMap()[group]
 
+    def setup_groups(self, groups=None):
+        group_dict = dict()
+        if groups is None:
+            groups = self.group2color.keys()
+        for group in groups:
+            group_dict[group] = [mem for mem in self.get_members(group)]
+        return group_dict
+
+
 class FileInfo(BasicInfo):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

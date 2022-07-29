@@ -1,27 +1,22 @@
 #!/usr/bin/env python3
-import math
 import argparse
-import socket
 import sys
-import shutil
 import pkgutil
 import time
-import pandas as pd
-import logging
+import numpy as np
 from contextlib import contextmanager
-from pathlib import Path
-from collections import OrderedDict
-import analysis_suite.data.PlotGroups as PlotGroups
-import analysis_suite.data.plotInfo as plotInfo
 
 def get_cli():
+    from .user import workspace_area
+    import analysis_suite.data.plotInfo as plotInfo
+
     parser = argparse.ArgumentParser(prog="main", description="Central script for running tools in the Analysis suite")
     parser.add_argument('tool', type=str, help="Tool to run",
                     choices=['mva', 'plot', 'analyze', 'combine'])
     ##################
     # Common options #
     ##################
-    parser.add_argument("-d", "--workdir", required=True, type=lambda x : Path(x),
+    parser.add_argument("-d", "--workdir", required=True, type=lambda x : workspace_area / x,
                         help="Working Directory")
     parser.add_argument("-j", type=int, default=1, help="Number of cores")
     parser.add_argument("--log", type=str, default="ERROR",
@@ -48,9 +43,6 @@ def get_cli():
         parser.add_argument("--save", action='store_true')
         parser.add_argument("--plot", action='store_true')
     elif sys.argv[1] == "plot":
-        parser.add_argument("--trees", default="Analyzed",
-                            type=lambda x : [i for i in x.split(',')])
-        parser.add_argument("--no_mva", action="store_true")
         parser.add_argument("--hists", default="all",
                             type=lambda x : ["all"] if x == "all" \
                             else [i.strip() for i in x.split(',')],
@@ -58,17 +50,14 @@ def get_cli():
         parser.add_argument("--drawStyle", type=str, default='stack',
                             help='Way to draw graph',
                             choices=['stack', 'compare', 'sigratio'])
-        parser.add_argument("--logy", action='store_true',
-                            help="Use logaritmic scale on Y-axis")
         parser.add_argument("--stack_signal", action='store_true',
                             help="Stack signal hists on top of background")
         parser.add_argument("--ratio_range", nargs=2, default=[0.4, 1.6],
                             help="Ratio min ratio max (default 0.5 1.5)")
-        parser.add_argument("--no_ratio", action="store_true",
-                            help="Do not add ratio comparison")
-    elif sys.argv[1] == "combine":
-        parser.add_argument("-f", "--fit_var", required=True,
-                            help="Variable used for fitting")
+        parser.add_argument('-t', '--type', default='processed', choices=['processed', 'test', 'train'],
+                            help='Type of file in the analysis change')
+        parser.add_argument('-r', '--region', default='Signal',
+                            help='Region that this histogram will be plotted from')
     else:
         pass
 
@@ -81,48 +70,19 @@ def get_cli():
 
 
 def findScale(ratio):
-    sigNum = 10**int(math.log10(ratio))
+    sigNum = 10**int(np.log10(ratio))
     tot = int((ratio) / sigNum) * sigNum
     if ratio > tot + sigNum//2:
         tot += sigNum//2
     return tot
-
 
 def checkOrCreateDir(path):
     if not path.is_dir():
         path.mkdir(parents=True)
 
 
-def getNormedHistos(infilename, file_info, plot_info, histName, year):
-    import awkward as ak
-    import uproot
-    from analysis_suite.commons.histogram import Histogram
-
-    groupHists = dict()
-    ak_col = plot_info.at(histName, "Column")
-    cuts = cuts if (cuts := plot_info.at(histName, "Cuts")) else None
-    cut = "*".join([f'({cut})' for cut in cuts]) if cuts else None
-
-    with uproot.open(infilename) as f:
-        for group, members in file_info.group2MemberMap.items():
-            groupHists[group] = Histogram(group, plot_info.get_binning(histName))
-            for mem in members:
-                if mem not in f:
-                    logging.warning(f'Could not find sample {mem} in file for year {year}')
-                    continue
-                if ak_col not in f[mem]:
-                    print(f[mem][ak_col])
-                    logging.error(f"Could not find variable {ak_col} in file for year {year}")
-                    raise ValueError()
-                array = f[mem].arrays([ak_col, "scale_factor"], cut=cut)
-                groupHists[group].fill(array[ak_col], weight=array["scale_factor"], member=mem)
-            groupHists[group].scale(plot_info.get_lumi(year)*1000)
-
-    return groupHists
-
-
 def getGroupDict(groups, group_info):
-    groupDict = OrderedDict()
+    groupDict = {}
     allSamples = set()
     for groupName, samples in groups.items():
         new_samples = list()
@@ -137,67 +97,45 @@ def getGroupDict(groups, group_info):
         groupDict[groupName] = new_samples
     return groupDict
 
-def get_list_systs(systs=["all"], tool="", **kwargs):
-    allSysts = list()
+def get_list_systs(systs=["all"], tool="", directory="", **kwargs):
+    pass
+    # allSysts = list()
 
-    if tool == "analyze":
-        import numpy as np
-        import uproot
-        for year in kwargs["years"]:
-            filename = Path(f'result_{year}.root')
-            with uproot.open(filename) as f:
-                syst_loc = list(filter(lambda x: "Systematics" in x, f.keys()))[0]
-                allSysts.append(set(np.unique([syst.member("fName") for syst in f[syst_loc]])))
-    elif tool == "mva":
-        name="processed_"
-        allSets = list()
-        for year in kwargs["years"]:
-            d = kwargs["workdir"] / year
-            allSysts.append({syst.stem[len(name):] for syst in d.glob(f"{name}*.root")})
+    # if tool == "analyze":
+    #     import numpy as np
+    #     import uproot
+    #     for year in kwargs["years"]:
+    #         filename = Path(f'result_{year}.root')
+    #         with uproot.open(filename) as f:
+    #             syst_loc = list(filter(lambda x: "Systematics" in x, f.keys()))[0]
+    #             allSysts.append(set(np.unique([syst.member("fName") for syst in f[syst_loc]])))
+    # elif tool == "mva":
+    #     name="processed_"
+    #     allSets = list()
+    #     for year in kwargs["years"]:
+    #         print(type(directory))
+    #         d = directory / year
+    #         allSysts.append({syst.stem[len(name):] for syst in d.glob(f"{name}*.root")})
 
-    if systs == ["all"]:
-        return set.intersection(*allSysts)
-    else:
-        return [syst for syst in set.intersection(*allSysts)
-                if clean_syst(syst) in systs]
-
-def get_trees(filename):
-    if filename.is_dir():
-        all_trees = set()
-        for root_file in filename.glob("*root"):
-            all_trees |= get_trees(root_file)
-        return all_trees
-    else:
-        import uproot
-        with uproot.open(filename) as f:
-            group = [key for key in f.keys() if "/" not in key][0]
-            return {key.strip(";1") for key, val in f[group].items() if "TTree" in repr(val)}
+    # if systs == ["all"]:
+    #     return set.intersection(*allSysts)
+    # else:
+    #     return [syst for syst in set.intersection(*allSysts)
+    #             if clean_syst(syst) in systs]
 
 def clean_syst(syst):
     return syst.replace("_down","").replace("_up","")
 
 def get_plot_area(analysis, drawStyle, path):
+    from .user import www_area
     extraPath = time.strftime("%Y_%m_%d")
     if path:
         extraPath = path / extraPath
-
-    if 'hep.wisc.edu' in socket.gethostname():
-        basePath = Path(f'{Path.home()}/public_html')
-    elif 'uwlogin' in socket.gethostname() or 'lxplus' in socket.gethostname():
-        basePath = Path('/eos/home-{0:1.1s}/{0}/www'.format(Path.home().owner()))
-    basePath = basePath /'PlottingResults' / analysis / f'{extraPath}_{drawStyle}'
-
-    return basePath
+    return www_area /'PlottingResults' / analysis / f'{extraPath}_{drawStyle}'
 
 def make_plot_paths(path):
     checkOrCreateDir(path / "plots")
     checkOrCreateDir(path / "logs")
-
-def setup_pandas(use_vars, all_vars):
-    df_set = pd.DataFrame(columns = all_vars)
-    for key, func in use_vars.items():
-        df_set[key] = df_set[key].astype(func.getType())
-    return df_set
 
 def get_shape_systs():
     from analysis_suite.data.inputs import systematics
@@ -209,10 +147,17 @@ def get_metadata(tlist, varName):
             return item.member('fTitle')
     return None
 
-
 @contextmanager
 def rOpen(filename, option=""):
     import ROOT
     rootfile = ROOT.TFile(filename, option)
     yield rootfile
     rootfile.Close()
+
+@np.vectorize
+def asymptotic_sig(s, b):
+    return s/np.sqrt(b+1e-5)
+
+@np.vectorize
+def likelihood_sig(s, b):
+    return np.sqrt(2*(s+b)*np.log(1+s/(b+1e-5))-2*s)

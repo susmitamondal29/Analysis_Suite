@@ -1,7 +1,6 @@
-import awkward as ak
 import numpy as np
-import math
 from copy import copy
+from matplotlib import colors as clr
 import boost_histogram as bh
 from boost_histogram.accumulators import WeightedSum as bh_weights
 from scipy.stats import beta
@@ -134,10 +133,12 @@ class Histogram:
         new_hist.set_metadata(self)
         return new_hist
 
-    def fill(self, *vals, weight, member=None):
+    def fill(self, *vals, weight, flow=True, member=None):
         self.hist.fill(*vals, weight=weight)
         if member is not None:
             self.breakdown[member] = bh_weights().fill(weight)
+        if flow:
+            self.move_overflow()
 
     def set_plot_details(self, group_info):
         if isinstance(group_info, list):
@@ -147,6 +148,11 @@ class Histogram:
             name = group_info.get_legend_name(self.group)
             self.name = f'${name}$' if '\\' in name else name
             self.color = group_info.get_color(self.group)
+
+    def darkenColor(self, color):
+        cvec = clr.to_rgb(color)
+        dark = 0.3
+        return [i - dark if i > dark else 0.0 for i in cvec]
 
     def get_xrange(self):
         return [self.axis.edges[0], self.axis.edges[-1]]
@@ -213,7 +219,14 @@ class Histogram:
                  align='mid', stacked=True, hatch='//',
                  alpha=0.4, label=self.name, **kwargs)
 
+    def plot_shape(self, pad, **kwargs):
+        if not self or pad is None:
+            return
+        pad.hist(x=self.axis.centers, weights=self.draw_sc*self.vals, bins=self.axis.edges,
+                 label=self.name, histtype="stepfilled", linewidth=1.5, density=True, alpha=0.5,
+                 hatch="///", color=self.color, edgecolor=self.darkenColor(self.color))
+
     def get_int_err(self, sqrt_err=False, roundDigit=2):
         tot = self.hist.sum()
-        err = math.sqrt(tot.variance) if sqrt_err else tot.variance
+        err = np.sqrt(tot.variance) if sqrt_err else tot.variance
         return np.round(np.array([tot.value, err]), roundDigit)
