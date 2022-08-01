@@ -16,7 +16,7 @@ def setup(cli_args):
     os.environ["NUMEXPR_MAX_THREADS"] = "8"
 
     argList = list()
-    allSysts = get_list_systs(cli_args.workdir, 'mva')
+    allSysts = get_list_systs(cli_args.workdir, cli_args.tool)
 
     for region in cli_args.regions:
         for syst in allSysts:

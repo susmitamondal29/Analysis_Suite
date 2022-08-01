@@ -6,9 +6,10 @@ import gzip
 import argparse
 from correctionlib.schemav2 import VERSION, MultiBinning, Category, Correction, CorrectionSet
 
-from analysis_suite.commons import FileInfo, GroupInfo, PlotInfo
+from analysis_suite.commons import fileInfo, GroupInfo, PlotInfo
 from analysis_suite.commons.histogram import Histogram
-from analysis_suite.commons.fake_rate_helper import setup_events, setup_histogram, DataInfo, GraphInfo
+from analysis_suite.Plotting.plotter import GraphInfo
+from analysis_suite.commons.fake_rate_helper import setup_events, setup_histogram, DataInfo
 
 def get_pteta(part, flav, wp):
     flav_mask = part.flavor == flav
@@ -77,7 +78,7 @@ def make_efficiencies(year, args):
     weights = {wp: dict() for wp in wps.keys()}
 
     mc_info = DataInfo(Path(f"{args.filename}_{year}.root"), year)
-    mc_info.setup_member(GroupInfo(), FileInfo(), "other")
+    mc_info.setup_member(GroupInfo(), fileInfo, "other")
 
     ptbins = bh.axis.Variable([25, 35, 50, 70, 90, 120, 150, 200])
     etabins = bh.axis.Regular(5, 0, 2.5)

@@ -16,7 +16,7 @@ def setup(cli_args):
         config.checkOrCreateDir(outdir)
         infile = user.hdfs_area / f'workspace/signal_region/{year}'
         trees = mva_params.trees
-        allSysts = config.get_list_systs(infile, tool='analyze')
+        allSysts = config.get_list_systs(infile, args.tool)
         for outname, tree in trees.items():
             for syst in allSysts:
                 argList.append((infile, outdir, outname, tree, year, syst))

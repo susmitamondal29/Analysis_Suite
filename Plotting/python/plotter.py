@@ -7,7 +7,7 @@ from typing import ClassVar
 from sklearn.metrics import roc_curve
 from scipy.stats import kurtosis
 
-from analysis_suit.Variable_Creator.data_processor import DataProcessor
+from analysis_suite.Variable_Creator.data_processor import DataProcessor
 from analysis_suite.commons.histogram import Histogram
 import analysis_suite.commons.configs as config
 from analysis_suite.commons.plot_utils import plot, nonratio_plot, ratio_plot
@@ -28,8 +28,6 @@ class GraphInfo:
             return self.bin_tuple
         else:
             return (self.bin_tuple,)
-
-
 
 class Plotter:
     fom_label = {'likely': '\sqrt{-2\ln{\lambda(0)}}',
@@ -57,8 +55,8 @@ class Plotter:
     def get_hists(self, name):
         return self.hists[name]
 
-    def setup_ntuple(self, filenames, groups, cut=None, year=, trees='Signal_Dilepton', systName="Nominal"):
-        data = DataProcessor(, PlotInfo.lumi[year], systName, cut=cut)
+    def setup_ntuple(self, filenames, groups, cut=None, year="2016", trees='Signal_Dilepton', systName="Nominal"):
+        data = DataProcessor(filenames, PlotInfo.lumi[year], systName, cut=cut)
         if isinstance(trees, list):
             for tree in trees:
                 data.process_year(filenames, trees)
@@ -87,7 +85,7 @@ class Plotter:
 
 
     def fill_hists(self, graphs, ginfo=None, subset=None):
-        self.graphs = graphs if isinstance(graphs, list) else {graphs.name: graphs}
+        self.graphs = graphs if isinstance(graphs, dict) else {graphs.name: graphs}
         self.hists = {name: dict() for name in self.graphs.keys() }
         for group in self.groups:
             for name, graph in self.graphs.items():

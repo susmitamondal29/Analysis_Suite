@@ -117,6 +117,9 @@ def get_list_systs(infile, tool, systs=["all"], **kwargs):
     elif tool == 'mva':
         for f in infile.glob("**/processed*root"):
             allSysts |= {"_".join(f.stem.split('_')[1:-1])}
+    elif tool == 'combine':
+        for f in infile.glob("**/test*root"):
+            allSysts |= {"_".join(f.stem.split('_')[1:-1])}
 
     return allSysts
 

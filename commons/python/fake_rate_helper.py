@@ -123,23 +123,6 @@ class DataInfo:
     def setup_member(self, info, finfo, group):
         self.members[group] = {mem: finfo.get_xsec(mem) for mem in info.get_members(group)}
 
-@dataclass
-class GraphInfo:
-    name: str
-    axis_name: str
-    bin_tuple: object
-    func: object
-    info: ClassVar[object] = None
-    lumi: ClassVar[float] = None
-    cuts: object = None
-
-    def bins(self):
-        if isinstance(self.bin_tuple, tuple):
-            return self.bin_tuple
-        else:
-            return (self.bin_tuple,)
-
-
 
 #####################################
 # NEW STUFF
