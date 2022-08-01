@@ -11,8 +11,7 @@ class BasicInfo:
 class GroupInfo(BasicInfo):
     def __init__(self, group2color=None, **kwargs):
         super().__init__(**kwargs)
-        group_path = f'{self.base_path}.PlotGroups'
-        self.groupInfo = importlib.import_module(group_path).info
+        self.groupInfo = importlib.import_module(f'{self.base_path}.PlotGroups').info
         self.group2color = group2color if group2color is not None else {}
         self.group2MemberMap = self.get_memberMap()
 
@@ -28,7 +27,7 @@ class GroupInfo(BasicInfo):
         for key in keys:
             if key not in self.groupInfo:
                 continue
-            info = self.groupInfo[key]
+g            info = self.groupInfo[key]
             members = info["Members"]
             if "Composite" in info and info["Composite"]:
                 tmpMembers = list()
@@ -56,9 +55,7 @@ class GroupInfo(BasicInfo):
 class FileInfo(BasicInfo):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        file_name = "UL" # if isUL else "Legacy"
-        file_path = f'{self.base_path}.FileInfo.{file_name}'
-        self.fileInfo = importlib.import_module(file_path).info
+        self.fileInfo = importlib.import_module(f'{self.base_path}.FileInfo').info
         self.dasNames = {key: info["DAS"] for key, info in self.fileInfo.items()}
 
     def get_group(self, splitname):
