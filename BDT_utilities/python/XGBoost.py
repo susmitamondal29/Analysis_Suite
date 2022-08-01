@@ -122,8 +122,6 @@ class XGBoostMaker(MLHolder):
             ax.set_title("Variable Importance")
 
     def approx_likelihood(self, var, bins, year, comb_bkg=True):
-        from analysis_suite.commons.info import PlotInfo
-
         use_set = self.test_sets[year]
 
         sig_mask = use_set.classID.astype(int) == 1

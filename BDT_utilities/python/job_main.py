@@ -4,7 +4,7 @@ import numpy as np
 import os
 from importlib import import_module
 
-from analysis_suite.commons import GroupInfo, PlotInfo
+from analysis_suite.commons import GroupInfo
 from analysis_suite.commons.configs import getGroupDict, get_list_systs
 import analysis_suite.commons.user as user
 import analysis_suite.data.inputs as mva_params

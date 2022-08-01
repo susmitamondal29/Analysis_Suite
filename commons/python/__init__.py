@@ -1,2 +1,2 @@
-from .info import BasicInfo, PlotInfo, FileInfo, GroupInfo
+from .info import fileInfo, GroupInfo
 from .makeSimpleHtml import writeHTML

@@ -10,7 +10,7 @@ from matplotlib import colors
 
 from analysis_suite.commons.histogram import Histogram
 from analysis_suite.commons.plot_utils import plot, plot_colorbar
-from analysis_suite.commons.info import FileInfo, GroupInfo, PlotInfo
+from analysis_suite.commons.info import fileInfo, GroupInfo
 from analysis_suite.commons.fake_rate_helper import setup_events, setup_histogram, setup_plot, mask_vg, get_fake_rate, DataInfo, GraphInfo, hep
 
 def num_two_parts(part1, part2):
@@ -272,7 +272,7 @@ if __name__ == "__main__":
 
 
     for year in args.years:
-        lumi = PlotInfo.lumi[year]
+        lumi = lumi[year]
         GraphInfo.lumi = lumi
         finfo = FileInfo()
 

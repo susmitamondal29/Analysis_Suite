@@ -3,7 +3,7 @@ import uproot
 
 from .card_maker import Card_Maker
 
-from analysis_suite.commons import GroupInfo, PlotInfo
+from analysis_suite.commons import GroupInfo
 from analysis_suite.commons.configs import get_list_systs, checkOrCreateDir
 from analysis_suite.Plotting.plotter import Plotter
 import analysis_suite.data.inputs as inputs

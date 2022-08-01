@@ -8,7 +8,8 @@ from pathlib import Path
 
 from analysis_suite.commons.histogram import Histogram
 from analysis_suite.commons.plot_utils import plot, plot_colorbar
-from analysis_suite.commons.info import GroupInfo, PlotInfo
+from analysis_suite.commons.constants import lumi
+from analysis_suite.commons.info import GroupInfo
 from analysis_suite.commons.fake_rate_helper import GraphInfo, hep, fill_histograms, get_dirnames, get_by_val, setup_groups, make_plot, set_plot_details, get_fake_rate, plot_project, add_histgroups
 
 
@@ -112,7 +113,6 @@ def num_two_parts(part1, part2):
 def measurement(files, ginfo, year):
     plot_dir = Path(f'MR_{year}')
     plot_dir.mkdir(exist_ok=True)
-    lumi = PlotInfo.lumi[year]
 
     ptbins = bh.axis.Variable([15, 20, 25, 35, 50])
     etabins = bh.axis.Variable([0.0, 1.2, 2.1, 2.5])
@@ -140,7 +140,7 @@ def measurement(files, ginfo, year):
         lambda vg : scale_trigger(vg, "Electron", trig_scale[year]["Electron"], 25),
     ]
 
-    out_hists = fill_histograms(files, mask, all_graphs, groups, chans, "Measurement", lumi*1000, scaler=scaler)
+    out_hists = fill_histograms(files, mask, all_graphs, groups, chans, "Measurement", lumi[year]*1000, scaler=scaler)
     set_plot_details(out_hists, ginfo)
 
     # Load MC scale factors
@@ -151,10 +151,10 @@ def measurement(files, ginfo, year):
     for chan in chans:
         filename = plot_dir / f'{chan}_{year}'
         for graph in graphs:
-            make_plot(out_hists[graph.name][chan], graph, chan, lumi, filename, "MR")
+            make_plot(out_hists[graph.name][chan], graph, chan, lumi[year], filename, "MR")
             for group, sf in mc_scale_factors[chan].items():
                 out_hists[graph.name][chan][group].scale(sf, changeName=True)
-            make_plot(out_hists[graph.name][chan], graph, chan, lumi, f'{filename}_scaled', "MR")
+            make_plot(out_hists[graph.name][chan], graph, chan, lumi[year], f'{filename}_scaled', "MR")
 
         h_pteta_tight = out_hists['tightfr'][chan]
         h_pteta_all = out_hists['loosefr'][chan]
@@ -178,8 +178,8 @@ def measurement(files, ginfo, year):
         fr_plot(f"{filename}_fr_data", h_pteta_tight['data'], h_pteta_all['data'], latex)
         fr_plot(f"{filename}_fr_ewkcorr", h_pteta_tight['data_ewk'], h_pteta_all['data_ewk'], latex)
 
-        plot_project(f'{filename}_fr_pt_{year}', h_pteta_tight['data_ewk'], h_pteta_all['data_ewk'], 0, f"$p_{{T}}({latex})$", lumi)
-        plot_project(f'{filename}_fr_eta_{year}', h_pteta_tight['data_ewk'], h_pteta_all['data_ewk'], 1, f'$\eta({latex})$', lumi)
+        plot_project(f'{filename}_fr_pt_{year}', h_pteta_tight['data_ewk'], h_pteta_all['data_ewk'], 0, f"$p_{{T}}({latex})$", lumi[year])
+        plot_project(f'{filename}_fr_eta_{year}', h_pteta_tight['data_ewk'], h_pteta_all['data_ewk'], 1, f'$\eta({latex})$', lumi[year])
 
     # Dump Fake rates
     with open(f"fr_{year}.pickle", "wb") as f:
@@ -189,7 +189,6 @@ def measurement(files, ginfo, year):
 def sideband(files, ginfo, year):
     plot_dir = Path(f'SB_{year}')
     plot_dir.mkdir(exist_ok=True)
-    lumi = PlotInfo.lumi[year]
 
     pt_tight = GraphInfo("tightpt", '$p_{{T}}({}_{{tight}})$', bh.axis.Regular(20, 0, 200), lambda vg, chan : get_tight(vg, chan, "pt"))
     mt_tight = GraphInfo("tightmt", '$M_{{T}}({}_{{tight}})$', bh.axis.Regular(20, 0, 200), lambda vg, chan : get_tight(vg, chan, 'mt'))
@@ -205,14 +204,14 @@ def sideband(files, ginfo, year):
         lambda vg : scale_trigger(vg, "Electron", trig_scale[year]["Electron"], 25),
     ]
 
-    out_hists = fill_histograms(files, mask, graphs, groups, chans, "SideBand", lumi*1000, scaler=scaler)
+    out_hists = fill_histograms(files, mask, graphs, groups, chans, "SideBand", lumi[year]*1000, scaler=scaler)
     set_plot_details(out_hists, ginfo)
 
     mc_scale_factors = dict()
     for chan in chans:
         filename = plot_dir / f'{chan}_{year}'
         for graph in graphs:
-            make_plot(out_hists[graph.name][chan], graph, chan, lumi, filename, "SB")
+            make_plot(out_hists[graph.name][chan], graph, chan, lumi[year], filename, "SB")
 
         # calculate templated fit
         h_tightmt = out_hists["tightmt"][chan]
@@ -222,7 +221,7 @@ def sideband(files, ginfo, year):
         for graph in graphs:
             for group, sf in mc_scale_factors[chan].items():
                 out_hists[graph.name][chan][group].scale(sf, changeName=True)
-            make_plot(out_hists[graph.name][chan], graph, chan, lumi, f"{filename}_scaled", "SB")
+            make_plot(out_hists[graph.name][chan], graph, chan, lumi[year], f"{filename}_scaled", "SB")
 
     # Dump MC scale factors
     with open(f"mc_scales_{year}.pickle", "wb") as f:
@@ -232,7 +231,6 @@ def sideband(files, ginfo, year):
 def closure(files, ginfo, year):
     plot_dir = Path(f'CR_{year}')
     plot_dir.mkdir(exist_ok=True)
-    lumi = PlotInfo.lumi[year]
 
     met = GraphInfo("met", '$MET$', bh.axis.Regular(20, 0, 200), lambda vg, chan : vg.get_hist("Met"))
     ht = GraphInfo("ht", '$H_T$', bh.axis.Regular(15, 0, 600), lambda vg, chan : vg.get_hist("HT"))
@@ -262,10 +260,10 @@ def closure(files, ginfo, year):
         lambda vg: scale_fake(vg, "Muon", fake_rates["Muon"]["data_ewk"])
     ]
 
-    hists_TF = fill_histograms(files, tf_masks, graphs, groups, chans, "Closure_TF", lumi*1000)
+    hists_TF = fill_histograms(files, tf_masks, graphs, groups, chans, "Closure_TF", lumi[year]*1000)
     set_plot_details(hists_TF, ginfo)
 
-    mc_hists_TT = fill_histograms(files, tt_masks, graphs, groups_nodata, chans, "Closure_TT", lumi*1000)
+    mc_hists_TT = fill_histograms(files, tt_masks, graphs, groups_nodata, chans, "Closure_TT", lumi[year]*1000)
     hists_TT = fill_histograms(files, tf_masks, graphs, {"nonprompt": ["data"]}, chans, "Closure_TF", 1, scaler=fr_scaler)
     add_histgroups(hists_TT, mc_hists_TT, groups_nodata.keys())
     set_plot_details(hists_TT, ginfo)
@@ -273,8 +271,8 @@ def closure(files, ginfo, year):
     for chan in chans:
         filename = plot_dir / f'{chan}_{year}'
         for graph in graphs:
-            make_plot(hists_TF[graph.name][chan], graph, chan, lumi, filename, "TF")
-            make_plot(hists_TT[graph.name][chan], graph, chan, lumi, filename, "TT", data_name="nonprompt")
+            make_plot(hists_TF[graph.name][chan], graph, chan, lumi[year], filename, "TF")
+            make_plot(hists_TT[graph.name][chan], graph, chan, lumi[year], filename, "TT", data_name="nonprompt")
 
 
 

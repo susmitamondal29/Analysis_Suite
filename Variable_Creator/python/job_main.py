@@ -2,7 +2,7 @@
 import logging
 
 import analysis_suite.commons.configs as config
-from analysis_suite.commons.info import PlotInfo
+from analysis_suite.commons.constants import lumi
 import analysis_suite.data.inputs as mva_params
 import analysis_suite.commons.user as user
 
@@ -24,7 +24,7 @@ def setup(cli_args):
         
 
 def run(infile, outdir, outname, trees, year, syst):
-    data = DataProcessor(mva_params.allvar, PlotInfo.lumi[year], syst)
+    data = DataProcessor(mva_params.allvar, lumi[year], syst)
     logging.info(f'Processing year {year} with syst {syst} MC')
     if isinstance(trees, list):
         for tree in trees:

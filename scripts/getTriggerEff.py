@@ -8,15 +8,14 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 
 from analysis_suite.commons.histogram import Histogram
-from analysis_suite.commons.info import PlotInfo
+from analysis_suite.commons.constants import lumi
 import analysis_suite.data.inputs as plot_params
 
 #filename ="result_2018.root"
 filename ="output.root"
 year = "all"
 chans = ["CHAN_MM", "CHAN_EM", "CHAN_ME", "CHAN_EE",]
-# lumi = plot_params.lumi[year]*1000
-lumi = 1000*PlotInfo.lumi[year]
+lumi = 1000*lumi[year]
 
 class TriggerEff:
     def __init__(self, updir, scale):

@@ -6,7 +6,7 @@ import gzip
 import argparse
 from correctionlib.schemav2 import VERSION, MultiBinning, Category, Correction, CorrectionSet
 
-from analysis_suite.commons import fileInfo, GroupInfo, PlotInfo
+from analysis_suite.commons import fileInfo, GroupInfo
 from analysis_suite.commons.histogram import Histogram
 from analysis_suite.Plotting.plotter import GraphInfo
 from analysis_suite.commons.fake_rate_helper import setup_events, setup_histogram, DataInfo

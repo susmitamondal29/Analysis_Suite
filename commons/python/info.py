@@ -8,52 +8,6 @@ class BasicInfo:
         self.selection = selection
         self.base_path = "analysis_suite.data"
 
-class PlotInfo(BasicInfo):
-    lumi = {
-        "2016" : 35.9,
-        "2017" : 41.5,
-        "2018" : 59.6,
-        "all" : 137.0,
-    }
-    def __init__(self, plotInfo, **kwargs):
-        super().__init__(**kwargs)
-        plot_path = f'{self.base_path}.plotInfo.{plotInfo}'
-        self.plotSpecs = importlib.import_module(plot_path).info
-
-    def at(self, histname, name=None):
-        if name is None:
-            return self.plotSpecs[histname]
-        elif name in self.plotSpecs[histname]:
-            return self.plotSpecs[histname][name]
-        else:
-            return None
-
-    def __getitem__(self, key):
-        return self.plotSpecs[key]
-
-    def get_hists(self, sublist):
-        if sublist == ["all"]:
-            return self.plotSpecs.keys()
-        else:
-            return list(set(self.plotSpecs.keys()) & set(sublist))
-
-    def get_binning(self, histname):
-        import boost_histogram as bh
-        bins = np.array(self.at(histname, "Binning"), dtype=float)
-        if self.at(histname, "Discrete"):
-            bins[1:] = bins[1:] - 0.5
-        return bh.axis.Regular(int(bins[0]), *bins[1:])
-
-    def get_lumi(self, year):
-        return self.lumi[year]
-
-    def get_label(self, histname):
-        return self.at(histname, "Label")
-
-    def get_legend_loc(self, histname):
-        loc = self.at(histname, "LegendLoc")
-        return loc if loc is not None else "best"
-
 class GroupInfo(BasicInfo):
     def __init__(self, group2color=None, **kwargs):
         super().__init__(**kwargs)
