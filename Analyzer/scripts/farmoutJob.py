@@ -6,7 +6,6 @@ import subprocess
 from xml.dom.minidom import parse
 from analysis_suite.commons.user import analysis_area, hdfs_area, submit_area, eos_area
 
-analysis = "ThreeTop"
 runfile_dir = analysis_area / "runfiles"
 if not runfile_dir.exists():
     runfile_dir.mkdir()
@@ -41,7 +40,7 @@ for year in args.years:
         continue
     runfile = runfile.resolve()
 
-    analysis_dir = f"{analysis}_{year}_{args.filename}"
+    analysis_dir = f"{args.analysis}_{year}_{args.filename}"
 
     shutil.rmtree(submit_area/f"{analysis_dir}-analyze", ignore_errors=True)
     shutil.rmtree(hdfs_area/analysis_dir, ignore_errors=True)
@@ -53,6 +52,5 @@ for year in args.years:
     farmout_call += f' --input-basenames-not-unique'
     # farmout_call += f' --num-cpus=4'
     farmout_call += f' --output-dir={eos_area/analysis_dir}'
-
 
     subprocess.call(farmout_call, shell=True)

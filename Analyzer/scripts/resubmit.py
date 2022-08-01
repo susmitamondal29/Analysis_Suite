@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
-
 import argparse
 import shutil
 from pathlib import Path
 import subprocess
 from xml.dom.minidom import parse
+from analysis_suite.commons.user import analysis_area, hdfs_area, submit_area, eos_area
 
-analysis = "ThreeTop"
-user = Path().home().owner()
-base_dir = (Path(__file__).parent / "..").resolve()
-runfile_dir = base_dir / "runfiles"
+runfile_dir = analysis_area / "runfiles"
 if not runfile_dir.exists():
     runfile_dir.mkdir()
 
@@ -18,7 +15,7 @@ for f in runfile_dir.glob("*.dat"):
     name = f.stem
     runfile_options.add(name[:name.index("201")-1])
 
-xml_filename = str((base_dir/'Analyzer/src/classes_def.xml').resolve())
+xml_filename = str((analysis_area/'Analyzer/src/classes_def.xml').resolve())
 xml_classes = parse(xml_filename)
 analysis_choices = [c.getAttribute("name") for c in xml_classes.getElementsByTagName('class')]
 
@@ -33,19 +30,17 @@ parser.add_argument("-y", "--years", required=True,
 parser.add_argument('-a', '--analysis', required=True, choices=analysis_choices)
 args = parser.parse_args()
 
-with open(base_dir/'data'/'.analyze_info', 'w') as f:
+with open(analysis_area/'data'/'.analyze_info', 'w') as f:
     f.write(args.analysis)
 
-
 for year in args.years:
-    analysis_dir = f"{analysis}_{year}_{args.filename}"
-    output_dir = f'/store/user/{user}/{analysis_dir}'
-    file_dir = Path('/hdfs') / f'store/user/{user}/{analysis_dir}'
+    analysis_dir = f"{args.analysis}_{year}_{args.filename}"
+    output_dir = eos_area/analysis_dir
     runfile = runfile_dir / f'{args.filename}_rerun_{year}.dat'
-    nfs_scratch = Path('/nfs_scratch') / user / f'{analysis_dir}-analyze'
+    nfs_scratch = submit_area/f'{analysis_dir}-analyze'
 
     jobs = {d.name for d in nfs_scratch.iterdir() if d.is_dir()}
-    files = {f.stem for f in file_dir.iterdir()}
+    files = {f.stem for f in (hdfs_area/analysis_dir).iterdir()}
     unrun_files = jobs - files
 
     with open(runfile, 'w') as infile:
@@ -54,11 +49,11 @@ for year in args.years:
                 infile.write(f.readline())
 
     # Setup rerunning directories
-    analysis_dir += "_rerun"
-    output_dir += "_rerun"
+    analysis_dir = Path(f'{analysis_dir}_rerun')
+    output_dir = Path(f'{output_dir}_rerun')
 
-    shutil.rmtree(Path(f"/nfs_scratch/{user}/{analysis_dir}-analyze"), ignore_errors=True)
-    shutil.rmtree(Path(f"/hdfs/{output_dir}"), ignore_errors=True)
+    shutil.rmtree(submit_area/f"{analysis_dir}-analyze", ignore_errors=True)
+    shutil.rmtree(hdfs_area/analysis_dir, ignore_errors=True)
 
     farmout_call = f"farmoutAnalysisJobs {analysis_dir}"
     farmout_call += f' --input-file-list={runfile}'
@@ -67,7 +62,6 @@ for year in args.years:
     farmout_call += f' --input-basenames-not-unique'
     farmout_call += f' --output-dir={output_dir}'
 
-    # print(farmout_call)
     subprocess.call(farmout_call, shell=True)
 
     runfile.unlink()

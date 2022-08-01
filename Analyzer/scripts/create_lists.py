@@ -7,11 +7,11 @@ import itertools
 import re
 
 from analysis_suite.commons.info import GroupInfo, FileInfo
-
+from analysis_suite.commons.user import analysis_area
 
 xrd_tag = "root://cms-xrd-global.cern.ch/"
 analysis = "ThreeTop"
-runfile_dir = Path(__file__).parent / ".." / "runfiles"
+runfile_dir = analysis_area / "runfiles"
 if not runfile_dir.exists():
     runfile_dir.mkdir()
 
@@ -27,6 +27,7 @@ parser.add_argument("-y", "--years", required=True,
                                else [i.strip() for i in x.split(',')],
                     help="Year to use")
 parser.add_argument('-t', "--type", help="Type of dataset to use")
+parser.add_argument('--print', help="Print details about the files, don't create lists")
 args = parser.parse_args()
 
 
@@ -169,48 +170,26 @@ def get_files(dataset):
 def get_datasets(dataset, condition, isData):
     nano_type = "NANOAOD" if isData else "NANOAODSIM"
     query = f"dasgoclient -query='dataset=/{dataset}/{condition}/{nano_type}'"
-    # print(query)
     return subprocess.check_output(query, shell=True).decode().split()
 
-def local_list(year, selection, groups):
-    path = f'/store/user/dteague/{analysis}_{year}_{selection}'
-    files = subprocess.check_output(f"hdfs dfs -find {path} -name '*root'", shell=True).decode().split()
-
-    if groups is not None:
-        files_new = list()
-        gInfo = GroupInfo({g:"" for g in groups})
-        fInfo = FileInfo(year=year)
-        for group, aliases in gInfo.get_memberMap().items():
-            for alias in aliases:
-                print(fInfo.dasNames[alias])
-                group_list = list(filter(lambda x : re.match(".*/" + fInfo.dasNames[alias], x) is not None, files))
-                files_new += group_list
-        return files_new
-    else:
-        return files
 
 
-
-# for year in args.years:
-#     all_datasets = datasets[args.type] if isinstance(datasets[args.type], list) else datasets[args.type][year]
-#     for cond, ds in itertools.product(conditions[args.type][year], all_datasets):
-#         for dataset in get_datasets(ds, cond, "data" in args.type):
-#             print(dataset)
-#             # print(dataset, get_nevents(dataset))
-#     print()
-# exit()
+if args.print:
+    for year in args.years:
+        all_datasets = datasets[args.type] if isinstance(datasets[args.type], list) else datasets[args.type][year]
+        for cond, ds in itertools.product(conditions[args.type][year], all_datasets):
+            for dataset in get_datasets(ds, cond, "data" in args.type):
+                print(dataset, get_nevents(dataset))
+        print()
+    exit()
 
 isData = "data" in args.type
 
 for year in args.years:
     with open(runfile_dir / f'{args.filename}_{args.type}_{year}.dat', "w") as f:
-        if args.local:
-            for root_files in local_list(year, selection[args.type], args.groups):
-                f.write(f'{root_files}\n')
-        else:
-            all_datasets = datasets[args.type] if isinstance(datasets[args.type], list) else datasets[args.type][year]
-            for cond, ds in itertools.product(conditions[args.type][year], all_datasets):
-                for dataset in get_datasets(ds, cond, isData):
-                    print(dataset, len(get_files(dataset)), get_nevents(dataset))
-                    for data_file in get_files(dataset):
-                        f.write(f'{xrd_tag}{data_file}\n')
+        all_datasets = datasets[args.type] if isinstance(datasets[args.type], list) else datasets[args.type][year]
+        for cond, ds in itertools.product(conditions[args.type][year], all_datasets):
+            for dataset in get_datasets(ds, cond, isData):
+                print(dataset, len(get_files(dataset)), get_nevents(dataset))
+                for data_file in get_files(dataset):
+                    f.write(f'{xrd_tag}{data_file}\n')
