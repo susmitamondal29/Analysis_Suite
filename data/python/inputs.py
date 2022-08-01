@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from collections import OrderedDict
 from analysis_suite.Combine.systematics import Systematic
 
 pad = True
@@ -38,7 +37,7 @@ allvar = {
     "LepCos" :          lambda vg : vg.cosDtheta("TightLepton", 0, "TightLepton", 1),
     "JetLep1_Cos" :     lambda vg : vg.cosDtheta("TightLepton", 0, "Jets", 0),
     "JetLep2_Cos" :     lambda vg : vg.cosDtheta("TightLepton", 1, "Jets", 0),
-    "top_mass" :        lambda vg : vg.top_mass("TightLepton", "BJets"),
+    # "top_mass" :        lambda vg : vg.top_mass("TightLepton", "BJets"),
     # "j1Disc":           Variable(vg.nth, ("Jets", "discriminator", 0)),
     # "j2Disc":           Variable(vg.nth, ("Jets", "discriminator", 1)),
     # "j3Disc":           Variable(vg.nth, ("Jets", "discriminator", 2)),
@@ -50,76 +49,79 @@ allvar = {
 
 }
 
-# # Vars to actually use in training
-# usevars = {var : allvar[var] for var in [
-#     # "NJets",
-#     "NBJets",
-#     # "NResolvedTops",
-#     # "NlooseBJets", "NtightBJets",
-#     # "NlooseMuons", "NlooseElectrons",
-#     # "HT",
-#     # "HT_b",
-#     # "Met",
-#     # "centrality",
-#     # "j1Pt", "j2Pt", "j3Pt", "j4Pt", "j5Pt", "j6Pt", "j7Pt", "j8Pt",
-#     # "j1Disc", "j2Disc", "j3Disc", "j4Disc", "j5Disc", "j6Disc", "j7Disc", "j8Disc",
-#     # # "b1Pt", "b2Pt", "b3Pt", "b4Pt",
-#     # "l1Pt", "l2Pt",
-#     # #    "lepMass", "jetMass",
-#     # "lepDR",
-#     # "jetDR",
-#     # "LepCos", "JetLep1_Cos", "JetLep2_Cos",
-#     # "mwT",
-# ]}
 
-cuts = [
-    # "NBJets>1",
-    # "HT>345",
-    "NJets>3",
-    "HT_b>130",
-    "NlooseBJets>2",
-]
+# Vars to actually use in training
+usevars = list(allvar.keys())
 
-# Sampels and the groups they are a part of
-groups = OrderedDict({
+change_name = {
+    "OS_Charge_MisId" : "charge_misId",
+    "TightFake_Nonprompt": 'nonprompt',
+}
+
+trees = {
+    "Signal": ["TightFake_Nonprompt", "OS_Charge_MisId", "Signal_Dilepton", 'Signal_Multi'],
+    "CR-ttz": ["TTZ_CR"],
+}
+
+
+# Samples and the groups they are a part of
+groups = {
     "Signal": ["ttt"],
-    "Background": ["ttw", "ttz", "tth",
-                   "ttXY",
-                   "vvv", "vv", "xg",
-                   "other",],
-    "NotTrained": ["tttt",
-                   # "ttXY",
-                   # "vvv", "vv", "xg",
-                   # "other",
-                   ]
-})
-
-
-
-all_years = ["2016", "2017", "2018"]
-classID = {"Signal": 1, "NotTrained": -1, "Background": 0}
+    "Background": [
+        "ttw", "ttz", "tth",
+        "ttXY",
+        "vvv", "vv_inc", "xg",
+        "nonprompt", "charge_misId",
+        "tttt",
+    ],
+    "NotTrained": []
+}
 
 
 color_by_group = {
     "ttt": "crimson",
+
+    "ttz": "steelblue",
+    "tth": "goldenrod",
+    "ttw": "olivedrab",
+
+    "ttXY": "teal",
+    "tttt": "tomato",
+
+    'charge_flip': 'mediumseagreen',
+
     "xg": "indigo",
-    "ttz": "mediumseagreen",
-    "tth": "slategray",
-    "ttw": "darkgreen",
-    "ttXY": "cornflowerblue",
-    "rare": "darkorange",
-    "other": "blue",
-    "tttt": "darkmagenta",
+    "rare": "deeppink",
+    'nonprompt': 'gray',
+
 }
 
-systematics = [
-    # Systematic("lumi", "lnN").add(1.012, year=2016)
-    # .add(1.023, year=2017)
-    # .add(1.025, year=2018),
-    # Systematic("LHE_muF", "shape").add(1),
-    # Systematic("LHE_muR", "shape").add(1),
 
-    # Systematic("BJet_BTagging", "shape").add(1),
+systematics = [
+    Systematic("lumi", "lnN").add(1.012, year=2016)
+                             .add(1.023, year=2017)
+                             .add(1.025, year=2018),
+    Systematic("LHE_muF", "shape").add(1),
+    Systematic("LHE_muR", "shape").add(1),
+    Systematic("PDF_unc", "shape").add(1),
+    Systematic("PDF_alphaZ", "shape").add(1),
+    Systematic("PS_ISR", "shape").add(1),
+    Systematic("PS_FSR", "shape").add(1),
+
+    Systematic("BJet_BTagging", "shape").add(1),
+    Systematic("BJet_Eff", "shape").add(1),
+    Systematic("Muon_Scale", "shape").add(1),
+    Systematic("Electron_Scale", "shape").add(1),
+    Systematic("Pileup", "shape").add(1),
+    # Systematic("Top_SF", "shape").add(1),
+    Systematic("Jet_JER", "shape").add(1),
+    Systematic("Jet_JES", "shape").add(1),
+    Systematic("Jet_PUID", "shape").add(1),
+
+    Systematic("ChargeMisId_stat", "shape").add(1),
+    Systematic("Nonprompt_Mu_stat", "shape").add(1),
+    Systematic("Nonprompt_El_stat", "shape").add(1),
+
     # Systematic("BJet_Shape_hf", "shape").add(1),
     # Systematic("BJet_Shape_hfstats1", "shape").add(1),
     # Systematic("BJet_Shape_hfstats2", "shape").add(1),
@@ -129,20 +131,19 @@ systematics = [
     # Systematic("BJet_Shape_cferr1", "shape").add(1),
     # Systematic("BJet_Shape_cferr2", "shape").add(1),
 
-    # Systematic("BJet_Eff", "shape").add(1),
-    # Systematic("Muon_ID", "shape").add(1),
-    # Systematic("Muon_Iso", "shape").add(1),
-    # Systematic("Electron_SF", "shape").add(1),
-    # Systematic("Electron_Susy", "shape").add(1),
-    # Systematic("Pileup", "shape").add(1),
-    # Systematic("Top_SF", "shape").add(1),
-    # Systematic("Jet_JER", "shape").add(1),
-    # Systematic("Jet_JES", "shape").add(1),
-
-    #        ["CMS_norm_tttt", "lnN",  [("tttt", 1.5)]],
-    #                ["CMS_norm_ttw", "lnN",   [("ttw", 1.4)]],
-    #                ["CMS_norm_ttz", "lnN",   [("ttz", 1.4)]],
-    #                ["CMS_norm_tth", "lnN",   [("tth", 1.25)]],
-    #                ["CMS_norm_xg", "lnN",    [("xg", 1.5)]],
-    #                ["CMS_norm_rare", "lnN",  [("rare", 1.5)]],
+    # Systematic("CMS_norm_tttt", "lnN").add(1.5, groups="tttt"),
+    # Systematic("CMS_norm_ttw", "lnN").add(1.5, groups="ttw"),
+    # Systematic("CMS_norm_ttz", "lnN").add(1.5, groups="ttz"),
+    # Systematic("CMS_norm_tth", "lnN").add(1.5, groups="tth"),
+    # Systematic("CMS_norm_xg", "lnN").add(1.5, groups="xg"),
+    # Systematic("CMS_norm_rare", "lnN").add(1.5, groups="rare"),
 ]
+
+# Variables needed in code for things to work
+assert "allvar" in locals()
+assert 'usevars' in locals()
+assert 'change_name' in locals()
+assert 'trees' in locals()
+assert 'groups' in locals()
+assert 'color_by_group' in locals()
+assert "systematics" in locals()
