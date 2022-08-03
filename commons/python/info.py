@@ -2,38 +2,34 @@
 import importlib
 import numpy as np
 import re
+from analysis_suite.data.FileInfo import info as finfo
+from analysis_suite.data.PlotGroups import info as ginfo
 
-class BasicInfo:
-    def __init__(self, selection="", **kwargs):
-        self.selection = selection
-        self.base_path = "analysis_suite.data"
-
-class GroupInfo(BasicInfo):
+class GroupInfo:
     def __init__(self, group2color=None, **kwargs):
         super().__init__(**kwargs)
-        self.groupInfo = importlib.import_module(f'{self.base_path}.PlotGroups').info
         self.group2color = group2color if group2color is not None else {}
         self.group2MemberMap = self.get_memberMap()
 
     def get_legend_name(self, group):
-        return self.groupInfo[group]["Name"]
+        return ginfo[group]["Name"]
 
     def get_color(self, group):
         return self.group2color[group]
 
     def get_memberMap(self):
-        keys = self.groupInfo.keys() if not self.group2color else self.group2color
+        keys = ginfo.keys() if not self.group2color else self.group2color
         final = dict()
         for key in keys:
-            if key not in self.groupInfo:
+            if key not in ginfo:
                 continue
-g            info = self.groupInfo[key]
+            info = ginfo[key]
             members = info["Members"]
             if "Composite" in info and info["Composite"]:
                 tmpMembers = list()
                 for mem in members:
-                    if mem in self.groupInfo:
-                        tmpMembers += self.groupInfo[mem]["Members"]
+                    if mem in ginfo:
+                        tmpMembers += ginfo[mem]["Members"]
                     else:
                         tmpMembers.append(mem)
                 members = tmpMembers
@@ -52,11 +48,9 @@ g            info = self.groupInfo[key]
         return group_dict
 
 
-class FileInfo(BasicInfo):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.fileInfo = importlib.import_module(f'{self.base_path}.FileInfo').info
-        self.dasNames = {key: info["DAS"] for key, info in self.fileInfo.items()}
+class FileInfo:
+    def __init__(self):
+        self.dasNames = {key: info["DAS"] for key, info in finfo.items()}
 
     def get_group(self, splitname):
         if isinstance(splitname, str) and splitname in self.dasNames:
@@ -71,7 +65,7 @@ class FileInfo(BasicInfo):
         return None
 
     def get_info(self, alias):
-        return self.fileInfo[alias]
+        return finfo[alias]
 
     def get_xsec(self, group):
         if self.is_data(group):

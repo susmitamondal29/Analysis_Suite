@@ -49,7 +49,7 @@ if __name__ == "__main__":
     card = f'{args.fit_var}_2016_signal_card.root'
     blindness = f'{args.blind} --expectSignal {args.r}'
     if need_redo_t2w(args.workdir, card):
-        runCombine(f'text2workspace.py {card.replace("root", "txt")}')
+        runCombine(f'text2workspace.py {card.replace("root", "txt")}', output=False)
 
     if args.type == "impact":
         runCombine(f'combineTool.py -M Impacts -d {card} -m 125 --doInitialFit --robustFit 1')

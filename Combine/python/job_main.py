@@ -4,19 +4,20 @@ import uproot
 from .card_maker import Card_Maker
 
 from analysis_suite.commons import GroupInfo
-from analysis_suite.commons.configs import get_list_systs, checkOrCreateDir
+from analysis_suite.commons.configs import get_list_systs, get_inputs
 from analysis_suite.Plotting.plotter import Plotter
-import analysis_suite.data.inputs as inputs
 from analysis_suite.data.plotInfo.plotInfo import combine
 
 def setup(cli_args):
-    group_info = GroupInfo(inputs.color_by_group, **vars(cli_args))
-    allSysts = get_list_systs(cli_args.workdir, cli_args.tool)
+    color_by_group = get_inputs(cli_args.workdir).color_by_group
+    group_info = GroupInfo(color_by_group, **vars(cli_args))
+    # allSysts = get_list_systs(cli_args.workdir, cli_args.tool)
+    allSysts = ["Nominal"]
 
     workdir = cli_args.workdir / "combine"
-    checkOrCreateDir(workdir)
+    workdir.mkdir(exist_ok=True)
 
-    ginfo = GroupInfo(inputs.color_by_group)
+    ginfo = GroupInfo(color_by_group)
     groups = ginfo.setup_groups()
 
     argList = list()
@@ -45,6 +46,7 @@ def run(inpath, outfile, graph, region, groups, year, systs):
 
 def cleanup(cli_args):
     workdir = cli_args.workdir / "combine"
+    inputs = get_inputs(cli_args.workdir)
     ginfo = GroupInfo(inputs.color_by_group)
     groups = ginfo.setup_groups()
 
