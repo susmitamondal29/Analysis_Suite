@@ -6,6 +6,8 @@ import time
 import numpy as np
 import uproot
 from contextlib import contextmanager
+from importlib import import_module
+from pathlib import Path
 
 def get_cli():
     from .user import workspace_area
@@ -36,6 +38,9 @@ def get_cli():
                             help="Name of file containing histogram Info")
     if len(sys.argv) == 1:
         pass
+    elif sys.argv[1] == 'analyze':
+        parser.add_argument('-o', '--outname', default='Signal',
+                            choices = ['Signal', 'CR-ttz'])
     elif sys.argv[1] == "mva":
         parser.add_argument('-t', '--train', default="None",
                             choices=['None', 'DNN', 'TMVA', 'XGB', "CutBased"],
@@ -46,6 +51,8 @@ def get_cli():
         parser.add_argument('-r', '--regions', default="Signal",
                             type=lambda x : [i.strip() for i in x.split(',')],)
     elif sys.argv[1] == "plot":
+        parser.add_argument('-n', '--name', default='ThreeTop',
+                            help='Name of directory used for storing the plots')
         parser.add_argument("--hists", default="all",
                             type=lambda x : ["all"] if x == "all" \
                             else [i.strip() for i in x.split(',')],
@@ -71,6 +78,20 @@ def get_cli():
 
     return parser.parse_args()
 
+def setup(args):
+    from analysis_suite.commons.user import analysis_area
+    import shutil
+    args.workdir.mkdir(exist_ok=True)
+    inputs = args.workdir/'inputs.py'
+    if not inputs.exists():
+        shutil.copy(analysis_area/'data/python/inputs.py', inputs)
+
+
+def get_inputs(workdir):
+    if not isinstance(workdir, Path):
+        workdir = Path(workdir)
+    return import_module('.inputs', f'workspace.{workdir.stem}')
+
 
 def findScale(ratio):
     sigNum = 10**int(np.log10(ratio))
@@ -78,10 +99,6 @@ def findScale(ratio):
     if ratio > tot + sigNum//2:
         tot += sigNum//2
     return tot
-
-def checkOrCreateDir(path):
-    if not path.is_dir():
-        path.mkdir(parents=True)
 
 
 def getGroupDict(groups, group_info):
@@ -126,16 +143,17 @@ def get_list_systs(infile, tool, systs=["all"], **kwargs):
 def clean_syst(syst):
     return syst.replace("_down","").replace("_up","")
 
-def get_plot_area(analysis, drawStyle, path):
+def get_plot_area(name, path=None):
     from .user import www_area
-    extraPath = time.strftime("%Y_%m_%d")
+    www_path = www_area/name
     if path:
-        extraPath = path / extraPath
-    return www_area /'PlottingResults' / analysis / f'{extraPath}_{drawStyle}'
+        www_path /= path.stem
+    www_path /= time.strftime("%Y_%m_%d")
+    return www_path
 
 def make_plot_paths(path):
-    checkOrCreateDir(path / "plots")
-    checkOrCreateDir(path / "logs")
+    (path/"plots").mkdir(exist_ok=True, parents=True)
+    (path/"logs").mkdir(exist_ok=True, parents=True)
 
 def get_shape_systs(addVar=False):
     from analysis_suite.data.inputs import systematics
@@ -168,7 +186,6 @@ def get_dirnames(filename):
         if not dirnames:
             return None
         return {d.partition(";")[0] for d in dirnames}
-
 
 
 @contextmanager

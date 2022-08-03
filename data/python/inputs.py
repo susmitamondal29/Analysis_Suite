@@ -7,11 +7,11 @@ pad = True
 allvar = {
     "NJets" :           lambda vg : vg.Jets.num(),
     "NBJets":           lambda vg : vg.BJets.num(),
-    # "NResolvedTops":    lambda vg : vg.Tops.num(),
+    "NResolvedTops":    lambda vg : vg.Tops.num(),
     "NlooseBJets":      lambda vg : vg['N_bloose'],
     "NtightBJets":      lambda vg : vg['N_btight'],
-    # "NlooseMuons":      lambda vg : vg['N_loose_muon'],
-    # "NlooseElectrons":  lambda vg : vg['N_loose_elec'],
+    "NlooseMuons":      lambda vg : vg['N_loose_muon'],
+    "NlooseElectrons":  lambda vg : vg['N_loose_elec'],
     "HT":               lambda vg : vg['HT'],
     "HT_b":             lambda vg : vg['HT_b'],
     "Met":              lambda vg : vg['Met'],
@@ -53,16 +53,14 @@ allvar = {
 # Vars to actually use in training
 usevars = list(allvar.keys())
 
-change_name = {
-    "OS_Charge_MisId" : "charge_misId",
-    "TightFake_Nonprompt": 'nonprompt',
+tuple_info = {
+    'change_name' : {"OS_Charge_MisId" : "charge_misId", "TightFake_Nonprompt": 'nonprompt'},
+    'trees' : ["TightFake_Nonprompt", "OS_Charge_MisId", "Signal_Dilepton", 'Signal_Multi'],
+    'tree_cuts' : {
+        'Signal' : lambda vg : vg['passZVeto'] == 1,
+        'CR-ttz' : lambda vg : vg['passZVeto'] == 0,
+    },
 }
-
-trees = {
-    "Signal": ["TightFake_Nonprompt", "OS_Charge_MisId", "Signal_Dilepton", 'Signal_Multi'],
-    "CR-ttz": ["TTZ_CR"],
-}
-
 
 # Samples and the groups they are a part of
 groups = {
@@ -81,19 +79,17 @@ groups = {
 color_by_group = {
     "ttt": "crimson",
 
-    "ttz": "steelblue",
-    "tth": "goldenrod",
+    'nonprompt': 'gray',
+    "xg": "indigo",
+
     "ttw": "olivedrab",
+    "tth": "goldenrod",
+    "ttz": "steelblue",
 
     "ttXY": "teal",
-    "tttt": "tomato",
-
-    'charge_flip': 'mediumseagreen',
-
-    "xg": "indigo",
     "rare": "deeppink",
-    'nonprompt': 'gray',
-
+    "tttt": "tomato",
+    'charge_flip': 'mediumseagreen',
 }
 
 
@@ -101,26 +97,26 @@ systematics = [
     Systematic("lumi", "lnN").add(1.012, year=2016)
                              .add(1.023, year=2017)
                              .add(1.025, year=2018),
-    Systematic("LHE_muF", "shape").add(1),
-    Systematic("LHE_muR", "shape").add(1),
-    Systematic("PDF_unc", "shape").add(1),
-    Systematic("PDF_alphaZ", "shape").add(1),
-    Systematic("PS_ISR", "shape").add(1),
-    Systematic("PS_FSR", "shape").add(1),
+    # Systematic("LHE_muF", "shape").add(1),
+    # Systematic("LHE_muR", "shape").add(1),
+    # Systematic("PDF_unc", "shape").add(1),
+    # Systematic("PDF_alphaZ", "shape").add(1),
+    # Systematic("PS_ISR", "shape").add(1),
+    # Systematic("PS_FSR", "shape").add(1),
 
-    Systematic("BJet_BTagging", "shape").add(1),
-    Systematic("BJet_Eff", "shape").add(1),
-    Systematic("Muon_Scale", "shape").add(1),
-    Systematic("Electron_Scale", "shape").add(1),
-    Systematic("Pileup", "shape").add(1),
-    # Systematic("Top_SF", "shape").add(1),
-    Systematic("Jet_JER", "shape").add(1),
-    Systematic("Jet_JES", "shape").add(1),
-    Systematic("Jet_PUID", "shape").add(1),
+    # Systematic("BJet_BTagging", "shape").add(1),
+    # Systematic("BJet_Eff", "shape").add(1),
+    # Systematic("Muon_Scale", "shape").add(1),
+    # Systematic("Electron_Scale", "shape").add(1),
+    # Systematic("Pileup", "shape").add(1),
+    # # Systematic("Top_SF", "shape").add(1),
+    # Systematic("Jet_JER", "shape").add(1),
+    # Systematic("Jet_JES", "shape").add(1),
+    # Systematic("Jet_PUID", "shape").add(1),
 
-    Systematic("ChargeMisId_stat", "shape").add(1),
-    Systematic("Nonprompt_Mu_stat", "shape").add(1),
-    Systematic("Nonprompt_El_stat", "shape").add(1),
+    # Systematic("ChargeMisId_stat", "shape").add(1),
+    # Systematic("Nonprompt_Mu_stat", "shape").add(1),
+    # Systematic("Nonprompt_El_stat", "shape").add(1),
 
     # Systematic("BJet_Shape_hf", "shape").add(1),
     # Systematic("BJet_Shape_hfstats1", "shape").add(1),
@@ -142,8 +138,7 @@ systematics = [
 # Variables needed in code for things to work
 assert "allvar" in locals()
 assert 'usevars' in locals()
-assert 'change_name' in locals()
-assert 'trees' in locals()
+assert 'tuple_info' in locals()
 assert 'groups' in locals()
 assert 'color_by_group' in locals()
 assert "systematics" in locals()

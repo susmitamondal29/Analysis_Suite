@@ -27,10 +27,8 @@ else:
     website = ""
 
 def setup():
-    if not workspace_area.exists():
-        workspace_area.mkdir()
-    if not hdfs_workspace.exists():
-        hdfs_workspace.mkdir()
+    workspace_area.mkdir(exist_ok=True)
+    hdfs_workspace.mkdir(exist_ok=True)
     if not combine_area.exists():
         print("To setup combine, please Run the following commands")
         print(f"""

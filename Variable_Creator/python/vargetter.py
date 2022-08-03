@@ -105,7 +105,7 @@ class VarGetter:
 
     @mask.setter
     def mask(self, mask):
-        self._mask[self._mask] *= mask
+        self._mask[self._mask] = mask * self._mask[self._mask]
 
     def clear_mask(self):
         self._mask = copy(self._base_mask)

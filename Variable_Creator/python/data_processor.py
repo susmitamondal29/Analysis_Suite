@@ -6,10 +6,9 @@ import uproot
 from .vargetter import VarGetter
 from analysis_suite.commons.info import fileInfo
 from analysis_suite.commons.configs import get_dirnames, get_syst_index
-import analysis_suite.data.inputs as mva_params
 
 class DataProcessor:
-    def __init__(self, use_vars, lumi, systName="Nominal", cut=None):
+    def __init__(self, use_vars, lumi, systName="Nominal", cut=None, change_name=None):
         """Constructor method
         """
         self.systName = systName
@@ -18,6 +17,8 @@ class DataProcessor:
         self.lumi = lumi
         self.final_set = dict()
         self.cut = cut
+        if change_name is None: change_name = {}
+        self.change_name = change_name
 
     def __bool__(self):
         return bool(self.final_set)
@@ -38,12 +39,11 @@ class DataProcessor:
                 vg = VarGetter(root_file, tree, member, xsec, syst)
                 if not vg:
                     continue
-
                 self.apply_cuts(vg)
                 vg.setSyst(self.systName)
                 vg.mergeParticles("TightLepton", "TightMuon", "TightElectron")
-                if tree in mva_params.change_name:
-                    member = mva_params.change_name[tree]
+                if tree in self.change_name:
+                    member = self.change_name[tree]
                 arr_dict[member] = vg
         return arr_dict
 
@@ -63,7 +63,7 @@ class DataProcessor:
                 self.final_set[member] = df
             else:
                 self.final_set[member] = pd.concat([self.final_set[member], df], ignore_index=True)
-            print(f"Finished setting up {member} in tree {tree}")
+            # print(f"Finished setting up {member} in tree {tree}")
 
     def apply_cuts(self, vg):
         if self.cut is None:

@@ -3,11 +3,12 @@ import multiprocessing as mp
 import warnings
 import logging
 
-from analysis_suite.commons.configs import get_cli
+from analysis_suite.commons.configs import get_cli, setup
 warnings.filterwarnings('ignore')
 
 if __name__ == "__main__":
     cli_args = get_cli()
+    setup(cli_args)
     logging.basicConfig(level=getattr(logging, cli_args.log, None))
 
     ##############
