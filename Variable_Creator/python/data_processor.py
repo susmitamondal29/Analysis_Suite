@@ -8,7 +8,7 @@ from analysis_suite.commons.info import fileInfo
 from analysis_suite.commons.configs import get_dirnames, get_syst_index
 
 class DataProcessor:
-    def __init__(self, use_vars, lumi, systName="Nominal", cut=None, change_name=None):
+    def __init__(self, use_vars, lumi, ntuple_info, systName="Nominal"):
         """Constructor method
         """
         self.systName = systName
@@ -16,9 +16,8 @@ class DataProcessor:
         self.all_vars = list(use_vars.keys()) + ["scale_factor"]
         self.lumi = lumi
         self.final_set = dict()
-        self.cut = cut
-        if change_name is None: change_name = {}
-        self.change_name = change_name
+        self.ntuple_info = ntuple_info
+
 
     def __bool__(self):
         return bool(self.final_set)
@@ -39,11 +38,11 @@ class DataProcessor:
                 vg = VarGetter(root_file, tree, member, xsec, syst)
                 if not vg:
                     continue
-                self.apply_cuts(vg)
+                self.ntuple_info.apply_cut(vg)
                 vg.setSyst(self.systName)
                 vg.mergeParticles("TightLepton", "TightMuon", "TightElectron")
-                if tree in self.change_name:
-                    member = self.change_name[tree]
+                if (new_name := self.ntuple_info.get_change(tree, member)):
+                    member = new_name
                 arr_dict[member] = vg
         return arr_dict
 
@@ -65,11 +64,6 @@ class DataProcessor:
                 self.final_set[member] = pd.concat([self.final_set[member], df], ignore_index=True)
             # print(f"Finished setting up {member} in tree {tree}")
 
-    def apply_cuts(self, vg):
-        if self.cut is None:
-            pass
-        else:
-            vg.mask = self.cut(vg)
 
     def write_out(self, outfile):
         """**Write out pandas file as a compressed pickle file

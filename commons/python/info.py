@@ -2,6 +2,10 @@
 import importlib
 import numpy as np
 import re
+from dataclasses import dataclass, field
+from typing import  Callable
+from pathlib import Path
+
 from analysis_suite.data.FileInfo import info as finfo
 from analysis_suite.data.PlotGroups import info as ginfo
 
@@ -85,3 +89,28 @@ class FileInfo:
         return False
 
 fileInfo = FileInfo()
+
+@dataclass
+class NtupleInfo:
+    filename: str
+    trees: list
+    region: str
+    cut : Callable[[object], bool] = None
+    changes: dict = field(default_factory=dict)
+
+    def get_file(self, **kwargs):
+        return Path(str(self.filename).format(**kwargs))
+
+    def add_change(self, tree, changes):
+        self.changes[tree] = changes
+
+    def get_change(self, tree, member):
+        if tree in self.changes and member in self.changes[tree]:
+            return self.changes[tree][member]
+        return ""
+
+    def apply_cut(self, vg, *args):
+        if self.cut is None:
+            return
+        else:
+            vg.mask = self.cut(vg, *args)

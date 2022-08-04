@@ -10,7 +10,7 @@ from importlib import import_module
 from pathlib import Path
 
 def get_cli():
-    from .user import workspace_area
+    from .user import workspace_area, analysis_area
     import analysis_suite.data.plotInfo as plotInfo
 
     parser = argparse.ArgumentParser(prog="main", description="Central script for running tools in the Analysis suite")
@@ -39,8 +39,9 @@ def get_cli():
     if len(sys.argv) == 1:
         pass
     elif sys.argv[1] == 'analyze':
-        parser.add_argument('-o', '--outname', default='Signal',
-                            choices = ['Signal', 'CR-ttz'])
+        ntupleInfo = [ f.name for f in pkgutil.iter_modules(path=[analysis_area/"ntuple_info"]) if not f.ispkg]
+        parser.add_argument('-n', '--ntuple', required=True, choices= ntupleInfo,
+                            help="Ntuple info class used for make root files")
     elif sys.argv[1] == "mva":
         parser.add_argument('-t', '--train', default="None",
                             choices=['None', 'DNN', 'TMVA', 'XGB', "CutBased"],
@@ -54,17 +55,14 @@ def get_cli():
         parser.add_argument('-n', '--name', default='ThreeTop',
                             help='Name of directory used for storing the plots')
         parser.add_argument("--hists", default="all",
-                            type=lambda x : ["all"] if x == "all" \
-                            else [i.strip() for i in x.split(',')],
+                            type=lambda x : [i.strip() for i in x.split(',')],
                             help="Pick specific histogram to plot")
         parser.add_argument("--drawStyle", type=str, default='stack',
                             help='Way to draw graph',
                             choices=['stack', 'compare', 'sigratio'])
-        parser.add_argument("--stack_signal", action='store_true',
-                            help="Stack signal hists on top of background")
         parser.add_argument("--ratio_range", nargs=2, default=[0.4, 1.6],
                             help="Ratio min ratio max (default 0.5 1.5)")
-        parser.add_argument('-t', '--type', default='processed', choices=['processed', 'test', 'train'],
+        parser.add_argument('-t', '--type', default='processed', choices=['processed', 'test', 'train', 'ntuple'],
                             help='Type of file in the analysis change')
         parser.add_argument('-r', '--region', default='Signal',
                             help='Region that this histogram will be plotted from')
@@ -91,6 +89,9 @@ def get_inputs(workdir):
     if not isinstance(workdir, Path):
         workdir = Path(workdir)
     return import_module('.inputs', f'workspace.{workdir.stem}')
+
+def get_ntuple(name):
+    return import_module(f'.{name}', 'ntuple_info').info
 
 
 def findScale(ratio):
