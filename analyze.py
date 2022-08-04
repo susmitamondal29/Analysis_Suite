@@ -153,15 +153,9 @@ if __name__ == "__main__":
     for fname in files:
         fChain.Add(f"{fname}/Events")
 
-    nEntries= fChain.GetEntries()
-    job_size = np.ceil(nEntries/args.cores)
-    starts = np.arange(nEntries, step=job_size)
-    steps = job_size*np.ones(args.cores)
-    steps[-1] += nEntries - np.sum(steps)
-    
+
     if args.cores == 1:
         selector = getattr(ROOT, analysis)()
-
         with configs.rOpen(outputfile, "RECREATE") as rOutput:
             selector.SetInputList(rInputs)
             selector.setOutputFile(rOutput)
@@ -174,6 +168,12 @@ if __name__ == "__main__":
             for i in selector.GetOutputList():
                 anaFolder.WriteObject(i, i.GetName())
     else:
+        nEntries= fChain.GetEntries()
+        job_size = np.ceil(nEntries/args.cores)
+        starts = np.arange(nEntries, step=job_size)
+        steps = job_size*np.ones(args.cores)
+        steps[-1] += nEntries - np.sum(steps)
+
         argList = []
         for start, step in zip(starts, steps):
             argList.append((int(start), int(step), files, inputs, getattr(ROOT, inputs["MetaData"]["Analysis"])()))

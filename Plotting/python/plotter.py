@@ -6,12 +6,15 @@ import awkward as ak
 from typing import ClassVar
 from sklearn.metrics import roc_curve
 from scipy.stats import kurtosis
+from copy import copy
 
 from analysis_suite.Variable_Creator.data_processor import DataProcessor
 from analysis_suite.commons.histogram import Histogram
+from analysis_suite.commons.constants import lumi
 import analysis_suite.commons.configs as config
-from analysis_suite.commons.plot_utils import plot, nonratio_plot, ratio_plot
-from analysis_suite.commons.fake_rate_helper import make_stack
+from analysis_suite.commons.plot_utils import plot, nonratio_plot, ratio_plot, setup_mplhep
+
+from .stack import Stack
 
 @dataclass
 class GraphInfo:
@@ -20,7 +23,6 @@ class GraphInfo:
     bin_tuple: object
     func: object
     info: ClassVar[object] = None
-    lumi: ClassVar[float] = None
     cuts: object = None
 
     def bins(self):
@@ -29,34 +31,47 @@ class GraphInfo:
         else:
             return (self.bin_tuple,)
 
+
 class Plotter:
     fom_label = {'likely': '\sqrt{-2\ln{\lambda(0)}}',
                  's/sqrtb': 'S/\sqrt{B}'}
     sig_colors = ['Signal', '#ef8a62'] #     '#f1a340' '#7fbf7b' '#d8b365' '#ef8a62'
     bkg_colors = ['Background', "#67a9cf"] # '#998ec3' '#af8dc3' '#5ab4ac' "#67a9cf"
 
-    def __init__(self, filename, groups, cuts=None, **kwargs):
+    def __init__(self, filename, groups, cuts=None, year="2016", **kwargs):
         self.dfs = dict()
         self.sig = ""
         self.bkg = []
-        self.groups = groups
+        self.groups = copy(groups)
         self.readtype = 'flat'
         self.graphs = dict()
+        self._hep = None
+        self.lumi = lumi[year]
 
         if self.readtype == 'flat':
             self.setup_flat(filename, groups, cuts)
         elif self.readtype == 'ntuple':
             self.setup_ntuple(filename, groups, cuts, **kwargs)
 
-    def set_groups(self, sig, bkg):
+    @property
+    def hep(self):
+        if self._hep is None:
+            self._hep = setup_mplhep()
+        return self._hep
+
+    def set_groups(self, sig, bkg=None):
         self.sig = sig
         self.bkg = bkg
 
-    def get_hists(self, name):
-        return self.hists[name]
+    def get_hists(self, name, group=None):
+        if group is None:
+            return self.hists[name]
+        else:
+            return self.hists[name][group]
 
-    def setup_ntuple(self, filenames, groups, cut=None, year="2016", trees='Signal_Dilepton', systName="Nominal"):
-        data = DataProcessor(filenames, PlotInfo.lumi[year], systName, cut=cut)
+    def setup_ntuple(self, filenames, groups, cut=None, trees='Signal_Dilepton', systName="Nominal"):
+        remove = list()
+        data = DataProcessor(filenames, self.lumi, systName, cut=cut)
         if isinstance(trees, list):
             for tree in trees:
                 data.process_year(filenames, trees)
@@ -69,19 +84,26 @@ class Plotter:
                     continue
                 self.dfs[group] = pd.concat([self.dfs[group], data.final_set[member]])
             if not len(self.dfs[group]):
-                del self.dfs[group]
+                remove.append(group)
+        for group in remove:
+            del self.dfs[group]
+            del self.groups[group]
 
 
     def setup_flat(self, filename, groups, cuts):
+        remove = list()
         with uproot.open(filename) as f:
-           for group, members in groups.items():
-               self.dfs[group] = ak.Array([])
-               for member in members:
-                   if member not in f:
-                       continue
-                   self.dfs[group] = ak.concatenate((self.dfs[group], self.apply_cut(f[member].arrays(), cuts)))
-               if not len(self.dfs[group]):
-                   del self.dfs[group]
+            for group, members in groups.items():
+                self.dfs[group] = ak.Array([])
+                for member in members:
+                    if member not in f:
+                        continue
+                    self.dfs[group] = ak.concatenate((self.dfs[group], self.apply_cut(f[member].arrays(), cuts)))
+                if not len(self.dfs[group]):
+                    remove.append(group)
+        for group in remove:
+            del self.dfs[group]
+            del self.groups[group]
 
 
     def fill_hists(self, graphs, ginfo=None, subset=None):
@@ -92,15 +114,16 @@ class Plotter:
                 if subset is not None and name not in subset:
                     continue
                 self.hists[name][group] = Histogram(group, *graph.bins())
-                if self.readtype == 'flat' and group in self.dfs:
-                    self.hists[name][group].fill(np.nan_to_num(self.dfs[group][graph.func], nan=-1000),
-                                                 weight=self.dfs[group]['scale_factor'])
-                elif self.readtype == 'ntuple':
-                    pass
-                else:
-                    del self.hists[name][group]
-                if ginfo is not None:
-                    self.hists[name][group].set_plot_details(ginfo)
+                vals, weight =self.get_array(group, graph)
+                self.hists[name][group].fill(vals, weight=weight)
+
+            if ginfo is not None:
+                self.hists[name][group].set_plot_details(ginfo)
+
+    def get_array(self, group, graph):
+        if self.readtype == 'flat':
+            df = self.apply_cut(self.dfs[group], graph.cuts)
+            return np.nan_to_num(df[graph.func], nan=-1000), df['scale_factor']
 
     def apply_cut(self, df, cut):
         if cut is None:
@@ -134,13 +157,13 @@ class Plotter:
             raise AttributeError(f"Significance type {sig_type} not allowed!")
 
 
-    def plot_fom(self, name, bins=None, sig_type='likely'):
+    def plot_fom(self, name, outfile, bins=None, sig_type='likely'):
         graph = self.graphs[name]
         if bins is None:
             bins = graph.bin_tuple.edges
         discrete = np.unique(np.diff(bins)) == 1
 
-        with plot(f'test.png') as ax:
+        with plot(outfile) as ax:
             sig = self.get_sum(self.sig, graph, self.sig_colors)
             bkg = self.get_sum(self.bkg, graph, self.bkg_colors)
             sig.plot_shape(ax)
@@ -167,17 +190,17 @@ class Plotter:
 
         return (fom, maxbin)
 
-    def plot_shape(self, name):
+    def plot_shape(self, name, outfile):
         graph = self.graphs[name]
-        with nonratio_plot(f'test.png', graph.axis_name, graph.bin_tuple.edges) as ax:
+        with nonratio_plot(outfile, graph.axis_name, graph.bin_tuple.edges) as ax:
             sig = self.get_sum(self.sig, graph, self.sig_colors)
             bkg = self.get_sum(self.bkg, graph, self.bkg_colors)
             sig.plot_shape(ax)
             bkg.plot_shape(ax)
             ax.set_ylabel("Normalized Events (A.U)")
 
-    def plot_roc(self):
-        with nonratio_plot(f'roc.png', "False Positive Rate", [0., 1.]) as ax:
+    def plot_roc(self, outfile):
+        with nonratio_plot(outfile/'roc.png', "False Positive Rate", [0., 1.]) as ax:
             pred, truth, weight = np.array([]), np.array([]), np.array([])
             for group, df in self.dfs.items():
                 if group in self.sig:
@@ -193,12 +216,13 @@ class Plotter:
             ax.plot(np.linspace(0, 1, 5), np.linspace(0, 1, 5), linestyle=':')
             ax.set_ylabel("True Positive Rate", horizontalalignment='right', y=1.0)
 
-    def plot_stack(self, name):
+    def plot_stack(self, name, outfile):
         graph = self.graphs[name]
         signal = self.hists[graph.name][self.sig]
-        stack = make_stack({key: val for key, val in self.hists[graph.name].items() if key != self.sig})
+        stack = self.make_stack(name)
+        data = False
 
-        with ratio_plot('test.png', graph.axis_name, stack.get_xrange()) as ax:
+        with ratio_plot(outfile, graph.axis_name, stack.get_xrange()) as ax:
             ratio = Histogram("Ratio", graph.bin_tuple, color="black")
             band = Histogram("Ratio", graph.bin_tuple, color="plum")
             error = Histogram("Stat Errors", graph.bin_tuple, color="plum")
@@ -219,8 +243,7 @@ class Plotter:
             ratio.plot_points(subpad)
             band.plot_band(subpad)
 
-            hep.cms.label(ax=pad, lumi=lumi, data=data)
-
+            self.hep.cms.label(ax=pad, lumi=self.lumi, data=data)
 
     def get_sum(self, groups, graph, details=None):
         all_hist = Histogram("", *graph.bins())
@@ -254,3 +277,33 @@ class Plotter:
         for arr in info:
             print(f'|{arr["name"]:10} | {arr["nEvents"]:.2f}| {arr["nRaw"]} | {arr["mean"]:.2f}+-{arr["std"]:.2f} | {arr["kurtosis"]:0.2f} |')
         print("-"*50)
+
+    def make_stack(self, name):
+        stack = Stack(*self.graphs[name].bins())
+        for group, hist in self.hists[name].items():
+            if group == self.sig or group == 'data':
+                continue
+            stack += hist
+        return stack
+
+
+
+# for key, hist in file["shapes_fit_s/yr2018"].items():
+#     key = key[:key.index(";")]
+#     # Need to deal with Data
+#     if "data" in key:
+#         x, y = hist.member("fX"), hist.member("fY")
+#         data += data.fill(x, weight=y)
+#     if "TH1" not in repr(hist):
+#         continue
+#     hist = hist.to_boost()
+#     if "total" in key:
+#         continue
+#     elif key == signalName:
+#         signal += hist
+
+
+#     groupHist = Histogram(key, hist.axes[0])
+#     groupHist.set_plot_details(group_info)
+#     groupHist += hist
+#     stacker += groupHist

@@ -1,13 +1,24 @@
 from prettytable import PrettyTable
-from pprint import pformat
-
+import prettyprinter as pp
 import math
 import numpy as np
+from copy import copy
+
+from analysis_suite.commons.configs import asymptotic_sig
+
+pp.install_extras()
+
 
 BKG = 0
 SIGNAL = 1
 DATA = 2
 TOTAL = 3
+
+def sig_fig(x, p=3):
+    x_positive = np.where(np.isfinite(x) & (x != 0), np.abs(x), 10**(p-1))
+    mags = 10 ** (p - 1 - np.floor(np.log10(x_positive)))
+    return np.round(x * mags) / mags
+
 
 class LogFile:
     """Wrapper for Logfile for a plot
@@ -37,14 +48,13 @@ class LogFile:
     """
     callTime = ""
     command = ""
-    def __init__(self, name, info, lumi):
+    def __init__(self, name, lumi, graph_obj=None):
         self.plotTable = PrettyTable(["Plot Group", "Weighted Events", "Error"])
         self.breakTable = PrettyTable(["Plot Group", "Sample", "Weighted Events", "Error"])
         self.output_name = f'{name}_info.log'
-        self.analysis, self.selection = "", ""#info.getAnalysis()
         self.lumi = lumi
         self.hists = [np.array([0., 0.]) for i in range(4)] 
-        self.hist_info = info
+        self.graph_obj = graph_obj
         self.name = name
 
     def add_mc(self, stacker):
@@ -99,7 +109,7 @@ class LogFile:
         idx : int
             int pointed to self.hists list
         """
-        hist = self.hists[idx]
+        hist = copy(self.hists[idx])
         hist[1] = np.sqrt(hist[1])
         return hist
 
@@ -118,7 +128,7 @@ class LogFile:
             out.write(f'The command was: {LogFile.command} \n')
             out.write(f'The name of this Histogram is: {self.name} \n')
             out.write('-' * 80 + '\n')
-            out.write(f'Selection: {self.analysis,}/{self.selection}\n')
+            # out.write(f'Selection: {self.analysis,}/{self.selection}\n')
             out.write(f'Luminosity: {self.lumi:0.2f} fb^{{-1}}\n')
             if isLatex:
                 out.write('\n' + self.plotTable.get_latex_string() + '\n'*2)
@@ -126,23 +136,26 @@ class LogFile:
                 out.write('\n' + self.plotTable.get_string() + '\n'*2)
 
             if self.hists[TOTAL].any():
-                out.write("Total sum of Monte Carlo: {:0.2f} +/- {:0.2f} \n"
-                             .format(*self.get_sqrt_err(TOTAL)))
+                tot, err = self.get_sqrt_err(TOTAL)
+                out.write(f"Total sum of Monte Carlo: {sig_fig(tot)} +/- {sig_fig(err)} \n")
             if self.hists[SIGNAL].any():
-                out.write(
-                    "Total sum of background Monte Carlo: {:0.2f} +/- {:0.2f} \n"
-                    .format(*self.get_sqrt_err(BKG)))
-                out.write("Ratio S/(S+B): {:0.2f} +/- {:0.2f} \n"
-                          .format(*self.get_sig_bkg_ratio()))
-                out.write("Ratio S/sqrt(S+B): {:0.2f} +/- {:0.2f} \n"
-                          .format(*self.get_likelihood()))
+                tot, err = self.get_sqrt_err(BKG)
+                out.write(f"Total sum of background Monte Carlo: {sig_fig(tot)} +/- {sig_fig(err)} \n")
+                tot, err = self.get_sig_bkg_ratio()
+                out.write(f"Ratio S/(S+B): {sig_fig(tot)} +/- {sig_fig(err)} \n")
+                tot, err = self.get_likelihood()
+                out.write(f"Ratio S/sqrt(B): {sig_fig(tot)} +/- {sig_fig(err)} \n")
             if self.hists[DATA].any():
                 out.write(f'Number of events in data {self.hists[DATA][0]} \n')
-            if isLatex:
-                out.write('\n' + self.breakTable.get_latex_string() + '\n'*2)
-            else:
-                out.write('\n' + self.breakTable.get_string() + '\n'*2)
-            out.write("\n" + pformat(self.hist_info))
+
+            if self.breakTable.end is not None:
+                out.write('\n')
+                out.write(self.breakTable.get_latex_string() if isLatex else self.breakTable.get_string())
+                out.write('\n'*2)
+
+            if self.graph_obj is not None:
+                out.write("\n")
+                pp.pprint(self.graph_obj, stream=out)
 
             out.write("</code></pre></html>\n")
 
@@ -156,10 +169,10 @@ class LogFile:
             tuple S/B and its error
         """
         sig, sigErr = self.hists[SIGNAL]
-        tot, totErr = self.hists[TOTAL]
-        sigbkgd = sig / tot
-        sigbkgdErr = sigbkgd * math.sqrt((sigErr / sig)**2 + (totErr / tot)**2)
-        return (sigbkgd, sigbkgdErr)
+        bkg, bkgErr = self.hists[BKG]
+        s_b = sig/bkg
+        s_b_err = s_b * math.sqrt(sigErr/sig**2 + bkgErr/ bkg**2)
+        return (s_b, s_b_err)
 
     def get_likelihood(self):
         """Get Figure of merit
@@ -170,11 +183,11 @@ class LogFile:
             tuple Figure of Merit (S/sqrt(S+B)) and its error
         """
         sig, sigErr = self.hists[SIGNAL]
-        tot, totErr = self.hists[TOTAL]
-        likelihood = sig / math.sqrt(tot)
-        likelihoodErr = likelihood * math.sqrt((sigErr / sig)**2 +
-                                               (0.5 * totErr / tot)**2)
-        return (likelihood, likelihoodErr)
+        bkg, bkgErr = self.hists[BKG]
+        s_sqrtb = asymptotic_sig(sig, bkg)
+        s_sqrtb_err = s_sqrtb * math.sqrt(sigErr / sig**2 + 0.25*bkgErr/bkg**2)
+        return (s_sqrtb, s_sqrtb_err)
+
 
     def add_breakdown(self, group, break_dict, roundDigit=2):
         sorted_keys = sorted(break_dict.keys(), key=lambda key: break_dict[key].value, reverse=True)
@@ -182,4 +195,4 @@ class LogFile:
             events = round(break_dict[sample].value, roundDigit)
             err = round(math.sqrt(break_dict[sample].variance), roundDigit)
             self.breakTable.add_row([group, sample, events, err])
-            group = ""
+            group = "" # So the group only shows up once in the table
