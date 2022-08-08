@@ -25,7 +25,7 @@ poetry.lock
 !scripts/*
 !Variable_Creator/*
 !data/*
-!ntuple_info/*py
+!ntuple_info/example.py
 
 data/python/plotInfo/*py
 data/POG

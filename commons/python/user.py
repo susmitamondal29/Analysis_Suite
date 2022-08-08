@@ -15,6 +15,8 @@ combine_area = submit_area / "CMSSW_10_2_13/src"
 analysis_area = Path(f'{__file__}').resolve().parents[2]
 workspace_area = analysis_area / 'workspace'
 
+xrd_tag = "root://cms-xrd-global.cern.ch/"
+
 hostname = socket.gethostname()
 if 'hep.wisc.edu' in hostname:
     www_area = Path.home()/'public_html'

@@ -53,15 +53,6 @@ allvar = {
 # Vars to actually use in training
 usevars = list(allvar.keys())
 
-tuple_info = {
-    'change_name' : {"OS_Charge_MisId" : "charge_misId", "TightFake_Nonprompt": 'nonprompt'},
-    'trees' : ["TightFake_Nonprompt", "OS_Charge_MisId", "Signal_Dilepton", 'Signal_Multi'],
-    'tree_cuts' : {
-        'Signal' : lambda vg : vg['passZVeto'] == 1,
-        'CR-ttz' : lambda vg : vg['passZVeto'] == 0,
-    },
-}
-
 # Samples and the groups they are a part of
 groups = {
     "Signal": ["ttt"],
@@ -92,40 +83,32 @@ color_by_group = {
     'charge_flip': 'mediumseagreen',
 }
 
+mc_samples = ['ttt', 'xg', 'ttw', 'tth', 'ttz', 'ttXY', 'rare', 'tttt']
 
 systematics = [
     Systematic("lumi", "lnN").add(1.012, year=2016)
                              .add(1.023, year=2017)
                              .add(1.025, year=2018),
-    # Systematic("LHE_muF", "shape").add(1),
-    # Systematic("LHE_muR", "shape").add(1),
-    # Systematic("PDF_unc", "shape").add(1),
-    # Systematic("PDF_alphaZ", "shape").add(1),
-    # Systematic("PS_ISR", "shape").add(1),
-    # Systematic("PS_FSR", "shape").add(1),
+    Systematic("LHE_muF", "shape").add(1, groups=mc_samples),
+    Systematic("LHE_muR", "shape").add(1, groups=mc_samples),
+    Systematic("PDF_unc", "shape").add(1, groups=mc_samples),
+    Systematic("PDF_alphaZ", "shape").add(1, groups=mc_samples),
+    Systematic("PS_ISR", "shape").add(1, groups=mc_samples),
+    Systematic("PS_FSR", "shape").add(1, groups=mc_samples),
 
-    # Systematic("BJet_BTagging", "shape").add(1),
-    # Systematic("BJet_Eff", "shape").add(1),
-    # Systematic("Muon_Scale", "shape").add(1),
-    # Systematic("Electron_Scale", "shape").add(1),
-    # Systematic("Pileup", "shape").add(1),
-    # # Systematic("Top_SF", "shape").add(1),
-    # Systematic("Jet_JER", "shape").add(1),
-    # Systematic("Jet_JES", "shape").add(1),
-    # Systematic("Jet_PUID", "shape").add(1),
+    Systematic("BJet_BTagging", "shape").add(1, groups=mc_samples),
+    Systematic("BJet_Eff", "shape").add(1, groups=mc_samples),
+    Systematic("Muon_Scale", "shape").add(1, groups=mc_samples),
+    Systematic("Electron_Scale", "shape").add(1, groups=mc_samples),
+    Systematic("Pileup", "shape").add(1, groups=mc_samples),
+    # Systematic("Top_SF", "shape").add(1),
+    Systematic("Jet_JER", "shape").add(1, groups=mc_samples),
+    Systematic("Jet_JES", "shape").add(1, groups=mc_samples),
+    Systematic("Jet_PUID", "shape").add(1, groups=mc_samples),
 
-    # Systematic("ChargeMisId_stat", "shape").add(1),
-    # Systematic("Nonprompt_Mu_stat", "shape").add(1),
-    # Systematic("Nonprompt_El_stat", "shape").add(1),
-
-    # Systematic("BJet_Shape_hf", "shape").add(1),
-    # Systematic("BJet_Shape_hfstats1", "shape").add(1),
-    # Systematic("BJet_Shape_hfstats2", "shape").add(1),
-    # Systematic("BJet_Shape_lf", "shape").add(1),
-    # Systematic("BJet_Shape_lfstats1", "shape").add(1),
-    # Systematic("BJet_Shape_lfstats2", "shape").add(1),
-    # Systematic("BJet_Shape_cferr1", "shape").add(1),
-    # Systematic("BJet_Shape_cferr2", "shape").add(1),
+    Systematic("ChargeMisId_stat", "shape").add(1, 'charge_flip'),
+    Systematic("Nonprompt_Mu_stat", "shape").add(1, 'nonprompt'),
+    Systematic("Nonprompt_El_stat", "shape").add(1, 'nonprompt'),
 
     # Systematic("CMS_norm_tttt", "lnN").add(1.5, groups="tttt"),
     # Systematic("CMS_norm_ttw", "lnN").add(1.5, groups="ttw"),
@@ -138,7 +121,6 @@ systematics = [
 # Variables needed in code for things to work
 assert "allvar" in locals()
 assert 'usevars' in locals()
-assert 'tuple_info' in locals()
 assert 'groups' in locals()
 assert 'color_by_group' in locals()
 assert "systematics" in locals()

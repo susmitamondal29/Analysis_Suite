@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 import argparse
-from analysis_suite.commons import FileInfo
+from analysis_suite.commons import fileInfo
 import analysis_suite.commons.configs as configs
 from pathlib import Path
 import numpy as np
@@ -117,8 +117,8 @@ if __name__ == "__main__":
         details = get_info_general(testfile)
     else:
         details = get_info_local(testfile)
-    info = FileInfo(**details)
-    groupName = info.get_group(details["sampleName"])
+
+    groupName = fileInfo.get_group(details["sampleName"])
     datadir = Path(os.getenv("CMSSW_BASE"))/"src"/"analysis_suite"/"data"
 
     if args.analysis:
@@ -139,7 +139,7 @@ if __name__ == "__main__":
     if args.test:
         inputs['MetaData'].update({'Xsec': 1, 'isData': True})
     else:
-        inputs['MetaData'].update({'Xsec': info.get_xsec(groupName), 'isData': info.is_data(groupName)})
+        inputs['MetaData'].update({'Xsec': fileInfo.get_xsec(groupName), 'isData': fileInfo.is_data(groupName)})
     inputs["Verbosity"] = args.verbose
     inputs["Systematics"] = configs.get_shape_systs() if not args.no_syst else []
 

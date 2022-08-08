@@ -7,124 +7,9 @@ import itertools
 import re
 
 from analysis_suite.commons.info import GroupInfo, FileInfo
-from analysis_suite.commons.user import analysis_area
+from analysis_suite.commons.user import analysis_area, xrd_tag
 
-xrd_tag = "root://cms-xrd-global.cern.ch/"
-analysis = "ThreeTop"
-runfile_dir = analysis_area / "runfiles"
-if not runfile_dir.exists():
-    runfile_dir.mkdir()
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument("-f", "--filename", required=True, help="output filename")
-parser.add_argument("--local", action="store_true",
-                    help="Run for local files (skimmed files)")
-parser.add_argument('-g', "--groups",help="Groups to analyze",
-                    type=lambda x : x.split(','))
-parser.add_argument("-y", "--years", required=True,
-                    type=lambda x : ["2016", "2017", "2018"] if x == "all" \
-                               else [i.strip() for i in x.split(',')],
-                    help="Year to use")
-parser.add_argument('-t', "--type", help="Type of dataset to use")
-parser.add_argument('--print', help="Print details about the files, don't create lists")
-args = parser.parse_args()
-
-
-datasets = {
-    "data" : {
-        "2016": [
-            "DoubleMuon",
-            "DoubleEG",
-            "MuonEG",
-        ],
-        "2017": [
-            "DoubleMuon",
-            "SingleElectron",
-            # "MuonEG",
-        ],
-        "2018": [
-            "DoubleMuon",
-            "EGamma",
-            "MuonEG",
-        ],
-    },
-
-    "mc" : [
-        # TTT
-        'TTTJ_TuneCP5*',
-        'TTTW_TuneCP5*',
-
-        # TTTT
-        'TTTT_TuneCP5*',
-
-        # TTX
-        'TTWJetsToLNu_TuneCP5_13TeV*',
-        'TTZToLLNuNu_M-10_TuneCP5_13TeV*',
-        'TTZToLL_M-1to10_TuneCP5*',
-        'ttHToNonbb_M125_TuneCP5*',
-        'ttHTobb_M125_TuneCP5*',
-
-        # TTXY
-        'TTHH_TuneCP5*',
-        'TTWH_TuneCP5*',
-        'TTWW_TuneCP5*',
-        'TTWZ_TuneCP5*',
-        'TTZH_TuneCP5*',
-        'TTZZ_TuneCP5*',
-
-        # Xgamma
-        'TGJets_TuneCP5*',
-        'TTGamma_Dilept_TuneCP5_13TeV*',
-        'TTGamma_Hadronic_TuneCP5*',
-        'TTGamma_SingleLept_TuneCP5_13TeV*',
-        'WGToLNuG_TuneCP5*',
-        'WWG_TuneCP5*',
-        'WZG_TuneCP5*',
-        'ZGToLLG_01J_5f_TuneCP5*',
-
-        # VV Inclusive
-        'WW_TuneCP5*',
-        'WZ_TuneCP5*',
-        'ZZ_TuneCP5*',
-
-        # VVV
-        'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8',
-        'WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8',
-        'WZZ_TuneCP5_13TeV-amcatnlo-pythia8',
-        'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8',
-
-        # Other
-        # 'DYJetsToLL_M-10to50_TuneCP5*',
-        # 'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-        # # 'GluGluHToZZTo4L_M125_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8',
-        # # 'ST_tW_Dilept_5f_DR_TuneCP5*',
-        # 'TT_TuneCH3_13TeV-powheg-herwig7',
-        # 'WJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-pythia8',
-        # # 'tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-amcatnlo-pythia8',
-
-        # # DY HT binned
-        # "DYJetsToLL_M-50_HT-*_TuneCP5*13TeV-madgraphMLM-pythia8",
-
-        # TTbar lepton binned
-        # 'TTTo2L2Nu_TuneCP5_13TeV*',
-        # 'TTToSemiLeptonic_TuneCP5_13TeV*',
-        # 'TTToHadronic_TuneCP5_13TeV*',
-
-        # # QCD
-        # "QCD_Pt-20_MuEnrichedPt15_Tune*",
-        # "QCD_Pt-*_MuEnrichedPt5_Tune*",
-        # "QCD_Pt-*_EMEnriched_Tune*",
-        # "QCD_Pt_*_bcToE_Tune*",
-
-        # # VV
-        # To be done
-    ],
-}
-
-
-
-conditions = {
+condition_dict = {
     "data" : {
         "2016" : [
             "Run2016B-ver2*UL2016_MiniAODv2_NanoAODv9-v*",
@@ -158,6 +43,141 @@ conditions = {
 
 }
 
+dataset_dict = {
+    "data" : {
+        "MM" : {
+            '2016' : "DoubleMuon",
+            '2017' : "DoubleMuon",
+            '2018' : "DoubleMuon",
+        },
+        "EM" : {
+            '2016' : "MuonEG",
+            '2017' : "MuonEG",
+            '2018' : "MuonEG",
+        },
+        "EE" : {
+            '2016' : "DoubleEG",
+            '2017' : "DoubleEG",
+            '2018' : "EGamma",
+        },
+        "E" : {
+            '2016' : 'DoubleEG',
+            '2017' : 'SingleElectron',
+            '2018' : 'EGamma',
+        },
+    },
+
+    "mc" : {
+        'ttt': [
+            'TTTJ_TuneCP5*',
+            'TTTW_TuneCP5*',
+        ],
+        'tttt' : [
+            'TTTT_TuneCP5*',
+        ],
+        'ttX' : [
+            'TTWJetsToLNu_TuneCP5_13TeV*',
+            'TTZToLLNuNu_M-10_TuneCP5_13TeV*',
+            'TTZToLL_M-1to10_TuneCP5*',
+            'ttHToNonbb_M125_TuneCP5*',
+            'ttHTobb_M125_TuneCP5*',
+        ],
+        'ttXY' : [
+            'TTHH_TuneCP5*',
+            'TTWH_TuneCP5*',
+            'TTWW_TuneCP5*',
+            'TTWZ_TuneCP5*',
+            'TTZH_TuneCP5*',
+            'TTZZ_TuneCP5*',
+        ],
+        'xg' : [
+            'TGJets_TuneCP5*',
+            'TTGamma_Dilept_TuneCP5_13TeV*',
+            'TTGamma_Hadronic_TuneCP5*',
+            'TTGamma_SingleLept_TuneCP5_13TeV*',
+            'WGToLNuG_TuneCP5*',
+            'WWG_TuneCP5*',
+            'WZG_TuneCP5*',
+            'ZGToLLG_01J_5f_TuneCP5*',
+        ],
+        'vv' : [
+            'WW_TuneCP5*',
+            'WZ_TuneCP5*',
+            'ZZ_TuneCP5*',
+        ],
+        'vvv' : [
+            'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8',
+            'WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8',
+            'WZZ_TuneCP5_13TeV-amcatnlo-pythia8',
+            'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8',
+        ],
+        'qcd' : [
+            "QCD_Pt-20_MuEnrichedPt15_Tune*",
+            "QCD_Pt-*_MuEnrichedPt5_Tune*",
+            "QCD_Pt-*_EMEnriched_Tune*",
+            "QCD_Pt_*_bcToE_Tune*",
+        ],
+        'ttbar' : [
+            'TT_TuneCH3_13TeV-powheg-herwig7',
+        ],
+        'ttbar_lep' : [
+            'TTTo2L2Nu_TuneCP5_13TeV*',
+            'TTToSemiLeptonic_TuneCP5_13TeV*',
+            'TTToHadronic_TuneCP5_13TeV*',
+        ],
+        'dy' : [
+            'DYJetsToLL_M-10to50_TuneCP5*',
+            'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+        ],
+        'dy_ht' : [
+            "DYJetsToLL_M-50_HT-*_TuneCP5*13TeV-madgraphMLM-pythia8",
+        ],
+        'wjet' : [
+            'WJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-pythia8',
+        ],
+        'wjet_ht' : [
+            'WJetsToLNu_HT-*_TuneCP5_13TeV-madgraphMLM-pythia8'
+        ],
+        'other' : [
+            'GluGluHToZZTo4L_M125_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8',
+            'ST_tW_Dilept_5f_DR_TuneCP5*',
+            'tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-amcatnlo-pythia8',
+        ],
+        # VV
+        # To be done
+    },
+}
+
+
+def get_dataset(data_type, groups, year):
+    final_set = list()
+    for group in groups:
+        # first check if all exist
+        if group not in dataset_dict[data_type]:
+            raise Exception(f'{group} not found in dataset! Please add or amend. Avaliable are {dataset_dict[data_type].keys()}')
+        if isinstance(dataset_dict[data_type][group], list):
+            final_set += dataset_dict[data_type][group]
+        else:
+            final_set += dataset_dict[data_type][group][year]
+    return final_set
+    
+def get_condition(data_type, year):
+    if year not in condition_dict[data_type]:
+        raise Exception(f'{year} not found in conditions!')
+    return condition_dict[data_type][year]
+
+def get_DAS(data_type, groups, year):
+    nano_type = "NANOAOD" if data_type == 'data' else "NANOAODSIM"
+    conditions = get_condition(data_type, year)
+    final_das = list()
+    for group in groups:
+        for dataset in get_dataset(data_type, groups, year):
+            for condition in conditions:
+                final_das.append(f'/{dataset}/{condition}/{nano_type}')
+    return final_das
+
+# DAS functions
+
 def get_nevents(dataset):
     query = f'dasgoclient -query="file dataset={dataset} | grep file.nevents"'
     file_sizes = subprocess.check_output(query, shell=True).decode().split()
@@ -167,29 +187,45 @@ def get_files(dataset):
     query = f'dasgoclient -query="file dataset={dataset}"'
     return subprocess.check_output(query, shell=True).decode().split()
 
-def get_datasets(dataset, condition, isData):
-    nano_type = "NANOAOD" if isData else "NANOAODSIM"
-    query = f"dasgoclient -query='dataset=/{dataset}/{condition}/{nano_type}'"
+def get_fullDAS(dataset):
+    query = f"dasgoclient -query='dataset={dataset}'"
     return subprocess.check_output(query, shell=True).decode().split()
 
 
 
-if args.print:
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", "--filename", help="output filename")
+    parser.add_argument('-g', "--groups", required=True, help="Groups to analyze", type=lambda x : x.split(','))
+    parser.add_argument("-y", "--years", required=True, type=lambda x : [i.strip() for i in x.split(',')],
+                        help="Year to use")
+    parser.add_argument('-t', "--type", choices=['data', 'mc'], required=True,
+                        help="Type of dataset to use")
+    parser.add_argument('-r', '--run', choices = ['output', 'print', 'events'], required=True,
+                        help="Print details about the files, don't create lists")
+    args = parser.parse_args()
+
+    runfile_dir = analysis_area / "runfiles"
+    runfile_dir.mkdir(exist_ok=True)
+
+
     for year in args.years:
-        all_datasets = datasets[args.type] if isinstance(datasets[args.type], list) else datasets[args.type][year]
-        for cond, ds in itertools.product(conditions[args.type][year], all_datasets):
-            for dataset in get_datasets(ds, cond, "data" in args.type):
-                print(dataset, get_nevents(dataset))
-        print()
-    exit()
+        if args.run == 'output':
+            if args.filename is None:
+                raise Exception("No output filename given!!")
+            output = list()
 
-isData = "data" in args.type
+        datasets = get_DAS(args.type, args.groups, year)
+        for dataset in datasets:
+            for das in get_fullDAS(dataset):
+                if args.run == 'print':
+                    print(das)
+                elif args.run == 'events':
+                    print(das, get_nevents(das))
+                elif args.run == 'output':
+                    output += get_files(das)
 
-for year in args.years:
-    with open(runfile_dir / f'{args.filename}_{args.type}_{year}.dat', "w") as f:
-        all_datasets = datasets[args.type] if isinstance(datasets[args.type], list) else datasets[args.type][year]
-        for cond, ds in itertools.product(conditions[args.type][year], all_datasets):
-            for dataset in get_datasets(ds, cond, isData):
-                print(dataset, len(get_files(dataset)), get_nevents(dataset))
-                for data_file in get_files(dataset):
+        if args.run == 'output':
+            with open(runfile_dir / f'{args.filename}_{args.type}_{year}.dat', "w") as f:
+                for data_file in output:
                     f.write(f'{xrd_tag}{data_file}\n')

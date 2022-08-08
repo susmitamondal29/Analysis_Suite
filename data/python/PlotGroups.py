@@ -103,7 +103,7 @@ info ={
         "Name": r"Rare",
         "Members": [
             "vvv",
-            "vv",
+            "vv_inc",
             "st_twll",
 	        "ggh2zz",
         ]
