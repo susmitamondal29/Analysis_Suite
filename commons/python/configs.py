@@ -43,10 +43,9 @@ def get_cli():
         parser.add_argument('-n', '--ntuple', required=True, choices= ntupleInfo,
                             help="Ntuple info class used for make root files")
     elif sys.argv[1] == "mva":
-        parser.add_argument('-t', '--train', default="None",
-                            choices=['None', 'DNN', 'TMVA', 'XGB', "CutBased"],
+        parser.add_argument('-t', '--train', action="store_true")
+        parser.add_argument('-m', '--model', required=True, choices=['DNN', 'TMVA', 'XGBoost', "CutBased"],
                             help="Run the training")
-        parser.add_argument("-m", '--apply_model', action='store_true')
         parser.add_argument("--save", action='store_true')
         parser.add_argument("--plot", action='store_true')
         parser.add_argument('-r', '--regions', default="Signal",
@@ -100,23 +99,6 @@ def findScale(ratio):
     if ratio > tot + sigNum//2:
         tot += sigNum//2
     return tot
-
-
-def getGroupDict(groups, group_info):
-    groupDict = {}
-    allSamples = set()
-    for groupName, samples in groups.items():
-        new_samples = list()
-        for samp in samples:
-            if samp in group_info.group2MemberMap:
-                new_samples += group_info.group2MemberMap[samp]
-            else:
-                new_samples.append(samp)
-        if allSamples.intersection(new_samples):
-            raise Exception("Group has overlap, probably from same sample groups repeated. Change this")
-        allSamples = allSamples.union(new_samples)
-        groupDict[groupName] = new_samples
-    return groupDict
 
 
 def get_list_systs(infile, tool, systs=["all"], **kwargs):

@@ -93,7 +93,6 @@ class XGBoostMaker(MLHolder):
         fit_model.fit(x_train, y_train, sample_weight=w_train,
                       eval_set=[(x_train, y_train), (x_test, y_test)],
                       early_stopping_rounds=100, verbose=20)
-        print("here")
         self.best_iter = fit_model.get_booster().best_iteration
         fit_model.save_model(f'{outdir}/model.bin')
 

@@ -78,16 +78,39 @@ class MLHolder:
 
         self.best_iter = 0
 
-    def update_params(self, params):
-        print("Shouldn't be here")
-        raise Exception("Calling base function")
 
-
+    def __bool__(self):
+        return bool(self.test_sets)
+    
     def should_train(self, df, className):
         enough_events = len(df)*self.split_ratio > self.min_train_events
         trainable_class = className != "NotTrained"
-        is_SR = self.region == "Signal"
-        return enough_events and trainable_class and is_SR
+        is_SR_nominal = self.region == "Signal" and self.systName == "Nominal"
+        return enough_events and trainable_class and is_SR_nominal
+
+    def read_in_file(self, directory, year="2018"):
+        test_set= setup_pandas(self.all_vars)
+        if (directory/year/f'test_{self.systName}_{self.region}.root').exists():
+            return
+        infile = directory/year/f'processed_{self.systName}_{self.region}.root'
+
+        with uproot.open(infile) as f:
+            allSet = set([name[:name.index(";")] for name in f.keys()])
+            self.update_sample_map(allSet)
+            for className, samples in self.group_dict.items():
+                for sample in samples:
+                    if sample not in f:
+                        print(f"{sample} not found")
+                        continue
+                    df = f[sample].arrays(self._file_vars, library="pd")
+                    logging.debug(f'{sample}, {len(df)}, {sum(df.scale_factor)}')
+
+                    df.loc[:, "classID"] = self.classID_by_className[className]
+                    df.loc[:, "sampleName"] = self.sample_map[sample]
+                    df.loc[:, "train_weight"] = sum(df.scale_factor) / len(df)
+                    test_set = pd.concat([df, test_set], ignore_index=True)
+
+        self.test_sets[year] = test_set
 
     def setup_year(self, directory, year="2018", save_train=False):
         """**Fill the dataframes with all info in the input files**
@@ -165,28 +188,28 @@ class MLHolder:
         return workset
 
 
-    def apply_model(self, directory, year):
+    def apply_model(self, directory, year, get_auc=False):
         use_set = self.test_sets[year]
         pred = self.predict(use_set, directory)
         weights = use_set.scale_factor
         labels = use_set.classID.astype(int)
 
         self.pred_test[year] = {grp: pred.T[i] for grp, i in self.classID_by_className.items()}
-        self.auc[year] = roc_auc_score(labels, pred.T[1],
-                                       sample_weight = abs(weights)
-                                       )
 
-        self.fom[year] = 0
-        fom_bins = np.linspace(0, 1, 101)
-        sig = np.cumsum(np.histogram(self.pred_test[year]["Signal"][labels==1], bins=fom_bins,
+        if get_auc:
+            self.auc[year] = roc_auc_score(labels, pred.T[1], sample_weight = abs(weights))
+
+            self.fom[year] = 0
+            fom_bins = np.linspace(0, 1, 101)
+            sig = np.cumsum(np.histogram(self.pred_test[year]["Signal"][labels==1], bins=fom_bins,
                                      weights=weights[labels==1])[0][::-1])[::-1]
-        tot = np.cumsum(np.histogram(self.pred_test[year]["Signal"], bins=fom_bins,
-                                     weights=weights)[0][::-1])[::-1]
-        self.fom[year] = max(sig/np.sqrt(tot))
+            tot = np.cumsum(np.histogram(self.pred_test[year]["Signal"], bins=fom_bins,
+                                         weights=weights)[0][::-1])[::-1]
+            self.fom[year] = max(sig/np.sqrt(tot))
 
 
-        print(f'AUC for year {year}: {self.auc[year]}')
-        print(f'FOM for year {year}: {self.fom[year]}')
+            print(f'AUC for year {year}: {self.auc[year]}')
+            print(f'FOM for year {year}: {self.fom[year]}')
 
 
     def get_stats(self, year, cut):
@@ -208,10 +231,6 @@ class MLHolder:
         matthew_coef = (tp/len(truth_vals)-s*p)/np.sqrt(p*s*(1-p)*(1-s))
         print(f'Cut {cut:0.3f} for year {year}: {precision:0.3f} {recall:0.3f} {f1_score:0.3f} {matthew_coef:0.3f} {fom:0.3f}')
 
-
-    def predict(self, use_set, directory):
-        print("Shouldn't be here")
-        raise Exception("Calling base function")
 
 
     # Private Functions

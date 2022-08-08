@@ -22,12 +22,8 @@ class GroupInfo:
         return self.group2color[group]
 
     def get_memberMap(self):
-        keys = ginfo.keys() if not self.group2color else self.group2color
         final = dict()
-        for key in keys:
-            if key not in ginfo:
-                continue
-            info = ginfo[key]
+        for key, info in ginfo.items():
             members = info["Members"]
             if "Composite" in info and info["Composite"]:
                 tmpMembers = list()
@@ -41,17 +37,20 @@ class GroupInfo:
         return final
 
     def get_members(self, group):
-        return self.get_memberMap()[group]
+        return self.group2MemberMap[group]
 
     def setup_groups(self, groups=None):
-        group_dict = dict()
         if groups is None:
             groups = self.group2color.keys()
-        for group in groups:
-            group_dict[group] = [mem for mem in self.get_members(group)]
-        return group_dict
+        return dict(filter(lambda x: x[0] in groups, self.group2MemberMap.items()))
 
+    def setup_members(self, groups=None):
+        groups = self.setup_groups(groups)
+        if not groups.values():
+            return list()
+        return np.concatenate(list(groups.values()))
 
+    
 class FileInfo:
     def __init__(self):
         self.dasNames = {key: info["DAS"] for key, info in finfo.items()}
