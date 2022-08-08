@@ -7,7 +7,7 @@ import logging
 import analysis_suite.commons.configs as config
 import analysis_suite.commons.constants as constants
 from analysis_suite.commons import writeHTML, GroupInfo
-from analysis_suite.commons.user import website, www_area
+import analysis_suite.commons.user as user
 from analysis_suite.data.plotInfo.plotInfo import plots
 
 from .plotter import Plotter
@@ -21,36 +21,45 @@ def setup(cli_args):
     basePath = config.get_plot_area(cli_args.name, cli_args.workdir)
     config.make_plot_paths(basePath)
 
+    ginfo = GroupInfo(config.get_inputs(cli_args.workdir).color_by_group)
+
     argList = list()
     allSysts = ["Nominal"]
     for year in cli_args.years:
         for syst in allSysts:
-            filename = cli_args.workdir / year / f'{cli_args.type}_{syst}_{cli_args.region}.root'
+            if cli_args.type == 'ntuple':
+                filename = user.hdfs_area / f'workspace/{cli_args.region}/{year}'
+            else:
+                filename = cli_args.workdir / year / f'{cli_args.type}_{syst}_{cli_args.region}.root'
             outpath = basePath / year
             if syst != "Nominal":
                 outpath = outpath / syst
             config.make_plot_paths(outpath)
             for plot in plots:
-                argList.append((filename, outpath, plot, cli_args.signal, year, syst))
+                if 'all' not in cli_args.hists and plot.name not in cli_args.hists:
+                    continue
+                argList.append((filename, outpath, plot, cli_args.signal, ginfo, year, syst, cli_args))
     return argList
 
 
-def run(infile, outpath, graph, signalName, year, syst):
+def run(infile, outpath, graph, signalName, ginfo, year, syst, args):
     logging.info(f'Processing {graph.name} for year {year} and systematic {syst}')
-    ginfo = GroupInfo(config.get_inputs(infile.parents[1]).color_by_group)
+    kwargs = {'ratio_bot': args.ratio_range[0], 'ratio_top': args.ratio_range[1]}
+    readtype = 'flat' if args.type != "ntuple" else 'ntuple'
+
     groups = ginfo.setup_groups()
     logger = LogFile(graph.name, constants.lumi[year], graph)
 
-    plotter = Plotter(infile, groups, year=year)
+    plotter = Plotter(infile, groups, year=year, readtype=readtype)
     plotter.set_groups(signalName)
     plotter.fill_hists(graph, ginfo)
-    plotter.plot_stack(graph.name, outpath/'plots'/f'{graph.name}.png')
+    plotter.plot_from_graph(graph, outpath/'plots'/f'{graph.name}.png', **kwargs)
 
-    subprocess.call('convert {0}.png -quality 0 {0}.pdf'.format(outpath/'plots'/graph.name), shell=True)
+    subprocess.call('convert {0}.png {0}.pdf'.format(outpath/'plots'/graph.name), shell=True)
 
     # setup log file
-    # for group, hist in groupHists.items():
-    #     logger.add_breakdown(group, hist.breakdown)
+    for group, hist in get_hists(graph.name).items():
+        logger.add_breakdown(group, hist.breakdown)
     logger.add_mc(plotter.make_stack(graph.name))
     logger.add_signal(plotter.get_hists(graph.name, signalName))
     logger.write_out(outpath/'logs')
@@ -67,4 +76,4 @@ def cleanup(cli_args):
         writeHTML(basePath / year, yearAnalysis, systs)
         for syst in systs:
             writeHTML(basePath / year / syst, f'{yearAnalysis}/{syst}')
-    logging.critical(website+str(basePath.relative_to(www_area)))
+    logging.critical(user.website+str(basePath.relative_to(user.www_area)))

@@ -4,7 +4,7 @@ import math
 import numpy as np
 from copy import copy
 
-from analysis_suite.commons.configs import asymptotic_sig
+from analysis_suite.commons.configs import asymptotic_sig, sig_fig
 
 pp.install_extras()
 
@@ -13,12 +13,6 @@ BKG = 0
 SIGNAL = 1
 DATA = 2
 TOTAL = 3
-
-def sig_fig(x, p=3):
-    x_positive = np.where(np.isfinite(x) & (x != 0), np.abs(x), 10**(p-1))
-    mags = 10 ** (p - 1 - np.floor(np.log10(x_positive)))
-    return np.round(x * mags) / mags
-
 
 class LogFile:
     """Wrapper for Logfile for a plot

@@ -170,6 +170,13 @@ def get_dirnames(filename):
             return None
         return {d.partition(";")[0] for d in dirnames}
 
+def sig_fig(x, p=3):
+    x_positive = np.where(np.isfinite(x) & (x != 0), np.abs(x), 10**(p-1))
+    mags = 10 ** (p - 1 - np.floor(np.log10(x_positive)))
+    return np.round(x * mags) / mags
+
+
+
 
 @contextmanager
 def rOpen(filename, option=""):

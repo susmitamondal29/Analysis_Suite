@@ -3,19 +3,22 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 import logging
-logging.getLogger('matplotlib.font_manager').disabled = True
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from contextlib import contextmanager
 import warnings
+import mplhep as hep
+
+plt.style.use([hep.style.CMS, hep.style.firamath])
 
 @contextmanager
-def ratio_plot(filename, xlabel, binning):
-    plot_inputs = {"nrows": 2, "ncols": 1, "sharex": True,
+def ratio_plot(filename, xlabel, binning, **kwargs):
+    plot_inputs = {"nrows": 2, "ncols": 1, "sharex": True, 'figsize': (11,11),
                    "gridspec_kw": {"hspace": 0.1, "height_ratios": [3,1]}}
     fig, ax = plt.subplots(**plot_inputs)
+
     yield ax
     setup_ticks(*ax)
-    axisSetup(ax[0], ax[1], xlabel=xlabel, binning=binning)
+    axisSetup(ax[0], ax[1], xlabel=xlabel, binning=binning, **kwargs)
     ax[0].legend()
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -26,11 +29,11 @@ def ratio_plot(filename, xlabel, binning):
     plt.close(fig)
 
 @contextmanager
-def nonratio_plot(filename, xlabel, binning):
+def nonratio_plot(filename, xlabel, binning, **kwargs):
     fig, ax = plt.subplots()
     yield ax
     setup_ticks(ax)
-    axisSetup(ax, xlabel=xlabel, binning=binning)
+    axisSetup(ax, xlabel=xlabel, binning=binning, **kwargs)
     ax.legend()
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -63,8 +66,6 @@ def color_options(color):
     return {"color": color, "edgecolor": [i - dark if i > dark else 0.0 for i in cvec]}
 
 def setup_mplhep():
-    import mplhep as hep
-    plt.style.use([hep.style.CMS, hep.style.firamath])
     return hep
 
 def setup_ticks(pad, subpad=None):
@@ -80,12 +81,12 @@ def ticks(pad):
     pad.tick_params(direction="in", length=4, which='minor', top=True,
                     right=True)
 
-def axisSetup(pad, subpad=None, xlabel="", binning=None, info=None):
+def axisSetup(pad, subpad=None, xlabel="", binning=None, ratio_top=2.0, ratio_bot=0.0):
     xpad = pad if subpad is None else subpad
     if xlabel:
         xpad.set_xlabel(xlabel)
     if binning is not None:
-        xpad.set_xlim(binning)
+        xpad.set_xlim(binning[0], binning[-1])
 
     pad.set_ylim(bottom=0.)
     pad.set_ylabel("Events/bin")
@@ -94,11 +95,8 @@ def axisSetup(pad, subpad=None, xlabel="", binning=None, info=None):
 
     if subpad is not None:
         subpad.set_ylabel("Data/MC")
-        subpad.set_ylim(top=2.0, bottom=0)
+        subpad.set_ylim(top=ratio_top, bottom=ratio_bot)
 
-    # if info is not None:
-    #     for key, val in info.items():
-    #         getattr(xaxis, key)(val)
 
 def right_align_label(axis, isYaxis=False):
     label = axis.get_label()
