@@ -11,8 +11,7 @@ from analysis_suite.data.plotInfo.plotInfo import combine
 def setup(cli_args):
     color_by_group = get_inputs(cli_args.workdir).color_by_group
     group_info = GroupInfo(color_by_group, **vars(cli_args))
-    # allSysts = get_list_systs(cli_args.workdir, cli_args.tool)
-    allSysts = ["Nominal"]
+    allSysts = get_list_systs(cli_args.workdir, cli_args.tool, cli_args.systs)
 
     workdir = cli_args.workdir / "combine"
     workdir.mkdir(exist_ok=True)
@@ -27,30 +26,48 @@ def setup(cli_args):
             inpath = cli_args.workdir/year
             outfile = workdir / f'{graph.name}_{year}_{cr}.root'
             argList.append((inpath, outfile, graph, region, groups, year, allSysts))
-
     return argList
 
 
 def run(inpath, outfile, graph, region, groups, year, systs):
-    print(outfile)
     with uproot.recreate(outfile) as f:
         for syst in systs:
             plotter = Plotter(inpath/f'test_{syst}_{region}.root', groups)
             plotter.fill_hists(graph)
             syst = syst.replace("_up", "Up").replace("_down", "Down")
             if syst == "Nominal":
-                f[f"data_obs_{syst}"] = plotter.get_sum(groups.keys(), graph).hist
+                f[f"data_obs"] = plotter.get_sum(groups.keys(), graph).hist
             for group, hist in plotter.get_hists(graph.name).items():
-                f[f"{group}_{syst}"] = hist.hist
+                if not hist: continue
+                if syst == "Nominal":
+                    f[group] = hist.hist
+                else:
+                    f[f'{syst}/{group}'] = hist.hist
 
 
 def cleanup(cli_args):
     workdir = cli_args.workdir / "combine"
     inputs = get_inputs(cli_args.workdir)
     ginfo = GroupInfo(inputs.color_by_group)
-    groups = ginfo.setup_groups()
+    groups = order_list(ginfo.setup_groups(), cli_args.signal)
+    allSysts = get_list_systs(cli_args.workdir, cli_args.tool, cli_args.systs)
+    syst_objs = list()
+
+    for syst in inputs.systematics:
+        if f'{syst.name}_up' in allSysts and f'{syst.name}_down' in allSysts:
+            syst_objs.append(syst)
+        if syst.syst_type == "lnN":
+            syst_objs.append(syst)
 
     for cr, graph in combine.items():
         for year in cli_args.years:
-            with Card_Maker(workdir, year, cr, list(groups.keys()), graph[1].name) as card:
-                card.write_systematics(inputs.systematics)
+            with Card_Maker(workdir, year, cr, groups, graph[1].name) as card:
+                card.write_systematics(syst_objs)
+
+
+def order_list(groups, sig):
+    glist = list(groups.keys())
+    if glist[0] != sig:
+        idx = glist.index(sig)
+        glist[0], glist[idx] = glist[idx], glist[0]
+    return glist

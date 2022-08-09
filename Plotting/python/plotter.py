@@ -136,7 +136,7 @@ class Plotter:
     def get_array(self, member, graph):
         if self.readtype == 'flat':
             df = self.apply_cut(self.dfs[member], graph.cuts)
-            return np.nan_to_num(df[graph.func], nan=-1000), df['scale_factors']
+            return np.nan_to_num(df[graph.func], nan=-1000), df['scale_factor']
         elif self.readtype == 'ntuple':
             vals, scales = np.array([[],[]])
             for tree, vg in self.dfs[member].items():

@@ -121,6 +121,12 @@ def get_list_systs(infile, tool, systs=["all"], **kwargs):
         for f in infile.glob("**/test*root"):
             allSysts |= {"_".join(f.stem.split('_')[1:-1])}
 
+    if systs != ['all']:
+        finalSysts = list()
+        for syst in systs:
+            if f'{syst}_up' in allSysts and f'{syst}_down' in allSysts:
+                finalSysts += [f'{syst}_up', f'{syst}_down']
+        allSysts = set(finalSysts)
     return allSysts
 
 def clean_syst(syst):

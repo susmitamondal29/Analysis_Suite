@@ -16,9 +16,7 @@ def setup(cli_args):
     os.environ["NUMEXPR_MAX_THREADS"] = "8"
 
     argList = list()
-    allSysts = get_list_systs(cli_args.workdir, cli_args.tool)
-    # allSysts = ["Nominal"]
-
+    allSysts = get_list_systs(cli_args.workdir, cli_args.tool, cli_args.systs)
     for year in cli_args.years:
         for region in cli_args.regions:
             for syst in allSysts:

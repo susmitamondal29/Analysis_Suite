@@ -14,7 +14,7 @@ def setup(cli_args):
     for year in cli_args.years:
         outdir = cli_args.workdir / year
         outdir.mkdir(exist_ok=True)
-        allSysts = get_list_systs(ntuple.get_file(year=year), cli_args.tool)
+        allSysts = get_list_systs(ntuple.get_file(year=year), cli_args.tool, cli_args.systs)
         for syst in allSysts:
             argList.append((cli_args.workdir, outdir, cli_args.ntuple, year, syst))
     return argList

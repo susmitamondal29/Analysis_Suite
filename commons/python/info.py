@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import importlib
 import numpy as np
 import re
 from dataclasses import dataclass, field
@@ -11,7 +10,6 @@ from analysis_suite.data.PlotGroups import info as ginfo
 
 class GroupInfo:
     def __init__(self, group2color=None, **kwargs):
-        super().__init__(**kwargs)
         self.group2color = group2color if group2color is not None else {}
         self.group2MemberMap = self.get_memberMap()
 

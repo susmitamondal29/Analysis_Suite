@@ -6,7 +6,7 @@ import numpy as np
 
 from analysis_suite.commons.user import workspace_area, combine_area
 
-def runCombine(command, output=True, error=subprocess.DEVNULL):
+def runCombine(command, output=True, error=subprocess.STDOUT):
     setup = [
         f"pushd {combine_area}/ &>/dev/null",
         "eval $(scramv1 runtime -sh 2>/dev/null)",
@@ -34,6 +34,7 @@ def get_cli():
     blind_text = "--run blind" if sys.argv[1] == "asymptotic" else "-t -1"
     parser.add_argument("--blind", default="", action="store_const", const=blind_text)
     parser.add_argument("-r", default=1)
+    parser.add_argument("--debug", action='store_true')
     return parser.parse_args()
 
 def need_redo_t2w(workdir, cardName):
@@ -49,7 +50,7 @@ if __name__ == "__main__":
     card = f'{args.fit_var}_2016_signal_card.root'
     blindness = f'{args.blind} --expectSignal {args.r}'
     if need_redo_t2w(args.workdir, card):
-        runCombine(f'text2workspace.py {card.replace("root", "txt")}', output=False)
+        runCombine(f'text2workspace.py {card.replace("root", "txt")}', output=args.debug)
 
     if args.type == "impact":
         runCombine(f'combineTool.py -M Impacts -d {card} -m 125 --doInitialFit --robustFit 1')

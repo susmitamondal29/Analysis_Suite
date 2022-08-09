@@ -60,7 +60,7 @@ groups = {
         "ttw", "ttz", "tth",
         "ttXY",
         "vvv", "vv_inc", "xg",
-        "nonprompt", "charge_misId",
+        "nonprompt", "charge_flip",
         "tttt",
     ],
     "NotTrained": []
@@ -86,9 +86,9 @@ color_by_group = {
 mc_samples = ['ttt', 'xg', 'ttw', 'tth', 'ttz', 'ttXY', 'rare', 'tttt']
 
 systematics = [
-    Systematic("lumi", "lnN").add(1.012, year=2016)
-                             .add(1.023, year=2017)
-                             .add(1.025, year=2018),
+    Systematic("lumi", "lnN").add(1.012, groups=mc_samples, year=2016)
+                             .add(1.023, groups=mc_samples, year=2017)
+                             .add(1.025, groups=mc_samples, year=2018),
     Systematic("LHE_muF", "shape").add(1, groups=mc_samples),
     Systematic("LHE_muR", "shape").add(1, groups=mc_samples),
     Systematic("PDF_unc", "shape").add(1, groups=mc_samples),
