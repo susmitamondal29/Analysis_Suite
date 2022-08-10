@@ -4,14 +4,16 @@ import uproot as uproot
 import numpy as np
 from copy import copy
 
-class VarGetter:
+from .basegetter import BaseGetter
+
+class VarGetter(BaseGetter):
     single_branch = ["run", "event", "lumiBlock"]
 
-    def __init__(self, filename, treename, group, xsec, syst=0):
+    def __init__(self, filename, treename, group, xsec, syst=0, systName=""):
+        super().__init__()
         self.syst = syst
         self.syst_bit = 2**self.syst
         self.systName = ""
-        self._mask = None
         self.part_name = []
         self.arr = dict()
         self.parts = dict()
@@ -27,6 +29,7 @@ class VarGetter:
         self._base_mask = ak.to_numpy(self._get_var("PassEvent"))
         self._mask = copy(self._base_mask)
         self._scale = ak.to_numpy(self._get_var("weight"))
+        self.setSyst(systName)
 
         if group == "data":
             _, unique_idx = np.unique(ak.to_numpy(self["event"]), return_index=True)
@@ -35,9 +38,6 @@ class VarGetter:
         else:
             sumw = sum(f[group]["sumweight"].values())
             self._scale = xsec/sumw*self._scale
-
-    def __bool__(self):
-        return self._mask is not None
 
     def _get_var(self, name):
         return self.tree[name].array()[:, self.syst]
@@ -59,16 +59,9 @@ class VarGetter:
                 self.arr[key] = self._get_var(key)
         return self.arr[key][self.mask]
 
-    def __getattr__(self, key):
-        return self.__getitem__(key)
-
-    def __len__(self):
-        return np.count_nonzero(self.mask)
-
     def setSyst(self, systName):
-        self.systName = systName
         if systName in ["JES", "JER"]:
-            jec = self.vg.systName.lower().split('_')
+            jec = systName.lower().split('_')
             updown = {"down": "first", "up": "second"}
             self.jec_var = f'jec/{jec[1]}.{updown[jec[2]]}'
         else:
@@ -77,44 +70,6 @@ class VarGetter:
     def mergeParticles(self, merge, part1, part2):
         self.part_name = np.append(self.part_name, merge)
         self.parts[merge] = MergeParticle(self[part1], self[part2])
-
-    # Scale related functions
-
-    @property
-    def scale(self):
-        return self._scale[self.mask]
-
-    @scale.setter
-    def scale(self, scale):
-        if isinstance(scale, tuple):
-            scale, mask = scale
-            self._scale[self.get_submask(mask)] = scale
-        else:
-            self._scale[self.mask] = scale
-
-    def get_submask(self, mask):
-        submask = copy(self.mask)
-        submask[submask] *= mask
-        return submask
-
-    # Mask related functions
-
-    @property
-    def mask(self):
-        return self._mask
-
-    @mask.setter
-    def mask(self, mask):
-        self._mask[self._mask] = mask * self._mask[self._mask]
-
-    def clear_mask(self):
-        self._mask = copy(self._base_mask)
-
-
-    def get_hist(self, var):
-        if not hasattr(self, var):
-            raise AttributeError
-        return self[var], self.scale
 
     def exists(self, branch):
         return branch in self.branches
