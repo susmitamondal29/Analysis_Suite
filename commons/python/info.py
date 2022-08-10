@@ -93,6 +93,7 @@ class NtupleInfo:
     trees: list
     region: str
     cut : Callable[[object], bool] = None
+    branches: list = None
     changes: dict = field(default_factory=dict)
 
     def get_file(self, **kwargs):
@@ -110,4 +111,13 @@ class NtupleInfo:
         if self.cut is None:
             return
         else:
-            vg.mask = self.cut(vg, *args)
+            vg.cut(self.cut(vg, *args))
+
+    def setup_branches(self, vg):
+        if self.branches is None:
+            return
+        if isinstance(self.branches, list):
+            for func in self.branches:
+                func(vg)
+        else:
+            self.branches(vg)

@@ -10,6 +10,7 @@ from copy import copy
 from prettytable import PrettyTable
 
 from analysis_suite.Variable_Creator.vargetter import VarGetter
+from analysis_suite.Variable_Creator.flatgetter import FlatGetter
 from analysis_suite.commons.histogram import Histogram
 from analysis_suite.commons.constants import lumi
 import analysis_suite.commons.configs as config
@@ -47,19 +48,17 @@ class Plotter:
         self.sig = ""
         self.bkg = []
         self.groups = copy(groups)
-        self.readtype = 'flat'
         self.graphs = dict()
         self.lumi = lumi[year]
 
         if ntuple is None:
             self.setup_flat(filename, cuts)
         else:
-            self.readtype = 'ntuple'
             self.setup_ntuple(filename, ntuple, **kwargs)
         self.clean_groups(groups)
 
 
-    def set_groups(self, sig, bkg=None):
+    def set_groups(self, sig=None, bkg=None):
         self.sig = sig
         self.bkg = bkg
 
@@ -89,16 +88,16 @@ class Plotter:
                 for tree in ntuple.trees:
                     if "Signal" in tree and member == "data":
                         continue # blind SR
-                    vg = VarGetter(root_file, tree, member, xsec, syst)
+                    vg = VarGetter(root_file, tree, member, xsec, syst, systName)
+
                     if (new_name := ntuple.get_change(tree, member)):
                         member = new_name
                     if not vg:
                         continue
                     if member not in self.dfs:
                         self.dfs[member] = dict()
+                    ntuple.setup_branches(vg)
                     ntuple.apply_cut(vg)
-                    vg.setSyst(systName)
-                    vg.mergeParticles("TightLepton", "TightMuon", "TightElectron")
                     self.dfs[member][tree] = vg
 
 
@@ -107,9 +106,11 @@ class Plotter:
         with uproot.open(filename) as f:
             for group, members in self.groups.items():
                 for member in members:
-                    if member not in f:
+                    fg = FlatGetter(f, member)
+                    if not fg:
                         continue
-                    self.dfs[member] = self.apply_cut(f[member].arrays(), cuts)
+                    fg.cut(cuts)
+                    self.dfs[member] = fg
 
 
     def fill_hists(self, graphs, ginfo=None, subset=None):
@@ -120,48 +121,26 @@ class Plotter:
         else:
             self.graphs = {graphs.name: graphs}
         self.hists = {name: dict() for name in self.graphs.keys() }
-        for group, members in self.groups.items():
-            for name, graph in self.graphs.items():
-                self.hists[name][group] = Histogram(group, *graph.bins())
+        for name, graph in self.graphs.items():
+            if subset is not None and name not in subset:
+                continue
+            for group, members in self.groups.items():
+                self.hists[name][group] = Histogram(group, *graph.bins(), group_info=ginfo)
                 for member in members:
-                    if subset is not None and name not in subset:
-                        continue
                     vals, weight = self.get_array(member, graph)
                     self.hists[name][group].fill(vals, weight=weight, member=member)
 
-            if ginfo is not None:
-                self.hists[name][group].set_plot_details(ginfo)
-
 
     def get_array(self, member, graph):
-        if self.readtype == 'flat':
-            df = self.apply_cut(self.dfs[member], graph.cuts)
-            return np.nan_to_num(df[graph.func], nan=-1000), df['scale_factor']
-        elif self.readtype == 'ntuple':
-            vals, scales = np.array([[],[]])
+        vals, scales = np.empty((2,0))
+        if isinstance(self.dfs[member], dict):
             for tree, vg in self.dfs[member].items():
-                v, s = graph.func(vg)
+                v, s = vg.get_graph(graph)
                 vals = np.concatenate((vals, v))
                 scales = np.concatenate((scales, s))
-            return vals, scales
-
-
-    def apply_cut(self, df, cut):
-        if cut is None:
-            return df
-        elif isinstance(cut, list):
-            for cut_ in cut:
-                df = apply_cut(df, cut_)
-            return df
         else:
-            if len(cutter := cut.split("<")) > 1:
-                return df[df[cutter[0]] < float(cutter[1])]
-            elif len(cutter := cut.split(">")) > 1:
-                return df[df[cutter[0]] > float(cutter[1])]
-            elif len(cutter := cut.split("==")) > 1:
-                return df[df[cutter[0]] == float(cutter[1])]
-            else:
-                raise Exception(f'{cut} is not formatted correctly')
+            vals, scales = self.dfs[member].get_graph(graph)
+        return vals, scales
 
 
     def get_fom(self, graph, bins, sig_type="likely"):
@@ -180,6 +159,7 @@ class Plotter:
             return config.asymptotic_sig(s_tot, b_tot)
         else:
             raise AttributeError(f"Significance type {sig_type} not allowed!")
+
 
     def plot_from_graph(self, graph, outfile, **kwargs):
         if graph.output == "fom":
@@ -200,13 +180,12 @@ class Plotter:
             bins = graph.bin_tuple.edges
         discrete = np.all(np.unique(np.diff(bins)) == 1)
 
-        with plot(outfile) as ax:
+        with nonratio_plot(outfile, graph.axis_name, graph.bin_tuple.edges, legend=False) as ax:
             sig = self.get_sum(self.sig, graph, self.sig_colors)
             bkg = self.get_sum(self.bkg, graph, self.bkg_colors)
             sig.plot_shape(ax)
             bkg.plot_shape(ax)
             ax.set_ylabel("Normalized Events (A.U)")
-            ax.set_xlabel(graph.axis_name, horizontalalignment='right', x=1.0)
 
             # Plot FOM details
             ax2 = ax.twinx()
@@ -219,6 +198,8 @@ class Plotter:
                 ax2.plot(bins, fom, label=full_label, color = 'k')
             ax2.plot(np.linspace(bins[0], bins[-1], 5), [max(fom)]*5, linestyle=':', color='k')
             ax2.set_ylabel("FOM", horizontalalignment='right', y=1.0)
+            _, top_lim = ax2.get_ylim()
+            ax2.set_ylim(top=top_lim*0.975)
 
             # Make Legend
             lines, labels = ax2.get_legend_handles_labels()
@@ -238,45 +219,53 @@ class Plotter:
             ax.set_ylabel("Normalized Events (A.U)")
 
 
-    # def plot_roc(self, outfile):
-    #     with nonratio_plot(outfile/'roc.png', "False Positive Rate", [0., 1.]) as ax:
-    #         pred, truth, weight = np.array([]), np.array([]), np.array([])
-    #         for group, df in self.dfs.items():
-    #             if group in self.sig:
-    #                 truth = np.append(truth, np.ones(len(df)))
-    #             else:
-    #                 truth = np.append(truth, np.zeros(len(df)))
-    #             weight = np.append(weight, df['scale_factor'])
-    #             pred = np.append(pred, df['Signal'])
-    #         fpr, tpr, _ = roc_curve(truth, pred, sample_weight=weight)
-    #         auc = np.trapz(tpr, fpr)
+    def plot_roc(self, outfile):
+        with nonratio_plot(outfile/'roc.png', "False Positive Rate", [0., 1.]) as ax:
+            pred, truth, weight = np.empty((3,0))
+            for group, members in self.groups.items():
+                for member in members:
+                    df = self.dfs[member]
+                    if group in self.sig:
+                        truth = np.append(truth, np.ones(len(df)))
+                    elif group in self.bkg:
+                        truth = np.append(truth, np.zeros(len(df)))
+                    weight = np.append(weight, df.scale)
+                    pred = np.append(pred, df['Signal'])
+            fpr, tpr, _ = roc_curve(truth, pred, sample_weight=weight)
+            auc = np.trapz(tpr, fpr)
 
-    #         ax.plot(fpr, tpr, label=f'AUC = {auc:.3f}')
-    #         ax.plot(np.linspace(0, 1, 5), np.linspace(0, 1, 5), linestyle=':')
-    #         ax.set_ylabel("True Positive Rate", horizontalalignment='right', y=1.0)
+            ax.plot(fpr, tpr, label=f'AUC = {auc:.3f}')
+            ax.plot(np.linspace(0, 1, 5), np.linspace(0, 1, 5), linestyle=':')
+            ax.set_ylabel("True Positive Rate", horizontalalignment='right', y=1.0)
 
 
     def plot_stack(self, name, outfile, **kwargs):
         graph = self.graphs[name]
-        signal = self.hists[graph.name][self.sig]
+        signal = self.hists[name].get(self.sig, Histogram(""))
+        data = self.hists[name].get('data', Histogram(""))
         stack = self.make_stack(name)
-        data = False
+        plotter = ratio_plot if data else nonratio_plot
 
-        with ratio_plot(outfile, graph.axis_name, stack.get_xrange(), **kwargs) as ax:
+        with plotter(outfile, graph.axis_name, stack.get_xrange(), **kwargs) as ax:
             ratio = Histogram("Ratio", graph.bin_tuple, color="black")
             band = Histogram("Ratio", graph.bin_tuple, color="plum")
             error = Histogram("Stat Errors", graph.bin_tuple, color="plum")
 
-            ratio += signal/stack
+            if data:
+                ratio += data/stack
             band += stack/stack
             for hist in stack.stack:
                 error += hist
 
-            pad, subpad = ax
+            if data:
+                pad, subpad = ax
+            else:
+                pad, subpad = ax, None
 
             #upper pad
             stack.plot_stack(pad)
             signal.plot_points(pad)
+            data.plot_points(pad)
             error.plot_band(pad)
 
             # ratio pad

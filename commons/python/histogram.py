@@ -8,12 +8,15 @@ import warnings
 
 class Histogram:
     def __init__(self, group, *args, **kwargs):
+        if len(args) == 0:
+            args = (bh.axis.Regular(1, 0, 1),)
         self.hist = bh.Histogram(*args, storage=bh.storage.Weight())
         self.breakdown = dict()
         self.group = group
-        self.color = "k" if "color" not in kwargs else kwargs["color"]
+        self.color = kwargs.get('color', 'k')
         self.name = ""
         self.draw_sc = 1.
+        self.set_plot_details(kwargs.get('group_info'))
 
     def __add__(self, right):
         hist = Histogram(self.group, self.axis)
@@ -141,7 +144,9 @@ class Histogram:
             self.move_overflow()
 
     def set_plot_details(self, group_info):
-        if isinstance(group_info, list):
+        if group_info is None:
+            return
+        elif isinstance(group_info, list):
             self.name = group_info[0]
             self.color = group_info[1]
         else:

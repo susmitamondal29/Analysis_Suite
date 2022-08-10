@@ -89,8 +89,9 @@ def get_inputs(workdir):
         workdir = Path(workdir)
     return import_module('.inputs', f'workspace.{workdir.stem}')
 
-def get_ntuple(name):
-    return import_module(f'.{name}', 'ntuple_info').info
+def get_ntuple(name, obj='info'):
+    module = import_module(f'.{name}', 'ntuple_info')
+    return getattr(module, obj)
 
 
 def findScale(ratio):

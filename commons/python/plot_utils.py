@@ -34,7 +34,8 @@ def nonratio_plot(filename, xlabel, binning, **kwargs):
     yield ax
     setup_ticks(ax)
     axisSetup(ax, xlabel=xlabel, binning=binning, **kwargs)
-    ax.legend()
+    if kwargs.get('legend', True):
+        ax.legend()
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         fig.tight_layout()
@@ -81,7 +82,7 @@ def ticks(pad):
     pad.tick_params(direction="in", length=4, which='minor', top=True,
                     right=True)
 
-def axisSetup(pad, subpad=None, xlabel="", binning=None, ratio_top=2.0, ratio_bot=0.0):
+def axisSetup(pad, subpad=None, xlabel="", binning=None, ratio_top=2.0, ratio_bot=0.0, **kwargs):
     xpad = pad if subpad is None else subpad
     if xlabel:
         xpad.set_xlabel(xlabel)
