@@ -25,9 +25,9 @@ class BaseGetter:
     def scale(self, scale):
         if isinstance(scale, tuple):
             scale, mask = scale
-            self._scale[self.get_submask(mask)] = scale
+            self._scale[self.get_submask(mask)] = scale * self._scale[self.get_submask(mask)]
         else:
-            self._scale[self.mask] = scale
+            self._scale[self.mask] = scale * self._scale[self.mask]
 
     def get_submask(self, mask):
         submask = copy(self.mask)
@@ -40,6 +40,8 @@ class BaseGetter:
 
     @mask.setter
     def mask(self, mask):
+        if callable(mask):
+            mask = mask(self)
         self._mask[self._mask] = mask * self._mask[self._mask]
 
     def clear_mask(self):

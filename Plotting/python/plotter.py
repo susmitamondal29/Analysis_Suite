@@ -8,6 +8,7 @@ from sklearn.metrics import roc_curve
 from scipy.stats import kurtosis
 from copy import copy
 from prettytable import PrettyTable
+from pathlib import Path
 
 from analysis_suite.Variable_Creator.vargetter import VarGetter
 from analysis_suite.Variable_Creator.flatgetter import FlatGetter
@@ -35,6 +36,14 @@ class GraphInfo:
         else:
             return (self.bin_tuple,)
 
+    def dim(self):
+        return len(self.bins())
+
+    def edges(self, i=0):
+        if isinstance(self.bin_tuple, tuple):
+            return self.bin_tuple[0].edges
+        else:
+            return self.bin_tuple.edges
 
 
 class Plotter:
@@ -47,9 +56,11 @@ class Plotter:
         self.dfs = dict()
         self.sig = ""
         self.bkg = []
+        self.data = 'data'
         self.groups = copy(groups)
         self.graphs = dict()
         self.lumi = lumi[year]
+        self.workdir = Path('.')
 
         if ntuple is None:
             self.setup_flat(filename, cuts)
@@ -58,10 +69,11 @@ class Plotter:
         self.clean_groups(groups)
 
 
-    def set_groups(self, sig=None, bkg=None):
+    def set_groups(self, sig="", bkg=None, data=None):
         self.sig = sig
-        self.bkg = bkg
-
+        self.bkg = list() if bkg is None else [b for b in bkg if b in self.groups]
+        if data is not None:
+            self.data = data
 
     def clean_groups(self, groups):
         for group, members in groups.items():
@@ -79,26 +91,24 @@ class Plotter:
     def setup_ntuple(self, filenames, ntuple, systName="Nominal"):
         root_files = filenames.glob("*.root") if filenames.is_dir() else [filenames]
         for root_file in root_files:
-            members = config.get_dirnames(root_file)
             syst = config.get_syst_index(root_file, systName)
             if syst == -1:
                 continue
-            for member in members:
-                xsec = fileInfo.get_xsec(member)*self.lumi*1000 if member != 'data' else 1
-                for tree in ntuple.trees:
-                    if "Signal" in tree and member == "data":
-                        continue # blind SR
-                    vg = VarGetter(root_file, tree, member, xsec, syst, systName)
-
-                    if (new_name := ntuple.get_change(tree, member)):
-                        member = new_name
-                    if not vg:
-                        continue
-                    if member not in self.dfs:
-                        self.dfs[member] = dict()
-                    ntuple.setup_branches(vg)
-                    ntuple.apply_cut(vg)
-                    self.dfs[member][tree] = vg
+            for group, members in self.groups.items():
+                for member in members:
+                    xsec = 1. if fileInfo.is_data(member) else fileInfo.get_xsec(member)*self.lumi*1000
+                    for tree in ntuple.trees:
+                        if ntuple.ignore(tree, group):
+                            continue
+                        vg = VarGetter(root_file, tree, member, xsec, syst, systName)
+                        if not vg:
+                            continue
+                        member = ntuple.get_change(tree, member)
+                        if member not in self.dfs:
+                            self.dfs[member] = dict()
+                        ntuple.setup_branches(vg)
+                        ntuple.apply_cut(vg)
+                        self.dfs[member][tree] = vg
 
 
     def setup_flat(self, filename, cuts):
@@ -128,19 +138,66 @@ class Plotter:
                 self.hists[name][group] = Histogram(group, *graph.bins(), group_info=ginfo)
                 for member in members:
                     vals, weight = self.get_array(member, graph)
-                    self.hists[name][group].fill(vals, weight=weight, member=member)
+                    self.hists[name][group].fill(*vals, weight=weight, member=member)
+
+    def mask(self, mask):
+        for vg in self.dfs.values():
+            if isinstance(vg, dict):
+                for subvg in vg.values():
+                    subvg.clear_mask()
+                    subvg.mask = mask
+            else:
+                vg.clear_mask()
+                vg.mask = mask
+
+    def scale(self, scaler, groups=None):
+        if groups is None:
+            for vg in self.dfs.values():
+                self._scale(vg, scaler)
+        elif isinstance(groups, str):
+            for member in self.groups[groups]:
+                self._scale(self.dfs[member], scaler)
+        else:
+            for group in groups:
+                for member in self.groups[group]:
+                    self._scale(self.dfs[member], scaler)
+
+    def _scale(self, vg, scaler):
+        if isinstance(vg, dict):
+            for subvg in vg.values():
+                scaler(subvg)
+        else:
+            scaler(vg)
+
+    def scale_hists(self, group, scale, scale_df=False):
+        for name, hist in self.hists.items():
+            hist[group].scale(scale, changeName=True)
+        if not scale_df:
+            return
+
+        for member in self.groups[group]:
+            if isinstance(self.dfs[member], dict):
+                for subdf in self.dfs[member].values():
+                    subdf.scale = scale
+            else:
+                self.dfs[member].scale = scale
 
 
     def get_array(self, member, graph):
-        vals, scales = np.empty((2,0))
         if isinstance(self.dfs[member], dict):
+            vals = [[] for _ in range(graph.dim())]
+            scales = []
             for tree, vg in self.dfs[member].items():
                 v, s = vg.get_graph(graph)
-                vals = np.concatenate((vals, v))
+                if graph.dim() == 1:
+                    vals = [np.concatenate((val, v)) for i, val in enumerate(vals)]
+                else:
+                    vals = [np.concatenate((val, v[i])) for i, val in enumerate(vals)]
                 scales = np.concatenate((scales, s))
+            return vals, scales
         else:
             vals, scales = self.dfs[member].get_graph(graph)
-        return vals, scales
+            return [vals], scales
 
 
     def get_fom(self, graph, bins, sig_type="likely"):
@@ -163,9 +220,9 @@ class Plotter:
 
     def plot_from_graph(self, graph, outfile, **kwargs):
         if graph.output == "fom":
-            self.plot_fom(graph.name, outfile)
+            self.plot_fom(graph.name, outfile, **kwargs)
         elif graph.output == "shape":
-            self.plot_shape(graph.name, outfile)
+            self.plot_shape(graph.name, outfile, **kwargs)
         elif graph.output == 'roc':
             self.plot_roc(outfile)
         elif graph.output == 'stack':
@@ -174,13 +231,13 @@ class Plotter:
             raise AttributeError(f"Not correct Output type: graph.output=={graph.output}")
         
 
-    def plot_fom(self, name, outfile, bins=None, sig_type='likely'):
+    def plot_fom(self, name, outfile, bins=None, sig_type='likely', chan=None):
         graph = self.graphs[name]
         if bins is None:
             bins = graph.bin_tuple.edges
         discrete = np.all(np.unique(np.diff(bins)) == 1)
 
-        with nonratio_plot(outfile, graph.axis_name, graph.bin_tuple.edges, legend=False) as ax:
+        with nonratio_plot(self.workdir/outfile, graph.axis_name.format(chan), graph.bin_tuple.edges, legend=False) as ax:
             sig = self.get_sum(self.sig, graph, self.sig_colors)
             bkg = self.get_sum(self.bkg, graph, self.bkg_colors)
             sig.plot_shape(ax)
@@ -209,9 +266,9 @@ class Plotter:
         return (fom, maxbin)
 
 
-    def plot_shape(self, name, outfile):
+    def plot_shape(self, name, outfile, chan=None):
         graph = self.graphs[name]
-        with nonratio_plot(outfile, graph.axis_name, graph.bin_tuple.edges) as ax:
+        with nonratio_plot(self.workdir/outfile, graph.axis_name.format(chan), graph.bin_tuple.edges) as ax:
             sig = self.get_sum(self.sig, graph, self.sig_colors)
             bkg = self.get_sum(self.bkg, graph, self.bkg_colors)
             sig.plot_shape(ax)
@@ -219,8 +276,8 @@ class Plotter:
             ax.set_ylabel("Normalized Events (A.U)")
 
 
-    def plot_roc(self, outfile):
-        with nonratio_plot(outfile/'roc.png', "False Positive Rate", [0., 1.]) as ax:
+    def plot_roc(self):
+        with nonratio_plot(self.workdir/'roc.png', "False Positive Rate", [0., 1.]) as ax:
             pred, truth, weight = np.empty((3,0))
             for group, members in self.groups.items():
                 for member in members:
@@ -239,14 +296,14 @@ class Plotter:
             ax.set_ylabel("True Positive Rate", horizontalalignment='right', y=1.0)
 
 
-    def plot_stack(self, name, outfile, **kwargs):
+    def plot_stack(self, name, outfile, chan=None, **kwargs):
         graph = self.graphs[name]
         signal = self.hists[name].get(self.sig, Histogram(""))
-        data = self.hists[name].get('data', Histogram(""))
+        data = self.hists[name].get(self.data, Histogram(""))
         stack = self.make_stack(name)
         plotter = ratio_plot if data else nonratio_plot
 
-        with plotter(outfile, graph.axis_name, stack.get_xrange(), **kwargs) as ax:
+        with plotter(self.workdir/outfile, graph.axis_name.format(chan), stack.get_xrange(), **kwargs) as ax:
             ratio = Histogram("Ratio", graph.bin_tuple, color="black")
             band = Histogram("Ratio", graph.bin_tuple, color="plum")
             error = Histogram("Stat Errors", graph.bin_tuple, color="plum")
@@ -267,6 +324,9 @@ class Plotter:
             signal.plot_points(pad)
             data.plot_points(pad)
             error.plot_band(pad)
+
+            if (region := kwargs.get('region', False)):
+                subpad.text(graph.edges()[0], -0.7, region.format(chan))
 
             # ratio pad
             ratio.plot_points(subpad)

@@ -67,9 +67,10 @@ class VarGetter(BaseGetter):
         else:
             self.jec_var = ""
 
-    def mergeParticles(self, merge, part1, part2):
+    def mergeParticles(self, merge, *parts):
         self.part_name = np.append(self.part_name, merge)
-        self.parts[merge] = MergeParticle(self[part1], self[part2])
+        self.parts[merge] = MergeParticle([self[part] for part in parts])
+
 
     def exists(self, branch):
         return branch in self.branches
@@ -188,7 +189,7 @@ class Particle:
 
     # Functions for a particle
 
-    def abseta(self, idx):
+    def abseta(self, idx=-1):
         return np.abs(self['eta', idx])
 
     def num(self):
@@ -206,7 +207,7 @@ class Particle:
     def energy(self, idx=-1):
         return np.sqrt(self['mass', idx]**2 + (self['pt', idx]*np.cosh(self['eta', idx]))**2)
 
-    def mt(self, idx):
+    def mt(self, idx=-1):
         mask = self.num() > idx
         angle_part = 1-np.cos(self['phi', idx] - self.vg["Met_phi"][mask])
         return np.sqrt(2*self['pt', idx] * self.vg["Met"][mask] * angle_part)
@@ -216,28 +217,48 @@ class Particle:
 
 
 class MergeParticle:
-    def __init__(self, part1, part2):
-        self.part1 = part1
-        self.part2 = part2
-        self.idx_sort = ak.argsort(ak.concatenate((part1.pt, part2.pt), axis=-1), ascending=False)
+    def __init__(self, parts):
+        self.parts = parts
+        self._idx_sort = ak.argsort(self.get_list("pt"), ascending=False)
+        self.vg = self.parts[0].vg
         self.__pad__ = False
 
     def pad(self):
         self.__pad__ = True
 
+    @property
+    def mask(self):
+        return self.vg.mask[self.vg._base_mask]
+
+    @property
+    def idx_sort(self):
+        return self._idx_sort[self.mask]
+
     def __getattr__(self, var):
-        if callable(getattr(self.part1, var)):
-            return lambda : ak.concatenate((getattr(self.part1, var)(), getattr(self.part2, var)()), axis=-1)[self.idx_sort]
-        else:
-            return ak.concatenate((self.part1.__getattr__(var), self.part2.__getattr__(var)), axis=-1)[self.idx_sort]
+        return self.get_list(var)[self.idx_sort]
 
     def __getitem__(self, idx):
         var, idx = idx
-        if callable(getattr(self.part1, var)):
-            vals = ak.concatenate((getattr(self.part1, var)(), getattr(self.part2, var)()), axis=-1)[self.idx_sort]
-        else:
-            vals = ak.concatenate((self.part1.__getattr__(var), self.part2.__getattr__(var)), axis=-1)[self.idx_sort]
+        vals = self.get_list(var)[self.idx_sort]
         if self.__pad__:
-            vals = ak.pad_none(vals, idx+1)
-        return ak.to_numpy(vals[:, idx])
+            return ak.to_numpy(ak.pad_none(vals, idx+1)[:, idx])
+        else:
+            return vals[ak.num(vals) > idx, idx]
 
+    def num(self):
+        return ak.num(self.idx_sort, axis=-1)
+
+    def scale(self, idx):
+        return self.vg.scale[ak.num(self.pt, axis=-1) > idx]
+
+    def get_list(self, var):
+        if callable(getattr(self.parts[0], var)):
+            return ak.concatenate((getattr(part, var)() for part in self.parts), axis=-1)
+        else:
+            return ak.concatenate((part.__getattr__(var) for part in self.parts), axis=-1)
+
+    def get_hist(self, var, idx):
+        return self[var, idx], self.scale(idx)
+
+    def get_hist2d(self, var1, var2, idx):
+        return (self[var1, idx], self[var2, idx]), self.scale(idx)
