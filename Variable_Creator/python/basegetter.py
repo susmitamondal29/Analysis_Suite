@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 from copy import copy
+import awkward as ak
 
 class BaseGetter:
     def __init__(self):
@@ -25,13 +26,14 @@ class BaseGetter:
     def scale(self, scale):
         if isinstance(scale, tuple):
             scale, mask = scale
+            # print(len(mask), len(self.mask), ak.count_nonzero(self.mask))
             self._scale[self.get_submask(mask)] = scale * self._scale[self.get_submask(mask)]
         else:
             self._scale[self.mask] = scale * self._scale[self.mask]
 
     def get_submask(self, mask):
         submask = copy(self.mask)
-        submask[submask] *= mask
+        submask[submask] = mask * submask[submask]
         return submask
 
     @property

@@ -103,13 +103,12 @@ class Plotter:
                         vg = VarGetter(root_file, tree, member, xsec, syst, systName)
                         if not vg:
                             continue
-                        member = ntuple.get_change(tree, member)
-                        if member not in self.dfs:
-                            self.dfs[member] = dict()
+                        name = ntuple.get_change(tree, member)
+                        if name not in self.dfs:
+                            self.dfs[name] = dict()
                         ntuple.setup_branches(vg)
                         ntuple.apply_cut(vg)
-                        self.dfs[member][tree] = vg
-
+                        self.dfs[name][tree] = vg
 
     def setup_flat(self, filename, cuts):
         remove = list()
@@ -140,14 +139,16 @@ class Plotter:
                     vals, weight = self.get_array(member, graph)
                     self.hists[name][group].fill(*vals, weight=weight, member=member)
 
-    def mask(self, mask):
+    def mask(self, mask, clear=True):
         for vg in self.dfs.values():
             if isinstance(vg, dict):
                 for subvg in vg.values():
-                    subvg.clear_mask()
+                    if clear:
+                        subvg.clear_mask()
                     subvg.mask = mask
             else:
-                vg.clear_mask()
+                if clear:
+                    vg.clear_mask()
                 vg.mask = mask
 
     def scale(self, scaler, groups=None):
@@ -231,7 +232,7 @@ class Plotter:
             raise AttributeError(f"Not correct Output type: graph.output=={graph.output}")
         
 
-    def plot_fom(self, name, outfile, bins=None, sig_type='likely', chan=None):
+    def plot_fom(self, name, outfile, bins=None, sig_type='likely', chan=None, **kwargs):
         graph = self.graphs[name]
         if bins is None:
             bins = graph.bin_tuple.edges
@@ -266,9 +267,10 @@ class Plotter:
         return (fom, maxbin)
 
 
-    def plot_shape(self, name, outfile, chan=None):
+    def plot_shape(self, name, outfile, chan=None, **kwargs):
         graph = self.graphs[name]
-        with nonratio_plot(self.workdir/outfile, graph.axis_name.format(chan), graph.bin_tuple.edges) as ax:
+        axis_name = graph.axis_name if chan is None else graph.axis_name.format(chan)
+        with nonratio_plot(self.workdir/outfile, axis_name, graph.bin_tuple.edges) as ax:
             sig = self.get_sum(self.sig, graph, self.sig_colors)
             bkg = self.get_sum(self.bkg, graph, self.bkg_colors)
             sig.plot_shape(ax)
@@ -303,7 +305,8 @@ class Plotter:
         stack = self.make_stack(name)
         plotter = ratio_plot if data else nonratio_plot
 
-        with plotter(self.workdir/outfile, graph.axis_name.format(chan), stack.get_xrange(), **kwargs) as ax:
+        axis_name = graph.axis_name if chan is None else graph.axis_name.format(chan)
+        with plotter(self.workdir/outfile, axis_name, stack.get_xrange(), **kwargs) as ax:
             ratio = Histogram("Ratio", graph.bin_tuple, color="black")
             band = Histogram("Ratio", graph.bin_tuple, color="plum")
             error = Histogram("Stat Errors", graph.bin_tuple, color="plum")

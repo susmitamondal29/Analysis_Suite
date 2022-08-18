@@ -22,7 +22,6 @@ class VarGetter(BaseGetter):
         f = uproot.open(filename)
         if group not in f or treename not in f[group]:
             return
-
         self.tree = f[group][treename]
         self.branches = [key for key, array in self.tree.items() if len(array.keys()) == 0]
         self.part_name = np.unique([br.split('/')[0] for br in self.branches if '/' in br])
@@ -90,7 +89,7 @@ class VarGetter(BaseGetter):
         return np.sqrt(deta**2 + dphi**2)
 
     def dphi(self, part1, idx1, part2, idx2):
-        dphi = self[part1]["phi", idx1] - self[part2]["phi", idx2]
+        dphi = ak.to_numpy(self[part1]["phi", idx1] - self[part2]["phi", idx2])
         dphi[dphi > np.pi] = dphi[dphi > np.pi] - np.pi
         dphi[dphi < -np.pi] = dphi[dphi < -np.pi] + np.pi
         return dphi
@@ -159,18 +158,6 @@ class Particle:
         else:
             return self._get_val('pt', idx)
 
-    def padding(func):
-        def inner(self, *args, pad=False, fill=-1):
-            print(args)
-            if pad:
-                self.__pad__ = True
-                vals = ak.fill_none(func(self, *args), fill)
-                self.__pad__ = False
-                return ak.to_numpy(vals)
-            else:
-                return func(self, *args)
-        return inner
-
     # def get_hist(self, var, idx, *args):
     #     return self._get_val(var, idx, *args), self.scale(idx)
 
@@ -238,9 +225,13 @@ class MergeParticle:
         return self.get_list(var)[self.idx_sort]
 
     def __getitem__(self, idx):
-        var, idx = idx
+        pad = False
+        if len(idx) == 2:
+            var, idx = idx
+        else:
+            var, idx, pad = idx
         vals = self.get_list(var)[self.idx_sort]
-        if self.__pad__:
+        if pad:
             return ak.to_numpy(ak.pad_none(vals, idx+1)[:, idx])
         else:
             return vals[ak.num(vals) > idx, idx]

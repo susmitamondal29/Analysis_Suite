@@ -6,7 +6,7 @@ import argparse
 import itertools
 import re
 
-from analysis_suite.commons.info import GroupInfo, FileInfo
+from analysis_suite.commons.info import GroupInfo, fileInfo
 from analysis_suite.commons.user import analysis_area, xrd_tag
 
 condition_dict = {
