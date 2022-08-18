@@ -8,6 +8,7 @@ void Lepton::setup(std::string name, TTreeReader& fReader, bool isMC)
     m_charge.setup(fReader, name + "_charge");
     dz.setup(fReader, name + "_dz");
     dxy.setup(fReader, name + "_dxy");
+    mvaTTH.setup(fReader, name + "_mvaTTH");
     if (isMC) {
         genPartIdx.setup(fReader, name+"_genPartIdx");
     }
@@ -81,8 +82,8 @@ bool Lepton::passJetIsolation(size_t idx, const Particle& jets)
 {
     // if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
     //     return true; /// no close jet (probably no jets)
-    // return iso.at(idx) < isoCut;
-    return iso.at(idx) < isoCut && ( ptRatio(idx) > ptRatioCut || ptRel.at(idx) > ptRelCut );
+    return iso.at(idx) < isoCut;
+    // return iso.at(idx) < isoCut && ( ptRatio(idx) > ptRatioCut || ptRel.at(idx) > ptRelCut );
 }
 
 float Lepton::fillFakePt(size_t idx, const Particle& jets) const

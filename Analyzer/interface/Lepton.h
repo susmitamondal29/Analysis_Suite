@@ -37,7 +37,7 @@ public:
 
     virtual void setupGoodLists(Particle& jets, GenParticle& gen) override
     {
-        fakePtFactor.resize(size());
+        fakePtFactor.assign(size(), 1.);
         createLooseList();
         createFakeList(jets);
         createTightList(jets);
@@ -58,6 +58,7 @@ public:
 
     float isoCut, ptRatioCut, ptRelCut;
 
+    TRArray<Float_t> mvaTTH;
     TRArray<Float_t> ptRel;
     TRArray<Float_t> ptRatio_;
  

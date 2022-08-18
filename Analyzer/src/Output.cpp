@@ -59,6 +59,7 @@ void fillLepton_Fake(const Lepton& lep, Level level, LeptonOut_Fake& fillObject,
         if (final_bitmap != 0) {
             fillObject.ptRatio.push_back(lep.ptRatio(idx));
             fillObject.ptRel.push_back(lep.ptRel.at(idx));
+            fillObject.mvaTTH.push_back(lep.mvaTTH.at(idx));
         }
     }
     LOG_FUNC << "End of fillLepon";

@@ -87,6 +87,7 @@ struct LeptonOut_Fake {
     std::vector<Float_t> mass;
     std::vector<Float_t> ptRatio;
     std::vector<Float_t> ptRel;
+    std::vector<Float_t> mvaTTH;
     std::vector<Int_t> syst_bitMap;
     void clear()
     {
@@ -96,6 +97,7 @@ struct LeptonOut_Fake {
         mass.clear();
         ptRatio.clear();
         ptRel.clear();
+        mvaTTH.clear();
         syst_bitMap.clear();
     }
 };

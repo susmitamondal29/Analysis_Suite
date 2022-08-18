@@ -55,7 +55,7 @@ void Electron::createFakeList(Particle& jets)
             && tightCharge.at(i) == 2)
         {
             auto closejet_info = getCloseJet(i, jets);
-            fakePtFactor[i] = fillFakePt(i, jets);
+            // fakePtFactor[i] = fillFakePt(i, jets);
             if (pt(i) > 15) {
                 m_partList[Level::Fake]->push_back(i);
                 dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(closejet_info);
