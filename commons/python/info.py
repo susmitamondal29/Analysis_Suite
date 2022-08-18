@@ -80,6 +80,8 @@ class FileInfo:
     def is_data(self, group):
         if group == 'data':
             return True
+        elif isinstance(group, str) and  group not in finfo:
+            return True
         for split in map(str.lower, group):
             if "data" in split:
                 return True
@@ -95,6 +97,7 @@ class NtupleInfo:
     cut : Callable[[object], bool] = None
     branches: list = None
     changes: dict = field(default_factory=dict)
+    ignores: dict = field(default_factory=dict)
 
     def get_file(self, **kwargs):
         return Path(str(self.filename).format(**kwargs))
@@ -102,10 +105,20 @@ class NtupleInfo:
     def add_change(self, tree, changes):
         self.changes[tree] = changes
 
+    def add_ignore(self, tree, ignores):
+        if isinstance(ignores, str):
+            ignores = [ignores]
+        self.ignores[tree] = ignores
+
+    def ignore(self, tree, group):
+        if tree in self.ignores:
+            return group in self.ignores[tree]
+        return False
+
     def get_change(self, tree, member):
         if tree in self.changes and member in self.changes[tree]:
             return self.changes[tree][member]
-        return ""
+        return member
 
     def apply_cut(self, vg, *args):
         if self.cut is None:

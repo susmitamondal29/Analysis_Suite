@@ -3,11 +3,10 @@ import os
 import argparse
 from analysis_suite.commons import fileInfo
 import analysis_suite.commons.configs as configs
-from pathlib import Path
-import numpy as np
-from multiprocessing import Pool
-import subprocess
+import analysis_suite.commons.user as user
 import yaml
+import uproot
+import numpy as np
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
@@ -16,6 +15,9 @@ ROOT.gROOT.ProcessLine( "gErrorIgnoreLevel = 1001;")
 def setInputs(inputs):
     root_inputs = ROOT.TList()
     for key, data in inputs.items():
+        if isinstance(data, (str, int, float, bool)):
+            root_inputs.Add(ROOT.TNamed(key, str(data)))
+            continue
         subList = ROOT.TList()
         subList.SetName(key)
         if isinstance(data, dict):
@@ -24,26 +26,37 @@ def setInputs(inputs):
         elif isinstance(data, list):
             for subitem in data:
                 subList.Add(ROOT.TNamed(subitem, subitem))
-        elif isinstance(data, (str, int, float, bool)):
-            root_inputs.Add(ROOT.TNamed(key, str(data)))
-            continue
         root_inputs.Add(subList)
     return root_inputs
 
 
 def getSumW(infiles):
-    runChain = ROOT.TChain()
-    sumweight = ROOT.TH1F("sumweight", "sumweight", 1, 0, 1)
-    for fname in infiles:
-        runChain.Add(f"{fname}/Runs")
+    output = ROOT.TH1F('sumweight', 'sumweight', 14, 0, 14)
+    LHESCALE, PDF, ALPHAZ = 1, 10, 12
+    fChain = ROOT.TChain()
+    for fname in files:
+        fChain.Add(f"{fname}/Runs")
+    for entry in fChain:
+        sumW = entry.genEventSumw if hasattr(entry, 'genEventSumw') else -1
+        output.Fill(0, sumW)
+        if hasattr(entry, "LHEScaleSumw"):
+            for i, scale in enumerate(entry.LHEScaleSumw):
+                output.Fill(LHESCALE+i, scale*sumW)
+        if hasattr(entry, "LHEPdfSumw"):
+            if len(entry.LHEPdfSumw) >= 101:
+                pdf = sorted([entry.LHEPdfSumw[i] for i in range(101)])
+                err = (pdf[85] - pdf[15])/2
+                output.Fill(PDF, (pdf[50]-err)*sumW)
+                output.Fill(PDF+1, (pdf[50]+err)*sumW)
+            # Alpha Z sumweight
+            if len(entry.LHEPdfSumw) == 103:
+                output.Fill(ALPHAZ, entry.LHEPdfSumw[101]*sumW)
+                output.Fill(ALPHAZ+1, entry.LHEPdfSumw[102]*sumW)
+            else:
+                output.Fill(ALPHAZ, sumW)
+                output.Fill(ALPHAZ+1, sumW)
+    return output
 
-    if runChain.GetBranchStatus("genEventSumw"):
-        runChain.Draw("0>>sumweight",  "genEventSumw")
-    else:
-        pass
-    return sumweight
-
-# Use for file in hdfs area
 def get_info_local(filename):
     year="2016"
     return {"year": year, "sampleName": "data", "selection": "test"}
@@ -119,12 +132,10 @@ if __name__ == "__main__":
         details = get_info_local(testfile)
 
     groupName = fileInfo.get_group(details["sampleName"])
-    datadir = Path(os.getenv("CMSSW_BASE"))/"src"/"analysis_suite"/"data"
-
     if args.analysis:
         analysis = args.analysis
     else:
-        with open(datadir /".analyze_info") as f:
+        with open(user.analysis_area/"data/.analyze_info") as f:
             analysis = f.readline().strip()
 
     # Setup inputs
@@ -135,10 +146,10 @@ if __name__ == "__main__":
         'Analysis': analysis,
         'Selection': details["selection"],
         'Year': details["year"],
+        'Xsec': 1,
+        'isData': True
     }
-    if args.test:
-        inputs['MetaData'].update({'Xsec': 1, 'isData': True})
-    else:
+    if not args.test:
         inputs['MetaData'].update({'Xsec': fileInfo.get_xsec(groupName), 'isData': fileInfo.is_data(groupName)})
     inputs["Verbosity"] = args.verbose
     inputs["Systematics"] = configs.get_shape_systs() if not args.no_syst else []
@@ -153,7 +164,6 @@ if __name__ == "__main__":
     for fname in files:
         fChain.Add(f"{fname}/Events")
 
-
     if args.cores == 1:
         selector = getattr(ROOT, analysis)()
         with configs.rOpen(outputfile, "RECREATE") as rOutput:
@@ -162,29 +172,8 @@ if __name__ == "__main__":
             fChain.Process(selector, "")
             ## Output
             anaFolder = selector.getOutdir()
-            anaFolder.WriteObject(getSumW(files), "sumweight")
+            anaFolder.WriteObject(getSumW(files), 'sumweight')
             for tree in [tree.tree for tree in selector.getTrees()]:
                 anaFolder.WriteObject(tree, tree.GetTitle())
             for i in selector.GetOutputList():
                 anaFolder.WriteObject(i, i.GetName())
-    else:
-        nEntries= fChain.GetEntries()
-        job_size = np.ceil(nEntries/args.cores)
-        starts = np.arange(nEntries, step=job_size)
-        steps = job_size*np.ones(args.cores)
-        steps[-1] += nEntries - np.sum(steps)
-
-        argList = []
-        for start, step in zip(starts, steps):
-            argList.append((int(start), int(step), files, inputs, getattr(ROOT, inputs["MetaData"]["Analysis"])()))
-
-        with Pool(args.cores) as pool:
-            pool.starmap(run_multi, argList)
-
-        subprocess.call(f"hadd -f -v 1 {outputfile} tmp*.root", shell=True)
-        with configs.rOpen(outputfile, "UPDATE") as rOutput:
-            anaFolder = rOutput.GetDirectory(groupName)
-            anaFolder.WriteObject(getSumW(files), "sumweight")
-
-        for tmp_file in Path(".").glob("tmp*root"):
-            tmp_file.unlink()

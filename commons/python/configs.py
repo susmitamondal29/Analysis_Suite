@@ -9,6 +9,8 @@ from contextlib import contextmanager
 from importlib import import_module
 from pathlib import Path
 
+from .user import analysis_area
+
 def get_cli():
     from .user import workspace_area, analysis_area
     import analysis_suite.data.plotInfo as plotInfo
@@ -85,11 +87,15 @@ def setup(args):
 
 
 def get_inputs(workdir):
+    if str(analysis_area) not in sys.path:
+        sys.path.append(str(analysis_area))
     if not isinstance(workdir, Path):
         workdir = Path(workdir)
     return import_module('.inputs', f'workspace.{workdir.stem}')
 
 def get_ntuple(name, obj='info'):
+    if str(analysis_area) not in sys.path:
+        sys.path.append(str(analysis_area))
     module = import_module(f'.{name}', 'ntuple_info')
     return getattr(module, obj)
 
@@ -127,6 +133,8 @@ def get_list_systs(infile, tool, systs=["all"], **kwargs):
         for syst in systs:
             if f'{syst}_up' in allSysts and f'{syst}_down' in allSysts:
                 finalSysts += [f'{syst}_up', f'{syst}_down']
+            elif syst == "Nominal":
+                finalSysts.append("Nominal")
         allSysts = set(finalSysts)
     return allSysts
 
