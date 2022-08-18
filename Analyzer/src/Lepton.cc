@@ -3,8 +3,6 @@
 
 #include <limits>
 
-bool Lepton::useFakePt = false;
-
 void Lepton::setup(std::string name, TTreeReader& fReader, bool isMC)
 {
     m_charge.setup(fReader, name + "_charge");
@@ -16,9 +14,12 @@ void Lepton::setup(std::string name, TTreeReader& fReader, bool isMC)
 
     // Isolation variables
     ptRel.setup(fReader, name + "_jetPtRelv2");
-    ptRatio.setup(fReader, name + "_jetRelIso");
+    ptRatio_.setup(fReader, name + "_jetRelIso");
     iso.setup(fReader, name + "_miniPFRelIso_all");
 
+    isoCut = 0.1;
+    ptRatioCut = 0.85;
+    ptRelCut = 8.5;
 
     GenericParticle::setup(name, fReader);
     setup_map(Level::Loose);
@@ -80,7 +81,8 @@ bool Lepton::passJetIsolation(size_t idx, const Particle& jets)
 {
     // if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
     //     return true; /// no close jet (probably no jets)
-    return iso.at(idx) < isoCut && ( 1/(1+ptRatio.at(idx)) > ptRatioCut || ptRel.at(idx) > ptRelCut );
+    // return iso.at(idx) < isoCut;
+    return iso.at(idx) < isoCut && ( ptRatio(idx) > ptRatioCut || ptRel.at(idx) > ptRelCut );
 }
 
 float Lepton::fillFakePt(size_t idx, const Particle& jets) const
@@ -88,8 +90,8 @@ float Lepton::fillFakePt(size_t idx, const Particle& jets) const
     if (ptRel.at(idx) > ptRelCut) {
         if (iso.at(idx) > isoCut)
             return (1 + iso.at(idx)-isoCut);
-    } else if (1/(1+ptRatio.at(idx)) <= ptRatioCut) {
-        return (1+ptRatio.at(idx))*ptRatioCut;
+    } else if (ptRatio(idx) <= ptRatioCut) {
+        return ptRatioCut/ptRatio(idx);
     }
     return 1.;
 }

@@ -115,7 +115,7 @@ float ScaleFactors::getLHEPdf()
             return 1.;
         }
         std::sort(LHEPdfWeight.begin()+1, LHEPdfWeight.begin()+100);
-        float err = (LHEPdfWeight.at(17) - LHEPdfWeight.at(84))/2;
+        float err = (LHEPdfWeight.at(84) - LHEPdfWeight.at(17))/2;
         return LHEPdfWeight.at(0) + ((currentVar == eVar::Up) ? err : -err);
     } else if (currentSyst == Systematic::PDF_alphaZ) {
         if (LHEPdfWeight.size() != 103) {

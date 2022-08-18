@@ -20,18 +20,20 @@ public:
     void fillFlippedCharge(GenParticle& gen);
     float fillFakePt(size_t idx, const Particle& jets) const;
 
-    float getModPt(size_t idx) const { return (useFakePt) ? fakePt(idx) : pt(idx); }
+    float pt(size_t idx) const { return m_pt.at(idx)*fakePtFactor.at(idx); }
+    float pt(Level level, size_t i) const { return pt(idx(level, i)); }
+
 
     Int_t charge(size_t idx) { return m_charge.at(idx); };
     Int_t charge(Level level, size_t i) { return charge(idx(level, i)); };
 
-    float fakePt(size_t idx) const { return pt(idx)*fakePtFactor.at(idx); }
-
     float getMT(size_t idx, float met, float met_phi) const
     {
-        return sqrt(2*getModPt(idx)*met*(1-cos(phi(idx) - met_phi)));
+        return sqrt(2*pt(idx)*met*(1-cos(phi(idx) - met_phi)));
     }
     float getMT(Level level, size_t i, float met, float met_phi) const { return getMT(idx(level, i), met, met_phi); }
+
+    float ptRatio(size_t i) const { return 1/(1+ptRatio_.at(i)); }
 
     virtual void setupGoodLists(Particle& jets, GenParticle& gen) override
     {
@@ -55,10 +57,9 @@ public:
     std::vector<float> fakePtFactor;
 
     float isoCut, ptRatioCut, ptRelCut;
-    static bool useFakePt;
 
     TRArray<Float_t> ptRel;
-    TRArray<Float_t> ptRatio;
+    TRArray<Float_t> ptRatio_;
  
 protected:
     TRArray<Int_t> m_charge;

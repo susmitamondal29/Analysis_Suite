@@ -43,9 +43,6 @@ void fillLepton(const Lepton& lep, Level level, LeptonOut& fillObject, size_t pa
     for (size_t idx = 0; idx < lep.size(); ++idx) {
         size_t final_bitmap = fillParticle(lep, level, fillObject, idx, pass_bitmap);
         if (final_bitmap != 0) {
-            if (lep.useFakePt) {
-                fillObject.pt.back() = lep.fakePt(idx);
-            }
             fillObject.flip.push_back(lep.flips.at(idx));
         }
     }
@@ -60,7 +57,7 @@ void fillLepton_Fake(const Lepton& lep, Level level, LeptonOut_Fake& fillObject,
     for (size_t idx = 0; idx < lep.size(); ++idx) {
         size_t final_bitmap = fillParticle(lep, level, fillObject, idx, pass_bitmap);
         if (final_bitmap != 0) {
-            fillObject.ptRatio.push_back(lep.ptRatio.at(idx));
+            fillObject.ptRatio.push_back(lep.ptRatio(idx));
             fillObject.ptRel.push_back(lep.ptRel.at(idx));
         }
     }

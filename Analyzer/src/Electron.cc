@@ -20,12 +20,6 @@ void Electron::setup(TTreeReader& fReader, bool isMC)
     mva_80.setup(fReader, "Electron_mvaFall17V2noIso_WP80");
     mva_90.setup(fReader, "Electron_mvaFall17V2noIso_WP90");
 
-    ptRatioCut = 0.8;
-    ptRelCut = 5.0;
-    // ptRatioCut = 0.78;
-    // ptRelCut = 8.0;
-    isoCut = 0.1;
-
     if(isMC) {
         auto corr_set = getScaleFile("EGM", "electron");
         electron_scale = WeightHolder(corr_set->at("UL-Electron-ID-SF"), Systematic::Electron_Scale,
@@ -62,7 +56,7 @@ void Electron::createFakeList(Particle& jets)
         {
             auto closejet_info = getCloseJet(i, jets);
             fakePtFactor[i] = fillFakePt(i, jets);
-            if (getModPt(i) > 15) {
+            if (pt(i) > 15) {
                 m_partList[Level::Fake]->push_back(i);
                 dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(closejet_info);
             }
@@ -75,7 +69,6 @@ void Electron::createTightList(Particle& jets)
 {
     for (auto i : list(Level::Fake)) {
         if (pt(i) > 15
-            // && iso.at(i) < isoCut
             // && passTriggerRequirements(i)
             && passJetIsolation(i, jets)
             )
