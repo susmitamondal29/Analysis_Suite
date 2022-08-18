@@ -88,12 +88,11 @@ class MLHolder:
         is_SR_nominal = self.region == "Signal" and self.systName == "Nominal"
         return enough_events and trainable_class and is_SR_nominal
 
-    def read_in_file(self, directory, year="2018"):
+    def read_in_file(self, directory, year="2018", rerun=False):
         test_set= setup_pandas(self.all_vars)
-        if (directory/year/f'test_{self.systName}_{self.region}.root').exists():
+        if (directory/year/f'test_{self.systName}_{self.region}.root').exists() and not rerun:
             return
         infile = directory/year/f'processed_{self.systName}_{self.region}.root'
-
         with uproot.open(infile) as f:
             allSet = set([name[:name.index(";")] for name in f.keys()])
             self.update_sample_map(allSet)
@@ -208,8 +207,8 @@ class MLHolder:
             self.fom[year] = max(sig/np.sqrt(tot))
 
 
-            print(f'AUC for year {year}: {self.auc[year]}')
-            print(f'FOM for year {year}: {self.fom[year]}')
+            # print(f'AUC for year {year}: {self.auc[year]}')
+            # print(f'FOM for year {year}: {self.fom[year]}')
 
 
     def get_stats(self, year, cut):

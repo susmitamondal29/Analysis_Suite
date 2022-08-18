@@ -66,9 +66,6 @@ def color_options(color):
     dark = 0.3
     return {"color": color, "edgecolor": [i - dark if i > dark else 0.0 for i in cvec]}
 
-def setup_mplhep():
-    return hep
-
 def setup_ticks(pad, subpad=None):
     if subpad is not None:
         ticks(subpad)

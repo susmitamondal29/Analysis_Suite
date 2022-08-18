@@ -9,9 +9,8 @@ from analysis_suite.commons.histogram import Histogram
 from analysis_suite.Plotting.stack import Stack
 from analysis_suite.commons.info import fileInfo
 from analysis_suite.Variable_Creator.vargetter import VarGetter
-from analysis_suite.commons.plot_utils import ratio_plot, setup_mplhep, plot, plot_colorbar
+from analysis_suite.commons.plot_utils import ratio_plot, plot, plot_colorbar
 
-hep = setup_mplhep()
 
 def setup_histogram(group, vg_dict, chan, graph_info):
     output = Histogram(group, *graph_info.bins())

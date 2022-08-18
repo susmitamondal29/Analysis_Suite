@@ -21,12 +21,12 @@ def setup(cli_args):
         for region in cli_args.regions:
             for syst in allSysts:
                 argList.append((groupDict, inputs.usevars, cli_args.workdir, cli_args.model,
-                                cli_args.train, year, region, syst, cli_args.save))
+                                cli_args.train, year, region, syst, cli_args.save, cli_args.rerun))
 
     return argList
 
 
-def run(groupDict, usevars, workdir, model, train, year, region, systName, save_train):
+def run(groupDict, usevars, workdir, model, train, year, region, systName, save_train, rerun):
     module = import_module(f'.{model}', "analysis_suite.BDT_utilities")
     maker = getattr(module, next(filter(lambda x : "Maker" in x, dir(module))))
     ml_runner = maker(usevars, groupDict, region=region, systName=systName)
@@ -51,7 +51,7 @@ def run(groupDict, usevars, workdir, model, train, year, region, systName, save_
         ml_runner.train(workdir)
         ml_runner.get_importance(workdir)
     else:
-        ml_runner.read_in_file(workdir, year)
+        ml_runner.read_in_file(workdir, year, rerun)
         if not ml_runner: return
     # Apply to test sets and save
     ml_runner.apply_model(workdir, year, get_auc=(systName=="Nominal"))
@@ -59,4 +59,41 @@ def run(groupDict, usevars, workdir, model, train, year, region, systName, save_
 
 
 def cleanup(cli_args):
-    pass
+    return
+
+    # plot_dir = workdir / f'SB_{year}'
+    # plot_dir.mkdir(exist_ok=True)
+
+    # groups = ginfo.setup_groups(["data", "qcd", "ewk",])
+    # ntuple = config.get_ntuple('fake_rate', 'sideband')
+    # chans = ['Electron', 'Muon']
+
+    # graphs = pinfo.nonprompt['SideBand']
+
+    # plotter = Plotter(ntuple.get_file(), groups, ntuple=ntuple)
+    # plotter.set_groups(bkg=['ewk', 'qcd'])
+    # plotter.scale(lambda vg : scale_trigger(vg, "TightMuon", trig_scale[year]["Muon"], 20), groups='data')
+    # plotter.scale(lambda vg : scale_trigger(vg, "TightElectron", trig_scale[year]["Electron"], 25), groups='data')
+
+    # mc_scale_factors = {chan: dict() for chan in chans}
+    # for chan in chans:
+    #     plotter.mask(lambda vg : vg[f'Tight{chan}'].num() == 1)
+    #     plotter.fill_hists(graphs, ginfo)
+    #     scale_factor = mc_scale_factors[chan]
+
+    #     for graph in graphs:
+    #         plotter.plot_stack(graph.name, plot_dir/f'{graph.name}_{chan}.png', chan=latex_chan[chan])
+
+    #     # calculate templated fit
+    #     tightmt = plotter.get_hists('tightmt')
+    #     qcd_f, ewk_f = fit_template(tightmt['data'], tightmt['qcd'], tightmt["ewk"])
+    #     scale_factor['ewk'] = ewk_f
+    #     scale_factor['qcd'] = qcd_f
+    #     print(chan, qcd_f, ewk_f)
+
+    #     # Scale template fit stuff
+    #     plotter.scale_hists('ewk', ewk_f)
+    #     plotter.scale_hists('qcd', qcd_f)
+
+    #     for graph in graphs:
+    #         plotter.plot_stack(graph.name, plot_dir/f'{graph.name}_scaled_{chan}.png', chan=latex_chan[chan])

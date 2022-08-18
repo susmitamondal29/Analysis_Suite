@@ -121,8 +121,18 @@ class Histogram:
         return return_obj
 
     def move_overflow(self):
-        self.hist[-1] += self.hist[bh.overflow]
-        self.hist[bh.overflow] = (0, 0)
+        if len(self.axes) == 1:
+            self.hist[-1] += self.hist[bh.overflow]
+            self.hist[bh.overflow] = (0, 0)
+        else:
+            for i in range(self.axes.size[0]):
+                self.hist[i, -1] += self.hist[i, bh.overflow]
+                self.hist[i, bh.overflow] = (0, 0)
+            for i  in range(self.axes.size[1]):
+                self.hist[-1, i] += self.hist[bh.overflow, i]
+                self.hist[bh.overflow, i] = (0, 0)
+            self.hist[-1, -1] += self.hist[bh.overflow, bh.overflow]
+            self.hist[bh.overflow, bh.overflow] = (0, 0)
 
     def set_metadata(self, other):
         self.group = other.group

@@ -52,7 +52,9 @@ def get_cli():
         parser.add_argument("--plot", action='store_true')
         parser.add_argument('-r', '--regions', default="Signal",
                             type=lambda x : [i.strip() for i in x.split(',')],)
+        parser.add_argument('--rerun', action='store_true')
     elif sys.argv[1] == "plot":
+        parser.add_argument('-p', '--plots', default="plots")
         parser.add_argument('-n', '--name', default='ThreeTop',
                             help='Name of directory used for storing the plots')
         parser.add_argument("--hists", default="all",

@@ -8,7 +8,7 @@ import analysis_suite.commons.configs as config
 import analysis_suite.commons.constants as constants
 from analysis_suite.commons import writeHTML, GroupInfo
 import analysis_suite.commons.user as user
-from analysis_suite.data.plotInfo.plotInfo import plots
+import analysis_suite.data.plotInfo.plotInfo as plots_module
 
 from .plotter import Plotter
 from .LogFile import LogFile
@@ -22,6 +22,9 @@ def setup(cli_args):
     config.make_plot_paths(basePath)
 
     ginfo = GroupInfo(config.get_inputs(cli_args.workdir).color_by_group)
+    plots = getattr(plots_module, cli_args.plots)
+    if cli_args.hists != ['all']:
+        plots = [graph for graph in plots if graph.name in cli_args.hists]
 
     argList = list()
     allSysts = ["Nominal"]
@@ -36,8 +39,6 @@ def setup(cli_args):
                 outpath = outpath / syst
             config.make_plot_paths(outpath)
             for plot in plots:
-                if 'all' not in cli_args.hists and plot.name not in cli_args.hists:
-                    continue
                 argList.append((filename, outpath, plot, cli_args.signal, ginfo, year, syst, cli_args))
     return argList
 
@@ -45,20 +46,19 @@ def setup(cli_args):
 def run(infile, outpath, graph, signalName, ginfo, year, syst, args):
     logging.info(f'Processing {graph.name} for year {year} and systematic {syst}')
     kwargs = {'ratio_bot': args.ratio_range[0], 'ratio_top': args.ratio_range[1]}
-    readtype = 'flat' if args.type != "ntuple" else 'ntuple'
 
     groups = ginfo.setup_groups()
     logger = LogFile(graph.name, constants.lumi[year], graph)
 
-    plotter = Plotter(infile, groups, year=year, readtype=readtype)
-    plotter.set_groups(signalName)
+    plotter = Plotter(infile, groups, year=year)
+    plotter.set_groups(sig=signalName, bkg=set(groups)-{signalName, 'data'})
     plotter.fill_hists(graph, ginfo)
     plotter.plot_from_graph(graph, outpath/'plots'/f'{graph.name}.png', **kwargs)
 
     subprocess.call('convert {0}.png {0}.pdf'.format(outpath/'plots'/graph.name), shell=True)
 
     # setup log file
-    for group, hist in get_hists(graph.name).items():
+    for group, hist in plotter.get_hists(graph.name).items():
         logger.add_breakdown(group, hist.breakdown)
     logger.add_mc(plotter.make_stack(graph.name))
     logger.add_signal(plotter.get_hists(graph.name, signalName))
