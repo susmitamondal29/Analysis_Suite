@@ -24,6 +24,7 @@ void BaseSelector::Init(TTree* tree)
     if (!tree)
         return;
 
+    // Read in python inputs and set them in the Selector
     TList* rootSystList = new TList();
     rootSystList->SetName("Systematics");
     rootSystList->Add(new TNamed("Nominal", "Nominal"));
@@ -49,6 +50,7 @@ void BaseSelector::Init(TTree* tree)
                 bool data_syst = std::find(data_systs.begin(), data_systs.end(), systName) != data_systs.end();
                 if (isMC_ != !data_syst)
                     continue;
+                // Add systematic to list used by selector as well as TList for writing out
                 systematics_.push_back(syst_by_name.at(systName));
                 rootSystList->Add(new TNamed((systName + "_up").c_str(), systName.c_str()));
                 rootSystList->Add(new TNamed((systName + "_down").c_str(), systName.c_str()));
@@ -67,6 +69,7 @@ void BaseSelector::Init(TTree* tree)
         genWeight.setup(fReader, "genWeight");
     }
 
+    // Setup basic variables used and needed by the base selector
     run.setup(fReader, "run");
     lumiblock.setup(fReader, "luminosityBlock");
     event.setup(fReader, "event");
@@ -75,10 +78,12 @@ void BaseSelector::Init(TTree* tree)
     metfilters.setup(fReader, {"Flag_goodVertices", "Flag_globalSuperTightHalo2016Filter", "Flag_HBHENoiseFilter", "Flag_HBHENoiseIsoFilter",
                                "Flag_EcalDeadCellTriggerPrimitiveFilter", "Flag_BadPFMuonFilter","Flag_ecalBadCalibFilter"});
 
+    // Set output vector. Fixed to size of systematics (one per variation)
     o_weight.resize(numSystematics());
     o_channels.resize(numSystematics());
     o_pass_event.resize(numSystematics());
 
+    // Setup particle branches
     sfMaker.init(isMC_, fReader);
     met.setup(MET_Type::PF, fReader);
     muon.setup(fReader, isMC_);
@@ -124,17 +129,19 @@ Bool_t BaseSelector::Process(Long64_t entry)
         for (auto var : vars) {
             LOG_EVENT << "Variation is: " << varName_by_var.at(var);
             SetupEvent(syst, var, systNum);
+            // Add result of setting channel to vector used for writing out results
             systPassSelection.push_back(getCutFlow());
             passAny |= systPassSelection.back();
             systNum++;
         }
     }
     if (systPassSelection.size() > 0 && systPassSelection[0]) {
-        bar.pass();
+        bar.pass(); // Currenly, only events in first channel are put in the bar
     }
-
+    // Don't write out if nothing passed
     if (!passAny) return false;
 
+    // Fill up variables then fill up the tree
     for (auto& [chan, tree] : trees) {
         bool passedChannel = false;
         for (size_t syst = 0; syst < numSystematics(); ++syst) {
@@ -181,8 +188,6 @@ void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
     jet.setGoodParticles(systNum);
     // Class dependent setting up
     setOtherGoodParticles(systNum);
-
-    setupChannel();
 
     if (isMC_) {
         ApplyScaleFactors();

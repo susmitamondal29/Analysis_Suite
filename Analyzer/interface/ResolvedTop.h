@@ -28,6 +28,8 @@ public:
         { "VT", 0.38 }, // Very tight 0.1%
     };
     float wp;
+
+    void fillTop(TopOut& output, Level level, size_t pass_bitmap);
 };
 
 #endif // __RESOLVEDTOP_H_

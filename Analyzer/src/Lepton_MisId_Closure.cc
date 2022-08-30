@@ -285,9 +285,9 @@ void Closure_MisId::FillValues(const std::vector<bool>& passVec)
         pass_bitmap += passVec.at(i) << i;
     }
 
-    fillLepton(muon, Level::Tight, *o_tightMuons, pass_bitmap);
-    fillLepton(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
-    fillJet(jet, Level::Tight, *o_jets, pass_bitmap);
+    // muon.fillLepton(*o_tightMuons, Level::Tight, pass_bitmap);
+    // elec.fillLepton(*o_tightElectrons, Level::Tight, pass_bitmap);
+    jet.fillJet(*o_jets, Level::Tight, pass_bitmap);
 
     // o_mumu = trig_cuts.pass_cut(Subchannel::MM);
     // o_emu = trig_cuts.pass_cut(Subchannel::EM);

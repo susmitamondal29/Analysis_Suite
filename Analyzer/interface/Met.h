@@ -21,6 +21,8 @@ public:
     void setupMet(Jet& jet, UInt_t run, int nVertices);
     void fix_xy(UInt_t run, int nVertices);
 
+    float mt(float pt, float phi);
+
 private:
     TRVariable<float> m_pt;
     TRVariable<float> m_phi;

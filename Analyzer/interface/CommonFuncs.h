@@ -24,9 +24,6 @@ T* createObject(List list, std::string name, Args... args)
     return obj;
 }
 
-
-float mt_f(float pt1, float pt2, float phi1, float phi2);
-
 float deltaPhi(float phi1, float phi2);
 
 float deltaR(float eta1, float eta2, float phi1, float phi2);

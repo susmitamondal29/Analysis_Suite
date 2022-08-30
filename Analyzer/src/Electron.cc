@@ -10,8 +10,8 @@ void Electron::setup(TTreeReader& fReader, bool isMC)
     sieie.setup(fReader, "Electron_sieie");
     hoe.setup(fReader, "Electron_hoe");
     eInvMinusPInv.setup(fReader, "Electron_eInvMinusPInv");
-    sip3d.setup(fReader, "Electron_sip3d");
     tightCharge.setup(fReader, "Electron_tightCharge");
+
     ecalSumEt.setup(fReader, "Electron_dr03EcalRecHitSumEt");
     hcalSumEt.setup(fReader, "Electron_dr03HcalDepth1TowerSumEt");
     tkSumPt.setup(fReader, "Electron_dr03TkSumPt");
@@ -25,7 +25,7 @@ void Electron::setup(TTreeReader& fReader, bool isMC)
         electron_scale = WeightHolder(corr_set->at("UL-Electron-ID-SF"), Systematic::Electron_Scale,
                                       {"sf", "sfup", "sfdown"});
     }
-
+    mvaCut = 0.5;
 }
 
 void Electron::createLooseList()
@@ -54,11 +54,10 @@ void Electron::createFakeList(Particle& jets)
             && lostHits.at(i) == 0
             && tightCharge.at(i) == 2)
         {
-            auto closejet_info = getCloseJet(i, jets);
-            // fakePtFactor[i] = fillFakePt(i, jets);
+            fakePtFactor[i] = fillFakePt(i);
             if (pt(i) > 15) {
                 m_partList[Level::Fake]->push_back(i);
-                dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(closejet_info);
+                dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(getCloseJet(i, jets));
             }
         }
     }
@@ -70,7 +69,7 @@ void Electron::createTightList(Particle& jets)
     for (auto i : list(Level::Fake)) {
         if (pt(i) > 15
             // && passTriggerRequirements(i)
-            && passJetIsolation(i, jets)
+            && passJetIsolation(i)
             )
             m_partList[Level::Tight]->push_back(i);
     }

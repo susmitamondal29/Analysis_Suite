@@ -327,11 +327,12 @@ void ThreeTop::FillValues(const std::vector<bool>& passVec)
         pass_bitmap += passVec.at(i) << i;
     }
 
-    fillParticle(muon, Level::Tight, *o_tightMuons, pass_bitmap);
-    fillParticle(elec, Level::Tight, *o_tightElectrons, pass_bitmap);
-    fillTop(rTop, Level::Loose, *o_top, pass_bitmap);
-    fillJet(jet, Level::Tight, *o_jets, pass_bitmap);
-    fillJet(jet, Level::Bottom, *o_bJets, pass_bitmap);
+    muon.fillOutput(*o_tightMuons, Level::Tight, pass_bitmap);
+    elec.fillOutput(*o_tightElectrons, Level::Tight, pass_bitmap);
+
+    rTop.fillTop(*o_top, Level::Loose, pass_bitmap);
+    jet.fillJet(*o_jets, Level::Tight, pass_bitmap);
+    jet.fillJet(*o_bJets, Level::Bottom, pass_bitmap);
 
     for (size_t syst = 0; syst < numSystematics(); ++syst) {
         o_ht.push_back(jet.getHT(Level::Tight, syst));

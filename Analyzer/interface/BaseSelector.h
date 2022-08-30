@@ -33,7 +33,16 @@ public:
     virtual Bool_t Process(Long64_t entry);
     virtual void SlaveTerminate();
 
+    /**
+     * @brief Set output file used by python code
+     *
+     * @param outfile_ Output TFile to put trees and info
+     **/
     void setOutputFile(TFile* outfile_) { outfile = outfile_; }
+
+    /**
+     * @brief
+     **/
     std::vector<TreeInfo> getTrees() {
         std::vector<TreeInfo> tree_vec;
         for (auto& [chan, tree]: trees) {
@@ -70,7 +79,6 @@ protected:
     // To be filled by Child class
     virtual void ApplyScaleFactors(){};
     virtual void FillValues(const std::vector<bool>& passVec) {};
-    virtual void setupChannel(){};
     virtual void setOtherGoodParticles(size_t syst) {};
     virtual bool getCutFlow() { return true; }
     virtual void SetupOutTreeBranches(TTree* tree);

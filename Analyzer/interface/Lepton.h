@@ -16,13 +16,11 @@ public:
     bool passZCut(float low, float high);
     void setup(std::string name, TTreeReader& fReader, bool isMC);
     std::pair<size_t, float> getCloseJet(size_t lidx, const Particle& jet);
-    bool passJetIsolation(size_t idx, const Particle& jets);
+    bool passJetIsolation(size_t idx);
     void fillFlippedCharge(GenParticle& gen);
-    float fillFakePt(size_t idx, const Particle& jets) const;
+    float fillFakePt(size_t idx) const;
 
-    float pt(size_t idx) const { return m_pt.at(idx)*fakePtFactor.at(idx); }
-    float pt(Level level, size_t i) const { return pt(idx(level, i)); }
-
+    float pt_(size_t idx) const override { return m_pt.at(idx)*fakePtFactor.at(idx); }
 
     Int_t charge(size_t idx) { return m_charge.at(idx); };
     Int_t charge(Level level, size_t i) { return charge(idx(level, i)); };
@@ -56,17 +54,21 @@ public:
     std::vector<bool> flips;
     std::vector<float> fakePtFactor;
 
-    float isoCut, ptRatioCut, ptRelCut;
+    float isoCut, ptRatioCut, ptRelCut, mvaCut;
 
     TRArray<Float_t> mvaTTH;
     TRArray<Float_t> ptRel;
     TRArray<Float_t> ptRatio_;
- 
+    TRArray<Float_t> iso;
+
+    void fillLepton(LeptonOut& output, Level level, size_t pass_bitmap);
+    void fillLepton_Iso(LeptonOut_Fake& output, Level level, size_t pass_bitmap);
+
 protected:
     TRArray<Int_t> m_charge;
-    TRArray<Float_t> iso;
     TRArray<Float_t> dz;
     TRArray<Float_t> dxy;
+    TRArray<Float_t> sip3d;
     TRArray<Int_t> genPartIdx;
 
     const float ZMASS = 91.188;

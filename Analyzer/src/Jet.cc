@@ -73,6 +73,35 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
     }
 }
 
+void Jet::fillJet(JetOut& output, Level level, size_t pass_bitmap)
+{
+    output.clear();
+    for (size_t idx = 0; idx < size(); ++idx) {
+        size_t final_bitmap = fillParticle(output, level, idx, pass_bitmap);
+        if (final_bitmap != 0) {
+            output.discriminator.push_back(btag.at(idx));
+            output.jer.push_back(get_JEC_pair(Systematic::Jet_JER, idx));
+            output.jes.push_back(get_JEC_pair(Systematic::Jet_JES, idx));
+        }
+    }
+}
+
+void Jet::fillJetEff(BEffOut& output, Level level, size_t pass_bitmap)
+{
+    output.clear();
+    for (size_t idx = 0; idx < size(); ++idx) {
+        size_t final_bitmap = fillParticle(output, level, idx, pass_bitmap);
+        if (final_bitmap != 0) {
+            if (btag.at(idx) > tight_bjet_cut) output.pass_btag.push_back(3);
+            else if (btag.at(idx) > medium_bjet_cut) output.pass_btag.push_back(2);
+            else if (btag.at(idx) > loose_bjet_cut) output.pass_btag.push_back(1);
+            else output.pass_btag.push_back(0);
+            output.flavor.push_back(hadronFlavour.at(idx));
+
+        }
+    }
+}
+
 void Jet::createLooseList()
 {
     for (size_t i = 0; i < size(); i++) {
@@ -197,13 +226,11 @@ float Jet::get_jer(size_t i, GenericParticle& genJets) {
     return 1.;
 }
 
-PolarVector Jet::get_momentum_change()
+std::complex<float> Jet::get_momentum_change()
 {
-    PolarVector change;
+    std::complex<float> change;
     for(size_t i = 0; i < size(); ++i) {
-        change += PolarVector(pt(i)-nompt(i), phi(i));
+        change += std::polar(pt(i)-nompt(i), phi(i));
     }
-
-
     return change;
 }

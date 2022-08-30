@@ -33,6 +33,7 @@ private:
     LeptonOut_Fake* o_tightMuons;
     LeptonOut_Fake* o_fakeElectrons;
     LeptonOut_Fake* o_tightElectrons;
+    ParticleOut* o_muon;
     JetOut* o_jets;
     JetOut* o_bJets;
 
@@ -40,6 +41,7 @@ private:
 
     std::vector<Float_t> o_ht, o_htb, o_met, o_metphi;
     std::vector<size_t> o_nb_loose, o_nb_tight;
+    std::vector<int> o_lo_hlt, o_hi_hlt;
 
     std::set<std::string> ewk_sets = {"ttjet", "ttbar", "wjets", "DYm50", "DYm10-50",
                                       "ttbar_2l2n", "ttbar_semilep", "ttbar_hadronic",

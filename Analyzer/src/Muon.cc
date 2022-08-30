@@ -7,10 +7,9 @@ void Muon::setup(TTreeReader& fReader, bool isMC)
     isGlobal.setup(fReader, "Muon_isGlobal");
     isTracker.setup(fReader, "Muon_isTracker");
     isPFcand.setup(fReader, "Muon_isPFcand");
-    iso.setup(fReader, "Muon_miniPFRelIso_all");
     tightCharge.setup(fReader, "Muon_tightCharge");
     mediumId.setup(fReader, "Muon_mediumId");
-    sip3d.setup(fReader, "Muon_sip3d");
+
     id = PID::Muon;
 
     if (isMC) {
@@ -18,6 +17,7 @@ void Muon::setup(TTreeReader& fReader, bool isMC)
         muon_scale = WeightHolder(corr_set->at("NUM_MediumID_DEN_TrackerMuons"), Systematic::Muon_Scale,
                                   {"sf", "systup", "systdown"});
     }
+    mvaCut = 0.65;
 }
 
 void Muon::createLooseList()
@@ -41,11 +41,10 @@ void Muon::createFakeList(Particle& jets)
             && mediumId.at(i)
             && sip3d.at(i) < 4)
         {
-            auto closejet_info = getCloseJet(i, jets);
-            // fakePtFactor[i] = fillFakePt(i, jets);
-            if (pt(i) > 15) {
+            fakePtFactor[i] = fillFakePt(i);
+            if (pt(i) > 10) {
                 m_partList[Level::Fake]->push_back(i);
-                dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(closejet_info);
+                dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(getCloseJet(i, jets));
             }
         }
     }
@@ -55,7 +54,7 @@ void Muon::createTightList(Particle& jets)
 {
     for (auto i : list(Level::Fake)) {
         if (pt(i) > 15
-            && passJetIsolation(i, jets)
+            && passJetIsolation(i)
             )
             m_partList[Level::Tight]->push_back(i);
     }

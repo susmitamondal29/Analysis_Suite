@@ -6,6 +6,7 @@
 #include "Math/GenVector/VectorUtil.h"
 #include "analysis_suite/Analyzer/interface/Systematic.h"
 #include "analysis_suite/Analyzer/interface/Variable.h"
+#include "analysis_suite/Analyzer/interface/Output.h"
 
 #include <TTreeReader.h>
 
@@ -26,13 +27,13 @@ public:
     size_t size(Level level) const { return list(level).size(); }
     size_t idx(Level level, size_t i) const;
 
-    Float_t pt(size_t idx) const { return m_pt.at(idx); }
+    Float_t pt(size_t idx) const { return pt_(idx); }
     Float_t pt(Level level, size_t i) const { return pt(idx(level, i)); }
-    Float_t eta(size_t idx) const { return m_eta.at(idx); }
+    Float_t eta(size_t idx) const { return eta_(idx); }
     Float_t eta(Level level, size_t i) const { return eta(idx(level, i)); }
-    Float_t phi(size_t idx) const { return m_phi.at(idx); }
+    Float_t phi(size_t idx) const { return phi_(idx); }
     Float_t phi(Level level, size_t i) const { return phi(idx(level, i)); }
-    Float_t mass(size_t idx) const { return m_mass.at(idx); }
+    Float_t mass(size_t idx) const { return mass_(idx); }
     Float_t mass(Level level, size_t i) const { return mass(idx(level, i)); }
 
     LorentzVector p4(size_t idx) const {return LorentzVector(pt(idx), eta(idx), phi(idx), mass(idx));}
@@ -47,6 +48,11 @@ public:
     virtual void clear();
 
 protected:
+    virtual Float_t pt_(size_t idx) const { return m_pt.at(idx); }
+    virtual Float_t eta_(size_t idx) const { return m_eta.at(idx); }
+    virtual Float_t phi_(size_t idx) const { return m_phi.at(idx); }
+    virtual Float_t mass_(size_t idx) const { return m_mass.at(idx); }
+
     TRArray<Float_t> m_pt;
     TRArray<Float_t> m_eta;
     TRArray<Float_t> m_phi;
@@ -83,6 +89,13 @@ public:
     virtual void clear() override;
     void xorLevel(Level big, Level small, Level target);
 
+    template <class T>
+    void fillOutput(T& output, Level level, size_t pass_bitmap);
+
+    template <class T>
+    size_t fillParticle(T& output, Level level, size_t idx, size_t pass_bitmap);
+
+
 protected:
     std::unordered_map<Level, PartList> m_partArray;
     std::unordered_map<Level, std::vector<size_t>> m_bitArray;
@@ -110,5 +123,27 @@ void Particle::setGoodParticles(size_t syst, Args&&... args)
     }
 }
 
+template <class T>
+void Particle::fillOutput(T& output, Level level, size_t pass_bitmap)
+{
+    output.clear();
+    for (size_t idx = 0; idx < size(); ++idx) {
+        fillParticle(output, level, idx, pass_bitmap);
+    }
+}
+
+template <class T>
+size_t Particle::fillParticle(T& output, Level level, size_t idx, size_t pass_bitmap)
+{
+    size_t final_bitmap = bitmap(level).at(idx) & pass_bitmap;
+    if (final_bitmap != 0) {
+        output.pt.push_back(pt(idx));
+        output.eta.push_back(eta(idx));
+        output.phi.push_back(phi(idx));
+        output.mass.push_back(mass(idx));
+        output.syst_bitMap.push_back(pass_bitmap);
+    }
+    return final_bitmap;
+}
 
 #endif // __PARTICLE_H_

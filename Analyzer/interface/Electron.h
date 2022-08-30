@@ -20,7 +20,6 @@ public:
     TRArray<Float_t> sieie;
     TRArray<Float_t> hoe;
     TRArray<Float_t> eInvMinusPInv;
-    TRArray<Float_t> sip3d;
     TRArray<Float_t> mva;
     TRArray<Int_t> tightCharge;
     TRArray<Float_t> ecalSumEt;

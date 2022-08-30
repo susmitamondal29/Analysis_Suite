@@ -9,6 +9,7 @@ void Lepton::setup(std::string name, TTreeReader& fReader, bool isMC)
     dz.setup(fReader, name + "_dz");
     dxy.setup(fReader, name + "_dxy");
     mvaTTH.setup(fReader, name + "_mvaTTH");
+    sip3d.setup(fReader, name+"_sip3d");
     if (isMC) {
         genPartIdx.setup(fReader, name+"_genPartIdx");
     }
@@ -19,13 +20,39 @@ void Lepton::setup(std::string name, TTreeReader& fReader, bool isMC)
     iso.setup(fReader, name + "_miniPFRelIso_all");
 
     isoCut = 0.1;
-    ptRatioCut = 0.85;
-    ptRelCut = 8.5;
+    ptRatioCut = 0.8;
+    ptRelCut = 6;
 
     GenericParticle::setup(name, fReader);
     setup_map(Level::Loose);
     setup_map(Level::Fake);
     setup_map(Level::Tight);
+}
+
+void Lepton::fillLepton(LeptonOut& output, Level level, size_t pass_bitmap)
+{
+    output.clear();
+    for (size_t idx = 0; idx < size(); ++idx) {
+        size_t final_bitmap = fillParticle(output, level, idx, pass_bitmap);
+        if (final_bitmap != 0) {
+            output.flip.push_back(flips.at(idx));
+        }
+    }
+
+}
+
+void Lepton::fillLepton_Iso(LeptonOut_Fake& output, Level level, size_t pass_bitmap)
+{
+    output.clear();
+    for (size_t idx = 0; idx < size(); ++idx) {
+        size_t final_bitmap = fillParticle(output, level, idx, pass_bitmap);
+        if (final_bitmap != 0) {
+            output.ptRatio.push_back(ptRatio(idx));
+            output.ptRel.push_back(ptRel.at(idx));
+            output.mvaTTH.push_back(mvaTTH.at(idx));
+            output.iso.push_back(iso.at(idx));
+        }
+    }
 }
 
 std::pair<size_t, float> Lepton::getCloseJet(size_t lidx, const Particle& jet)
@@ -78,15 +105,15 @@ bool Lepton::passZCut(float low, float high)
     return false;
 }
 
-bool Lepton::passJetIsolation(size_t idx, const Particle& jets)
+bool Lepton::passJetIsolation(size_t idx)
 {
     // if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
-    //     return true; /// no close jet (probably no jets)
-    return iso.at(idx) < isoCut;
-    // return iso.at(idx) < isoCut && ( ptRatio(idx) > ptRatioCut || ptRel.at(idx) > ptRelCut );
+    return true; /// no close jet (probably no jets)
+    // return iso.at(idx) < isoCut;
+    // return iso.at(idx) < isoCut && mvaTTH.at(idx) > mvaCut && ( ptRatio(idx) > ptRatioCut || ptRel.at(idx) > ptRelCut );
 }
 
-float Lepton::fillFakePt(size_t idx, const Particle& jets) const
+float Lepton::fillFakePt(size_t idx) const
 {
     if (ptRel.at(idx) > ptRelCut) {
         if (iso.at(idx) > isoCut)

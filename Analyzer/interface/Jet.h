@@ -9,7 +9,7 @@
 #include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 #include "CondTools/BTau/interface/BTagCalibrationReader.h"
 
-#include <Math/Vector2D.h>
+#include <complex>
 
 enum PUID { PU_Tight = 0, PU_Medium = 1, PU_Loose = 2 };
 
@@ -18,8 +18,6 @@ struct Btag_Info {
     std::string jet_type;
 };
 
-typedef ROOT::Math::DisplacementVector2D<ROOT::Math::Polar2D<double> > PolarVector;
-
 class Jet : public Particle {
 public:
     void setup(TTreeReader& fReader, bool isMC);
@@ -27,13 +25,9 @@ public:
     virtual float getScaleFactor() override;
     float getTotalBTagWeight();
 
-    float pt(size_t idx) const {
-        return m_pt.at(idx)*m_jec->at(idx);
-    }
-    float nompt(size_t idx) const {
-        return m_pt.at(idx);
-    }
-    float rawPt(size_t idx) const { return (1-rawFactor.at(idx))*pt(idx); }
+    float pt_(size_t idx) const override { return m_pt.at(idx)*m_jec->at(idx); }
+    float nompt(size_t idx) const { return m_pt.at(idx); }
+    float rawPt(size_t idx) const { return (1-rawFactor.at(idx))*m_pt.at(idx); }
 
     float getHT(Level level, size_t syst) { return getHT(list(level, syst)); };
     float getHT(Level level) { return getHT(list(level)); };
@@ -41,7 +35,7 @@ public:
     float getCentrality(Level level, size_t syst) { return getCentrality(list(level, syst)); };
     float getCentrality(Level level) { return getCentrality(list(level)); };
 
-    PolarVector get_momentum_change();
+    std::complex<float> get_momentum_change();
 
     virtual void setupGoodLists() override
     {
@@ -94,6 +88,8 @@ public:
     }
     float loose_bjet_cut, medium_bjet_cut, tight_bjet_cut;
 
+    void fillJet(JetOut& output, Level level, size_t pass_bitmap);
+    void fillJetEff(BEffOut& output, Level level, size_t pass_bitmap);
 
 private:
     int looseId = 0b11;

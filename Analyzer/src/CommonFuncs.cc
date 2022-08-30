@@ -2,11 +2,6 @@
 
 #include <math.h>
 
-float mt_f(float pt1, float pt2, float phi1, float phi2)
-{
-    return sqrt(2*pt1*pt2*(1-cos(phi1 - phi2)));
-}
-
 float deltaPhi(float phi1, float phi2)
 {
     float dphi = phi1 - phi2;
