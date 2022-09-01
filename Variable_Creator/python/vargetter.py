@@ -34,9 +34,12 @@ class VarGetter(BaseGetter):
             _, unique_idx = np.unique(ak.to_numpy(self["event"]), return_index=True)
             self.mask = np.in1d(np.arange(len(self)), unique_idx)
             self._base_mask = copy(self._mask)
+        elif "sumweight" in f[group]:
+            sumweight, _ = f[group]["sumweight"].to_numpy()
+            self._scale = xsec/sumweight[0]*self._scale
         else:
-            sumw = sum(f[group]["sumweight"].values())
-            self._scale = xsec/sumw*self._scale
+            print(f"Problem with group {group}")
+            self._mask = None
 
     def _get_var(self, name):
         return self.tree[name].array()[:, self.syst]
