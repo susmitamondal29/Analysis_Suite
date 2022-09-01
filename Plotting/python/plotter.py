@@ -10,8 +10,7 @@ from copy import copy
 from prettytable import PrettyTable
 from pathlib import Path
 
-from analysis_suite.flatten.vargetter import VarGetter
-from analysis_suite.flatten.flatgetter import FlatGetter
+import analysis_suite.flatten as getter
 from analysis_suite.commons.histogram import Histogram
 from analysis_suite.commons.constants import lumi
 import analysis_suite.commons.configs as config
@@ -100,7 +99,7 @@ class Plotter:
                     for tree in ntuple.trees:
                         if ntuple.ignore(tree, group):
                             continue
-                        vg = VarGetter(root_file, tree, member, xsec, syst, systName)
+                        vg = getter.NtupleGetter(root_file, tree, member, xsec, syst, systName)
                         if not vg:
                             continue
                         name = ntuple.get_change(tree, member)
@@ -115,7 +114,7 @@ class Plotter:
         with uproot.open(filename) as f:
             for group, members in self.groups.items():
                 for member in members:
-                    fg = FlatGetter(f, member)
+                    fg = getter.FlatGetter(f, member)
                     if not fg:
                         continue
                     fg.cut(cuts)

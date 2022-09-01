@@ -5,7 +5,10 @@ from copy import copy
 
 from .basegetter import BaseGetter
 
+
 class FlatGetter(BaseGetter):
+    """ """
+
     def __init__(self, upfile, member):
         super().__init__()
         if member not in upfile:
@@ -18,16 +21,24 @@ class FlatGetter(BaseGetter):
 
     def __getitem__(self, key):
         if key not in self.branches:
-            raise AttributeError(f'{key} not found')
+            raise AttributeError(f"{key} not found")
         return np.nan_to_num(self.arr[key][self.mask], nan=-10000)
 
     @BaseGetter.mask.setter
     def mask(self, mask):
+        """ """
         if isinstance(mask, str):
             mask = self.get_cut(mask)
         super(FlatGetter, type(self)).mask.fset(self, mask)
 
     def cut(self, cut):
+        """Cut the dataframe base on some input cut
+
+        Parameter
+        ---------
+        cut : string or array
+            Cut string or a mask used for masking the whole dataframe
+        """
         if cut is None:
             return
         elif isinstance(cut, str):
@@ -36,6 +47,18 @@ class FlatGetter(BaseGetter):
             super().cut(cut)
 
     def get_cut(self, cut):
+        """Get mask associated with a cut string
+
+        Parameters
+        ----------
+        cut : string
+            Cut string used to apply cuts to the dataframe (of form `var >/</== cutval`)
+
+        Returns
+        -------
+        array
+            Returns mask corresponding to the cut in the given cut string
+        """
         if cut is None:
             return self.mask
         if len(cutter := cut.split("<")) > 1:
@@ -45,4 +68,4 @@ class FlatGetter(BaseGetter):
         elif len(cutter := cut.split("==")) > 1:
             return self[cutter[0]] == float(cutter[1])
         else:
-            raise Exception(f'{cut} is not formatted correctly')
+            raise Exception(f"{cut} is not formatted correctly")
