@@ -158,7 +158,7 @@ def get_dataset(data_type, groups, year):
         if isinstance(dataset_dict[data_type][group], list):
             final_set += dataset_dict[data_type][group]
         else:
-            final_set += dataset_dict[data_type][group][year]
+            final_set.append(dataset_dict[data_type][group][year])
     return final_set
     
 def get_condition(data_type, year):
@@ -170,10 +170,10 @@ def get_DAS(data_type, groups, year):
     nano_type = "NANOAOD" if data_type == 'data' else "NANOAODSIM"
     conditions = get_condition(data_type, year)
     final_das = list()
-    for group in groups:
-        for dataset in get_dataset(data_type, groups, year):
-            for condition in conditions:
-                final_das.append(f'/{dataset}/{condition}/{nano_type}')
+
+    for dataset in get_dataset(data_type, groups, year):
+        for condition in conditions:
+            final_das.append(f'/{dataset}/{condition}/{nano_type}')
     return final_das
 
 # DAS functions

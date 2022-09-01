@@ -12,7 +12,6 @@ def setup(cli_args):
     color_by_group = get_inputs(cli_args.workdir).color_by_group
     group_info = GroupInfo(color_by_group, **vars(cli_args))
     allSysts = get_list_systs(cli_args.workdir, cli_args.tool, cli_args.systs)
-
     workdir = cli_args.workdir / "combine"
     workdir.mkdir(exist_ok=True)
 
@@ -24,16 +23,21 @@ def setup(cli_args):
         region, graph = graph
         for year in cli_args.years:
             inpath = cli_args.workdir/year
-            outfile = workdir / f'{graph.name}_{year}_{cr}.root'
-            argList.append((inpath, outfile, graph, region, groups, year, allSysts))
+            argList.append((inpath, cli_args.workdir, graph, region, groups, year, allSysts))
     return argList
 
 
-def run(inpath, outfile, graph, region, groups, year, systs):
+def run(inpath, workdir, graph, region, groups, year, systs):
+    outfile = workdir / f'{graph.name}_{year}_{region}.root'
+    signalName = 'ttt'
+    ginfo = GroupInfo(get_inputs(workdir).color_by_group)
+
     with uproot.recreate(outfile) as f:
         for syst in systs:
+            if syst != "Nominal":
+                continue
             plotter = Plotter(inpath/f'test_{syst}_{region}.root', groups)
-            plotter.fill_hists(graph)
+            plotter.fill_hists(graph, ginfo)
             syst = syst.replace("_up", "Up").replace("_down", "Down")
             if syst == "Nominal":
                 f[f"data_obs"] = plotter.get_sum(groups.keys(), graph).hist
@@ -63,7 +67,7 @@ def cleanup(cli_args):
         for year in cli_args.years:
             with Card_Maker(workdir, year, cr, groups, graph[1].name) as card:
                 card.write_systematics(syst_objs)
-
+                card.add_rateParam('ttz')
 
 def order_list(groups, sig):
     glist = list(groups.keys())

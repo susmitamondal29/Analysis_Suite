@@ -57,3 +57,6 @@ class Card_Maker:
             self.write(syst.output(self.plot_groups, [self.year]))
         self.write("syst_error group = " + " ".join([syst.name for syst in syst_list]))
         self.write("* autoMCStats 1")
+
+    def add_rateParam(self, group):
+        self.write(f'rate_{group} rateParam * {group} 1.0')
