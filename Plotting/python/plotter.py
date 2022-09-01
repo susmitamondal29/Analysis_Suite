@@ -10,8 +10,8 @@ from copy import copy
 from prettytable import PrettyTable
 from pathlib import Path
 
-from analysis_suite.Variable_Creator.vargetter import VarGetter
-from analysis_suite.Variable_Creator.flatgetter import FlatGetter
+from analysis_suite.flatten.vargetter import VarGetter
+from analysis_suite.flatten.flatgetter import FlatGetter
 from analysis_suite.commons.histogram import Histogram
 from analysis_suite.commons.constants import lumi
 import analysis_suite.commons.configs as config
@@ -121,6 +121,15 @@ class Plotter:
                     fg.cut(cuts)
                     self.dfs[member] = fg
 
+    def get_integral(self):
+        output = {keys: 0. for keys in self.dfs.keys()}
+        for key, vg in self.dfs.items():
+            if isinstance(vg, dict):
+                for subvg in vg.values():
+                    output[key] += sum(subvg.scale)
+            else:
+                output[key] += sum(vg.scale)
+        return output
 
     def fill_hists(self, graphs, ginfo=None, subset=None):
         if isinstance(graphs, dict):

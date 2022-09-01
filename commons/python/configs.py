@@ -17,7 +17,7 @@ def get_cli():
 
     parser = argparse.ArgumentParser(prog="main", description="Central script for running tools in the Analysis suite")
     parser.add_argument('tool', type=str, help="Tool to run",
-                    choices=['mva', 'plot', 'analyze', 'combine'])
+                    choices=['mva', 'plot', 'flatten', 'combine'])
     ##################
     # Common options #
     ##################
@@ -40,7 +40,7 @@ def get_cli():
                             help="Name of file containing histogram Info")
     if len(sys.argv) == 1:
         pass
-    elif sys.argv[1] == 'analyze':
+    elif sys.argv[1] == 'flatten':
         ntupleInfo = [ f.name for f in pkgutil.iter_modules(path=[analysis_area/"ntuple_info"]) if not f.ispkg]
         parser.add_argument('-n', '--ntuple', required=True, choices= ntupleInfo,
                             help="Ntuple info class used for make root files")
@@ -112,7 +112,7 @@ def findScale(ratio):
 
 def get_list_systs(infile, tool, systs=["all"], **kwargs):
     allSysts = set()
-    if tool == 'analyze':
+    if tool == 'flatten':
         if infile.is_dir():
             all_files = list(infile.glob('*root'))
         else:

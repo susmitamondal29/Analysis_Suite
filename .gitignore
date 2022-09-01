@@ -23,7 +23,7 @@ poetry.lock
 !ScaleFactors/*
 !commons/*
 !scripts/*
-!Variable_Creator/*
+!flatten/*
 !data/*
 !ntuple_info/example.py
 

@@ -19,8 +19,8 @@ if __name__ == "__main__":
         from analysis_suite.BDT_utilities import job_main
     elif cli_args.tool == "plot":
         from analysis_suite.Plotting import job_main
-    elif cli_args.tool == "analyze":
-        from analysis_suite.Variable_Creator import job_main
+    elif cli_args.tool == "flatten":
+        from analysis_suite.flatten import job_main
     elif cli_args.tool == "combine":
         from analysis_suite.Combine import job_main
     else:
