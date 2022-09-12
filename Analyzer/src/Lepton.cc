@@ -3,6 +3,8 @@
 
 #include <limits>
 
+// #define NOMVATTH
+
 void Lepton::setup(std::string name, TTreeReader& fReader, bool isMC)
 {
     m_charge.setup(fReader, name + "_charge");
@@ -20,8 +22,9 @@ void Lepton::setup(std::string name, TTreeReader& fReader, bool isMC)
     iso.setup(fReader, name + "_miniPFRelIso_all");
 
     isoCut = 0.1;
-    ptRatioCut = 0.8;
-    ptRelCut = 6;
+    ptRatioCut = 0.75;
+    ptRelCut = 8.;
+    mvaCut = 0.4;
 
     GenericParticle::setup(name, fReader);
     setup_map(Level::Loose);
@@ -77,7 +80,7 @@ std::pair<size_t, float> Lepton::getCloseJet(size_t lidx, const Particle& jet)
 
 bool Lepton::passZVeto()
 {
-    for (auto tidx : list(Level::Loose)) { //tightList
+    for (auto tidx : list(Level::Loose)) {
         LorentzVector tlep = p4(tidx);
         for (auto lidx : list(Level::Loose)) {
             if (tidx >= lidx || charge(tidx) * charge(lidx) > 0)
@@ -105,16 +108,18 @@ bool Lepton::passZCut(float low, float high)
     return false;
 }
 
-bool Lepton::passJetIsolation(size_t idx)
+bool Lepton::passJetIsolation(size_t idx) const
 {
-    // if (closeJet_by_lepton.find(idx) == closeJet_by_lepton.end())
-    return true; /// no close jet (probably no jets)
-    // return iso.at(idx) < isoCut;
-    // return iso.at(idx) < isoCut && mvaTTH.at(idx) > mvaCut && ( ptRatio(idx) > ptRatioCut || ptRel.at(idx) > ptRelCut );
+#ifdef NOMVATTH
+    return iso.at(idx) < isoCut && ( ptRatio(idx) > ptRatioCut || ptRel.at(idx) > ptRelCut );
+#else
+    return mvaTTH.at(idx) > mvaCut;
+#endif
 }
 
-float Lepton::fillFakePt(size_t idx) const
+float Lepton::getFakePtFactor(size_t idx) const
 {
+#ifdef NOMVATTH
     if (ptRel.at(idx) > ptRelCut) {
         if (iso.at(idx) > isoCut)
             return (1 + iso.at(idx)-isoCut);
@@ -122,6 +127,13 @@ float Lepton::fillFakePt(size_t idx) const
         return ptRatioCut/ptRatio(idx);
     }
     return 1.;
+#else
+    if (passJetIsolation(idx)) {
+        return 1.;
+    } else {
+        return 1./ptRatio(idx)*cone_correction;
+    }
+#endif
 }
 
 void Lepton::fillFlippedCharge(GenParticle& gen)
@@ -129,7 +141,6 @@ void Lepton::fillFlippedCharge(GenParticle& gen)
     for (size_t i = 0; i < size(); i++) {
         int pdg = gen.pdgId.at(genPartIdx.at(i));
         // remember, pdg is postive for electron, negative for positron
-
         flips.push_back(abs(pdg) == static_cast<int>(id) && pdg*charge(i) > 0);
     }
 }

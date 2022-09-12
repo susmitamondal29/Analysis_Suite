@@ -1,12 +1,12 @@
-#ifndef FAKERATE_H_
-#define FAKERATE_H_
+#ifndef NONPROMPT_CLOSURE_H_
+#define NONPROMPT_CLOSURE_H_
 
 #include "analysis_suite/Analyzer/interface/BaseSelector.h"
 #include "analysis_suite/Analyzer/interface/Output.h"
 
 #include <set>
 
-class FakeRate : public BaseSelector {
+class Nonprompt_Closure : public BaseSelector {
 public:
     virtual void Init(TTree* tree) override;
     virtual bool getCutFlow() override;
@@ -17,14 +17,13 @@ public:
     virtual void clearParticles() override;
     virtual void clearOutputs() override;
     virtual void setOtherGoodParticles(size_t syst) override;
-    ClassDefOverride(FakeRate, 0);
+    ClassDefOverride(Nonprompt_Closure, 0);
 
 private:
     void setSubChannel();
-    void set_leadlep();
-    bool measurement_cuts();
-    bool sideband_cuts();
-    bool single_lep_cuts(CutInfo& cuts);
+    bool closure_cuts();
+    float getLeadPt();
+    bool isSameSign();
 
     LeptonOut_Fake* o_fakeMuons;
     LeptonOut_Fake* o_tightMuons;
@@ -40,9 +39,7 @@ private:
     std::vector<size_t> o_nb_loose, o_nb_tight;
     std::vector<int> o_lo_hlt, o_hi_hlt;
 
-    LorentzVector lead_lep;
-    float lead_rawpt;
 };
 
 
-#endif // FAKERATE_H_
+#endif // NONPROMPT_CLOSURE_H_

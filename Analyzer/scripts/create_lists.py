@@ -20,6 +20,13 @@ condition_dict = {
             "Run2016G*UL2016_MiniAODv2_NanoAODv9-v*",
             "Run2016H*UL2016_MiniAODv2_NanoAODv9-v*",
         ],
+        "2016pre" : [
+            "Run2016B-ver2*UL2016_MiniAODv2_NanoAODv9-v*",
+            "Run2016*-HIPM_UL2016_MiniAODv2_NanoAODv9-v*",
+        ],
+        "2016post" : [
+            "Run2016*-UL2016_MiniAODv2_NanoAODv9-v*",
+        ],
         "2017" : [
             "Run2017B-UL2017_MiniAODv2_NanoAODv9-v*",
             "Run2017C-UL2017_MiniAODv2_NanoAODv9-v*",
@@ -150,6 +157,7 @@ dataset_dict = {
 
 
 def get_dataset(data_type, groups, year):
+    year = year if "2016" not in year else "2016"
     final_set = list()
     for group in groups:
         # first check if all exist

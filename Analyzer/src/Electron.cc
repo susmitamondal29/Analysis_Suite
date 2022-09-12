@@ -25,7 +25,11 @@ void Electron::setup(TTreeReader& fReader, bool isMC)
         electron_scale = WeightHolder(corr_set->at("UL-Electron-ID-SF"), Systematic::Electron_Scale,
                                       {"sf", "sfup", "sfdown"});
     }
-    mvaCut = 0.5;
+    cone_correction = 0.85;
+    // mvaCut = 0.5;
+    // isoCut = 0.12;
+    // ptRatioCut = 0.8;
+    // ptRelCut = 7.2;
 }
 
 void Electron::createLooseList()
@@ -52,14 +56,13 @@ void Electron::createFakeList(Particle& jets)
         if (mva_90.at(i)
             && sip3d.at(i) < 4
             && lostHits.at(i) == 0
-            && tightCharge.at(i) == 2)
-        {
-            fakePtFactor[i] = fillFakePt(i);
-            if (pt(i) > 15) {
+            && tightCharge.at(i) == 2
+            && getFakePtFactor(i)*m_pt.at(i) > 15
+            && ptRatio(i) > 0.4)
+            {
                 m_partList[Level::Fake]->push_back(i);
                 dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(getCloseJet(i, jets));
             }
-        }
     }
 }
 
@@ -69,9 +72,12 @@ void Electron::createTightList(Particle& jets)
     for (auto i : list(Level::Fake)) {
         if (pt(i) > 15
             // && passTriggerRequirements(i)
-            && passJetIsolation(i)
-            )
-            m_partList[Level::Tight]->push_back(i);
+            && passJetIsolation(i))
+            {
+                m_partList[Level::Tight]->push_back(i);
+        } else {
+            fakePtFactor[i] = getFakePtFactor(i);
+        }
     }
 }
 

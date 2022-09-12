@@ -16,11 +16,12 @@ public:
     bool passZCut(float low, float high);
     void setup(std::string name, TTreeReader& fReader, bool isMC);
     std::pair<size_t, float> getCloseJet(size_t lidx, const Particle& jet);
-    bool passJetIsolation(size_t idx);
+    bool passJetIsolation(size_t idx) const;
     void fillFlippedCharge(GenParticle& gen);
-    float fillFakePt(size_t idx) const;
+    float getFakePtFactor(size_t idx) const;
 
     float pt_(size_t idx) const override { return m_pt.at(idx)*fakePtFactor.at(idx); }
+    float rawpt(Level level, size_t i) const { return m_pt.at(idx(level, i)); }
 
     Int_t charge(size_t idx) { return m_charge.at(idx); };
     Int_t charge(Level level, size_t i) { return charge(idx(level, i)); };
@@ -55,6 +56,7 @@ public:
     std::vector<float> fakePtFactor;
 
     float isoCut, ptRatioCut, ptRelCut, mvaCut;
+    float cone_correction;
 
     TRArray<Float_t> mvaTTH;
     TRArray<Float_t> ptRel;

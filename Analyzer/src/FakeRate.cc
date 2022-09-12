@@ -5,20 +5,12 @@
 enum class Channel {
     Measurement,
     SideBand,
-    FullMet,
-    TightTight,
-    TightFake,
-    FakeFake,
     None,
 };
 
 enum class Subchannel {
     M,
     E,
-    MM,
-    EM,
-    ME,
-    EE,
     None,
 };
 
@@ -27,19 +19,9 @@ void FakeRate::Init(TTree* tree)
     LOG_FUNC << "Start of Init";
     BaseSelector::Init(tree);
 
-    // Only process for QCD, data, ewk
-    // if (groupName_.find("qcd") != std::string::npos || !isMC_
-    //     || ewk_sets.find(groupName_) != ewk_sets.end()) {
     createTree("Measurement", Channel::Measurement);
     createTree("SideBand", Channel::SideBand);
-    // }
-    // if (groupName_.find("qcd") == std::string::npos) {
-    // createTree("Closure_FF", Channel::FakeFake);
-    // createTree("Closure_TF", Channel::TightFake);
-    // if (isMC_) {
-    //     createTree("Closure_TT", Channel::TightTight);
-    // }
-    // }
+
     muon.setup_map(Level::FakeNotTight);
     elec.setup_map(Level::FakeNotTight);
 
@@ -56,41 +38,11 @@ void FakeRate::Init(TTree* tree)
                                  // "HLT_Mu8",
                                  // "HLT_Mu17"
         });
-    setupTrigger(Subchannel::E, {"HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30", // Was 12, changed to 8
-                                 "HLT_Ele17_CaloIdL_TrackIdL_IsoVL_PFJet30", // was 23, changed to 17
+    setupTrigger(Subchannel::E, {"HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30", // Was 12, changed to 8
+                                 "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30", // was 23, changed to 17
                                  // "HLT_Ele8_CaloIdM_TrackIdM_PFJet30",
                                  // "HLT_Ele17_CaloIdM_TrackIdM_PFJet30"
         });
-    // Dilepton triggers
-    if (year_ == Year::yr2016pre) {
-        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
-                                      "HLT_DoubleMu8_Mass8_PFHT300"});
-        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL",
-                                      "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
-        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
-                                      "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
-        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-                                      "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});
-    } else if (year_ == Year::yr2016post) {
-        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
-                                      "HLT_DoubleMu8_Mass8_PFHT300"});
-        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-                                      "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
-        setupTrigger(Subchannel::EM, {"HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
-                                      "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
-        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-                                      "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});
-    } else if(year_ == Year::yr2017) {
-        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"});
-        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
-        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"});
-        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"});
-    } else if (year_ == Year::yr2018) {
-        setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"});
-        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
-        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"});
-        setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"});
-    }
 
     setupTrigger(Subchannel::None);
 
@@ -103,13 +55,10 @@ void FakeRate::SetupOutTreeBranches(TTree* tree)
     BaseSelector::SetupOutTreeBranches(tree);
     tree->Branch("FakeMuon", "LeptonOut_Fake", &o_fakeMuons);
     tree->Branch("TightMuon", "LeptonOut_Fake", &o_tightMuons);
-    // tree->Branch("FakeElectron", "LeptonOut_Fake", &o_fakeElectrons);
-    // tree->Branch("TightElectron", "LeptonOut_Fake", &o_tightElectrons);
+    tree->Branch("FakeElectron", "LeptonOut_Fake", &o_fakeElectrons);
+    tree->Branch("TightElectron", "LeptonOut_Fake", &o_tightElectrons);
     tree->Branch("Jets", "JetOut", &o_jets);
     tree->Branch("BJets", "JetOut", &o_bJets);
-
-    tree->Branch("HLT_lowPt", &o_lo_hlt);
-    tree->Branch("HLT_highPt", &o_hi_hlt);
 
     tree->Branch("HT", &o_ht);
     tree->Branch("HT_b", &o_htb);
@@ -136,8 +85,6 @@ void FakeRate::clearOutputs()
     o_metphi.clear();
     o_nb_loose.clear();
     o_nb_tight.clear();
-    o_lo_hlt.clear();
-    o_hi_hlt.clear();
     LOG_FUNC << "End of clearOutputs";
 }
 
@@ -160,24 +107,13 @@ void FakeRate::ApplyScaleFactors()
 
 void FakeRate::ApplyDataSpecifics()
 {
-    // if ((*currentChannel_) == Channel::Measurement || (*currentChannel_) == Channel::SideBand) {
-    // int min_prescale = 0;
-    // for (size_t i = 0; i < trig_cuts.trigger_names[subChannel_].size(); ++i) {
-        //     std::string name = trig_cuts.trigger_names[subChannel_].at(i);
-        //     if (trig_cuts.pass_cut(subChannel_, i)) {
-        //         int prescale = sfMaker.getPrescale(*run, *lumiblock, name);
-        //         // std::cout << name << " " << prescale << std::endl;
-        //         min_prescale = (min_prescale==0 || prescale < min_prescale) ? prescale : min_prescale;
-        //     }
-        // }
-        // std::cout << "min: " << min_prescale << std::endl;
-        // (*weight) *= min_prescale;
-        // size_t trigIdx = 0;
-        // if (subChannel_ == Subchannel::E && lead_lep.Pt() > 25) trigIdx = 1;
-        // else if (subChannel_ == Subchannel::M && lead_lep.Pt() > 20) trigIdx = 1;
+    if ((*currentChannel_) == Channel::Measurement || (*currentChannel_) == Channel::SideBand) {
+        size_t trigIdx = 0;
+        if (subChannel_ == Subchannel::E && elec.rawpt(Level::Fake, 0) > 25) trigIdx = 1;
+        else if (subChannel_ == Subchannel::M && muon.rawpt(Level::Fake, 0) > 20) trigIdx = 1;
 
-        // (*weight) *= sfMaker.getPrescale(*run, *lumiblock, trig_cuts.trig_name(subChannel_, trigIdx));
-    // }
+        (*weight) *= sfMaker.getPrescale(*run, *lumiblock, trig_cuts.trig_name(subChannel_, trigIdx));
+    }
 }
 
 void FakeRate::setOtherGoodParticles(size_t syst)
@@ -195,34 +131,9 @@ void FakeRate::setSubChannel()
 
     if (nLeps(Level::Fake) == 1) {
         subChannel_ = muon.size(Level::Fake) == 1 ? Subchannel::M : Subchannel::E;
-    } else if (nLeps(Level::Fake) == 2) {
-        if (muon.size(Level::Fake) == 2) {
-            subChannel_ = Subchannel::MM;
-        } else if (elec.size(Level::Fake) == 2) {
-            subChannel_ = Subchannel::EE;
-        } else if (muon.pt(Level::Fake, 0) > elec.pt(Level::Fake, 0)) {
-            subChannel_ = Subchannel::ME;
-        } else {
-            subChannel_ = Subchannel::EM;
-        }
     }
     LOG_FUNC << "End of setSubChannel";
 }
-
-bool FakeRate::isSameSign()
-{
-    int q_total = 0;
-    for (size_t idx : muon.list(Level::Fake)) {
-        q_total += muon.charge(idx);
-    }
-    for (size_t idx : elec.list(Level::Fake)) {
-        q_total += elec.charge(idx);
-    }
-    // if 2 leptons, SS -> +1 +1 / -1 -1 -> abs(q) == 2
-    // OS cases are 0 and 3, so no overlap
-    return abs(q_total) == 1 || abs(q_total) == 2;
-}
-
 
 bool FakeRate::getCutFlow()
 {
@@ -234,12 +145,6 @@ bool FakeRate::getCutFlow()
     if (measurement_cuts()) (*currentChannel_) = Channel::Measurement;
 
     if (sideband_cuts()) (*currentChannel_) = Channel::SideBand;
-
-    // if (closure_cuts()) {
-    //     if (nLeps(Level::Tight) == 2) (*currentChannel_) = Channel::TightTight;
-    //     else if (nLeps(Level::Tight) == 1) (*currentChannel_) = Channel::TightFake;
-    //     else (*currentChannel_) = Channel::FakeFake;
-    // }
 
     if (*currentChannel_ == Channel::None) {
         return false;
@@ -264,11 +169,10 @@ bool FakeRate::single_lep_cuts(CutInfo& cuts)
     // TriggerCuts
     bool trig_match = false;
     if (haveOneFake) {
-        trig_match = true;
-        // size_t trig_idx = 0;
-        // if (subChannel_ == Subchannel::E && lead_lep.Pt() > 25) trig_idx = 1;
-        // else if (subChannel_ == Subchannel::M && lead_lep.Pt() > 20) trig_idx = 1;
-        // trig_match = trig_cuts.pass_cut(subChannel_, trig_idx) || trig_cuts.pass_cut(subChannel_, trig_idx+2);
+        size_t trig_idx = 0;
+        if (subChannel_ == Subchannel::E && elec.rawpt(Level::Fake, 0) > 25) trig_idx = 1;
+        else if (subChannel_ == Subchannel::M && muon.rawpt(Level::Fake, 0) > 20) trig_idx = 1;
+        trig_match = trig_cuts.pass_cut(subChannel_, trig_idx); // || trig_cuts.pass_cut(subChannel_, trig_idx+2);
     }
     passCuts &= cuts.setCut("passLeadPtCut", trig_match);
     passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
@@ -318,38 +222,6 @@ bool FakeRate::sideband_cuts()
     return passCuts;
 }
 
-bool FakeRate::closure_cuts()
-{
-    bool passCuts = true;
-    CutInfo cuts;
-
-    passCuts &= cuts.setCut("passPreselection", true);
-    passCuts &= cuts.setCut("passMETFilter", metfilters.pass());
-    passCuts &= cuts.setCut("pass2FakeLep",  nLeps(Level::Fake) == 2);
-    // passCuts &= cuts.setCut("passTightLep", nLeps(Level::Tight) >= 1);
-    // Trigger Cuts
-    passCuts &= cuts.setCut("passLeadPtCut", getLeadPt() > 25);
-    passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
-
-    passCuts &= cuts.setCut("passSSLeptons", isSameSign());
-    passCuts &= cuts.setCut("passZVeto", muon.passZVeto() && elec.passZVeto());
-    passCuts &= cuts.setCut("passJetNumber", jet.size(Level::Tight) >= 2);
-    passCuts &= cuts.setCut("passMetCut", met.pt() > 50);
-    passCuts &= cuts.setCut("passHTCut", jet.getHT(Level::Tight) > 100);
-
-    // Fill Cut flow
-    cuts.setCut("pass2TightLeps", nLeps(Level::Tight) == 2);
-    fillCutFlow(Channel::TightTight, cuts);
-    cuts.cuts.pop_back();
-    cuts.setCut("pass1TightLeps", nLeps(Level::Tight) == 1);
-    fillCutFlow(Channel::TightFake, cuts);
-    cuts.cuts.pop_back();
-    cuts.setCut("pass0TightLeps", nLeps(Level::Tight) == 0);
-    fillCutFlow(Channel::FakeFake, cuts);
-
-    return passCuts;
-}
-
 void FakeRate::set_leadlep()
 {
     if (nLeps(Level::Fake) != 1) {
@@ -360,16 +232,6 @@ void FakeRate::set_leadlep()
     } else {
         lead_lep = elec.p4(Level::Fake, 0);
     }
-}
-
-float FakeRate::getLeadPt()
-{
-    if (subChannel_ == Subchannel::MM || subChannel_ == Subchannel::ME) {
-        return muon.pt(Level::Fake, 0);
-    } else if (subChannel_ == Subchannel::EE || subChannel_ == Subchannel::EM) {
-        return elec.pt(Level::Fake, 0);
-    }
-    return 0.;
 }
 
 void FakeRate::FillValues(const std::vector<bool>& passVec)
@@ -383,8 +245,8 @@ void FakeRate::FillValues(const std::vector<bool>& passVec)
 
     muon.fillLepton_Iso(*o_fakeMuons, Level::FakeNotTight, pass_bitmap);
     muon.fillLepton_Iso( *o_tightMuons, Level::Tight, pass_bitmap);
-    // elec.fillLepton_Iso(*o_fakeElectrons, Level::FakeNotTight, pass_bitmap);
-    // elec.fillLepton_Iso( *o_tightElectrons, Level::Tight, pass_bitmap);
+    elec.fillLepton_Iso(*o_fakeElectrons, Level::FakeNotTight, pass_bitmap);
+    elec.fillLepton_Iso( *o_tightElectrons, Level::Tight, pass_bitmap);
     jet.fillJet(*o_jets, Level::Tight, pass_bitmap);
     jet.fillJet(*o_bJets, Level::Bottom, pass_bitmap);
 
@@ -395,17 +257,6 @@ void FakeRate::FillValues(const std::vector<bool>& passVec)
         o_metphi.push_back(met.phi());
         o_nb_loose.push_back(jet.n_loose_bjet.at(syst));
         o_nb_tight.push_back(jet.n_tight_bjet.at(syst));
-
-        if (isMC_) {
-            o_lo_hlt.push_back(trig_cuts.pass_cut(subChannel_, 0));
-            o_hi_hlt.push_back(trig_cuts.pass_cut(subChannel_, 1));
-
-        } else {
-            std::string trig_low_name = trig_cuts.trigger_names[subChannel_].at(0);
-            std::string trig_high_name = trig_cuts.trigger_names[subChannel_].at(1);
-            o_lo_hlt.push_back(trig_cuts.pass_cut(subChannel_, 0) * sfMaker.getPrescale(*run, *lumiblock, trig_low_name));
-            o_hi_hlt.push_back(trig_cuts.pass_cut(subChannel_, 1) * sfMaker.getPrescale(*run, *lumiblock, trig_high_name));
-        }
     }
     LOG_FUNC << "End of FillValues";
 }
