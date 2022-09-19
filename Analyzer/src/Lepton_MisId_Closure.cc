@@ -190,7 +190,7 @@ bool Closure_MisId::closure_cuts() {
     passCuts &= cuts.setCut("passPreselection", true);
     passCuts &= cuts.setCut("passMETFilter", metfilters.pass());
     passCuts &= cuts.setCut("pass2Electrons", elec.size(Level::Tight) == 2);
-    // passCuts &= cuts.setCut("pass2Muons", muon.size(Level::Tight) == 2);
+
     // Trigger Cuts
     passCuts &= cuts.setCut("passLeadPtCut", getLeadPt() > 25);
     passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
@@ -204,9 +204,6 @@ bool Closure_MisId::closure_cuts() {
     if (elec.size(Level::Tight) == 2) {
         charge = elec.charge(Level::Tight, 0) * elec.charge(Level::Tight, 1);
     }
-    // if (muon.size(Level::Tight) == 2) {
-    //     charge = muon.charge(Level::Tight, 0) * muon.charge(Level::Tight, 1);
-    // }
 
     cuts.setCut("passSSElectrons", charge > 0);
     fillCutFlow(Channel::SS_CR, cuts);
@@ -224,7 +221,7 @@ bool Closure_MisId::measurement_cuts() {
     passCuts &= cuts.setCut("passPreselection", true);
     passCuts &= cuts.setCut("passMETFilter", metfilters.pass());
     passCuts &= cuts.setCut("pass2Leptons;", nLeps(Level::Tight) == 2);
-    // passCuts &= cuts.setCut("pass2Muons", muon.size(Level::Tight) == 2);
+
     // Trigger Cuts
     passCuts &= cuts.setCut("passLeadPtCut", getLeadPt() > 25);
     passCuts &= cuts.setCut("passTrigger", trig_cuts.pass_cut(subChannel_));
@@ -285,13 +282,10 @@ void Closure_MisId::FillValues(const std::vector<bool>& passVec)
         pass_bitmap += passVec.at(i) << i;
     }
 
-    // muon.fillLepton(*o_tightMuons, Level::Tight, pass_bitmap);
-    // elec.fillLepton(*o_tightElectrons, Level::Tight, pass_bitmap);
+    muon.fillLepton(*o_tightMuons, Level::Tight, pass_bitmap);
+    elec.fillLepton(*o_tightElectrons, Level::Tight, pass_bitmap);
     jet.fillJet(*o_jets, Level::Tight, pass_bitmap);
 
-    // o_mumu = trig_cuts.pass_cut(Subchannel::MM);
-    // o_emu = trig_cuts.pass_cut(Subchannel::EM);
-    // o_ee = trig_cuts.pass_cut(Subchannel::EE);
     nlooseMu = muon.size(Level::Loose);
     nlooseEl = elec.size(Level::Loose);
     for (size_t syst = 0; syst < numSystematics(); ++syst) {
