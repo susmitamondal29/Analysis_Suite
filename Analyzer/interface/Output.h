@@ -70,12 +70,14 @@ struct LeptonOut {
 
 struct LeptonOut_Fake {
     PARTICLE_VARS;
+    std::vector<Float_t> rawPt;
     std::vector<Float_t> ptRatio;
     std::vector<Float_t> ptRel;
     std::vector<Float_t> mvaTTH;
     std::vector<Float_t> iso;
     void clear() {
         generic_clear(this);
+        rawPt.clear();
         ptRatio.clear();
         ptRel.clear();
         mvaTTH.clear();

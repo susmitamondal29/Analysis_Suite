@@ -50,6 +50,7 @@ void Lepton::fillLepton_Iso(LeptonOut_Fake& output, Level level, size_t pass_bit
     for (size_t idx = 0; idx < size(); ++idx) {
         size_t final_bitmap = fillParticle(output, level, idx, pass_bitmap);
         if (final_bitmap != 0) {
+            output.rawPt.push_back(m_pt.at(idx));
             output.ptRatio.push_back(ptRatio(idx));
             output.ptRel.push_back(ptRel.at(idx));
             output.mvaTTH.push_back(mvaTTH.at(idx));
