@@ -49,8 +49,6 @@ private:
     std::vector<Int_t> o_nb_loose, o_nb_tight, o_nloose_muon, o_nloose_elec;
     std::vector<Bool_t> o_pass_zveto;
     // TrigEff trigEff_leadPt;
-
-    std::set<std::string> chargeMis_list = {"DYm50", "DY10-50", "ttbar"};
 };
 
 #endif

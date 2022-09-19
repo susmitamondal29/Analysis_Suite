@@ -7,6 +7,7 @@ enum class Channel {
     SS_Dilepton,
     SS_Multi,
     TightFake_Nonprompt,
+    FakeFake_Nonprompt,
     OS_MisId,
     None,
 };
@@ -31,6 +32,7 @@ void ThreeTop::Init(TTree* tree)
     createTree("Signal_Multi", Channel::SS_Multi);
     // Charge Mis-id Fake Rate
     if (!isMC_) {
+        createTree("FakeFake_Nonprompt", Channel::FakeFake_Nonprompt);
         createTree("TightFake_Nonprompt", Channel::TightFake_Nonprompt);
         createTree("OS_Charge_MisId", Channel::OS_MisId);
     }
@@ -47,30 +49,28 @@ void ThreeTop::Init(TTree* tree)
     if (year_ == Year::yr2016pre) {
         setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
                                       "HLT_DoubleMu8_Mass8_PFHT300"});
-        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL",
-                                      "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
         setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
+                                      "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL",
                                       "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
         setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
                                       "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});
     } else if (year_ == Year::yr2016post) {
         setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
                                       "HLT_DoubleMu8_Mass8_PFHT300"});
-        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-                                      "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
         setupTrigger(Subchannel::EM, {"HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
                                       "HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300"});
         setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
                                       "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300"});
     } else if(year_ == Year::yr2017) {
         setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"});
-        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
-        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
         setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"});
     } else if (year_ == Year::yr2018) {
         setupTrigger(Subchannel::MM, {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"});
-        setupTrigger(Subchannel::ME, {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
-        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"});
+        setupTrigger(Subchannel::EM, {"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                                      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"});
         setupTrigger(Subchannel::EE, {"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"});
     }
     setupTrigger(Subchannel::None);
@@ -152,9 +152,11 @@ void ThreeTop::ApplyScaleFactors()
 void ThreeTop::applyNonprompt(Particle& part, PID pid)
 {
     auto tight = part.begin(Level::Tight);
+    int parity = 1;
     for (auto fake = part.begin(Level::Fake); fake != part.end(Level::Fake); ++fake) {
         if (tight == part.end(Level::Tight) || (*tight) > (*fake)) {
-            (*weight) *= sfMaker.getNonpromptFR(part.eta(*fake), part.pt(*fake), pid);
+            (*weight) *= parity*sfMaker.getNonpromptFR(part.eta(*fake), part.pt(*fake), pid);
+            parity = -1;
         } else {
             tight++;
         }
@@ -189,18 +191,15 @@ void ThreeTop::setSubChannel()
     if (nLeps(Level::Tight) == 1 && nLeps(Level::Fake) == 2) {
         if (muon.size(Level::Fake) == 2) subChannel_ = Subchannel::MM;
         else if (elec.size(Level::Fake) == 2) subChannel_ = Subchannel::EE;
-        else if (muon.pt(Level::Fake, 0) > elec.pt(Level::Fake, 0)) subChannel_ = Subchannel::ME;
         else subChannel_ = Subchannel::EM;
     } else if (nLeps(Level::Tight) == 2) {
         if (muon.size(Level::Tight) == 2) subChannel_ = Subchannel::MM;
         else if (elec.size(Level::Tight) == 2) subChannel_ = Subchannel::EE;
-        else if (muon.pt(Level::Tight, 0) > elec.pt(Level::Tight, 0)) subChannel_ = Subchannel::ME;
         else subChannel_ = Subchannel::EM;
     } else if (nLeps(Level::Tight) == 3) {
         if (muPt(0) > elPt(0) && muPt(1) > elPt(0)) subChannel_ = Subchannel::MM;
-        else if (muPt(0) > elPt(0) && elPt(0) > muPt(1)) subChannel_ = Subchannel::ME;
         else if (elPt(0) > muPt(0) && elPt(1) > muPt(0)) subChannel_ = Subchannel::EE;
-        else if (elPt(0) > muPt(0) && muPt(0) > elPt(1)) subChannel_ = Subchannel::EM;
+        else subChannel_ = Subchannel::EM;
     }
     LOG_FUNC << "End of setSubChannel";
 }
@@ -226,11 +225,14 @@ bool ThreeTop::getCutFlow()
     setSubChannel();
     if (!baseline_cuts()) return false;
 
-    if (signal_cuts()) (*currentChannel_) = (nLeps(Level::Tight) == 2) ? Channel::SS_Dilepton : Channel::SS_Multi;
+    if (signal_cuts())
+        (*currentChannel_) = (nLeps(Level::Tight) == 2) ? Channel::SS_Dilepton : Channel::SS_Multi;
 
-    if (nonprompt_cuts()) (*currentChannel_) = Channel::TightFake_Nonprompt;
+    if (nonprompt_cuts())
+        (*currentChannel_) = (nLeps(Level::Tight) == 0) ? Channel::FakeFake_Nonprompt : Channel::TightFake_Nonprompt;
 
-    if (charge_misid_cuts()) (*currentChannel_) = Channel::OS_MisId;
+    if (charge_misid_cuts())
+        (*currentChannel_) = Channel::OS_MisId;
 
     if (trees.find(*currentChannel_) == trees.end()) {
         return false;
@@ -290,11 +292,15 @@ bool ThreeTop::nonprompt_cuts()
     bool passCuts = true;
     CutInfo cuts;
 
-    passCuts &= cuts.setCut("pass1TightLeptons", nLeps(Level::Tight) == 1);
+    // passCuts &= cuts.setCut("pass1TightLeptons", nLeps(Level::Tight) == 1);
     passCuts &= cuts.setCut("pass2FakeLeptons", nLeps(Level::Fake) == 2);
     passCuts &= cuts.setCut("passSameSign;", isSameSign(Level::Fake));
 
     // Fill Cut flow
+    cuts.setCut("pass2FakeLeps", nLeps(Level::Tight) == 0);
+    fillCutFlow(Channel::FakeFake_Nonprompt, cuts);
+    cuts.cuts.pop_back();
+    cuts.setCut("pass1FakeLeps", nLeps(Level::Tight) == 1);
     fillCutFlow(Channel::TightFake_Nonprompt, cuts);
 
     LOG_FUNC << "End of nonprompt_cuts";
@@ -354,16 +360,14 @@ float ThreeTop::getLeadPt(size_t idx)
     if (subChannel_ == Subchannel::None) {
         return 0.;
     } else if (idx == 0) {
-        return (static_cast<int>(subChannel_) % 2 == 0) ? muPt(0) : elPt(0);
+        return std::max(muPt(0), elPt(0));
     } else if (idx == 1) {
         if (subChannel_ == Subchannel::MM)
-            return muPt(0);
-        else if (subChannel_ == Subchannel::EM)
             return muPt(1);
-        else if (subChannel_ == Subchannel::ME)
-            return elPt(0);
         else if (subChannel_ == Subchannel::EE)
             return elPt(1);
+        else if (subChannel_ == Subchannel::EM)
+            return std::min(muPt(0), elPt(0));
     }
     return 0;
 }
