@@ -38,7 +38,6 @@ class BaseGetter:
         """
         if isinstance(scale, tuple):
             scale, mask = scale
-            # print(len(mask), len(self.mask), ak.count_nonzero(self.mask))
             self._scale[self.get_submask(mask)] = (
                 scale * self._scale[self.get_submask(mask)]
             )
@@ -62,7 +61,7 @@ class BaseGetter:
             Mask of length of `self.mask` but with correct masking needed
         """
         submask = copy(self.mask)
-        submask[submask] = mask * submask[submask]
+        submask[submask] = mask
         return submask
 
     @property
@@ -74,8 +73,8 @@ class BaseGetter:
     def mask(self, mask):
         """ """
         if callable(mask):
-            mask = mask(self)
-        self._mask[self._mask] = mask * self._mask[self._mask]
+            mask = ak.to_numpy(mask(self))
+        self._mask[self._mask] *= mask
 
     def clear_mask(self):
         """ """
@@ -83,7 +82,7 @@ class BaseGetter:
 
     def cut(self, mask):
         """ """
-        self._base_mask[self._base_mask] = mask * self._base_mask[self._base_mask]
+        self._base_mask[self._base_mask] = mask
         self.clear_mask()
 
     def get_graph(self, graph):

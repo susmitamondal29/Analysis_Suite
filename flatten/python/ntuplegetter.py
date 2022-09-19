@@ -221,6 +221,9 @@ class Particle:
         else:
             return self._get_val(var, idx, pad)
 
+    def __len__(self):
+        return len(self.mask)
+
     def _get_val(self, var, idx, pad=False):
         if pad:
             vals = ak.pad_none(self.vg[f"{self.name}/{var}"][self.mask], idx + 1)
@@ -284,20 +287,23 @@ class MergeParticle:
 
     def __init__(self, parts):
         self.parts = parts
-        self._idx_sort = ak.argsort(self.get_list("pt"), ascending=False)
+        self._idx_sort = ak.argsort(self._get_combined_item("pt"), ascending=False)
         self.vg = self.parts[0].vg
 
     def __getattr__(self, var):
-        return self.get_list(var)[self._sort]
+        return self._get_combined_item(var)[self._sort]
 
     def __getitem__(self, idx):
         var, *idx = idx
         vals = self._get_combined_item(var)[self._sort]
-        if len(idx) == 2:
+        if len(idx) == 1:
             return vals[ak.num(vals) > idx[0], idx[0]]
         else:
             idx, pad = idx
             return ak.to_numpy(ak.pad_none(vals, idx + 1)[:, idx])
+
+    def __len__(self):
+        return len(self._sort)
 
     def _get_combined_item(self, var):
         if callable(getattr(self.parts[0], var)):
@@ -309,6 +315,7 @@ class MergeParticle:
                 (part.__getattr__(var) for part in self.parts), axis=-1
             )
 
+    @property
     def _sort(self):
         return self._idx_sort[self.mask]
 

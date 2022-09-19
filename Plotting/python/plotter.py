@@ -148,7 +148,7 @@ class Plotter:
                     self.hists[name][group].fill(*vals, weight=weight, member=member)
 
     def mask(self, mask, clear=True):
-        for vg in self.dfs.values():
+        for key, vg in self.dfs.items():
             if isinstance(vg, dict):
                 for subvg in vg.values():
                     if clear:
@@ -173,7 +173,7 @@ class Plotter:
 
     def _scale(self, vg, scaler):
         if isinstance(vg, dict):
-            for subvg in vg.values():
+            for key, subvg in vg.items():
                 scaler(subvg)
         else:
             scaler(vg)
@@ -193,6 +193,9 @@ class Plotter:
 
 
     def get_array(self, member, graph):
+        if isinstance(graph, str):
+            graph = self.graphs[graph]
+
         if isinstance(self.dfs[member], dict):
             vals = [[] for _ in range(graph.dim())]
             scales = []

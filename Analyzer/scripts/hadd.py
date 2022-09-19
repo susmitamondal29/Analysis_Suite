@@ -1,33 +1,28 @@
 #!/usr/bin/env python3
 import argparse
 import subprocess
+import analysis_suite.commons.user as user
 from pathlib import Path
-
-analysis = "ThreeTop"
-user = Path().home().owner()
-output_start = Path(f'/hdfs/store/user/{user}')
-
-runfile_options = set()
-for dirname in output_start.glob(f"{analysis}_*"):
-    dirname = dirname.name
-    if "201" not in dirname:
-        continue
-    runfile_options.add(dirname[len(analysis)+6:])  # len(_yyyy_) = 6
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", "--filename", required=True,
-                    choices = list(runfile_options),
                     help="output filename")
 parser.add_argument("-y", "--years", required=True,
                     type=lambda x : ["2016", "2017", "2018"] if x == "all" \
                                else [i.strip() for i in x.split(',')],
                     help="Year to use")
-parser.add_argument("-o", "--output", required=True,
-                     help="Output file name (root not needed)")
+parser.add_argument('-a', '--analysis', required=True)
+parser.add_argument('-t', '--types', default="mc,data",
+                    type=lambda x : [i.strip() for i in x.split(',')],)
+parser.add_argument('-r', '--rerun', action="store_false")
 args = parser.parse_args()
 
-for year in args.years:
-    output_dir = output_start / f"{analysis}_{year}_{args.filename}"
-    if not output_dir.exists():
-        continue
-    subprocess.call(f"hadd -f {args.output}_{year}.root {output_dir}/*root", shell=True)
+for typ in args.types:
+    for year in args.years:
+        output_dir = user.hdfs_area / f"{args.analysis}_{year}_{args.filename}_{typ}"
+        if not output_dir.exists():
+            continue
+        files = f"{output_dir}/*root "
+        if args.rerun and Path(f"{output_dir}_rerun").exists():
+            files += f"{output_dir}_rerun/*root"
+        subprocess.call(f"hadd -f -v 1 {args.filename}_{typ}_{year}.root {files}", shell=True)
