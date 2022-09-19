@@ -57,8 +57,10 @@ void Electron::createFakeList(Particle& jets)
             && sip3d.at(i) < 4
             && lostHits.at(i) == 0
             && tightCharge.at(i) == 2
+            // && passTriggerRequirements(i) // Nonmva
             && getFakePtFactor(i)*m_pt.at(i) > 15
-            && ptRatio(i) > 0.4)
+            && ptRatio(i) > 0.6 // MVA
+            )
             {
                 m_partList[Level::Fake]->push_back(i);
                 dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(getCloseJet(i, jets));
@@ -71,7 +73,6 @@ void Electron::createTightList(Particle& jets)
 {
     for (auto i : list(Level::Fake)) {
         if (pt(i) > 15
-            // && passTriggerRequirements(i)
             && passJetIsolation(i))
             {
                 m_partList[Level::Tight]->push_back(i);
@@ -85,7 +86,7 @@ float Electron::getScaleFactor()
 {
     float weight = 1.;
     std::string syst = systName(electron_scale);
-    for (auto eidx : list(Level::Tight)) {
+    for (auto eidx : list(Level::Fake)) {
         weight *= electron_scale.evaluate({yearMap.at(year_), syst, "wp90noiso", fabs(eta(eidx)), pt(eidx)});
     }
     return weight;

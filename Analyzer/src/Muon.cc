@@ -46,7 +46,8 @@ void Muon::createFakeList(Particle& jets)
             && mediumId.at(i)
             && sip3d.at(i) < 4
             && m_pt.at(i)*getFakePtFactor(i) > 15
-            && ptRatio(i) > 0.4)
+            && ptRatio(i) > 0.4
+            )
             {
                 m_partList[Level::Fake]->push_back(i);
                 dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(getCloseJet(i, jets));
@@ -72,7 +73,7 @@ float Muon::getScaleFactor()
 {
     float weight = 1.;
     std::string syst = systName(muon_scale);
-    for (auto midx : list(Level::Tight)) {
+    for (auto midx : list(Level::Fake)) {
         weight *= muon_scale.evaluate({yearMap.at(year_)+"_UL", fabs(eta(midx)), pt(midx), syst});
     }
     return weight;
