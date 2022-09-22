@@ -192,6 +192,7 @@ void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
     if (isMC_) {
         ApplyScaleFactors();
     }
+    // (*weight) *= muon.getRocCorrection(rGen, isMC_);
 
     LOG_FUNC << "End of SetupEvent";
 }

@@ -1,6 +1,15 @@
 #include "analysis_suite/Analyzer/interface/Muon.h"
 #include "analysis_suite/Analyzer/interface/Jet.h"
 
+enum ROC_ERROR {
+    eDefault = 0,
+    eStat = 1,
+    eZpt = 2,
+    eEwk = 3,
+    eDeltaM = 4,
+    eEwk2 = 5,
+};
+
 void Muon::setup(TTreeReader& fReader, bool isMC)
 {
     Lepton::setup("Muon", fReader, isMC);
@@ -9,6 +18,8 @@ void Muon::setup(TTreeReader& fReader, bool isMC)
     isPFcand.setup(fReader, "Muon_isPFcand");
     tightCharge.setup(fReader, "Muon_tightCharge");
     mediumId.setup(fReader, "Muon_mediumId");
+    nTrackerLayers.setup(fReader, "Muon_nTrackerLayers");
+
 
     id = PID::Muon;
 
@@ -17,6 +28,8 @@ void Muon::setup(TTreeReader& fReader, bool isMC)
         muon_scale = WeightHolder(corr_set->at("NUM_MediumID_DEN_TrackerMuons"), Systematic::Muon_Scale,
                                   {"sf", "systup", "systdown"});
     }
+    std::string roccor_file = scaleDir_+"/POG/USER/"+yearMap.at(year_)+"_UL/RoccoR.txt";
+    roc_corr.init(roccor_file);
     cone_correction = 0.85;
     // mvaCut = 0.65;
     // isoCut = 0.16;
@@ -75,6 +88,25 @@ float Muon::getScaleFactor()
     std::string syst = systName(muon_scale);
     for (auto midx : list(Level::Fake)) {
         weight *= muon_scale.evaluate({yearMap.at(year_)+"_UL", fabs(eta(midx)), pt(midx), syst});
+    }
+    return weight;
+}
+
+float Muon::getRocCorrection(GenParticle& gen, bool isMC)
+{
+    float weight = 1.;
+    for (auto i : list(Level::Fake)) {
+        if (isMC) {
+            if (genPartIdx.at(i) != -1) { //(recommended), MC scale and resolution correction when matched gen muon is available
+                float genPt = gen.pt(genPartIdx.at(i));
+                weight *= roc_corr.kSpreadMC(charge(i), pt(i), eta(i), phi(i), genPt, eDefault, 0);
+            } else { //MC scale and extra smearing when matched gen muon is not available
+                float rand_uniform = static_cast<float>(rand())/static_cast <float>(RAND_MAX);
+                weight *= roc_corr.kSmearMC(charge(i), pt(i), eta(i), phi(i), nTrackerLayers.at(i), rand_uniform, eDefault, 0);
+            }
+        } else { //data
+            weight *= roc_corr.kScaleDT(charge(i), pt(i), eta(i), phi(i), eDefault, 0);
+        }
     }
     return weight;
 }
