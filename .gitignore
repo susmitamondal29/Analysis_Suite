@@ -29,4 +29,5 @@ poetry.lock
 
 data/python/plotInfo/*py
 data/POG
+!data/POG/USER/*
 !data/python/plotInfo/plotInfo_default.py
