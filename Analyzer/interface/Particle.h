@@ -8,6 +8,8 @@
 #include "analysis_suite/Analyzer/interface/Variable.h"
 #include "analysis_suite/Analyzer/interface/Output.h"
 
+#include "analysis_suite/Analyzer/interface/logging.h"
+
 #include <TTreeReader.h>
 
 #include <vector>

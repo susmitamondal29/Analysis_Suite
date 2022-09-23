@@ -40,7 +40,7 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
     if (isMC) {
         // JEC Weights
         auto corr_set = getScaleFile("JME", "jet_jerc");
-        jec_scale = WeightHolder(corr_set->at(jec_source[year_]+"_Total_AK4PFchs"));
+        jes_scale = WeightHolder(corr_set->at(jes_source[year_]+"_Total_AK4PFchs"));
         jet_resolution = WeightHolder(corr_set->at(jer_source[year_]+"_PtResolution_AK4PFchs"));
         jer_scale = WeightHolder(corr_set->at(jer_source[year_]+"_ScaleFactor_AK4PFchs"),
                                  Systematic::Jet_JER, {"nom","up","down"});
@@ -58,10 +58,13 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
                                        Systematic::BJet_BTagging, {"central","up","down"});
 
         // BTagging Efficiencies
-        auto beff_set = getScaleFile("USER", "beff");
+        try {
+            auto beff_set = getScaleFile("USER", "beff");
         btag_eff = WeightHolder(beff_set->at("SS"),
                                 Systematic::BJet_Eff, {"central","up","down"});
-
+        } catch (...) {
+            LOG_WARN << "BTagging Efficiencies not found for this year. May not be necessary, will continue";
+        }
     }
 
     m_jet_scales[Systematic::Nominal] = {{eVar::Nominal, std::vector<float>()}};
@@ -162,18 +165,24 @@ float Jet::getCentrality(const std::vector<size_t>& jet_list)
     return getHT(jet_list) / etot;
 }
 
-void Jet::setupJEC(GenericParticle& genJet) {
+void Jet::setSyst()
+{
     if (currentSyst == Systematic::Nominal || isJECSyst()) {
         m_jec = &m_jet_scales[currentSyst][currentVar];
+    } else {
+        m_jec = &m_jet_scales[Systematic::Nominal][eVar::Nominal];
+    }
+}
+
+void Jet::setupJEC(GenericParticle& genJet) {
+    if (currentSyst == Systematic::Nominal || isJECSyst()) {
         m_jec->assign(size(), 1);
         if (!isMC_) return;
 
         for(size_t i = 0; i < size(); ++i) {
-            (*m_jec)[i] *= get_jec(i);
+            (*m_jec)[i] *= get_jes(i);
             (*m_jec)[i] *= get_jer(i, genJet);
         }
-    } else {
-        m_jec = &m_jet_scales[Systematic::Nominal][eVar::Nominal];
     }
 }
 
@@ -198,11 +207,11 @@ float Jet::getTotalBTagWeight() {
     return weight;
 }
 
-float Jet::get_jec(size_t i) {
-    if (currentSyst != Systematic::Jet_JER || currentVar == eVar::Nominal) {
+float Jet::get_jes(size_t i) {
+    if (currentSyst != Systematic::Jet_JES || currentVar == eVar::Nominal) {
         return 1.;
     } else {
-        float delta = jec_scale.evaluate({eta(i), pt(i)});
+        float delta = jes_scale.evaluate({eta(i), pt(i)});
         return (currentVar == eVar::Up) ? (1+delta) : (1-delta);
     }
 }
@@ -210,6 +219,7 @@ float Jet::get_jec(size_t i) {
 float Jet::get_jer(size_t i, GenericParticle& genJets) {
     using namespace ROOT::Math::VectorUtil;
     float resolution = jet_resolution.evaluate({eta(i), pt(i), *rho});
+
     float scale = jer_scale.evaluate({eta(i), systName(jer_scale)});
 
     bool hasGenJet = genJetIdx.at(i) != -1;

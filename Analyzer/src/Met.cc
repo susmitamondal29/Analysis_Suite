@@ -1,6 +1,8 @@
 #include "analysis_suite/Analyzer/interface/Met.h"
 #include "analysis_suite/Analyzer/interface/Jet.h"
 
+#include "analysis_suite/Analyzer/interface/XYMETCorrection.h"
+
 void Met::setup(MET_Type type, TTreeReader& fReader)
 {
     name = met_name[type];
@@ -20,31 +22,37 @@ void Met::setup(MET_Type type, TTreeReader& fReader)
     }
 }
 
-void Met::setupMet(Jet& jet, UInt_t run, int nVertices)
+void Met::setSyst()
 {
-    if (currentSyst == Systematic::Nominal || jet.isJECSyst()) {
-        // Setup values
+    if (currentSyst == Systematic::Nominal || isJECSyst()) {
         corr_pt = &m_corr_pt[currentSyst][currentVar];
         corr_phi = &m_corr_phi[currentSyst][currentVar];
-
-        // Get change in Met from change in Jet momentum
-        auto met_vec = std::polar(*m_pt, *m_phi) - jet.get_momentum_change();
-        (*corr_pt) = std::abs(met_vec);
-        (*corr_phi) = std::arg(met_vec);
-        fix_xy(run, nVertices);
     } else {
         corr_pt = &m_corr_pt[Systematic::Nominal][eVar::Nominal];
         corr_phi = &m_corr_phi[Systematic::Nominal][eVar::Nominal];
     }
 }
 
+void Met::setupMet(Jet& jet, UInt_t run, int nVertices)
+{
+    if (currentSyst == Systematic::Nominal || isJECSyst()) {
+        (*corr_pt) = *m_pt;
+        (*corr_phi) = *m_phi;
+        // Get change in Met from change in Jet momentum
+        auto met_vec = std::polar(*m_pt, *m_phi) - jet.get_momentum_change();
+        (*corr_pt) = std::abs(met_vec);
+        (*corr_phi) = std::arg(met_vec);
+        fix_xy(run, nVertices);
+    }
+}
+
 void Met::fix_xy(UInt_t run, int nVertices)
 {
-    float corr_metx = pt()*cos(phi())+xcorr.evaluate({name, (float)run, (float)nVertices});
-    float corr_mety = pt()*sin(phi())+ycorr.evaluate({name, (float)run, (float)nVertices});
+    bool isMC = run < 1000;
+    auto met_corr = METXYCorr_Met_MetPhi(pt(), phi(), run, yearMap.at(year_), isMC, nVertices);
+    (*corr_pt) = met_corr.first;
+    (*corr_phi) = met_corr.second;
 
-    (*corr_pt) = sqrt(pow(corr_metx, 2) + pow(corr_mety, 2));
-    (*corr_phi) = atan2(corr_mety, corr_metx);
 }
 
 float Met::mt(float l_pt, float l_phi)

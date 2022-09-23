@@ -6,17 +6,9 @@
 
 #include "analysis_suite/Analyzer/interface/Particle.h"
 
-#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
-#include "CondTools/BTau/interface/BTagCalibrationReader.h"
-
 #include <complex>
 
 enum PUID { PU_Tight = 0, PU_Medium = 1, PU_Loose = 2 };
-
-struct Btag_Info {
-    BTagEntry::JetFlavor flavor_type;
-    std::string jet_type;
-};
 
 class Jet : public Particle {
 public:
@@ -75,8 +67,9 @@ public:
     TRVariable<Float_t> rho;
 
 
+    void setSyst();
     void setupJEC(GenericParticle& genJet);
-    bool isJECSyst() {return std::find(jec_systs.begin(), jec_systs.end(), currentSyst) != jec_systs.end(); }
+
     std::pair<Float_t, Float_t> get_JEC_pair(Systematic syst, size_t idx) const
     {
         if (m_jet_scales.find(syst) == m_jet_scales.end() ||
@@ -105,7 +98,7 @@ private:
     float getHT(const std::vector<size_t>& jet_list);
     float getCentrality(const std::vector<size_t>& jet_list);
 
-    std::unordered_map<Year, std::string> jec_source = {
+    std::unordered_map<Year, std::string> jes_source = {
         {Year::yr2016pre, "Summer19UL16APV_V7_MC"},
         {Year::yr2016post, "Summer19UL16_V7_MC"},
         {Year::yr2017, "Summer19UL17_V5_MC"},
@@ -119,7 +112,7 @@ private:
         {Year::yr2018, "Summer19UL18_JRV2_MC"},
     };
 
-    WeightHolder jer_scale, jet_resolution, jec_scale;
+    WeightHolder jer_scale, jet_resolution, jes_scale;
     WeightHolder puid_scale;
     WeightHolder btag_bc_scale, btag_udsg_scale, btag_eff;
 
@@ -129,7 +122,7 @@ private:
     std::mt19937 gen{rd()};
 
     float get_jer(size_t i, GenericParticle& genJet);
-    float get_jec(size_t i);
+    float get_jes(size_t i);
 };
 
 #endif // __JET_H_

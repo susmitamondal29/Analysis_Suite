@@ -24,13 +24,17 @@ void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
         golden_json_file >> golden_json;
 
         // Fake Rates
-        auto corr_set = getScaleFile("USER", "fake_rates");
-        charge_misId = WeightHolder(corr_set->at("Charge_MisId"), Systematic::ChargeMisId_stat,
-                                    {"nom", "up", "down"});
-        nonprompt_muon = WeightHolder(corr_set->at("Nonprompt_muon"), Systematic::Nonprompt_Mu_stat,
-                                      {"nom", "up", "down"});
-        nonprompt_elec = WeightHolder(corr_set->at("Nonprompt_electron"), Systematic::Nonprompt_El_stat,
-                                      {"nom", "up", "down"});
+        try {
+            auto corr_set = getScaleFile("USER", "fake_rates");
+            charge_misId = WeightHolder(corr_set->at("Charge_MisId"), Systematic::ChargeMisId_stat,
+                                        {"nom", "up", "down"});
+            nonprompt_muon = WeightHolder(corr_set->at("Nonprompt_muon"), Systematic::Nonprompt_Mu_stat,
+                                          {"nom", "up", "down"});
+            nonprompt_elec = WeightHolder(corr_set->at("Nonprompt_electron"), Systematic::Nonprompt_El_stat,
+                                          {"nom", "up", "down"});
+        } catch (...) {
+            LOG_WARN << "Fake Rates not found for this year. May not be necessary, will continue";
+        }
     }
     LOG_FUNC << "End init";
 }

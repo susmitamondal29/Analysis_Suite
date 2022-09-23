@@ -59,6 +59,14 @@ void BaseSelector::Init(TTree* tree)
             loguru::g_stderr_verbosity = std::stoi(item->GetTitle());
         }
     }
+
+    for (auto syst : systematics_) {
+        std::vector<eVar> vars = (syst != Systematic::Nominal) ? syst_vars : nominal_var;
+        for (auto var : vars) {
+            syst_var_pair.push_back(std::make_pair(syst, var));
+        }
+    }
+
     outdir = outfile->mkdir(groupName_.c_str());
     fOutput->Add(rootSystList);
     LOG_POST << "Finished setting python inputs";
@@ -122,19 +130,17 @@ Bool_t BaseSelector::Process(Long64_t entry)
 
     std::vector<bool> systPassSelection;
     bool passAny = false;
-    size_t systNum = 0;
-    for (auto syst : systematics_) {
-        LOG_EVENT_IF(syst != Systematic::Nominal) << "Systematic is " << get_by_val(syst_by_name, syst);
-        std::vector<eVar> vars = (syst != Systematic::Nominal) ? syst_vars : nominal_var;
-        for (auto var : vars) {
-            LOG_EVENT << "Variation is: " << varName_by_var.at(var);
-            SetupEvent(syst, var, systNum);
-            // Add result of setting channel to vector used for writing out results
-            systPassSelection.push_back(getCutFlow());
-            passAny |= systPassSelection.back();
-            systNum++;
-        }
+    for (auto it = syst_var_pair.begin(); it != syst_var_pair.end(); ++it) {
+        Systematic syst = it->first;
+        eVar var = it->second;
+        LOG_EVENT_IF(syst != Systematic::Nominal) << "Systematic is " << get_by_val(syst_by_name, syst)
+                                                  << "| Variation is: " << varName_by_var.at(var);
+        SetupEvent(std::distance(syst_var_pair.begin(), it));
+        // Add result of setting channel to vector used for writing out results
+        systPassSelection.push_back(getCutFlow());
+        passAny |= systPassSelection.back();
     }
+
     if (systPassSelection.size() > 0 && systPassSelection[0]) {
         bar.pass(); // Currenly, only events in first channel are put in the bar
     }
@@ -169,12 +175,19 @@ void BaseSelector::SlaveTerminate()
     if (loguru::g_stderr_verbosity > 0) bar.print_trailer();
 }
 
-void BaseSelector::SetupEvent(Systematic syst, eVar var, size_t systNum)
+void BaseSelector::setupSyst(size_t systNum)
+{
+    SystematicWeights::currentSyst = syst_var_pair.at(systNum).first;
+    SystematicWeights::currentVar = syst_var_pair.at(systNum).second;
+
+    jet.setSyst();
+    met.setSyst();
+}
+
+void BaseSelector::SetupEvent(size_t systNum)
 {
     LOG_FUNC << "Start of SetupEvent";
-    SystematicWeights::currentSyst = syst;
-    SystematicWeights::currentVar = var;
-
+    setupSyst(systNum);
     weight = &o_weight[systNum];
     currentChannel_ = &o_channels[systNum];
 
@@ -221,4 +234,3 @@ void BaseSelector::setupSystematicInfo()
     SystematicWeights::scaleDir_ = scaleDir;
     LOG_FUNC << "End of setupSystematicInfo";
 }
-

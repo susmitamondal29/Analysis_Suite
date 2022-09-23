@@ -1,6 +1,7 @@
 #ifndef LOGGING_H_
 #define LOGGING_H_
 
+#define LOG_WARN LOG_S(WARNING)
 #define LOG_FUNC LOG_S(8)
 #define LOG_EVENT LOG_S(7)
 #define LOG_POST LOG_S(1)

@@ -18,6 +18,7 @@ public:
     float phi() { return *corr_phi; }
 
     void setup(MET_Type type, TTreeReader& fReader);
+    void setSyst();
     void setupMet(Jet& jet, UInt_t run, int nVertices);
     void fix_xy(UInt_t run, int nVertices);
 

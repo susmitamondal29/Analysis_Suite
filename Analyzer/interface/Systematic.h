@@ -57,7 +57,7 @@ protected:
     }
 
     std::string systName(WeightHolder& weight) { return weight.systName(currentSyst, currentVar); }
-
+    bool isJECSyst() {return std::find(jec_systs.begin(), jec_systs.end(), currentSyst) != jec_systs.end(); }
 };
 
 #endif // SYSTEMATIC_H_

@@ -58,6 +58,7 @@ protected:
     size_t numSystematics() { return systematics_.size()*2 - 1; }
     virtual void clearParticles();
     virtual void clearOutputs(){};
+    void setupSyst(size_t systNum);
 
     void createTree(std::string name, Channel chan)
     {
@@ -78,7 +79,7 @@ protected:
 
     // To be filled by Child class
     virtual void ApplyScaleFactors(){};
-    virtual void FillValues(const std::vector<bool>& passVec) {};
+    virtual void FillValues(const std::vector<bool>& passVec) { setupSyst(0); }
     virtual void setOtherGoodParticles(size_t syst) {};
     virtual bool getCutFlow() { return true; }
     virtual void SetupOutTreeBranches(TTree* tree);
@@ -123,13 +124,13 @@ protected:
     TriggerInfo trig_cuts;
 
 private:
-    void SetupEvent(Systematic syst, eVar var, size_t systNum);
+    void SetupEvent(size_t systNum);
     void setupSystematicInfo();
 
     std::vector<Systematic> systematics_ = { Systematic::Nominal };
     TDirectory* outdir;
     Bar bar;
-
+    std::vector<std::pair<Systematic, eVar>> syst_var_pair;
 };
 
 #endif
