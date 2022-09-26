@@ -225,7 +225,7 @@ float Jet::get_jer(size_t i, GenericParticle& genJets) {
     auto genJet = (hasGenJet) ? genJets.p4(genJetIdx.at(i)) : LorentzVector();
     float pt_ratio = (hasGenJet) ? 1-pt(i)/genJet.Pt() : 0.;
 
-    if (hasGenJet && DeltaR(p4(i), genJet) < jet_dr/2 && abs(pt_ratio) < 3*resolution) {
+    if (hasGenJet && DeltaR(p4(i), genJet) < jet_dr/2 && fabs(pt_ratio) < 3*resolution) {
         return 1 + (scale-1)*pt_ratio;
     } else if (scale > 1.) {
         std::normal_distribution<> gaussian{0, resolution};

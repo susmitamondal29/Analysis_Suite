@@ -35,6 +35,7 @@ private:
     float *corr_pt, *corr_phi;
     std::unordered_map<Systematic, std::unordered_map<eVar, float>> m_corr_pt, m_corr_phi;
     std::string name;
+    bool ispuppi;
 };
 
 

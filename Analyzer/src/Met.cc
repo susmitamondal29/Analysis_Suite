@@ -6,6 +6,7 @@
 void Met::setup(TTreeReader& fReader, MET_Type type)
 {
     name = met_name[type];
+    ispuppi = (type == MET_Type::PUPPI);
     m_pt.setup(fReader, (name+"_pt").c_str());
     m_phi.setup(fReader, (name+"_phi").c_str());
 
@@ -34,9 +35,11 @@ void Met::setupMet(Jet& jet, UInt_t run, int nVertices)
         (*corr_pt) = *m_pt;
         (*corr_phi) = *m_phi;
         // Get change in Met from change in Jet momentum
-        auto met_vec = std::polar(*m_pt, *m_phi) - jet.get_momentum_change();
-        (*corr_pt) = std::abs(met_vec);
-        (*corr_phi) = std::arg(met_vec);
+        if (!ispuppi) {
+            auto met_vec = std::polar(*m_pt, *m_phi) - jet.get_momentum_change();
+            (*corr_pt) = std::abs(met_vec);
+            (*corr_phi) = std::arg(met_vec);
+        }
         pt_unfix = pt();
         phi_unfix = phi();
         fix_xy(run, nVertices);
@@ -45,7 +48,7 @@ void Met::setupMet(Jet& jet, UInt_t run, int nVertices)
 
 void Met::fix_xy(UInt_t run, int nVertices)
 {
-    auto met_corr = METXYCorr_Met_MetPhi(pt(), phi(), run, yearMap.at(year_), isMC, nVertices);
+    auto met_corr = METXYCorr_Met_MetPhi(pt(), phi(), run, yearMap.at(year_), isMC, nVertices, true, ispuppi);
     (*corr_pt) = met_corr.first;
     (*corr_phi) = met_corr.second;
 
