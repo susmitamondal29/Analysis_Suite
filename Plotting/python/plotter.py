@@ -51,7 +51,7 @@ class Plotter:
     sig_colors = ['Signal', '#ef8a62'] #     '#f1a340' '#7fbf7b' '#d8b365' '#ef8a62'
     bkg_colors = ['Background', "#67a9cf"] # '#998ec3' '#af8dc3' '#5ab4ac' "#67a9cf"
 
-    def __init__(self, filename, groups, ntuple=None, cuts=None, year="2016", **kwargs):
+    def __init__(self, filename, groups, year, ntuple=None, cuts=None, **kwargs):
         self.dfs = dict()
         self.sig = ""
         self.bkg = []
@@ -159,6 +159,24 @@ class Plotter:
                     vg.clear_mask()
                 vg.mask = mask
 
+    def cut(self, mask, groups=None):
+        if groups is None:
+            for vg in self.dfs.values():
+                self._cut(vg, mask)
+        elif isinstance(groups, str):
+            self._cut(self.dfs[groups], mask)
+        else:
+            for group in groups:
+                for member in self.groups[group]:
+                    self._cut(self.dfs[member], mask)
+
+    def _cut(self, vg, mask):
+        if isinstance(vg, dict):
+            for key, subvg in vg.items():
+                subvg.cut(mask)
+        else:
+            vg.cut(mask)
+
     def scale(self, scaler, groups=None):
         if groups is None:
             for vg in self.dfs.values():
@@ -198,9 +216,11 @@ class Plotter:
 
         if isinstance(self.dfs[member], dict):
             vals = [[] for _ in range(graph.dim())]
-            scales = []
+            scales = np.array([])
             for tree, vg in self.dfs[member].items():
                 v, s = vg.get_graph(graph)
+                if len(s) == 0:
+                    continue
                 if graph.dim() == 1:
                     vals = [np.concatenate((val, v)) for i, val in enumerate(vals)]
                 else:
@@ -340,7 +360,7 @@ class Plotter:
             error.plot_band(pad)
 
             if (region := kwargs.get('region', False)):
-                subpad.text(graph.edges()[0], -0.7, region.format(chan))
+                (subpad if subpad else pad).text(graph.edges()[0], -0.7, region.format(chan))
 
             # ratio pad
             ratio.plot_points(subpad)
@@ -350,6 +370,8 @@ class Plotter:
 
 
     def get_sum(self, groups, graph, details=None):
+        if isinstance(graph, str):
+            graph = self.graphs[graph]
         all_hist = Histogram("", *graph.bins())
         if isinstance(groups, str):
             all_hist += self.hists[graph.name][groups]

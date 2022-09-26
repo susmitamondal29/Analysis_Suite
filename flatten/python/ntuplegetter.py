@@ -297,7 +297,10 @@ class MergeParticle:
         var, *idx = idx
         vals = self._get_combined_item(var)[self._sort]
         if len(idx) == 1:
-            return vals[ak.num(vals) > idx[0], idx[0]]
+            if idx[0] == -1:
+                return vals
+            else:
+                return vals[ak.num(vals) > idx[0], idx[0]]
         else:
             idx, pad = idx
             return ak.to_numpy(ak.pad_none(vals, idx + 1)[:, idx])
@@ -347,7 +350,10 @@ class MergeParticle:
         array
             Scale masked to the number of particles needed by the index
         """
-        return self.vg.scale[ak.num(self.pt, axis=-1) > idx]
+        if idx == -1:
+            return ak.broadcast_arrays(self.vg.scale, self._sort)[0]
+        else:
+            return self.vg.scale[self.num() > idx]
 
     def get_hist(self, var, idx):
         """Get the values and scales to make a histogram for a given variable
@@ -364,7 +370,12 @@ class MergeParticle:
         tuple of (array, array)
             Gives values and scales packaged for use in histogram creation
         """
-        return self[var, idx], self.scale(idx)
+        if self.__len__() == 0:
+            return ak.Array([]), ak.Array([])
+        if idx == -1:
+            return ak.flatten(self[var, idx]), ak.flatten(self.scale(idx))
+        else:
+            return self[var, idx], self.scale(idx)
 
     def get_hist2d(self, var1, var2, idx):
         """Get the values and scales to make a 2d histogram for the given variables
@@ -383,4 +394,7 @@ class MergeParticle:
         tuple of form ((array, array), array)
             Gives values (tuple of the arrays of each variable) and scales packaged for use in histogram creation
         """
-        return (self[var1, idx], self[var2, idx]), self.scale(idx)
+        if idx == -1:
+            return (ak.flatten(self[var1, idx]), ak.flatten(self[var2, idx])), ak.flatten(self.scale(idx))
+        else:
+            return (self[var1, idx], self[var2, idx]), self.scale(idx)

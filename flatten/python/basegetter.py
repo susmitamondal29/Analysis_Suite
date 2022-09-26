@@ -82,6 +82,8 @@ class BaseGetter:
 
     def cut(self, mask):
         """ """
+        if callable(mask):
+            mask = ak.to_numpy(mask(self))
         self._base_mask[self._base_mask] = mask
         self.clear_mask()
 
