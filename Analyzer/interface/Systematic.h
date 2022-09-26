@@ -46,6 +46,7 @@ public:
     static std::string scaleDir_;
     static eVar currentVar;
     static Systematic currentSyst;
+    static bool isMC;
 
 protected:
     auto getScaleFile(std::string group, std::string filename)

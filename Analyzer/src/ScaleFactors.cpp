@@ -4,10 +4,9 @@
 #include <sstream>
 
 
-void ScaleFactors::init(bool isMC_, TTreeReader& fReader)
+void ScaleFactors::init(TTreeReader& fReader)
 {
     LOG_FUNC << "Start init";
-    isMC = isMC_;
     if (isMC) {
         // Generator Weights
         LHEScaleWeight.setup(fReader, "LHEScaleWeight");

@@ -14,7 +14,7 @@ public:
     virtual void createTightList(Particle& jets){};
     bool passZVeto();
     bool passZCut(float low, float high);
-    void setup(std::string name, TTreeReader& fReader, bool isMC);
+    void setup(std::string name, TTreeReader& fReader);
     std::pair<size_t, float> getCloseJet(size_t lidx, const Particle& jet);
     bool passJetIsolation(size_t idx) const;
     void fillFlippedCharge(GenParticle& gen);

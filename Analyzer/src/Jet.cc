@@ -1,9 +1,8 @@
 #include "analysis_suite/Analyzer/interface/Jet.h"
 
-void Jet::setup(TTreeReader& fReader, bool isMC)
+void Jet::setup(TTreeReader& fReader)
 {
     GenericParticle::setup("Jet", fReader);
-    isMC_ = isMC;
     jetId.setup(fReader, "Jet_jetId");
     btag.setup(fReader, "Jet_btagDeepFlavB");
     puId.setup(fReader, "Jet_puId");
@@ -60,8 +59,8 @@ void Jet::setup(TTreeReader& fReader, bool isMC)
         // BTagging Efficiencies
         try {
             auto beff_set = getScaleFile("USER", "beff");
-        btag_eff = WeightHolder(beff_set->at("SS"),
-                                Systematic::BJet_Eff, {"central","up","down"});
+            btag_eff = WeightHolder(beff_set->at("SS"),
+                                    Systematic::BJet_Eff, {"central","up","down"});
         } catch (...) {
             LOG_WARN << "BTagging Efficiencies not found for this year. May not be necessary, will continue";
         }
@@ -177,7 +176,7 @@ void Jet::setSyst()
 void Jet::setupJEC(GenericParticle& genJet) {
     if (currentSyst == Systematic::Nominal || isJECSyst()) {
         m_jec->assign(size(), 1);
-        if (!isMC_) return;
+        if (!isMC) return;
 
         for(size_t i = 0; i < size(); ++i) {
             (*m_jec)[i] *= get_jes(i);

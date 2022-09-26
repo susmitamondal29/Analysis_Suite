@@ -12,7 +12,7 @@ enum PUID { PU_Tight = 0, PU_Medium = 1, PU_Loose = 2 };
 
 class Jet : public Particle {
 public:
-    void setup(TTreeReader& fReader, bool isMC);
+    void setup(TTreeReader& fReader);
 
     virtual float getScaleFactor() override;
     float getTotalBTagWeight();
@@ -89,7 +89,6 @@ private:
     float jet_dr = 0.4;
     std::unordered_map<Systematic, std::unordered_map<eVar, std::vector<float>>> m_jet_scales;
     std::vector<float>* m_jec;
-    bool isMC_;
 
     void createLooseList();
     void createBJetList();

@@ -3,16 +3,11 @@
 
 #include "analysis_suite/Analyzer/interface/XYMETCorrection.h"
 
-void Met::setup(MET_Type type, TTreeReader& fReader)
+void Met::setup(TTreeReader& fReader, MET_Type type)
 {
     name = met_name[type];
     m_pt.setup(fReader, (name+"_pt").c_str());
     m_phi.setup(fReader, (name+"_phi").c_str());
-
-    auto corr_set = getScaleFile("USER", "met_xy");
-
-    xcorr = WeightHolder(corr_set->at("x_correction"));
-    ycorr = WeightHolder(corr_set->at("y_correction"));
 
     m_corr_pt[Systematic::Nominal] = {{eVar::Nominal, 0}};
     m_corr_phi[Systematic::Nominal] = {{eVar::Nominal, 0}};
@@ -42,13 +37,14 @@ void Met::setupMet(Jet& jet, UInt_t run, int nVertices)
         auto met_vec = std::polar(*m_pt, *m_phi) - jet.get_momentum_change();
         (*corr_pt) = std::abs(met_vec);
         (*corr_phi) = std::arg(met_vec);
+        pt_unfix = pt();
+        phi_unfix = phi();
         fix_xy(run, nVertices);
     }
 }
 
 void Met::fix_xy(UInt_t run, int nVertices)
 {
-    bool isMC = run < 1000;
     auto met_corr = METXYCorr_Met_MetPhi(pt(), phi(), run, yearMap.at(year_), isMC, nVertices);
     (*corr_pt) = met_corr.first;
     (*corr_phi) = met_corr.second;

@@ -10,9 +10,9 @@ enum ROC_ERROR {
     eEwk2 = 5,
 };
 
-void Muon::setup(TTreeReader& fReader, bool isMC)
+void Muon::setup(TTreeReader& fReader)
 {
-    Lepton::setup("Muon", fReader, isMC);
+    Lepton::setup("Muon", fReader);
     isGlobal.setup(fReader, "Muon_isGlobal");
     isTracker.setup(fReader, "Muon_isTracker");
     isPFcand.setup(fReader, "Muon_isPFcand");
@@ -92,7 +92,7 @@ float Muon::getScaleFactor()
     return weight;
 }
 
-float Muon::getRocCorrection(GenParticle& gen, bool isMC)
+float Muon::getRocCorrection(GenParticle& gen)
 {
     float weight = 1.;
     for (auto i : list(Level::Fake)) {

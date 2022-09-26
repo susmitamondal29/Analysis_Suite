@@ -92,11 +92,11 @@ void BaseSelector::Init(TTree* tree)
     o_pass_event.resize(numSystematics());
 
     // Setup particle branches
-    sfMaker.init(isMC_, fReader);
-    met.setup(MET_Type::PF, fReader);
-    muon.setup(fReader, isMC_);
-    elec.setup(fReader, isMC_);
-    jet.setup(fReader, isMC_);
+    sfMaker.init(fReader);
+    met.setup(fReader);
+    muon.setup(fReader);
+    elec.setup(fReader);
+    jet.setup(fReader);
     if (isMC_) {
         rGen.setup(fReader);
         rGenJet.setup(fReader);
@@ -232,5 +232,6 @@ void BaseSelector::setupSystematicInfo()
     SystematicWeights::nSyst = numSystematics();
     SystematicWeights::year_ = year_;
     SystematicWeights::scaleDir_ = scaleDir;
+    SystematicWeights::isMC = isMC_;
     LOG_FUNC << "End of setupSystematicInfo";
 }

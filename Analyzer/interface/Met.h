@@ -17,13 +17,13 @@ public:
     float pt() { return *corr_pt; }
     float phi() { return *corr_phi; }
 
-    void setup(MET_Type type, TTreeReader& fReader);
+    void setup(TTreeReader& fReader, MET_Type type=MET_Type::PF);
     void setSyst();
     void setupMet(Jet& jet, UInt_t run, int nVertices);
     void fix_xy(UInt_t run, int nVertices);
 
     float mt(float pt, float phi);
-
+    float pt_unfix, phi_unfix;
 private:
     TRVariable<float> m_pt;
     TRVariable<float> m_phi;
@@ -34,7 +34,6 @@ private:
 
     float *corr_pt, *corr_phi;
     std::unordered_map<Systematic, std::unordered_map<eVar, float>> m_corr_pt, m_corr_phi;
-    WeightHolder xcorr, ycorr;
     std::string name;
 };
 

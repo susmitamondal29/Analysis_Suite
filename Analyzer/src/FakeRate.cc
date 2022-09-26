@@ -251,6 +251,8 @@ void FakeRate::FillValues(const std::vector<bool>& passVec)
     jet.fillJet(*o_bJets, Level::Bottom, pass_bitmap);
 
     for (size_t syst = 0; syst < numSystematics(); ++syst) {
+        setupSyst(syst);
+
         o_ht.push_back(jet.getHT(Level::Tight, syst));
         o_htb.push_back(jet.getHT(Level::Bottom, syst));
         o_met.push_back(met.pt());

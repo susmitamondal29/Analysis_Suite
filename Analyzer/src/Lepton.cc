@@ -5,7 +5,7 @@
 
 // #define NOMVATTH
 
-void Lepton::setup(std::string name, TTreeReader& fReader, bool isMC)
+void Lepton::setup(std::string name, TTreeReader& fReader)
 {
     m_charge.setup(fReader, name + "_charge");
     dz.setup(fReader, name + "_dz");

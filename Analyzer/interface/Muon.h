@@ -6,13 +6,13 @@
 
 class Muon : public Lepton {
 public:
-    void setup(TTreeReader& fReader, bool isMC);
+    void setup(TTreeReader& fReader);
     virtual void createLooseList() override;
     virtual void createFakeList(Particle& jets) override;
     virtual void createTightList(Particle& jets) override;
     virtual float getScaleFactor() override;
 
-    float getRocCorrection(GenParticle& gen, bool isMC);
+    float getRocCorrection(GenParticle& gen);
 
     TRArray<Bool_t> isGlobal;
     TRArray<Bool_t> isTracker;

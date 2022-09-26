@@ -1,9 +1,9 @@
 #include "analysis_suite/Analyzer/interface/Electron.h"
 #include "analysis_suite/Analyzer/interface/Jet.h"
 
-void Electron::setup(TTreeReader& fReader, bool isMC)
+void Electron::setup(TTreeReader& fReader)
 {
-    Lepton::setup("Electron", fReader, isMC);
+    Lepton::setup("Electron", fReader);
     eCorr.setup(fReader, "Electron_eCorr");
     lostHits.setup(fReader, "Electron_lostHits");
     convVeto.setup(fReader, "Electron_convVeto");

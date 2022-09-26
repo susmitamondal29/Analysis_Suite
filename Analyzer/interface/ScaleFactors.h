@@ -13,7 +13,7 @@ class ScaleFactors : public SystematicWeights {
 public:
     ScaleFactors() {}
 
-    void init(bool isMC_, TTreeReader& fReader);
+    void init(TTreeReader& fReader);
 
     void setup_prescale();
 
@@ -35,8 +35,6 @@ private:
     TRArray<Float_t> LHEScaleWeight;
     TRArray<Float_t> LHEPdfWeight;
     TRArray<Float_t> PSWeight;
-
-    bool isMC;
 
     nlohmann::json golden_json, prescale_json;
 
