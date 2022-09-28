@@ -2,7 +2,7 @@
 #include "analysis_suite/Analyzer/interface/CommonEnums.h"
 
 #include <sstream>
-
+#include <fstream>
 
 void ScaleFactors::init(TTreeReader& fReader)
 {
