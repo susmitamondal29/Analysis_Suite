@@ -106,8 +106,8 @@ class Histogram:
     @staticmethod
     def efficiency(top, bot):
         alf = (1-0.682689492137)/2
-        aa = top.vals*bot.vals/bot.sumw2+1
-        bb = (bot.vals-top.vals)*bot.vals/bot.sumw2+1
+        aa = top.vals*bot.vals/(bot.sumw2+1e-6)+1
+        bb = (bot.vals-top.vals)*bot.vals/(bot.sumw2+1e-6)+1
 
         eff = np.array([beta.mean(p, t) for p, t in zip(aa, bb)])
 

@@ -7,6 +7,7 @@ import analysis_suite.commons.user as user
 import yaml
 import uproot
 import numpy as np
+from xml.dom.minidom import parse
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
@@ -106,14 +107,24 @@ def run_multi(start, evts, files, inputs, selector):
     return
 
 if __name__ == "__main__":
+    xml_classes = parse(str((user.analysis_area/'Analyzer/src/classes_def.xml').resolve()))
+    analysis_choices = [c.getAttribute("name") for c in xml_classes.getElementsByTagName('class')]
+    analysis_choices.remove("BaseSelector")
+
     parser = argparse.ArgumentParser(prog="main")
-    parser.add_argument("-i", "--infile", default = "blah.in")
-    parser.add_argument("-o", "--outfile", default="output.root")
-    parser.add_argument("--test", action='store_true')
-    parser.add_argument("-v", "--verbose", default=-1)
-    parser.add_argument("-a", "--analysis")
-    parser.add_argument("-j", "--cores", default = 1, type=int)
-    parser.add_argument('-ns', '--no_syst', action='store_true')
+    parser.add_argument("-i", "--infile", default ="No Input File")
+    parser.add_argument("-o", "--outfile", default="output.root",)
+    parser.add_argument("--local", action='store_true',
+                        help="Add if file is local (because current code gets"
+                        "file metadata from file name)")
+    parser.add_argument("-v", "--verbose", default=-1,
+                        help="Current levels are 1 for progress bar, 4 for shortened run (10 000 events)"
+                        "and 9 for max output (only on 3 events)")
+    parser.add_argument("-a", "--analysis", choices=analysis_choices)
+    parser.add_argument("-j", "--cores", default = 1, type=int,
+                        help="Number of cores to run over")
+    parser.add_argument('-ns', '--no_syst', action='store_true',
+                        help="Run with no systematics")
     args = parser.parse_args()
 
     inputfile = args.infile if (env := os.getenv("INPUT")) is None else env
@@ -149,7 +160,7 @@ if __name__ == "__main__":
         'Xsec': 1,
         'isData': True
     }
-    if not args.test:
+    if not args.local:
         inputs['MetaData'].update({'Xsec': fileInfo.get_xsec(groupName), 'isData': fileInfo.is_data(groupName)})
     inputs["Verbosity"] = args.verbose
     inputs["Systematics"] = configs.get_shape_systs() if not args.no_syst else []
