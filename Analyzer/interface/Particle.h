@@ -25,7 +25,7 @@ public:
 
     void setup(std::string name, TTreeReader& fReader);
 
-    size_t size() const { return m_pt.size(); }
+    size_t size() const { return size_(); }
     size_t size(Level level) const { return list(level).size(); }
     size_t idx(Level level, size_t i) const;
 
@@ -50,6 +50,7 @@ public:
     virtual void clear();
 
 protected:
+    virtual Float_t size_() const { return m_pt.size(); }
     virtual Float_t pt_(size_t idx) const { return m_pt.at(idx); }
     virtual Float_t eta_(size_t idx) const { return m_eta.at(idx); }
     virtual Float_t phi_(size_t idx) const { return m_phi.at(idx); }
@@ -109,7 +110,6 @@ void Particle::setGoodParticles(size_t syst, Args&&... args)
     // Setup variables
     for (auto& [key, plist] : m_partArray) {
         m_partList[key] = &plist[syst];
-        m_bitArray[key].assign(size(), 0);
     }
 
     // Virutal class specific list making
@@ -117,6 +117,7 @@ void Particle::setGoodParticles(size_t syst, Args&&... args)
 
     // Fill the bitmap
     for (const auto& [key, plist] : m_partArray) {
+        m_bitArray[key].assign(size(), 0);
         for (size_t syst = 0; syst < nSyst; ++syst) {
             for (auto idx : plist[syst]) {
                 m_bitArray[key][idx] += 1 << syst;
