@@ -13,7 +13,7 @@ from analysis_suite.commons.histogram import Histogram
 from analysis_suite.commons.plot_utils import hep, plot, plot_colorbar
 from analysis_suite.commons.constants import lumi
 from analysis_suite.commons.info import GroupInfo
-import analysis_suite.data.plotInfo.plotInfo as pinfo
+import analysis_suite.data.plotInfo.misId_fakerate as pinfo
 from analysis_suite.Plotting.plotter import Plotter
 from analysis_suite.commons.user import workspace_area
 from datetime import datetime
@@ -64,7 +64,7 @@ def scale_misId(vg, fake_rate):
     print(sum((fr1/(1-fr1)+fr2/(1-fr2))))
     vg.scale = (fr1/(1-fr1)+fr2/(1-fr2))
 
-def measurement(workdir, ginfo, year):
+def measurement(workdir, ginfo, year, input_dir):
     plot_dir = workdir / f'MR_{year}'
     plot_dir.mkdir(exist_ok=True)
 
@@ -76,7 +76,7 @@ def measurement(workdir, ginfo, year):
     graphs = pinfo.charge_misId['Measurement']
     graphs_1d = [graph for graph in graphs if graph.dim() == 1]
 
-    plotter = Plotter(ntuple.get_file(year=year), groups, ntuple=ntuple, year=year)
+    plotter = Plotter(ntuple.get_file(year=year, workdir=input_dir), groups, ntuple=ntuple, year=year)
     plotter.cut(lambda vg : vg["Met"] > 25)
     plotter.set_groups(bkg=bkg)
     # for chan in chans:
@@ -111,7 +111,7 @@ def measurement(workdir, ginfo, year):
         pickle.dump(fr.hist, f)
 
 
-def closure(workdir, ginfo, year):
+def closure(workdir, ginfo, year, input_dir):
     plot_dir = workdir / f'CR_{year}'
     plot_dir.mkdir(exist_ok=True)
 
@@ -122,7 +122,7 @@ def closure(workdir, ginfo, year):
 
     # TF setup
     ntuple_os = config.get_ntuple('charge_misId', 'closure_os')
-    plotter_os = Plotter(ntuple_os.get_file(year=year), groups, ntuple=ntuple_os, year=year)
+    plotter_os = Plotter(ntuple_os.get_file(year=year, workdir=input_dir), groups, ntuple=ntuple_os, year=year)
     # plotter_os.cut(lambda vg : vg["LHE_HT"] > 70, "DYm50_amc")
     plotter_os.set_groups(bkg=["DY", "ttbar_lep", 'VV'])
     plotter_os.fill_hists(graphs, ginfo)
@@ -141,7 +141,7 @@ def closure(workdir, ginfo, year):
     
 
     ntuple_ss = config.get_ntuple('charge_misId', 'closure_ss')
-    plotter_ss = Plotter(ntuple_ss.get_file(year=year), groups, ntuple=ntuple_ss, year=year)
+    plotter_ss = Plotter(ntuple_ss.get_file(year=year, workdir=input_dir), groups, ntuple=ntuple_ss, year=year)
     # plotter_ss.cut(lambda vg : vg["LHE_HT"] < 70, "DYm50_amc")
     plotter_ss.set_groups(bkg=["DY", "ttbar_lep", 'VV'])
     plotter_ss.fill_hists(graphs, ginfo)
@@ -178,6 +178,7 @@ if __name__ == "__main__":
                                    else [i.strip() for i in x.split(',')],
                         help="Year to use")
     parser.add_argument('-d', '--workdir', help="directory to run over. If nothing, use date",)
+    parser.add_argument('-w', '--input_dir', required=True)
     parser.add_argument('-r', '--run', type=lambda x: [i.strip() for i in x.split(',')],
                         help="Regions to run through (sideband, measurement, closure)")
     args = parser.parse_args()
@@ -196,6 +197,8 @@ if __name__ == "__main__":
     ginfo = GroupInfo(color_by_group)
     for year in args.years:
         if 'measurement' in args.run:
-            measurement(workdir, ginfo, year)
+            print("Measurement")
+            measurement(workdir, ginfo, year, args.input_dir)
         if 'closure' in args.run:
-            closure(workdir, ginfo, year)
+            print("Closure")
+            closure(workdir, ginfo, year, args.input_dir)

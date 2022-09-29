@@ -25,9 +25,9 @@ poetry.lock
 !scripts/*
 !flatten/*
 !data/*
-!ntuple_info/example.py
+!ntuple_info/*
 
-data/python/plotInfo/*py
+!data/python/plotInfo/*py
 data/POG
 !data/POG/USER/*
 !data/python/plotInfo/plotInfo_default.py

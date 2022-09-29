@@ -237,7 +237,7 @@ info ={
     },
     'charge_flip': {
         "Name": r"Charge Misid",
-        "Members": ["charge_misId"]
+        "Members": ["charge_flip"]
     },
     'nonprompt': {
         "Name": r"Nonprompt",

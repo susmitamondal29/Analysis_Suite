@@ -9,7 +9,7 @@ from analysis_suite.commons.histogram import Histogram
 from analysis_suite.commons.plot_utils import hep, plot, plot_colorbar
 from analysis_suite.commons.constants import lumi
 from analysis_suite.commons.info import GroupInfo
-import analysis_suite.data.plotInfo.plotInfo as pinfo
+import analysis_suite.data.plotInfo.nonprompt_fakerate as pinfo
 from analysis_suite.Plotting.plotter import Plotter
 from analysis_suite.commons.user import workspace_area
 from datetime import datetime
@@ -129,7 +129,7 @@ def sideband(workdir, ginfo, year):
 
     graphs = pinfo.nonprompt['SideBand']
 
-    plotter = Plotter(ntuple.get_file(year=year), groups, ntuple=ntuple, year=year)
+    plotter = Plotter(ntuple.get_file(year=year, workdir=input_dir), groups, ntuple=ntuple, year=year)
     # exit()
     plotter.set_groups(bkg=['qcd', 'ewk'])
     plotter.scale(lambda vg : scale_trigger(vg, "Muon", trig_scale[year]["Muon"], 20), groups='data')
@@ -182,7 +182,7 @@ def measurement(workdir, ginfo, year):
     with open(workdir/f"mc_scales_{year}.pickle", "rb") as f:
         mc_scale_factors = pickle.load(f)
 
-    plotter = Plotter(ntuple.get_file(year=year), groups, ntuple=ntuple, year=year)
+    plotter = Plotter(ntuple.get_file(year=year, workdir=input_dir), groups, ntuple=ntuple, year=year)
     plotter.set_groups(bkg=['ewk', 'qcd'])
     plotter.scale(lambda vg : scale_trigger(vg, "Muon", trig_scale[year]["Muon"], 20), groups='data')
     plotter.scale(lambda vg : scale_trigger(vg, "Electron", trig_scale[year]["Electron"], 25), groups='data')
@@ -245,7 +245,7 @@ def closure(workdir, ginfo, year):
 
     # TF setup
     ntuple_tf = config.get_ntuple('fake_rate', 'closure_tf')
-    plotter_tf = Plotter(ntuple_tf.get_file(year=year), groups, ntuple=ntuple_tf, year=year)
+    plotter_tf = Plotter(ntuple_tf.get_file(year=year, workdir=input_dir), groups, ntuple=ntuple_tf, year=year)
     plotter_tf.set_groups(bkg=["ttbar_lep", "wjet_ht"])
     for chan in chans:
         plotter_tf.mask(lambda vg : vg["Muon"].num() == chan.count('M'))
@@ -259,7 +259,7 @@ def closure(workdir, ginfo, year):
 
     # TT Setup
     ntuple_tt = config.get_ntuple('fake_rate', 'closure_tt')
-    plotter_tt = Plotter(ntuple_tt.get_file(year=year), groups, ntuple=ntuple_tt, year=year)
+    plotter_tt = Plotter(ntuple_tt.get_file(year=year, workdir=input_dir), groups, ntuple=ntuple_tt, year=year)
     plotter_tt.set_groups(bkg=["ttbar_lep", "wjet_ht"], data='nonprompt')
 
     plotter_tt.mask(lambda vg: True)
@@ -291,6 +291,7 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--workdir', help="directory to run over. If nothing, use date",
                         # choices=[d.stem for d in workdir.glob('*/') if d.is_dir()]
                         )
+    parser.add_argument('-w', '--input_dir', required=True)
     parser.add_argument('-r', '--run', type=lambda x: [i.strip() for i in x.split(',')],
                         help="Regions to run through (sideband, measurement, closure)")
     args = parser.parse_args()
@@ -313,10 +314,10 @@ if __name__ == "__main__":
     for year in args.years:
         if 'sideband' in args.run:
             print("Side Band")
-            sideband(workdir, ginfo, year)
+            sideband(workdir, ginfo, year, args.input_dir)
         if 'measurement' in args.run:
             print("Measurement")
-            measurement(workdir, ginfo, year)
+            measurement(workdir, ginfo, year, args.input_dir)
         if 'closure' in args.run:
             print("Closure")
-            closure(workdir, ginfo, year)
+            closure(workdir, ginfo, year, args.input_dir)
