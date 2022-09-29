@@ -195,147 +195,12 @@ class NtupleGetter(BaseGetter):
     #     return top[ak.argmin(np.abs(top - 172.76), axis=-1, keepdims=True)][:, 0]
 
 
-class Particle:
-    """ """
-
-    def __init__(self, name, vg):
+class ParticleBase:
+    def __init__(self, vg):
         self.vg = vg
-        self.name = name
-        self._mask = (
-            np.bitwise_and(vg._get_var_nosyst(f"{self.name}/syst_bitMap"), vg.syst_bit)
-            != 0
-        )
-
-    def __getattr__(self, var):
-        return self.vg[f"{self.name}/{var}"][self.mask]
-
-    def __getitem__(self, idx):
-        pad = False
-        if len(idx) == 2:
-            var, idx = idx
-        else:
-            var, idx, pad = idx
-
-        if callable(getattr(self, var)):
-            return getattr(self, var)(idx)
-        else:
-            return self._get_val(var, idx, pad)
-
-    def __len__(self):
-        return len(self.mask)
-
-    def _get_val(self, var, idx, pad=False):
-        if pad:
-            vals = ak.pad_none(self.vg[f"{self.name}/{var}"][self.mask], idx + 1)
-        elif idx == -1:
-            return self.vg[f"{self.name}/{var}"][self.mask]
-        else:
-            vals = self.vg[f"{self.name}/{var}"][self.mask][self.num() > idx]
-        return ak.to_numpy(vals[:, idx])
-
-    # Special function for allowing jec in pt
-
-    def pt(self, idx=-1):
-        if self.vg.jec_var and "Jet" in self.name:
-            return self._get_val("pt", idx) * self[f"{self.vg.jec_var}"]
-        else:
-            return self._get_val("pt", idx)
-
-    @property
-    def mask(self):
-        return self._mask[self.vg.mask]
-
-    def scale(self, n):
-        if n == -1:
-            return ak.broadcast_arrays(self.vg.scale, self.pt)[0]
-        else:
-            return self.vg.scale[self.num() > n]
-
-    # Functions for a particle
-
-    def abseta(self, idx=-1):
-        return np.abs(self["eta", idx])
 
     def num(self):
-        return ak.to_numpy(ak.count(self.mask, axis=1))
-
-    def px(self, idx=-1):
-        return self["pt", idx] * np.cos(self["phi", idx])
-
-    def py(self, idx=-1):
-        return self["pt", idx] * np.sin(self["phi", idx])
-
-    def pz(self, idx=-1):
-        return self["pt", idx] * np.sinh(self["eta", idx])
-
-    def energy(self, idx=-1):
-        return np.sqrt(
-            self["mass", idx] ** 2 + (self["pt", idx] * np.cosh(self["eta", idx])) ** 2
-        )
-
-    def mt(self, idx=-1):
-        mask = self.num() > idx
-        angle_part = 1 - np.cos(self["phi", idx] - self.vg["Met_phi"][mask])
-        return np.sqrt(2 * self["pt", idx] * self.vg["Met"][mask] * angle_part)
-
-    def pt_ratio(self, idx=-1):
-        return 1 / (1 + self["ptRatio", idx])
-
-
-class MergeParticle:
-    """ """
-
-    def __init__(self, parts):
-        self.parts = parts
-        self._idx_sort = ak.argsort(self._get_combined_item("pt"), ascending=False)
-        self.vg = self.parts[0].vg
-
-    def __getattr__(self, var):
-        return self._get_combined_item(var)[self._sort]
-
-    def __getitem__(self, idx):
-        var, *idx = idx
-        vals = self._get_combined_item(var)[self._sort]
-        if len(idx) == 1:
-            if idx[0] == -1:
-                return vals
-            else:
-                return vals[ak.num(vals) > idx[0], idx[0]]
-        else:
-            idx, pad = idx
-            return ak.to_numpy(ak.pad_none(vals, idx + 1)[:, idx])
-
-    def __len__(self):
-        return len(self._sort)
-
-    def _get_combined_item(self, var):
-        if callable(getattr(self.parts[0], var)):
-            return ak.concatenate(
-                (getattr(part, var)() for part in self.parts), axis=-1
-            )
-        else:
-            return ak.concatenate(
-                (part.__getattr__(var) for part in self.parts), axis=-1
-            )
-
-    @property
-    def _sort(self):
-        return self._idx_sort[self.mask]
-
-    @property
-    def mask(self):
-        """ """
-        return self.vg.mask[self.vg._base_mask]
-
-    def num(self):
-        """Get total number of particles per event
-
-        Returns
-        -------
-        array
-            Array with the number of particles in each collection in the class
-        """
-        return ak.num(self._sort, axis=-1)
+        return ak.num(self.shape(), axis=-1)
 
     def scale(self, idx):
         """Get the event weight for the collection
@@ -351,9 +216,10 @@ class MergeParticle:
             Scale masked to the number of particles needed by the index
         """
         if idx == -1:
-            return ak.broadcast_arrays(self.vg.scale, self._sort)[0]
+            return ak.broadcast_arrays(self.vg.scale, self.shape())[0]
         else:
             return self.vg.scale[self.num() > idx]
+
 
     def get_hist(self, var, idx):
         """Get the values and scales to make a histogram for a given variable
@@ -398,3 +264,136 @@ class MergeParticle:
             return (ak.flatten(self[var1, idx]), ak.flatten(self[var2, idx])), ak.flatten(self.scale(idx))
         else:
             return (self[var1, idx], self[var2, idx]), self.scale(idx)
+
+
+class Particle(ParticleBase):
+    """ """
+
+    def __init__(self, name, vg):
+        super().__init__(vg)
+        self.name = name
+        self._mask = (
+            np.bitwise_and(vg._get_var_nosyst(f"{self.name}/syst_bitMap"), vg.syst_bit)
+            != 0
+        )
+
+    def __getattr__(self, var):
+        return self.vg[f"{self.name}/{var}"][self.mask]
+
+    def __getitem__(self, idx):
+        pad = False
+        if len(idx) == 2:
+            var, idx = idx
+        else:
+            var, idx, pad = idx
+
+        if callable(getattr(self, var)):
+            return getattr(self, var)(idx)
+        else:
+            return self._get_val(var, idx, pad)
+
+    def __len__(self):
+        return len(self.mask)
+
+    def _get_val(self, var, idx, pad=False):
+        if pad:
+            vals = ak.pad_none(self.vg[f"{self.name}/{var}"][self.mask], idx + 1)
+        elif idx == -1:
+            return self.vg[f"{self.name}/{var}"][self.mask]
+        else:
+            vals = self.vg[f"{self.name}/{var}"][self.mask][self.num() > idx]
+        return ak.to_numpy(vals[:, idx])
+
+    def shape(self):
+        return self.pt()
+
+    # Special function for allowing jec in pt
+    def pt(self, idx=-1):
+        if self.vg.jec_var and "Jet" in self.name:
+            return self._get_val("pt", idx) * self[f"{self.vg.jec_var}"]
+        else:
+            return self._get_val("pt", idx)
+
+    @property
+    def mask(self):
+        return self._mask[self.vg.mask]
+
+    # Functions for a particle
+
+    def abseta(self, idx=-1):
+        return np.abs(self["eta", idx])
+
+    def num(self):
+        return ak.to_numpy(ak.count(self.mask, axis=1))
+
+    def px(self, idx=-1):
+        return self["pt", idx] * np.cos(self["phi", idx])
+
+    def py(self, idx=-1):
+        return self["pt", idx] * np.sin(self["phi", idx])
+
+    def pz(self, idx=-1):
+        return self["pt", idx] * np.sinh(self["eta", idx])
+
+    def energy(self, idx=-1):
+        return np.sqrt(
+            self["mass", idx] ** 2 + (self["pt", idx] * np.cosh(self["eta", idx])) ** 2
+        )
+
+    def mt(self, idx=-1):
+        mask = self.num() > idx
+        angle_part = 1 - np.cos(self["phi", idx] - self.vg["Met_phi"][mask])
+        return np.sqrt(2 * self["pt", idx] * self.vg["Met"][mask] * angle_part)
+
+    def pt_ratio(self, idx=-1):
+        return 1 / (1 + self["ptRatio", idx])
+
+
+class MergeParticle(ParticleBase):
+    """ """
+
+    def __init__(self, parts):
+        super().__init__(parts[0].vg)
+        self.parts = parts
+        self._idx_sort = ak.argsort(self._get_combined_item("pt"), ascending=False)
+        # self.vg = self.parts[0].vg
+
+    def __getattr__(self, var):
+        return self._get_combined_item(var)[self._sort]
+
+    def __getitem__(self, idx):
+        var, *idx = idx
+        vals = self._get_combined_item(var)[self._sort]
+        if len(idx) == 1:
+            if idx[0] == -1:
+                return vals
+            else:
+                return vals[ak.num(vals) > idx[0], idx[0]]
+        else:
+            idx, pad = idx
+            return ak.to_numpy(ak.pad_none(vals, idx + 1)[:, idx])
+
+    def __len__(self):
+        return len(self._sort)
+
+    def _get_combined_item(self, var):
+        if callable(getattr(self.parts[0], var)):
+            return ak.concatenate(
+                (getattr(part, var)() for part in self.parts), axis=-1
+            )
+        else:
+            return ak.concatenate(
+                (part.__getattr__(var) for part in self.parts), axis=-1
+            )
+    def shape(self):
+        return self._sort
+
+    @property
+    def _sort(self):
+        return self._idx_sort[self.mask]
+
+    @property
+    def mask(self):
+        """ """
+        return self.vg.mask[self.vg._base_mask]
+
