@@ -15,6 +15,8 @@ Initial Job Creation
 **************************
 Make Btagging Efficiencies
 **************************
+This snippet of code runs the basic btagging on signal like events and then calculates the MC btagging efficiencies for different flavor jets. This is used for getting the correct btagging scale factors. These scale factors are found as ``data/POG/USER/<year>/beff.json.gz``
+
 .. code-block:: bash
    voms-proxy-init -rfc -valid 144:00 -voms cms -bits 2048
    create_lists.py -y 2018 -t mc -r output -g ttt,tttt,ttX,ttXY,xg,vv,vvv,ttbar,dy,wjet,other -f befficiency
@@ -22,4 +24,4 @@ Make Btagging Efficiencies
    # After jobs are finished (monitor with condor_q)
    hadd.py -f befficiency -y 2018 -a BEfficiency -t mc -d run_through
    # creates and moves files to directory in /hdfs/store/user/<user>/workspace/befficiency/2018/run_through
-   beff.py -y 2018 -d befficiency
+   beff.py -y 2018 -w befficiency

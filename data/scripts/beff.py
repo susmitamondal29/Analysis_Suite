@@ -1,37 +1,14 @@
 #!/usr/bin/env python3
-from pathlib import Path
-import awkward as ak
-import boost_histogram as bh
 import gzip
 import argparse
 from correctionlib.schemav2 import VERSION, MultiBinning, Category, Correction, CorrectionSet
 
-from analysis_suite.commons import fileInfo, GroupInfo
+import analysis_suite.commons.configs as config
 from analysis_suite.commons.histogram import Histogram
-from analysis_suite.Plotting.plotter import GraphInfo
-from analysis_suite.commons.fake_rate_helper import setup_events, setup_histogram, DataInfo
-
-def get_pteta(part, flav, wp):
-    flav_mask = part.flavor == flav
-    wp_mask = part.pass_btag[flav_mask] >= wp
-
-    return ((ak.flatten(part.pt[flav_mask][wp_mask]), abs(ak.flatten(part.eta[flav_mask][wp_mask]))),
-            ak.flatten(part.scale(-1)[flav_mask][wp_mask]))
-
-def get_pt(part, flav, wp):
-    flav_mask = part.flavor == flav
-    wp_mask = part.pass_btag[flav_mask] >= wp
-
-    return (ak.flatten(part.pt[flav_mask][wp_mask]),
-            ak.flatten(part.scale(-1)[flav_mask][wp_mask]))
-
-def get_eta(part, flav, wp):
-    flav_mask = part.flavor == flav
-    wp_mask = part.pass_btag[flav_mask] >= wp
-
-    return (abs(ak.flatten(part.eta[flav_mask][wp_mask])),
-            ak.flatten(part.scale(-1)[flav_mask][wp_mask]))
-
+from analysis_suite.commons.info import GroupInfo
+import analysis_suite.data.plotInfo.befficiency as pinfo
+from analysis_suite.Plotting.plotter import Plotter
+import analysis_suite.commons.user as user
 
 def get_sf(sf, syst):
     val, err = sf.value, sf.variance
@@ -70,32 +47,25 @@ def build_scales(sf):
         "content": [{"key": syst, "value": build_wp(sf, syst) } for syst in systs],
     })
 
-jet_flavs = [0, 4, 5]
+jet_flavs = {'udsg': 0, 'c': 4, 'b': 5}
 wps = {"L": 1, "M": 2, "T": 3}
 systs = ['central', 'down', 'up']
 
-def make_efficiencies(year, args):
+
+def make_efficiencies(ginfo, year, input_dir):
     weights = {wp: dict() for wp in wps.keys()}
 
-    mc_info = DataInfo(Path(f"{args.filename}_{year}.root"), year)
-    mc_info.setup_member(GroupInfo(), fileInfo, "other")
+    all_groups = ['other']
+    groups = ginfo.setup_groups(all_groups)
+    ntuple = config.get_ntuple('befficiency', 'measurement')
+    graphs = pinfo.ptetas
 
-    ptbins = bh.axis.Variable([25, 35, 50, 70, 90, 120, 150, 200])
-    etabins = bh.axis.Regular(5, 0, 2.5)
-    pteta = GraphInfo("", "", (ptbins, etabins), lambda vg, chan: get_pteta(vg.BJets, *chan))
-    pt = GraphInfo("", "", ptbins, lambda vg, chan: get_pt(vg.BJets, *chan))
-    eta = GraphInfo("", "", etabins, lambda vg, chan: get_eta(vg.BJets, *chan))
-
-    output = setup_events(mc_info, "Signal")
-    for flav in jet_flavs:
-        all_hist = setup_histogram("", output["other"], (flav, 0), pteta)
-        all_pt = setup_histogram("", output["other"], (flav, 0), pt)
-        all_eta = setup_histogram("", output["other"], (flav, 0), eta)
-        wp_dict = {wp_name: setup_histogram("", output["other"], (flav, wp_id), pteta) for wp_name, wp_id in wps.items()}
+    plotter = Plotter(ntuple.get_file(year=year, workdir=input_dir), groups, ntuple=ntuple, year=year)
+    plotter.fill_hists(graphs)
+    for flav_name, flav in jet_flavs.items():
+        all_hist = plotter.get_sum(all_groups, f'{flav_name}_all')
         for wp_name, wp_id in wps.items():
-            wp_hist = setup_histogram("", output["other"], (flav, wp_id), pteta)
-            wp_pt = setup_histogram("", output["other"], (flav, wp_id), pt)
-            wp_eta = setup_histogram("", output["other"], (flav, wp_id), eta)
+            wp_hist = plotter.get_sum(all_groups, f'{flav_name}_{wp_name}')
             weights[wp_name][flav] = Histogram.efficiency(wp_hist, all_hist)
 
     cset = CorrectionSet.parse_obj({
@@ -121,11 +91,10 @@ def make_efficiencies(year, args):
         ],
     })
 
-    basePath = Path(f'{__file__}').parents[1]
-    basePath /= 'data/POG/USER/'+year+("VFP" if "2016" in year else "")+"_UL"
-    with gzip.open(basePath / "beff.json.gz", "wt") as fout:
+    outdir = user.analysis_area / 'data/POG/USER/'
+    outdir /= year+("VFP" if "2016" in year else "")+"_UL"
+    with gzip.open(outdir / "beff.json.gz", "wt") as fout:
         fout.write(cset.json(exclude_unset=True, indent=4))
-
 
 
 if __name__ == "__main__":
@@ -134,9 +103,9 @@ if __name__ == "__main__":
                         type=lambda x : ["2016pre", "2017post" "2017", "2018"] if x == "all" \
                                    else [i.strip() for i in x.split(',')],
                         help="Year to use")
-    parser.add_argument('-f', '--filename', default='beff')
-
+    parser.add_argument('-w', '--input_dir', default='befficiency')
     args = parser.parse_args()
-    GraphInfo.lumi = 1
+
+    ginfo = GroupInfo(color_by_group)
     for year in args.years:
-        make_efficiencies(year, args)
+        make_efficiencies(ginfo, year, args.input_dir)
