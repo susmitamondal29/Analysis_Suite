@@ -121,6 +121,8 @@ protected:
     GenJet rGenJet;
     Met met;
 
+    MET_Type met_type = MET_Type::PF;
+
     TriggerInfo trig_cuts;
 
 private:

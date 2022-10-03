@@ -16,6 +16,7 @@ enum class Subchannel {
 
 void FakeRate::Init(TTree* tree)
 {
+    met_type = MET_Type::PUPPI;
     LOG_FUNC << "Start of Init";
     BaseSelector::Init(tree);
 

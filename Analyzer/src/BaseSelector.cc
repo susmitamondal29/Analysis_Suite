@@ -93,7 +93,7 @@ void BaseSelector::Init(TTree* tree)
 
     // Setup particle branches
     sfMaker.init(fReader);
-    met.setup(fReader);
+    met.setup(fReader, met_type);
     muon.setup(fReader);
     elec.setup(fReader);
     jet.setup(fReader);

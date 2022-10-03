@@ -19,6 +19,7 @@ enum class Subchannel {
 void Nonprompt_Closure::Init(TTree* tree)
 {
     LOG_FUNC << "Start of Init";
+    met_type = MET_Type::PUPPI;
     BaseSelector::Init(tree);
 
     createTree("Closure_FF", Channel::FakeFake);

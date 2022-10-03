@@ -20,6 +20,7 @@ enum class Subchannel {
 void Closure_MisId::Init(TTree* tree)
 {
     LOG_FUNC << "Start of Init";
+    met_type = MET_Type::PUPPI;
     BaseSelector::Init(tree);
 
     // Charge Mis-id Fake Rate

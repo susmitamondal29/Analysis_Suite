@@ -284,38 +284,6 @@ info = {
         "cross_section": 311.4,
         "DAS" : "DYJetsToLL_M-50_HT-40to70_Tune.*",
     },
-    # "DYm50_ht70-100" : {
-    #     "cross_section": 141.0, #145.5,
-    #     "DAS" : "DYJetsToLL_M-50_HT-70to100_Tune.*",
-    # },
-    # "DYm50_ht100-200" : {
-    #     "cross_section": 139.9, #160.7,
-    #     "DAS" : "DYJetsToLL_M-50_HT-100to200_Tune.*",
-    # },
-    # "DYm50_ht200-400" : {
-    #     "cross_section": 38.38, #48.63,
-    #     "DAS" : "DYJetsToLL_M-50_HT-200to400_Tune.*",
-    # },
-    # "DYm50_ht400-600" : {
-    #     "cross_section": 5.224, #6.993,
-    #     "DAS" : "DYJetsToLL_M-50_HT-400to600_Tune.*",
-    # },
-    # "DYm50_ht600-800" : {
-    #     "cross_section": 1.260,  #1.761,
-    #     "DAS" : "DYJetsToLL_M-50_HT-600to800_Tune.*",
-    # },
-    # "DYm50_ht800-1200" : {
-    #     "cross_section": 0.5669, #0.8021,
-    #     "DAS" : "DYJetsToLL_M-50_HT-800to1200_Tune.*",
-    # },
-    # "DYm50_ht1200-2500" : {
-    #     "cross_section": 0.1321, #0.1937,
-    #     "DAS" : "DYJetsToLL_M-50_HT-1200to2500_Tune.*",
-    # },
-    # "DYm50_ht2500-Inf" : {
-    #     "cross_section": 0.002977, #0.003514,
-    #     "DAS" : "DYJetsToLL_M-50_HT-2500toInf_Tune.*",
-    # },
     "DYm50_ht70-100" : {
         "cross_section": 169.9, #145.5,
         "kfactor": 1.23,
