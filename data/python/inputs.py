@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from analysis_suite.Combine.systematics import Systematic
+from analysis_suite.combine.systematics import Systematic
 
 pad = True
 

@@ -53,9 +53,9 @@ if __name__ == "__main__":
         runCombine(f'text2workspace.py {card.replace("root", "txt")}', output=args.debug)
 
     if args.type == "impact":
-        runCombine(f'combineTool.py -M Impacts -d {card} -m 125 --doInitialFit --robustFit 1')
-        runCombine(f'combineTool.py -M Impacts -d {card} -m 125 --robustFit 1 --doFits')
-        runCombine(f'combineTool.py -M Impacts -d {card} -m 125 -o impacts.json')
+        runCombine(f'combineTool.py -M Impacts -d {card} -m 125 --doInitialFit --robustFit 1 --rMin -20 --rMax 20')
+        runCombine(f'combineTool.py -M Impacts -d {card} -m 125 --robustFit 1 --doFits --rMin -20 --rMax 20')
+        runCombine(f'combineTool.py -M Impacts -d {card} -m 125 -o impacts.json  --rMin -20 --rMax 20')
         runCombine(f'plotImpacts.py -i impacts.json -o impacts')
 
     elif args.type == "sig":

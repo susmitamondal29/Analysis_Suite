@@ -22,7 +22,7 @@ if __name__ == "__main__":
     elif cli_args.tool == "flatten":
         from analysis_suite.flatten import job_main
     elif cli_args.tool == "combine":
-        from analysis_suite.Combine import job_main
+        from analysis_suite.combine import job_main
     else:
         exit()
 

@@ -16,7 +16,7 @@ __pycache__
 */*
 !Analyzer/*
 !machine_learning/*
-!Combine/*
+!combine/*
 !plotting/*
 !commons/*
 !scripts/*
