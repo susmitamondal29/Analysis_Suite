@@ -2,7 +2,7 @@
 import numpy as np
 import uproot
 
-analysis_suite.commons.user as user
+import analysis_suite.commons.user as user
 
 @np.vectorize
 def likelihood_sig(s, b):
