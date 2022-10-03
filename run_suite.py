@@ -42,7 +42,7 @@ def get_cli():
         parser.add_argument('-t', '--train', action="store_true")
         parser.add_argument('-m', '--model', required=True, choices=['DNN', 'TMVA', 'XGBoost', "CutBased"],
                             help="Run the training")
-        parser.add_argument("--save", action='store_true')
+        parser.add_argument("--save", action='store_true', help="Save training set")
         parser.add_argument("--plot", action='store_true')
         parser.add_argument('-r', '--regions', default="Signal",
                             type=lambda x : [i.strip() for i in x.split(',')],)
@@ -80,9 +80,6 @@ def setup(workdir):
         shutil.copy(user.analysis_area/'data/python/inputs.py', inputs)
 
 if __name__ == "__main__":
-    if str(user.analysis_area) not in sys.path:
-        sys.path.append(str(user.analysis_area))
-
     cli_args = get_cli()
     setup(cli_args)
     logging.basicConfig(level=getattr(logging, cli_args.log, None))

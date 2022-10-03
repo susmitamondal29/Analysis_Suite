@@ -103,7 +103,7 @@ if __name__ == "__main__":
                         type=lambda x : ["2016pre", "2017post" "2017", "2018"] if x == "all" \
                                    else [i.strip() for i in x.split(',')],
                         help="Year to use")
-    parser.add_argument('-w', '--input_dir', default='befficiency')
+    parser.add_argument('-i', '--input_dir', default='befficiency')
     args = parser.parse_args()
 
     ginfo = GroupInfo(color_by_group)

@@ -79,17 +79,17 @@ def measurement(workdir, ginfo, year, input_dir):
     plotter = Plotter(ntuple.get_file(year=year, workdir=input_dir), groups, ntuple=ntuple, year=year)
     plotter.cut(lambda vg : vg["Met"] > 25)
     plotter.set_groups(bkg=bkg)
-    # for chan in chans:
-    #     latex = latex_chan[chan]
-    #     plotter.mask(lambda vg : vg["TightElectron"].num() == chan.count('E'))
-    #     plotter.fill_hists(graphs, ginfo)
-    #     for graph in graphs_1d:
-    #         plotter.plot_stack(graph.name, plot_dir/f'{graph.name}_{chan}.png', chan=latex, region=f"$MR({latex})$")
+    for chan in chans:
+        latex = latex_chan[chan]
+        plotter.mask(lambda vg : vg["TightElectron"].num() == chan.count('E'))
+        plotter.fill_hists(graphs, ginfo)
+        for graph in graphs_1d:
+            plotter.plot_stack(graph.name, plot_dir/f'{graph.name}_{chan}.png', chan=latex, region=f"$MR({latex})$")
 
     plotter.mask(lambda vg : vg["TightElectron"].num() > 0)
     plotter.fill_hists(graphs, ginfo)
-    # for graph in graphs_1d:
-    #     plotter.plot_stack(graph.name, plot_dir/f'{graph.name}_e.png', chan="e\ell", region="$MR(e\ell)$")
+    for graph in graphs_1d:
+        plotter.plot_stack(graph.name, plot_dir/f'{graph.name}_e.png', chan="e\ell", region="$MR(e\ell)$")
 
     all_fr = plotter.get_sum(bkg, 'all_fr')
     flip_fr = plotter.get_sum(bkg, 'flip_fr')
@@ -178,7 +178,7 @@ if __name__ == "__main__":
                                    else [i.strip() for i in x.split(',')],
                         help="Year to use")
     parser.add_argument('-d', '--workdir', help="directory to run over. If nothing, use date",)
-    parser.add_argument('-w', '--input_dir', required=True)
+    parser.add_argument('-i', '--input_dir', required=True)
     parser.add_argument('-r', '--run', type=lambda x: [i.strip() for i in x.split(',')],
                         help="Regions to run through (sideband, measurement, closure)")
     args = parser.parse_args()

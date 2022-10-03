@@ -16,7 +16,10 @@ def setup(cli_args):
     os.environ["NUMEXPR_MAX_THREADS"] = "8"
 
     argList = list()
-    allSysts = get_list_systs(cli_args.workdir, cli_args.tool, cli_args.systs)
+    if cli_args.train:
+        allSysts = ["Nominal"]
+    else:
+        allSysts = get_list_systs(cli_args.workdir, cli_args.tool, cli_args.systs)
     for year in cli_args.years:
         for region in cli_args.regions:
             for syst in allSysts:
@@ -27,7 +30,7 @@ def setup(cli_args):
 
 
 def run(groupDict, usevars, workdir, model, train, year, region, systName, save_train, rerun):
-    module = import_module(f'.{model}', "analysis_suite.BDT_utilities")
+    module = import_module(f'.{model}', "analysis_suite.machine_learning")
     maker = getattr(module, next(filter(lambda x : "Maker" in x, dir(module))))
     ml_runner = maker(usevars, groupDict, region=region, systName=systName)
 

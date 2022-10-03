@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 import numpy as np
 import uproot
+import sys
 from importlib import import_module
+
+from .user import analysis_area
+if str(analysis_area) not in sys.path:
+    sys.path.append(str(analysis_area))
 
 def get_inputs(workdir):
     return import_module('.inputs', f'workspace.{workdir.stem}')
@@ -43,7 +48,6 @@ def get_list_systs(infile, tool, systs=["all"], **kwargs):
                 finalSysts.append("Nominal")
         allSysts = set(finalSysts)
     return allSysts
-
 
 def sig_fig(x, p=3):
     x_positive = np.where(np.isfinite(x) & (x != 0), np.abs(x), 10**(p-1))

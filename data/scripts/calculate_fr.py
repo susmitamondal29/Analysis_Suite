@@ -291,7 +291,7 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--workdir', help="directory to run over. If nothing, use date",
                         # choices=[d.stem for d in workdir.glob('*/') if d.is_dir()]
                         )
-    parser.add_argument('-w', '--input_dir', required=True)
+    parser.add_argument('-i', '--input_dir', required=True)
     parser.add_argument('-r', '--run', type=lambda x: [i.strip() for i in x.split(',')],
                         help="Regions to run through (sideband, measurement, closure)")
     args = parser.parse_args()
