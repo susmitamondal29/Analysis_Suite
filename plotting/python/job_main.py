@@ -11,6 +11,7 @@ from analysis_suite.commons.makeSimpleHtml import writeHTML
 import analysis_suite.commons.user as user
 import analysis_suite.data.plotInfo.plotInfo as plots_module
 
+from .utils import get_plot_area, make_plot_paths
 from .plotter import Plotter
 from .LogFile import LogFile
 
@@ -19,8 +20,8 @@ def setup(cli_args):
     command = ' '.join(sys.argv)
     LogFile.add_metainfo(callTime, command)
 
-    basePath = config.get_plot_area(cli_args.name, cli_args.workdir)
-    config.make_plot_paths(basePath)
+    basePath = get_plot_area(cli_args.name, cli_args.workdir)
+    make_plot_paths(basePath)
 
     ginfo = GroupInfo(config.get_inputs(cli_args.workdir).color_by_group)
     plots = getattr(plots_module, cli_args.plots)
@@ -38,7 +39,7 @@ def setup(cli_args):
             outpath = basePath / year
             if syst != "Nominal":
                 outpath = outpath / syst
-            config.make_plot_paths(outpath)
+            make_plot_paths(outpath)
             for plot in plots:
                 argList.append((filename, outpath, plot, cli_args.signal, ginfo, year, syst, cli_args))
     return argList
@@ -67,7 +68,7 @@ def run(infile, outpath, graph, signalName, ginfo, year, syst, args):
 
 
 def cleanup(cli_args):
-    basePath = config.get_plot_area(cli_args.name, cli_args.workdir)
+    basePath = get_plot_area(cli_args.name, cli_args.workdir)
     # combined page
     writeHTML(basePath, cli_args.name, constants.years)
     for year in cli_args.years:

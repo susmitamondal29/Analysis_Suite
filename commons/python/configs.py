@@ -2,10 +2,8 @@
 import argparse
 import sys
 import pkgutil
-import time
 import numpy as np
 import uproot
-from contextlib import contextmanager
 from importlib import import_module
 from pathlib import Path
 
@@ -87,7 +85,6 @@ def setup(args):
     if not inputs.exists():
         shutil.copy(analysis_area/'data/python/inputs.py', inputs)
 
-
 def get_inputs(workdir):
     if str(analysis_area) not in sys.path:
         sys.path.append(str(analysis_area))
@@ -102,14 +99,6 @@ def get_ntuple(name, obj='info'):
     return getattr(module, obj)
 
 
-def findScale(ratio):
-    sigNum = 10**int(np.log10(ratio))
-    tot = int((ratio) / sigNum) * sigNum
-    if ratio > tot + sigNum//2:
-        tot += sigNum//2
-    return tot
-
-
 def get_list_systs(infile, tool, systs=["all"], **kwargs):
     allSysts = set()
     if tool == 'flatten':
@@ -117,6 +106,10 @@ def get_list_systs(infile, tool, systs=["all"], **kwargs):
             all_files = list(infile.glob('*root'))
         else:
             all_files = [infile]
+
+        def get_systs(tlist):
+            return np.unique([item.member('fName') for item in tlist])
+
         for file_ in all_files:
             with uproot.open(file_) as f:
                 for key in f.keys() :
@@ -140,56 +133,13 @@ def get_list_systs(infile, tool, systs=["all"], **kwargs):
         allSysts = set(finalSysts)
     return allSysts
 
-def clean_syst(syst):
-    return syst.replace("_down","").replace("_up","")
-
-def get_plot_area(name, path=None):
-    from .user import www_area
-    www_path = www_area/name
-    if path:
-        www_path /= path.stem
-    www_path /= time.strftime("%Y_%m_%d")
-    return www_path
-
-def make_plot_paths(path):
-    (path/"plots").mkdir(exist_ok=True, parents=True)
-    (path/"logs").mkdir(exist_ok=True, parents=True)
-
-def get_metadata(tlist, varName):
-    for item in tlist:
-        if item.member('fName') == varName:
-            return item.member('fTitle')
-    return None
-
-def get_systs(tlist):
-    return np.unique([item.member('fName') for item in tlist])
-
-def get_syst_index(filename, systName):
-    with uproot.open(filename) as f:
-        syst_dir = [key for key in f.keys() if "Systematics" in key][0]
-        systNames = [name.member("fName") for name in f[syst_dir]]
-    if systName not in systNames:
-        return -1
-    else:
-        return systNames.index(systName)
-
-def get_dirnames(filename):
-    with uproot.open(filename) as f:
-        dirnames = [d for d, cls in f.classnames().items() if cls == "TDirectory"]
-        if not dirnames:
-            return None
-        return {d.partition(";")[0] for d in dirnames}
 
 def sig_fig(x, p=3):
     x_positive = np.where(np.isfinite(x) & (x != 0), np.abs(x), 10**(p-1))
     mags = 10 ** (p - 1 - np.floor(np.log10(x_positive)))
     return np.round(x * mags) / mags
 
-
 @np.vectorize
 def asymptotic_sig(s, b):
     return s/np.sqrt(b+1e-5)
 
-@np.vectorize
-def likelihood_sig(s, b):
-    return np.sqrt(2*(s+b)*np.log(1+s/(b+1e-5))-2*s)

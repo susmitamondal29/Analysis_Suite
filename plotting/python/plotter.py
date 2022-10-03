@@ -17,6 +17,7 @@ import analysis_suite.commons.configs as config
 from analysis_suite.commons.info import fileInfo
 from analysis_suite.commons.plot_utils import plot, nonratio_plot, ratio_plot, hep
 
+from .utils import likelihood_sig, get_syst_index
 from .stack import Stack
 
 @dataclass
@@ -90,7 +91,7 @@ class Plotter:
     def setup_ntuple(self, filenames, ntuple, systName="Nominal"):
         root_files = filenames.glob("*.root") if filenames.is_dir() else [filenames]
         for root_file in root_files:
-            syst = config.get_syst_index(root_file, systName)
+            syst = get_syst_index(root_file, systName)
             if syst == -1:
                 continue
             for group, members in self.groups.items():
@@ -243,7 +244,7 @@ class Plotter:
                 elif group in self.bkg:
                     s_tot += np.array([np.sum(scales[values > val]) for val in bins])
         if sig_type == "likely":
-            return config.likelihood_sig(s_tot, b_tot)
+            return likelihood_sig(s_tot, b_tot)
         elif sig_type == "s/sqrtb":
             return config.asymptotic_sig(s_tot, b_tot)
         else:
