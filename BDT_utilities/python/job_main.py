@@ -4,7 +4,7 @@ import numpy as np
 import os
 from importlib import import_module
 
-from analysis_suite.commons import GroupInfo
+from analysis_suite.commons.info import GroupInfo
 from analysis_suite.commons.configs import get_list_systs, get_inputs
 import analysis_suite.commons.user as user
 

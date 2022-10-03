@@ -6,7 +6,8 @@ import logging
 
 import analysis_suite.commons.configs as config
 import analysis_suite.commons.constants as constants
-from analysis_suite.commons import writeHTML, GroupInfo
+from analysis_suite.commons.info import GroupInfo
+from analysis_suite.commons.makeSimpleHtml import writeHTML
 import analysis_suite.commons.user as user
 import analysis_suite.data.plotInfo.plotInfo as plots_module
 

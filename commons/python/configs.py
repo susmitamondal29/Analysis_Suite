@@ -155,13 +155,6 @@ def make_plot_paths(path):
     (path/"plots").mkdir(exist_ok=True, parents=True)
     (path/"logs").mkdir(exist_ok=True, parents=True)
 
-def get_shape_systs(addVar=False):
-    from analysis_suite.data.inputs import systematics
-    systs = [syst.name for syst in systematics if syst.syst_type == "shape"]
-    if addVar:
-        systs = [syst+"_up" for syst in systs] + [syst+"_down" for syst in systs ]
-    return systs
-
 def get_metadata(tlist, varName):
     for item in tlist:
         if item.member('fName') == varName:
@@ -192,15 +185,6 @@ def sig_fig(x, p=3):
     mags = 10 ** (p - 1 - np.floor(np.log10(x_positive)))
     return np.round(x * mags) / mags
 
-
-
-
-@contextmanager
-def rOpen(filename, option=""):
-    import ROOT
-    rootfile = ROOT.TFile(filename, option)
-    yield rootfile
-    rootfile.Close()
 
 @np.vectorize
 def asymptotic_sig(s, b):

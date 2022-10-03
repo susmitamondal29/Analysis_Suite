@@ -3,7 +3,7 @@ import pandas as pd
 import logging
 import uproot
 
-from analysis_suite.commons.configs import get_list_systs, get_inputs, get_ntuple, get_shape_systs
+from analysis_suite.commons.configs import get_list_systs, get_inputs, get_ntuple
 from analysis_suite.Plotting.plotter import Plotter
 from analysis_suite.commons.info import GroupInfo
 from analysis_suite.commons.constants import lumi

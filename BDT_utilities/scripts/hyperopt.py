@@ -5,7 +5,7 @@ import numpy as np
 import pprint
 import csv
 
-from analysis_suite.commons import GroupInfo
+from analysis_suite.commons.info import GroupInfo
 from analysis_suite.commons.configs import get_cli, getGroupDict
 import analysis_suite.data.inputs as mva_params
 from analysis_suite.BDT_utilities.job_main import get_mva_runner

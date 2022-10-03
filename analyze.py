@@ -1,17 +1,29 @@
 #!/usr/bin/env python3
 import os
 import argparse
-from analysis_suite.commons import fileInfo
-import analysis_suite.commons.configs as configs
-import analysis_suite.commons.user as user
+from contextlib import contextmanager
 import yaml
-import uproot
-import numpy as np
-from xml.dom.minidom import parse
+
+from analysis_suite.commons.info import fileInfo
+import analysis_suite.commons.setup_functions as setup
+import analysis_suite.commons.user as user
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine( "gErrorIgnoreLevel = 1001;")
+
+@contextmanager
+def rOpen(filename, option=""):
+    rootfile = ROOT.TFile(filename, option)
+    yield rootfile
+    rootfile.Close()
+
+def get_shape_systs(addVar=False):
+    from analysis_suite.data.inputs import systematics
+    systs = [syst.name for syst in systematics if syst.syst_type == "shape"]
+    if addVar:
+        systs = [syst+"_up" for syst in systs] + [syst+"_down" for syst in systs ]
+    return systs
 
 def setInputs(inputs):
     root_inputs = ROOT.TList()
@@ -94,7 +106,7 @@ def run_multi(start, evts, files, inputs, selector):
     selector = getattr(ROOT, inputs["MetaData"]["Analysis"])()
     rInputs = setInputs(inputs)
 
-    with configs.rOpen(f"tmp_{start}.root", "RECREATE") as rOutput:
+    with rOpen(f"tmp_{start}.root", "RECREATE") as rOutput:
         selector.SetInputList(rInputs)
         selector.setOutputFile(rOutput)
         fChain.Process(selector, "", evts, start)
@@ -107,9 +119,10 @@ def run_multi(start, evts, files, inputs, selector):
     return
 
 if __name__ == "__main__":
-    xml_classes = parse(str((user.analysis_area/'Analyzer/src/classes_def.xml').resolve()))
-    analysis_choices = [c.getAttribute("name") for c in xml_classes.getElementsByTagName('class')]
-    analysis_choices.remove("BaseSelector")
+    analysis_dict = {}
+    if (analysis_choices := setup.get_analyses()) is not None:
+        analysis_choices.remove("BaseSelector")
+        analysis_dict['choices'] = analysis_choices
 
     parser = argparse.ArgumentParser(prog="main")
     parser.add_argument("-i", "--infile", default ="No Input File")
@@ -120,7 +133,7 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", default=-1,
                         help="Current levels are 1 for progress bar, 4 for shortened run (10 000 events)"
                         "and 9 for max output (only on 3 events)")
-    parser.add_argument("-a", "--analysis", choices=analysis_choices)
+    parser.add_argument("-a", "--analysis", **analysis_dict)
     parser.add_argument("-j", "--cores", default = 1, type=int,
                         help="Number of cores to run over")
     parser.add_argument('-ns', '--no_syst', action='store_true',
@@ -163,7 +176,7 @@ if __name__ == "__main__":
     if not args.local:
         inputs['MetaData'].update({'Xsec': fileInfo.get_xsec(groupName), 'isData': fileInfo.is_data(groupName)})
     inputs["Verbosity"] = args.verbose
-    inputs["Systematics"] = configs.get_shape_systs() if not args.no_syst else []
+    inputs["Systematics"] = get_shape_systs() if not args.no_syst else []
 
     # Possibly need to fix for fakefactor stuff
     rInputs = setInputs(inputs)
@@ -177,7 +190,7 @@ if __name__ == "__main__":
 
     if args.cores == 1:
         selector = getattr(ROOT, analysis)()
-        with configs.rOpen(outputfile, "RECREATE") as rOutput:
+        with rOpen(outputfile, "RECREATE") as rOutput:
             selector.SetInputList(rInputs)
             selector.setOutputFile(rOutput)
             fChain.Process(selector, "")
