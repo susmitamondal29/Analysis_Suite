@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import boost_histogram as bh
-from analysis_suite.Plotting.plotter import GraphInfo
+from analysis_suite.plotting.plotter import GraphInfo
 
 def get_pteta(part, flav, wp):
     flav_mask = part.flavor == flav

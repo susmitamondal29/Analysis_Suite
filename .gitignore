@@ -5,8 +5,6 @@ htmlcov
 __pycache__
 .python-version
 
-*parquet
-poetry.lock
 *~
 *.root
 *.in
@@ -19,8 +17,7 @@ poetry.lock
 !Analyzer/*
 !BDT_utilities/*
 !Combine/*
-!Plotting/*
-!ScaleFactors/*
+!plotting/*
 !commons/*
 !scripts/*
 !flatten/*
@@ -30,4 +27,3 @@ poetry.lock
 !data/python/plotInfo/*py
 data/POG
 !data/POG/USER/*
-!data/python/plotInfo/plotInfo_default.py

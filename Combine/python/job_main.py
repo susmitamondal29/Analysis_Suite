@@ -5,7 +5,7 @@ from .card_maker import Card_Maker
 
 from analysis_suite.commons.info import GroupInfo
 from analysis_suite.commons.configs import get_list_systs, get_inputs
-from analysis_suite.Plotting.plotter import Plotter
+from analysis_suite.plotting.plotter import Plotter
 from analysis_suite.data.plotInfo.plotInfo import combine
 
 def setup(cli_args):

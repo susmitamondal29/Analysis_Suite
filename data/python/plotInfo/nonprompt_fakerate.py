@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import boost_histogram.axis as axis
-from analysis_suite.Plotting.plotter import GraphInfo
+from analysis_suite.plotting.plotter import GraphInfo
 
 # np_ptbins = axis.Variable([15, 20, 25, 35, 50, 70])
 np_ptbins = {

@@ -14,7 +14,7 @@ from analysis_suite.commons.plot_utils import hep, plot, plot_colorbar
 from analysis_suite.commons.constants import lumi
 from analysis_suite.commons.info import GroupInfo
 import analysis_suite.data.plotInfo.misId_fakerate as pinfo
-from analysis_suite.Plotting.plotter import Plotter
+from analysis_suite.plotting.plotter import Plotter
 from analysis_suite.commons.user import workspace_area
 from datetime import datetime
 

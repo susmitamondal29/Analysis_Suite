@@ -7,7 +7,7 @@ import analysis_suite.commons.configs as config
 from analysis_suite.commons.histogram import Histogram
 from analysis_suite.commons.info import GroupInfo
 import analysis_suite.data.plotInfo.befficiency as pinfo
-from analysis_suite.Plotting.plotter import Plotter
+from analysis_suite.plotting.plotter import Plotter
 import analysis_suite.commons.user as user
 
 def get_sf(sf, syst):
