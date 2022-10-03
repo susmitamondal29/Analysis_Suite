@@ -16,7 +16,7 @@ if __name__ == "__main__":
     ##############
 
     if cli_args.tool == "mva":
-        from analysis_suite.BDT_utilities import job_main
+        from analysis_suite.machine_learning import job_main
     elif cli_args.tool == "plot":
         from analysis_suite.plotting import job_main
     elif cli_args.tool == "flatten":
