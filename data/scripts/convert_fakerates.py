@@ -8,6 +8,7 @@ import pickle
 import numpy as np
 from correctionlib.schemav2 import VERSION, MultiBinning, Category, Correction, CorrectionSet
 import correctionlib._core as core
+import analysis_suite.commons.user as user
 
 def get_sf(sf, syst):
     val, err = sf.value, sf.variance
@@ -63,10 +64,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     for year in args.years:
-        year_name = year if "2016" not in year else "2016"
-        with open(f"{args.charge}/charge_misid_rate_{year_name}.pickle", "rb") as f:
+        # year_name = year if "2016" not in year else "2016"
+        with open(user.workspace_area/"charge_misId"/f"{args.charge}/charge_misid_rate_{year_name}.pickle", "rb") as f:
             charge_fr = pickle.load(f)
-        with open(f"{args.nonprompt}/fr_{year_name}.pickle", "rb") as f:
+        with open(user.workspace_area/"fake_rate"/f"{args.nonprompt}/fr_{year_name}.pickle", "rb") as f:
             fake_rates = pickle.load(f)
             elec_nonprompt_fr = fake_rates["Electron"]["data_ewk"]
             muon_nonprompt_fr = fake_rates["Muon"]["data_ewk"]
