@@ -32,7 +32,7 @@ size_t GenericParticle::idx(Level level, size_t i) const
 void Particle::clear()
 {
     for (auto& [key, plist] : m_partArray) {
-        m_bitArray[key].clear();
+        m_bitArray[key].assign(size(), 0);
         for (size_t i = 0; i < nSyst; ++i) {
             plist[i].clear();
         }
@@ -61,5 +61,13 @@ void Particle::xorLevel(Level big, Level small, Level target)
         }
         m_partList[target]->push_back(idx);
         m_bitArray[target][idx] = m_bitArray[big][idx];
+    }
+}
+
+void Particle::setSyst(size_t syst)
+{
+    // Setup variables
+    for (auto& [key, plist] : m_partArray) {
+        m_partList[key] = &plist[syst];
     }
 }

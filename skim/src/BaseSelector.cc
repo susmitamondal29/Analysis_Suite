@@ -120,8 +120,8 @@ Bool_t BaseSelector::Process(Long64_t entry)
         bar++;
         bar.print_bar();
     }
-    clearParticles();
     fReader.SetLocalEntry(entry);
+    clearParticles();
 
     // Remove non-golden lumi stuff
     if (!isMC_ && !sfMaker.inGoldenLumi(*run, *lumiblock)) {
@@ -130,6 +130,7 @@ Bool_t BaseSelector::Process(Long64_t entry)
 
     std::vector<bool> systPassSelection;
     bool passAny = false;
+    jet.setupJEC(rGenJet);
     for (auto it = syst_var_pair.begin(); it != syst_var_pair.end(); ++it) {
         Systematic syst = it->first;
         eVar var = it->second;
@@ -148,6 +149,7 @@ Bool_t BaseSelector::Process(Long64_t entry)
     if (!passAny) return false;
 
     // Fill up variables then fill up the tree
+    setupSyst(0);
     for (auto& [chan, tree] : trees) {
         bool passedChannel = false;
         for (size_t syst = 0; syst < numSystematics(); ++syst) {
@@ -180,7 +182,9 @@ void BaseSelector::setupSyst(size_t systNum)
     SystematicWeights::currentSyst = syst_var_pair.at(systNum).first;
     SystematicWeights::currentVar = syst_var_pair.at(systNum).second;
 
-    jet.setSyst();
+    muon.setSyst(systNum);
+    elec.setSyst(systNum);
+    jet.setSyst(systNum);
     met.setSyst();
 }
 
@@ -193,7 +197,6 @@ void BaseSelector::SetupEvent(size_t systNum)
 
     (*weight) = isMC_ ? *genWeight : 1.0;
 
-    jet.setupJEC(rGenJet);
     met.setupMet(jet, *run, *PV_npvs);
     // Setup good particle lists
     muon.setGoodParticles(systNum, jet, rGen);

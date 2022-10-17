@@ -1,4 +1,5 @@
 #include "analysis_suite/skim/interface/Jet.h"
+#include "analysis_suite/skim/interface/CommonFuncs.h"
 
 void Jet::setup(TTreeReader& fReader)
 {
@@ -73,6 +74,10 @@ void Jet::setup(TTreeReader& fReader)
             {eVar::Down, std::vector<float>()}
         };
     }
+    for(auto var: all_vars) {
+        jer[var] = std::vector<float>();
+        jes[var] = std::vector<float>();
+    }
 }
 
 void Jet::fillJet(JetOut& output, Level level, size_t pass_bitmap)
@@ -111,8 +116,9 @@ void Jet::createLooseList()
             && fabs(eta(i)) < 2.4
             && (jetId.at(i) & looseId) != 0
             && (pt(i) > 50 || (puId.at(i) >> PU_Medium) & 1)
-            && (closeJetDr_by_index.find(i) == closeJetDr_by_index.end() || closeJetDr_by_index.at(i) >= pow(0.4, 2)))
+            && (closeJetDr_by_index.find(i) == closeJetDr_by_index.end() || closeJetDr_by_index.at(i) >= pow(0.4, 2))) {
             m_partList[Level::Loose]->push_back(i);
+        }
     }
 }
 
@@ -164,8 +170,9 @@ float Jet::getCentrality(const std::vector<size_t>& jet_list)
     return getHT(jet_list) / etot;
 }
 
-void Jet::setSyst()
+void Jet::setSyst(size_t syst)
 {
+    Particle::setSyst(syst);
     if (currentSyst == Systematic::Nominal || isJECSyst()) {
         m_jec = &m_jet_scales[currentSyst][currentVar];
     } else {
@@ -173,14 +180,23 @@ void Jet::setSyst()
     }
 }
 
-void Jet::setupJEC(GenericParticle& genJet) {
-    if (currentSyst == Systematic::Nominal || isJECSyst()) {
-        m_jec->assign(size(), 1);
-        if (!isMC) return;
+void Jet::setupJEC(GenericParticle& genJet)
+{
+    for (auto& [syst, var_scales] : m_jet_scales ) {
+        for (auto& [var, scales] : var_scales) {
+            scales.assign(size(), 1);
+        }
+    }
+    if (!isMC)
+        return;
 
-        for(size_t i = 0; i < size(); ++i) {
-            (*m_jec)[i] *= get_jes(i);
-            (*m_jec)[i] *= get_jer(i, genJet);
+    for(size_t i = 0; i < size(); ++i) {
+        setup_jes(i);
+        setup_jer(i, genJet);
+        m_jet_scales[Systematic::Nominal][eVar::Nominal][i] = jer[eVar::Nominal].at(i)*jes[eVar::Nominal].at(i);
+        for (auto var: syst_vars) {
+            m_jet_scales[Systematic::Jet_JES][var][i] = jer[eVar::Nominal].at(i)*jes[var].at(i);
+            m_jet_scales[Systematic::Jet_JER][var][i] = jer[var].at(i)*jes[eVar::Nominal].at(i);
         }
     }
 }
@@ -206,35 +222,6 @@ float Jet::getTotalBTagWeight() {
     return weight;
 }
 
-float Jet::get_jes(size_t i) {
-    if (currentSyst != Systematic::Jet_JES || currentVar == eVar::Nominal) {
-        return 1.;
-    } else {
-        float delta = jes_scale.evaluate({eta(i), pt(i)});
-        return (currentVar == eVar::Up) ? (1+delta) : (1-delta);
-    }
-}
-
-float Jet::get_jer(size_t i, GenericParticle& genJets) {
-    using namespace ROOT::Math::VectorUtil;
-    float resolution = jet_resolution.evaluate({eta(i), pt(i), *rho});
-
-    float scale = jer_scale.evaluate({eta(i), systName(jer_scale)});
-
-    bool hasGenJet = genJetIdx.at(i) != -1;
-    auto genJet = (hasGenJet) ? genJets.p4(genJetIdx.at(i)) : LorentzVector();
-    float pt_ratio = (hasGenJet) ? 1-pt(i)/genJet.Pt() : 0.;
-
-    if (hasGenJet && DeltaR(p4(i), genJet) < jet_dr/2 && fabs(pt_ratio) < 3*resolution) {
-        return 1 + (scale-1)*pt_ratio;
-    } else if (scale > 1.) {
-        std::normal_distribution<> gaussian{0, resolution};
-        return 1 + gaussian(gen)*sqrt(pow(scale,2) - 1);
-    }
-
-    return 1.;
-}
-
 std::complex<float> Jet::get_momentum_change()
 {
     std::complex<float> change;
@@ -242,4 +229,36 @@ std::complex<float> Jet::get_momentum_change()
         change += std::polar(pt(i)-nompt(i), phi(i));
     }
     return change;
+}
+
+void Jet::setup_jer(size_t i, GenericParticle& genJets)
+{
+    using namespace ROOT::Math::VectorUtil;
+    float resolution = jet_resolution.evaluate({eta(i), m_pt.at(i), *rho});
+    size_t g = genJetIdx.at(i);
+    bool hasGenJet = genJetIdx.at(i) != -1;
+    float pt_ratio = (hasGenJet) ? 1-m_pt.at(i)/genJets.pt(g) : 0.;
+
+    for (auto var : all_vars) {
+        float scale = jer_scale.evaluate({eta(i), jer_scale.name_by_var.at(var)});
+        if (hasGenJet
+            && deltaR(eta(i), genJets.eta(g), phi(i), genJets.phi(g)) < jet_dr/2
+            && fabs(pt_ratio) < 3*resolution)
+            {
+                jer[var].push_back(1 + (scale-1)*pt_ratio);
+            } else if (scale > 1.) {
+            std::normal_distribution<> gaussian{0, resolution};
+            jer[var].push_back(1 + gaussian(gen)*sqrt(pow(scale,2) - 1));
+        } else {
+            jer[var].push_back(1);
+        }
+    }
+}
+
+void Jet::setup_jes(size_t i)
+{
+    float delta = jes_scale.evaluate({eta(i), m_pt.at(i)});
+    jes[eVar::Nominal].push_back(1);
+    jes[eVar::Up].push_back(1+delta);
+    jes[eVar::Down].push_back(1-delta);
 }

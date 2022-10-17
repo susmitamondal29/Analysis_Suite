@@ -48,8 +48,14 @@ public:
         n_medium_bjet.clear();
         n_tight_bjet.clear();
 
-        for (auto& [syst, scales] : m_jet_scales ) {
-            scales.clear();
+        for (auto& [syst, var_scales] : m_jet_scales ) {
+            for (auto& [var, scales] : var_scales) {
+                scales.clear();
+            }
+        }
+        for (auto var : all_vars) {
+            jer[var].clear();
+            jes[var].clear();
         }
     }
 
@@ -67,7 +73,7 @@ public:
     TRVariable<Float_t> rho;
 
 
-    void setSyst();
+    void setSyst(size_t syst) override;
     void setupJEC(GenericParticle& genJet);
 
     std::pair<Float_t, Float_t> get_JEC_pair(Systematic syst, size_t idx) const
@@ -77,7 +83,8 @@ public:
             return std::make_pair(1., 1.);
         }
         const auto scales = m_jet_scales.at(syst);
-        return std::make_pair(scales.at(eVar::Down).at(idx), scales.at(eVar::Up).at(idx));
+        const auto central = m_jet_scales.at(Systematic::Nominal).at(eVar::Nominal);
+        return std::make_pair(scales.at(eVar::Down).at(idx)/central.at(idx), scales.at(eVar::Up).at(idx)/central.at(idx));
     }
     float loose_bjet_cut, medium_bjet_cut, tight_bjet_cut;
 
@@ -88,6 +95,12 @@ private:
     int looseId = 0b11;
     float jet_dr = 0.4;
     std::unordered_map<Systematic, std::unordered_map<eVar, std::vector<float>>> m_jet_scales;
+
+    std::unordered_map<eVar, std::vector<float>> jer;
+    std::unordered_map<eVar, std::vector<float>> jes;
+    void setup_jes(size_t i);
+    void setup_jer(size_t i, GenericParticle& genJets);
+
     std::vector<float>* m_jec;
 
     void createLooseList();
@@ -120,8 +133,7 @@ private:
     std::random_device rd{};
     std::mt19937 gen{rd()};
 
-    float get_jer(size_t i, GenericParticle& genJet);
-    float get_jes(size_t i);
+
 };
 
 #endif // __JET_H_

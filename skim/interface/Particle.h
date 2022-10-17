@@ -98,6 +98,7 @@ public:
     template <class T>
     size_t fillParticle(T& output, Level level, size_t idx, size_t pass_bitmap);
 
+    virtual void setSyst(size_t syst);
 
 protected:
     std::unordered_map<Level, PartList> m_partArray;
@@ -107,21 +108,15 @@ protected:
 template <class... Args>
 void Particle::setGoodParticles(size_t syst, Args&&... args)
 {
-    // Setup variables
-    for (auto& [key, plist] : m_partArray) {
-        m_partList[key] = &plist[syst];
-    }
+    setSyst(syst);
 
     // Virutal class specific list making
     setupGoodLists(std::forward<Args>(args)...);
 
     // Fill the bitmap
     for (const auto& [key, plist] : m_partArray) {
-        m_bitArray[key].assign(size(), 0);
-        for (size_t syst = 0; syst < nSyst; ++syst) {
-            for (auto idx : plist[syst]) {
-                m_bitArray[key][idx] += 1 << syst;
-            }
+        for (auto idx : plist[syst]) {
+            m_bitArray[key][idx] += 1 << syst;
         }
     }
 }
@@ -138,13 +133,14 @@ void Particle::fillOutput(T& output, Level level, size_t pass_bitmap)
 template <class T>
 size_t Particle::fillParticle(T& output, Level level, size_t idx, size_t pass_bitmap)
 {
+    setSyst(0); // Fill values with nominal values and corrections done on top
     size_t final_bitmap = bitmap(level).at(idx) & pass_bitmap;
     if (final_bitmap != 0) {
         output.pt.push_back(pt(idx));
         output.eta.push_back(eta(idx));
         output.phi.push_back(phi(idx));
         output.mass.push_back(mass(idx));
-        output.syst_bitMap.push_back(pass_bitmap);
+        output.syst_bitMap.push_back(final_bitmap);
     }
     return final_bitmap;
 }

@@ -132,6 +132,7 @@ const std::vector<std::string> data_systs = {
 
 static const std::vector<eVar> syst_vars = { eVar::Up, eVar::Down };
 static const std::vector<eVar> nominal_var = { eVar::Nominal };
+static const std::vector<eVar> all_vars = { eVar::Nominal, eVar::Up, eVar::Down };
 
 static const std::unordered_map<eVar, std::string> varName_by_var = {
     { eVar::Nominal, "central" },
