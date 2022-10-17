@@ -13,11 +13,15 @@ parser.add_argument("-y", "--years", required=True,
                     type=lambda x : ["2016", "2017", "2018"] if x == "all" \
                                else [i.strip() for i in x.split(',')],
                     help="Year to use")
-parser.add_argument('-a', '--analysis', required=True)
+parser.add_argument('-a', '--analysis', required=True,
+                    help='Analysis used in running jobs')
 parser.add_argument('-t', '--types', default="mc,data",
-                    type=lambda x : [i.strip() for i in x.split(',')],)
-parser.add_argument('-d', '--workdir', default=datetime.now().strftime("%m%d"))
-parser.add_argument('-r', '--rerun', action="store_false")
+                    type=lambda x : [i.strip() for i in x.split(',')],
+                    help="Types of files to hadd, namely MC, Data, or both (will be in separate files)")
+parser.add_argument('-d', '--workdir', default=datetime.now().strftime("%m%d"),
+                    help="Output file to store/label the root files (default is date)")
+parser.add_argument('-r', '--rerun', action="store_true",
+                    help="Add rerun files to list of hadd'ed files")
 args = parser.parse_args()
 
 base_dir = user.hdfs_workspace / args.filename

@@ -59,7 +59,7 @@ void Electron::createFakeList(Particle& jets)
             && tightCharge.at(i) == 2
             // && passTriggerRequirements(i) // Nonmva
             && getFakePtFactor(i)*m_pt.at(i) > 15
-            && ptRatio(i) > 0.6 // MVA
+            && (ptRatio(i) > 0.7 || mvaTTH.at(i) > mvaCut) // MVA
             )
             {
                 m_partList[Level::Fake]->push_back(i);

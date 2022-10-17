@@ -132,7 +132,7 @@ float Lepton::getFakePtFactor(size_t idx) const
     if (passJetIsolation(idx)) {
         return 1.;
     } else {
-        return 1./ptRatio(idx)*cone_correction;
+        return cone_correction/ptRatio(idx);
     }
 #endif
 }
