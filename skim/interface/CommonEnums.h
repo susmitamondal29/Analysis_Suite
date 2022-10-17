@@ -46,6 +46,9 @@ enum class Level {
     Top,
     Bottom,
     Jet,
+    EE,
+    MM,
+    ZZ,
 };
 
 enum class Systematic {
