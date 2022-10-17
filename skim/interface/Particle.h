@@ -50,7 +50,7 @@ public:
     virtual void clear();
 
 protected:
-    virtual Float_t size_() const { return m_pt.size(); }
+    virtual size_t size_() const { return m_pt.size(); }
     virtual Float_t pt_(size_t idx) const { return m_pt.at(idx); }
     virtual Float_t eta_(size_t idx) const { return m_eta.at(idx); }
     virtual Float_t phi_(size_t idx) const { return m_phi.at(idx); }
