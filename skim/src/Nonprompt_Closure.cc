@@ -235,7 +235,6 @@ float Nonprompt_Closure::getLeadPt()
 void Nonprompt_Closure::FillValues(const std::vector<bool>& passVec)
 {
     LOG_FUNC << "Start of FillValues";
-    BaseSelector::FillValues(passVec);
     size_t pass_bitmap = 0;
     for (size_t i = 0; i < passVec.size(); ++i) {
         pass_bitmap += passVec.at(i) << i;
