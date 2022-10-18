@@ -6,8 +6,7 @@
 enum class Channel {
     SS_Dilepton,
     SS_Multi,
-    TightFake_Nonprompt,
-    FakeFake_Nonprompt,
+    Nonprompt_FakeRate,
     OS_MisId,
     None,
 };
@@ -32,8 +31,7 @@ void ThreeTop::Init(TTree* tree)
     createTree("Signal_Multi", Channel::SS_Multi);
     // Charge Mis-id Fake Rate
     if (!isMC_) {
-        createTree("FakeFake_Nonprompt", Channel::FakeFake_Nonprompt);
-        createTree("TightFake_Nonprompt", Channel::TightFake_Nonprompt);
+        createTree("Nonprompt_FakeRate", Channel::Nonprompt_FakeRate);
         createTree("OS_Charge_MisId", Channel::OS_MisId);
     }
 
@@ -156,7 +154,7 @@ void ThreeTop::applyNonprompt(Particle& part, PID pid)
     for (auto fake = part.begin(Level::Fake); fake != part.end(Level::Fake); ++fake) {
         if (tight == part.end(Level::Tight) || (*tight) > (*fake)) {
             (*weight) *= parity*sfMaker.getNonpromptFR(part.eta(*fake), part.pt(*fake), pid);
-            parity = -1;
+            parity *= -1;
         } else {
             tight++;
         }
@@ -166,7 +164,7 @@ void ThreeTop::applyNonprompt(Particle& part, PID pid)
 
 void ThreeTop::ApplyDataScaleFactors()
 {
-    if ((*currentChannel_) == Channel::TightFake_Nonprompt) {
+    if ((*currentChannel_) == Channel::Nonprompt_FakeRate) {
         applyNonprompt(muon, PID::Muon);
         applyNonprompt(elec, PID::Electron);
     } else if ((*currentChannel_) == Channel::OS_MisId) {
@@ -229,7 +227,7 @@ bool ThreeTop::getCutFlow()
         (*currentChannel_) = (nLeps(Level::Tight) == 2) ? Channel::SS_Dilepton : Channel::SS_Multi;
 
     if (nonprompt_cuts())
-        (*currentChannel_) = (nLeps(Level::Tight) == 0) ? Channel::FakeFake_Nonprompt : Channel::TightFake_Nonprompt;
+        (*currentChannel_) = Channel::Nonprompt_FakeRate;
 
     if (charge_misid_cuts())
         (*currentChannel_) = Channel::OS_MisId;
@@ -292,16 +290,13 @@ bool ThreeTop::nonprompt_cuts()
     bool passCuts = true;
     CutInfo cuts;
 
-    // passCuts &= cuts.setCut("pass1TightLeptons", nLeps(Level::Tight) == 1);
     passCuts &= cuts.setCut("pass2FakeLeptons", nLeps(Level::Fake) == 2);
     passCuts &= cuts.setCut("passSameSign;", isSameSign(Level::Fake));
 
     // Fill Cut flow
-    cuts.setCut("pass2FakeLeps", nLeps(Level::Tight) == 0);
-    fillCutFlow(Channel::FakeFake_Nonprompt, cuts);
-    cuts.cuts.pop_back();
-    cuts.setCut("pass1FakeLeps", nLeps(Level::Tight) == 1);
-    fillCutFlow(Channel::TightFake_Nonprompt, cuts);
+    cuts.setCut("pass1FakeLeps", nLeps(Level::Fake) >= 1);
+    cuts.setCut("pass2FakeLeps", nLeps(Level::Fake) == 2);
+    fillCutFlow(Channel::Nonprompt_FakeRate, cuts);
 
     LOG_FUNC << "End of nonprompt_cuts";
     return passCuts;

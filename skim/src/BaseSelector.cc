@@ -175,6 +175,7 @@ Bool_t BaseSelector::Process(Long64_t entry)
 void BaseSelector::SlaveTerminate()
 {
     if (loguru::g_stderr_verbosity > 0) bar.print_trailer();
+    LOG_POST << "End job";
 }
 
 void BaseSelector::setupSyst(size_t systNum)
