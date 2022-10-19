@@ -32,24 +32,24 @@ void Lepton::setup(std::string name, TTreeReader& fReader)
     setup_map(Level::Tight);
 }
 
-void Lepton::fillLepton(LeptonOut& output, Level level, size_t pass_bitmap)
+void Lepton::fillLepton(LeptonOut& output, Level level, const Bitmap& event_bitmap)
 {
     output.clear();
     for (size_t idx = 0; idx < size(); ++idx) {
-        size_t final_bitmap = fillParticle(output, level, idx, pass_bitmap);
-        if (final_bitmap != 0) {
+        bool pass = fillParticle(output, level, idx, event_bitmap);
+        if (pass) {
             output.flip.push_back(flips.at(idx));
         }
     }
 
 }
 
-void Lepton::fillLepton_Iso(LeptonOut_Fake& output, Level level, size_t pass_bitmap)
+void Lepton::fillLepton_Iso(LeptonOut_Fake& output, Level level, const Bitmap& event_bitmap)
 {
     output.clear();
     for (size_t idx = 0; idx < size(); ++idx) {
-        size_t final_bitmap = fillParticle(output, level, idx, pass_bitmap);
-        if (final_bitmap != 0) {
+        bool pass = fillParticle(output, level, idx, event_bitmap);
+        if (pass) {
             output.rawPt.push_back(m_pt.at(idx));
             output.ptRatio.push_back(ptRatio(idx));
             output.ptRel.push_back(ptRel.at(idx));

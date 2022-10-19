@@ -80,12 +80,12 @@ void Jet::setup(TTreeReader& fReader)
     }
 }
 
-void Jet::fillJet(JetOut& output, Level level, size_t pass_bitmap)
+void Jet::fillJet(JetOut& output, Level level, const Bitmap& event_bitmap)
 {
     output.clear();
     for (size_t idx = 0; idx < size(); ++idx) {
-        size_t final_bitmap = fillParticle(output, level, idx, pass_bitmap);
-        if (final_bitmap != 0) {
+        bool pass = fillParticle(output, level, idx, event_bitmap);
+        if (pass) {
             output.discriminator.push_back(btag.at(idx));
             output.jer.push_back(get_JEC_pair(Systematic::Jet_JER, idx));
             output.jes.push_back(get_JEC_pair(Systematic::Jet_JES, idx));
@@ -93,18 +93,17 @@ void Jet::fillJet(JetOut& output, Level level, size_t pass_bitmap)
     }
 }
 
-void Jet::fillJetEff(BEffOut& output, Level level, size_t pass_bitmap)
+void Jet::fillJetEff(BEffOut& output, Level level, const Bitmap& event_bitmap)
 {
     output.clear();
     for (size_t idx = 0; idx < size(); ++idx) {
-        size_t final_bitmap = fillParticle(output, level, idx, pass_bitmap);
-        if (final_bitmap != 0) {
+        bool pass = fillParticle(output, level, idx, event_bitmap);
+        if (pass) {
             if (btag.at(idx) > tight_bjet_cut) output.pass_btag.push_back(3);
             else if (btag.at(idx) > medium_bjet_cut) output.pass_btag.push_back(2);
             else if (btag.at(idx) > loose_bjet_cut) output.pass_btag.push_back(1);
             else output.pass_btag.push_back(0);
             output.flavor.push_back(hadronFlavour.at(idx));
-
         }
     }
 }

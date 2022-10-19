@@ -8,7 +8,7 @@ class Closure_MisId : public BaseSelector {
 public:
     void Init(TTree* tree) override;
     bool getCutFlow() override;
-    void FillValues(const std::vector<bool>& passVec) override;
+    void FillValues(const Bitmap& event_bitmap) override;
     void SetupOutTreeBranches(TTree* tree) override;
     void ApplyScaleFactors() override;
     void clearParticles() override;

@@ -29,12 +29,12 @@ float ResolvedTop::getScaleFactor()
     return weight;
 }
 
-void ResolvedTop::fillTop(TopOut& output, Level level, size_t pass_bitmap)
+void ResolvedTop::fillTop(TopOut& output, Level level, const Bitmap& event_bitmap)
 {
     output.clear();
     for (size_t idx = 0; idx < size(); ++idx) {
-        size_t final_bitmap = fillParticle(output, level, idx, pass_bitmap);
-        if (final_bitmap != 0) {
+        bool pass = fillParticle(output, level, idx, event_bitmap);
+        if (pass) {
             output.disc.push_back(tau3.at(idx)/tau2.at(idx));
         }
     }

@@ -29,7 +29,7 @@ public:
     };
     float wp;
 
-    void fillTop(TopOut& output, Level level, size_t pass_bitmap);
+    void fillTop(TopOut& output, Level level, const Bitmap& event_bitmap);
 };
 
 #endif // __RESOLVEDTOP_H_

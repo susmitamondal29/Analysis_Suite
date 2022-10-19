@@ -79,7 +79,7 @@ protected:
 
     // To be filled by Child class
     virtual void ApplyScaleFactors(){};
-    virtual void FillValues(const std::vector<bool>& passVec) {};
+    virtual void FillValues(const Bitmap& event_bitmap) {};
     virtual void setOtherGoodParticles(size_t syst) {};
     virtual bool getCutFlow() { return true; }
     virtual void SetupOutTreeBranches(TTree* tree);

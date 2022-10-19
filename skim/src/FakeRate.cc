@@ -235,20 +235,15 @@ void FakeRate::set_leadlep()
     }
 }
 
-void FakeRate::FillValues(const std::vector<bool>& passVec)
+void FakeRate::FillValues(const Bitmap& event_bitmap)
 {
     LOG_FUNC << "Start of FillValues";
-    size_t pass_bitmap = 0;
-    for (size_t i = 0; i < passVec.size(); ++i) {
-        pass_bitmap += passVec.at(i) << i;
-    }
-
-    muon.fillLepton_Iso(*o_fakeMuons, Level::FakeNotTight, pass_bitmap);
-    muon.fillLepton_Iso( *o_tightMuons, Level::Tight, pass_bitmap);
-    elec.fillLepton_Iso(*o_fakeElectrons, Level::FakeNotTight, pass_bitmap);
-    elec.fillLepton_Iso( *o_tightElectrons, Level::Tight, pass_bitmap);
-    jet.fillJet(*o_jets, Level::Tight, pass_bitmap);
-    jet.fillJet(*o_bJets, Level::Bottom, pass_bitmap);
+    muon.fillLepton_Iso(*o_fakeMuons, Level::FakeNotTight, event_bitmap);
+    muon.fillLepton_Iso( *o_tightMuons, Level::Tight, event_bitmap);
+    elec.fillLepton_Iso(*o_fakeElectrons, Level::FakeNotTight, event_bitmap);
+    elec.fillLepton_Iso( *o_tightElectrons, Level::Tight, event_bitmap);
+    jet.fillJet(*o_jets, Level::Tight, event_bitmap);
+    jet.fillJet(*o_bJets, Level::Bottom, event_bitmap);
 
     for (size_t syst = 0; syst < numSystematics(); ++syst) {
         setupSyst(syst);

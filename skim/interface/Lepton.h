@@ -63,8 +63,8 @@ public:
     TRArray<Float_t> ptRatio_;
     TRArray<Float_t> iso;
 
-    void fillLepton(LeptonOut& output, Level level, size_t pass_bitmap);
-    void fillLepton_Iso(LeptonOut_Fake& output, Level level, size_t pass_bitmap);
+    void fillLepton(LeptonOut& output, Level level, const Bitmap& event_bitmap);
+    void fillLepton_Iso(LeptonOut_Fake& output, Level level, const Bitmap& event_bitmap);
 
 protected:
     TRArray<Int_t> m_charge;

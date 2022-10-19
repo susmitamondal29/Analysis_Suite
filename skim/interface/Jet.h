@@ -88,8 +88,8 @@ public:
     }
     float loose_bjet_cut, medium_bjet_cut, tight_bjet_cut;
 
-    void fillJet(JetOut& output, Level level, size_t pass_bitmap);
-    void fillJetEff(BEffOut& output, Level level, size_t pass_bitmap);
+    void fillJet(JetOut& output, Level level, const Bitmap& event_bitmap);
+    void fillJetEff(BEffOut& output, Level level, const Bitmap& event_bitmap);
 
 private:
     int looseId = 0b11;

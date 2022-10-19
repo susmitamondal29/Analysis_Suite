@@ -32,7 +32,12 @@ size_t GenericParticle::idx(Level level, size_t i) const
 void Particle::clear()
 {
     for (auto& [key, plist] : m_partArray) {
-        m_bitArray[key].assign(size(), 0);
+        if (m_bitArray[key].size() < size()) {
+            m_bitArray[key].resize(size());
+        }
+        for (size_t i = 0; i < size(); ++i) {
+            m_bitArray[key][i].reset();
+        }
         for (size_t i = 0; i < nSyst; ++i) {
             plist[i].clear();
         }
@@ -43,7 +48,7 @@ void Particle::setup_map(Level level)
 {
     m_partArray[level] = PartList(nSyst);
     m_partList[level] = nullptr;
-    m_bitArray[level] = std::vector<size_t>();
+    m_bitArray[level] = std::vector<Bitmap>();
 }
 
 void Particle::moveLevel(Level level_start, Level level_end)

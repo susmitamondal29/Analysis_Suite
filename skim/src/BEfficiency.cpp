@@ -98,15 +98,9 @@ bool BEfficiency::signal_cuts()
     return passCuts;
 }
 
-void BEfficiency::FillValues(const std::vector<bool>& passVec)
+void BEfficiency::FillValues(const Bitmap& event_bitmap)
 {
     LOG_FUNC << "Start of FillValues";
-    size_t pass_bitmap = 0;
-    for (size_t i = 0; i < passVec.size(); ++i) {
-        pass_bitmap += passVec.at(i) << i;
-    }
-
-    jet.fillJetEff(*o_beff, Level::Loose, pass_bitmap);
-
+    jet.fillJetEff(*o_beff, Level::Loose, event_bitmap);
     LOG_FUNC << "End of FillValues";
 }

@@ -152,8 +152,10 @@ Bool_t BaseSelector::Process(Long64_t entry)
     setupSyst(0);
     for (auto& [chan, tree] : trees) {
         bool passedChannel = false;
+        Bitmap event_bitmap;
         for (size_t syst = 0; syst < numSystematics(); ++syst) {
             o_pass_event[syst] = systPassSelection[syst] && chan == o_channels[syst];
+            event_bitmap[syst] = o_pass_event[syst];
             passedChannel |= o_pass_event[syst];
         }
 
@@ -163,8 +165,7 @@ Bool_t BaseSelector::Process(Long64_t entry)
             run.fill();
             lumiblock.fill();
             event.fill();
-
-            FillValues(o_pass_event);
+            FillValues(event_bitmap);
             tree.tree->Fill();
         }
     }

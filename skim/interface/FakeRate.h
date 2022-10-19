@@ -10,7 +10,7 @@ class FakeRate : public BaseSelector {
 public:
     virtual void Init(TTree* tree) override;
     virtual bool getCutFlow() override;
-    virtual void FillValues(const std::vector<bool>& passVec) override;
+    virtual void FillValues(const Bitmap& event_bitmap) override;
     virtual void SetupOutTreeBranches(TTree* tree) override;
     virtual void ApplyScaleFactors() override;
     void ApplyDataSpecifics();

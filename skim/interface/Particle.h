@@ -84,7 +84,7 @@ public:
     virtual float getScaleFactor() { return 1.0; };
     using GenericParticle::list; // Need to have since overloading func in derived class
     const std::vector<size_t>& list(Level level, size_t syst) const { return m_partArray.at(level).at(syst); };
-    const std::vector<size_t>& bitmap(Level level) const { return m_bitArray.at(level); };
+    const std::vector<Bitmap>& bitmap(Level level) const { return m_bitArray.at(level); };
 
     void moveLevel(Level level_start, Level level_end);
 
@@ -93,16 +93,16 @@ public:
     void xorLevel(Level big, Level small, Level target);
 
     template <class T>
-    void fillOutput(T& output, Level level, size_t pass_bitmap);
+    void fillOutput(T& output, Level level, Bitmap event_bitmap);
 
     template <class T>
-    size_t fillParticle(T& output, Level level, size_t idx, size_t pass_bitmap);
+    bool fillParticle(T& output, Level level, size_t idx, const Bitmap& event_bitmap);
 
     virtual void setSyst(size_t syst);
 
 protected:
     std::unordered_map<Level, PartList> m_partArray;
-    std::unordered_map<Level, std::vector<size_t>> m_bitArray;
+    std::unordered_map<Level, std::vector<Bitmap>> m_bitArray;
 };
 
 template <class... Args>
@@ -116,33 +116,35 @@ void Particle::setGoodParticles(size_t syst, Args&&... args)
     // Fill the bitmap
     for (const auto& [key, plist] : m_partArray) {
         for (auto idx : plist[syst]) {
-            m_bitArray[key][idx] += 1 << syst;
+            m_bitArray[key][idx].set(syst);
         }
     }
 }
 
 template <class T>
-void Particle::fillOutput(T& output, Level level, size_t pass_bitmap)
+void Particle::fillOutput(T& output, Level level, Bitmap event_bitmap)
 {
     output.clear();
     for (size_t idx = 0; idx < size(); ++idx) {
-        fillParticle(output, level, idx, pass_bitmap);
+        fillParticle(output, level, idx, event_bitmap);
     }
 }
 
 template <class T>
-size_t Particle::fillParticle(T& output, Level level, size_t idx, size_t pass_bitmap)
+bool Particle::fillParticle(T& output, Level level, size_t idx, const Bitmap& event_bitmap)
 {
     setSyst(0); // Fill values with nominal values and corrections done on top
-    size_t final_bitmap = bitmap(level).at(idx) & pass_bitmap;
-    if (final_bitmap != 0) {
+    Bitmap final_bitmap = bitmap(level).at(idx) & event_bitmap;
+    if (final_bitmap.any()) {
         output.pt.push_back(pt(idx));
         output.eta.push_back(eta(idx));
         output.phi.push_back(phi(idx));
         output.mass.push_back(mass(idx));
-        output.syst_bitMap.push_back(final_bitmap);
+        output.syst_bitMap.push_back(final_bitmap.to_ulong());
+        return true;
+    } else {
+        return false;
     }
-    return final_bitmap;
 }
 
 #endif // __PARTICLE_H_

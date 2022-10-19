@@ -319,20 +319,15 @@ bool ThreeTop::charge_misid_cuts()
     return passCuts;
 }
 
-void ThreeTop::FillValues(const std::vector<bool>& passVec)
+void ThreeTop::FillValues(const Bitmap& event_bitmap)
 {
     LOG_FUNC << "Start of FillValues";
-    size_t pass_bitmap = 0;
-    for (size_t i = 0; i < passVec.size(); ++i) {
-        pass_bitmap += passVec.at(i) << i;
-    }
+    muon.fillOutput(*o_tightMuons, Level::Tight, event_bitmap);
+    elec.fillOutput(*o_tightElectrons, Level::Tight, event_bitmap);
 
-    muon.fillOutput(*o_tightMuons, Level::Tight, pass_bitmap);
-    elec.fillOutput(*o_tightElectrons, Level::Tight, pass_bitmap);
-
-    rTop.fillTop(*o_top, Level::Loose, pass_bitmap);
-    jet.fillJet(*o_jets, Level::Tight, pass_bitmap);
-    jet.fillJet(*o_bJets, Level::Bottom, pass_bitmap);
+    rTop.fillTop(*o_top, Level::Loose, event_bitmap);
+    jet.fillJet(*o_jets, Level::Tight, event_bitmap);
+    jet.fillJet(*o_bJets, Level::Bottom, event_bitmap);
 
     for (size_t syst = 0; syst < numSystematics(); ++syst) {
         setupSyst(syst);

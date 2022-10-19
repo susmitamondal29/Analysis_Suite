@@ -1,11 +1,16 @@
 #ifndef VARIABLE_H_
 #define VARIABLE_H_
 
+#include <bitset>
+
 #include <TTreeReader.h>
 #include <TTreeReaderArray.h>
 #include <TTreeReaderValue.h>
 
 #include "analysis_suite/skim/interface/logging.h"
+
+#define BITMAP_SIZE 64
+typedef std::bitset<BITMAP_SIZE> Bitmap;
 
 template <class T>
 class TRVariable {
