@@ -24,6 +24,8 @@ __pycache__
 !data/*
 !ntuple_info/*
 
+ntuple_info/__init__.py
+
 !data/python/plotInfo/*py
 data/POG
 !data/POG/USER/*
