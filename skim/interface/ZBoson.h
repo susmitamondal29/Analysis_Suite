@@ -6,7 +6,7 @@
 
 class ZBoson : public Particle {
 public:
-    void setup(TTreeReader& fReader, Lepton* electron_, Lepton* muon_);
+    void setup(TTreeReader& fReader, Lepton* lepton_);
 
     void setupGoodLists() override
     {
@@ -37,13 +37,13 @@ private:
     Float_t eta_(size_t idx) const override { return z_eta.at(idx); }
     Float_t phi_(size_t idx) const override { return z_phi.at(idx); }
     Float_t mass_(size_t idx) const override { return z_mass.at(idx); }
-    size_t size_() const override { return z_pt.size(); }
+    size_t size_() const override { return lepton->size()*(lepton->size()-1)/2; }
 
     std::vector<float> z_pt, z_eta, z_phi, z_mass;
     const float ZMASS = 91.188;
     const float ZWINDOW = 15;
 
-    Lepton *electron, *muon;
+    Lepton *lepton;
 
     std::vector<std::pair<size_t, size_t>> mu_pairs, el_pairs;
 };

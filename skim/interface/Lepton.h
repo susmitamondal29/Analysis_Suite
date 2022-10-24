@@ -20,7 +20,7 @@ public:
     void fillFlippedCharge(GenParticle& gen);
     float getFakePtFactor(size_t idx) const;
 
-    float pt_(size_t idx) const override { return m_pt.at(idx)*fakePtFactor.at(idx); }
+    //float pt_(size_t idx) const override { return m_pt.at(idx)*fakePtFactor.at(idx); }
     float rawpt(Level level, size_t i) const { return m_pt.at(idx(level, i)); }
 
     Int_t charge(size_t idx) { return m_charge.at(idx); };
@@ -36,19 +36,19 @@ public:
 
     virtual void setupGoodLists(Particle& jets, GenParticle& gen) override
     {
-        fakePtFactor.assign(size(), 1.);
+        //fakePtFactor.assign(size(), 1.);
         createLooseList();
-        createFakeList(jets);
+        //createFakeList(jets);
         createTightList(jets);
-        fillFlippedCharge(gen);
+        //fillFlippedCharge(gen);
     }
 
     virtual void clear() override
     {
         Particle::clear();
         closeJet_by_lepton.clear();
-        flips.clear();
-        fakePtFactor.clear();
+        //flips.clear();
+        //fakePtFactor.clear();
     }
 
     std::unordered_map<size_t, size_t> closeJet_by_lepton;

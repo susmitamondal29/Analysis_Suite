@@ -171,7 +171,7 @@ if __name__ == "__main__":
         'Selection': details["selection"],
         'Year': details["year"],
         'Xsec': 1,
-        'isData': True
+        'isData': False,
     }
     if not args.local:
         inputs['MetaData'].update({'Xsec': fileInfo.get_xsec(groupName), 'isData': fileInfo.is_data(groupName)})

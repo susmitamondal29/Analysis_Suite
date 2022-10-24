@@ -27,7 +27,7 @@ void ZZto4l::Init(TTree* tree)
 
     // trigEff_leadPt.setup(fOutput, "leadPt", 4, 100, 0, 100);
 
-    zBoson.setup(fReader, &elec, &muon);
+    zBoson.setup(fReader, &elec);
 
     if (isMC_) {
         Pileup_nTrueInt.setup(fReader, "Pileup_nTrueInt");

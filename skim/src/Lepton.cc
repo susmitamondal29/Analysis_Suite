@@ -21,10 +21,10 @@ void Lepton::setup(std::string name, TTreeReader& fReader)
     ptRatio_.setup(fReader, name + "_jetRelIso");
     iso.setup(fReader, name + "_miniPFRelIso_all");
 
-    isoCut = 0.1;
-    ptRatioCut = 0.75;
-    ptRelCut = 8.;
-    mvaCut = 0.4;
+//    isoCut = 0.1;
+ //   ptRatioCut = 0.75;
+   // ptRelCut = 8.;
+   // mvaCut = 0.4;
 
     GenericParticle::setup(name, fReader);
     setup_map(Level::Loose);

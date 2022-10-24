@@ -1,9 +1,8 @@
 #include "analysis_suite/skim/interface/ZBoson.h"
 
-void ZBoson::setup(TTreeReader& fReader, Lepton* electron_, Lepton* muon_)
+void ZBoson::setup(TTreeReader& fReader, Lepton* lepton_)
 {
-    electron = electron_;
-    muon = muon_;
+    lepton = lepton_;
 
     setup_map(Level::MM);
     setup_map(Level::EE);
@@ -29,12 +28,12 @@ void ZBoson::findZPairs(Lepton* leps, Level level)
 
 void ZBoson::createEEPairList()
 {
-    findZPairs(electron, Level::EE);
+    // findZPairs(electron, Level::EE);
 }
 
 void ZBoson::createMMPairList()
 {
-    findZPairs(muon, Level::MM);
+    // findZPairs(muon, Level::MM);
 }
 
 void ZBoson::createZZPairList()

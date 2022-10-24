@@ -150,8 +150,10 @@ dataset_dict = {
             'ST_tW_Dilept_5f_DR_TuneCP5*',
             'tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-amcatnlo-pythia8',
         ],
-        'zz_polar': [
-            'ZZto4L_EWK_Polarized*',
+        #'zz_polar': [
+         #   'ZZto4L_EWK_Polarized*',
+        'zz':[
+            'ZZTo4L_TuneCP5_13TeV_powheg_pythia8'
         ],
         # VV
         # To be done

@@ -35,50 +35,51 @@ void Electron::setup(TTreeReader& fReader)
 void Electron::createLooseList()
 {
     for (size_t i = 0; i < size(); i++) {
-        if (pt(i) > 7
+      if (pt(i) > 7
             && fabs(eta(i)) < 2.5
-            && convVeto.at(i)
-            && lostHits.at(i) <= 1
+            // && convVeto.at(i)
+	    // && lostHits.at(i) <= 1
             && fabs(dz.at(i)) < 0.1
             && fabs(dxy.at(i)) < 0.05
-            && mva_l.at(i)
-            && iso.at(i) < 0.4)
+            //&& mva_l.at(i)
+	    // && iso.at(i) < 0.4)
+	  && sip3d.at(i) < 4)
         {
             m_partList[Level::Loose]->push_back(i);
         }
     }
 }
 
-/// closejet w iso
-void Electron::createFakeList(Particle& jets)
-{
-    for (auto i : list(Level::Loose)) {
-        if (mva_90.at(i)
-            && sip3d.at(i) < 4
-            && lostHits.at(i) == 0
-            && tightCharge.at(i) == 2
-            // && passTriggerRequirements(i) // Nonmva
-            && getFakePtFactor(i)*m_pt.at(i) > 15
-            && (ptRatio(i) > 0.7 || mvaTTH.at(i) > mvaCut) // MVA
-            )
-            {
-                m_partList[Level::Fake]->push_back(i);
-                dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(getCloseJet(i, jets));
-            }
-    }
-}
+// /// closejet w iso
+// void Electron::createFakeList(Particle& jets)
+// {
+//     for (auto i : list(Level::Loose)) {
+//         if (mva_90.at(i)
+//             && sip3d.at(i) < 4
+//             && lostHits.at(i) == 0
+//             && tightCharge.at(i) == 2
+//             // && passTriggerRequirements(i) // Nonmva
+//             //&& getFakePtFactor(i)*m_pt.at(i) > 15
+//             && ptRatio(i) > 0.6 // MVA
+//             )
+//             {
+//                 m_partList[Level::Fake]->push_back(i);
+//                 dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(getCloseJet(i, jets));
+//             }
+//     }
+// }
 
 // need iso
 void Electron::createTightList(Particle& jets)
 {
-    for (auto i : list(Level::Fake)) {
+    for (auto i : list(Level::Loose)) {
         if (pt(i) > 15
             && passJetIsolation(i))
             {
                 m_partList[Level::Tight]->push_back(i);
-        } else {
-            fakePtFactor[i] = getFakePtFactor(i);
-        }
+        } //else {
+            //fakePtFactor[i] = getFakePtFactor(i);
+        //}
     }
 }
 

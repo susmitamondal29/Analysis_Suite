@@ -7,7 +7,7 @@ class Electron : public Lepton {
 public:
     void setup(TTreeReader& fReader);
     virtual void createLooseList() override;
-    virtual void createFakeList(Particle& jets) override;
+    // virtual void createFakeList(Particle& jets) override;
     virtual void createTightList(Particle& jets) override;
     virtual float getScaleFactor() override;
 

@@ -160,7 +160,7 @@ info = {
         "cross_section": 16.91,
         "Level": "NNLO",
         "Source of cross section": "arXiv:1405.2219",
-        "DAS": "ZZ_TuneC.*",
+        "DAS": "ZZTo4L_TuneC.*",
     },
     "wz" : {
         "cross_section": 51.11,

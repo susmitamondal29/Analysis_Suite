@@ -44,40 +44,40 @@ void Muon::createLooseList()
         if (pt(i) > 5
             && fabs(eta(i)) < 2.4
             && (isGlobal.at(i) || isTracker.at(i))
-            && isPFcand.at(i)
-            && iso.at(i) < 0.4
+	    //  && isPFcand.at(i)
+	    // && iso.at(i) < 0.4
             && fabs(dz.at(i)) < 0.1
             && fabs(dxy.at(i)) < 0.05)
             m_partList[Level::Loose]->push_back(i);
     }
 }
 
-void Muon::createFakeList(Particle& jets)
-{
-    for (auto i : list(Level::Loose)) {
-        if (tightCharge.at(i) == 2
-            && mediumId.at(i)
-            && sip3d.at(i) < 4
-            && m_pt.at(i)*getFakePtFactor(i) > 15
-            && (ptRatio(i) > 0.4 || mvaTTH.at(i) > mvaCut)
-            )
-            {
-                m_partList[Level::Fake]->push_back(i);
-                dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(getCloseJet(i, jets));
-            }
-    }
-}
+// void Muon::createFakeList(Particle& jets)
+// {
+//     for (auto i : list(Level::Loose)) {
+//         if (tightCharge.at(i) == 2
+//             && mediumId.at(i)
+//             && sip3d.at(i) < 4
+//             && m_pt.at(i)*getFakePtFactor(i) > 15
+//             && ptRatio(i) > 0.4
+//             )
+//             {
+//                 m_partList[Level::Fake]->push_back(i);
+//                 dynamic_cast<Jet&>(jets).closeJetDr_by_index.insert(getCloseJet(i, jets));
+//             }
+//     }
+// }
 
 void Muon::createTightList(Particle& jets)
 {
-    for (auto i : list(Level::Fake)) {
+    for (auto i : list(Level::Loose)) {
         if (pt(i) > 15
             && passJetIsolation(i)
             ) {
             m_partList[Level::Tight]->push_back(i);
-        } else {
-            fakePtFactor[i] = getFakePtFactor(i);
-        }
+        }// else {
+           // fakePtFactor[i] = getFakePtFactor(i);
+        //}
 
     } 
 }
