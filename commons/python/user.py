@@ -2,7 +2,7 @@
 from pathlib import Path
 import socket
 
-lxplus_name = 'dteague'
+lxplus_name = 'sumondal'
 user_name = Path().owner()
 
 eos_area = Path(f'/store/user/{lxplus_name}')

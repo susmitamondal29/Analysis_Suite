@@ -9,7 +9,7 @@ class ZZto4l : public BaseSelector {
 public:
     void Init(TTree* tree) override;
     bool getCutFlow() override;
-    void FillValues(const std::vector<bool>& passVec) override;
+    void FillValues(const Bitmap& event_bitmap) override;
     void SetupOutTreeBranches(TTree* tree) override;
     void ApplyScaleFactors() override;
     void clearParticles() override;
@@ -27,7 +27,7 @@ private:
     float muPt(size_t idx) { return muon.size(Level::Tight) > idx ? muon.pt(Level::Tight, idx) : -1; }
     float elPt(size_t idx) { return elec.size(Level::Tight) > idx ? elec.pt(Level::Tight, idx) : -1; }
 
-    ZBoson zBoson;
+    ZBoson z_ee, z_mu;
 
     ParticleOut* o_Z_ee;
     ParticleOut* o_Z_mm;

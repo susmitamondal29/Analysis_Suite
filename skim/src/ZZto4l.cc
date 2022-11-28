@@ -27,7 +27,8 @@ void ZZto4l::Init(TTree* tree)
 
     // trigEff_leadPt.setup(fOutput, "leadPt", 4, 100, 0, 100);
 
-    zBoson.setup(fReader, &elec);
+    z_ee.setup(fReader, &elec);
+    z_mu.setup(fReader, &muon);
 
     if (isMC_) {
         Pileup_nTrueInt.setup(fReader, "Pileup_nTrueInt");
@@ -52,7 +53,8 @@ void ZZto4l::clearParticles()
 {
     LOG_FUNC << "Start of clearParticles";
     BaseSelector::clearParticles();
-    zBoson.clear();
+    z_ee.clear();
+    z_mu.clear();
     LOG_FUNC << "End of clearParticles";
 }
 
@@ -92,7 +94,8 @@ void ZZto4l::ApplyDataScaleFactors()
 void ZZto4l::setOtherGoodParticles(size_t syst)
 {
     LOG_FUNC << "Start of setOtherGoodParticles";
-    zBoson.setGoodParticles(syst);
+    z_ee.setGoodParticles(syst);
+    z_mu.setGoodParticles(syst);
     LOG_FUNC << "End of setOtherGoodParticles";
 }
 
@@ -156,17 +159,13 @@ bool ZZto4l::signal_cuts()
 }
 
 
-void ZZto4l::FillValues(const std::vector<bool>& passVec)
+void ZZto4l::FillValues(const Bitmap& event_bitmap)
 {
-    LOG_FUNC << "Start of FillValues";
-    BaseSelector::FillValues(passVec);
-    size_t pass_bitmap = 0;
-    for (size_t i = 0; i < passVec.size(); ++i) {
-        pass_bitmap += passVec.at(i) << i;
-    }
 
-    zBoson.fillOutput(*o_Z_ee, Level::EE, pass_bitmap);
-    zBoson.fillOutput(*o_Z_mm, Level::MM, pass_bitmap);
+    LOG_FUNC << "Start of FillValues";
+
+    z_ee.fillOutput(*o_Z_ee, Level::Tight, event_bitmap);
+    z_mu.fillOutput(*o_Z_mm, Level::Tight, event_bitmap);
 
     for (size_t syst = 0; syst < numSystematics(); ++syst) {
 
@@ -176,8 +175,7 @@ void ZZto4l::FillValues(const std::vector<bool>& passVec)
 
 
 void ZZto4l::printStuff()
-{
-    LOG_FUNC << "Start of printStuff";
+{    LOG_FUNC << "Start of printStuff";
     std::cout << "Event: " << *event << std::endl;
     std::cout << "Met: " << met.pt() << std::endl;
     std::cout << "HT: " << jet.getHT(Level::Tight, 0) << std::endl;

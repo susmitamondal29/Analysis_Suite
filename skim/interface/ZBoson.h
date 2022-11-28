@@ -10,9 +10,7 @@ public:
 
     void setupGoodLists() override
     {
-        createEEPairList();
-        createMMPairList();
-        createZZPairList();
+        createTightPairList();
     }
 
     virtual void clear() override
@@ -25,11 +23,7 @@ public:
     }
 
 private:
-    void findZPairs(Lepton* leps, Level level);
-
-    void createEEPairList();
-    void createMMPairList();
-    void createZZPairList();
+    void createTightPairList();
 
     bool hasNoOverlap(size_t z1, size_t z2, Level level);
 
